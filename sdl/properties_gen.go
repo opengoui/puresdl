@@ -231,6 +231,8 @@ var fnSetPointerPropertyWithCleanup func(props PropertiesID, name *byte, value u
 // Since: SDL 3.2.0.
 //
 // See also: GetPointerProperty, SetPointerProperty, CleanupPropertyCallback
+//
+// Keep alive: SDL stores the value argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetPointerPropertyWithCleanup(props PropertiesID, name string, value unsafe.Pointer, cleanup CleanupPropertyCallback, userdata unsafe.Pointer) bool {
 	return fnSetPointerPropertyWithCleanup(props, cstr(name), value, cleanup, userdata)
 }
@@ -251,6 +253,8 @@ var fnSetPointerProperty func(props PropertiesID, name *byte, value unsafe.Point
 // Since: SDL 3.2.0.
 //
 // See also: GetPointerProperty, HasProperty, SetBooleanProperty, SetFloatProperty, SetNumberProperty, SetPointerPropertyWithCleanup, SetStringProperty
+//
+// Keep alive: SDL stores the value argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetPointerProperty(props PropertiesID, name string, value unsafe.Pointer) bool {
 	return fnSetPointerProperty(props, cstr(name), value)
 }

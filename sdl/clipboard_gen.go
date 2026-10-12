@@ -199,6 +199,8 @@ var fnSetClipboardData func(callback ClipboardDataCallback, cleanup ClipboardCle
 // Since: SDL 3.2.0.
 //
 // See also: ClearClipboardData, GetClipboardData, HasClipboardData
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetClipboardData(callback ClipboardDataCallback, cleanup ClipboardCleanupCallback, userdata unsafe.Pointer, mime_types **byte, num_mime_types uint) bool {
 	return fnSetClipboardData(callback, cleanup, userdata, mime_types, num_mime_types)
 }

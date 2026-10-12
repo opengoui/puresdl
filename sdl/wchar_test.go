@@ -1,6 +1,9 @@
 package sdl
 
-import "testing"
+import (
+	"testing"
+	"unicode/utf8"
+)
 
 func TestWcharRoundTrip(t *testing.T) {
 	for _, s := range []string{"", "abc", "héllo", "日本語", "emoji \U0001F600 and \U00010348"} {
@@ -33,10 +36,17 @@ func TestHIDEnumerate(t *testing.T) {
 	defer HIDFreeEnumeration(devs)
 	n := 0
 	for d := devs; d != nil; d = d.Next {
-		_ = WcharString(d.SerialNumber)
-		_ = WcharString(d.ManufacturerString)
-		_ = WcharString(d.ProductString)
+		for name, p := range map[string]*Wchar{"serial": d.SerialNumber, "manufacturer": d.ManufacturerString, "product": d.ProductString} {
+			if got := WcharString(p); !utf8.ValidString(got) {
+				t.Errorf("device %d %s = %q is not valid UTF-8", n, name, got)
+			}
+		}
+		if d.Path == nil {
+			t.Errorf("device %d has no path", n)
+		}
 		n++
 	}
-	t.Logf("%d HID devices", n)
+	if (devs == nil) != (n == 0) {
+		t.Errorf("list head %v but %d devices walked", devs, n)
+	}
 }

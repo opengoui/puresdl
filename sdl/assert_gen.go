@@ -129,6 +129,8 @@ var fnSetAssertionHandler func(handler AssertionHandler, userdata unsafe.Pointer
 // Since: SDL 3.2.0.
 //
 // See also: GetAssertionHandler
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetAssertionHandler(handler AssertionHandler, userdata unsafe.Pointer) {
 	fnSetAssertionHandler(handler, userdata)
 }

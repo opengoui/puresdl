@@ -1866,6 +1866,8 @@ var fnSetEventFilter func(filter EventFilter, userdata unsafe.Pointer)
 // Since: SDL 3.2.0.
 //
 // See also: AddEventWatch, SetEventEnabled, GetEventFilter, PeepEvents, PushEvent
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetEventFilter(filter EventFilter, userdata unsafe.Pointer) {
 	fnSetEventFilter(filter, userdata)
 }
@@ -1888,6 +1890,8 @@ var fnGetEventFilter func(filter *EventFilter, userdata *unsafe.Pointer) bool
 // Since: SDL 3.2.0.
 //
 // See also: SetEventFilter
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func GetEventFilter(filter *EventFilter, userdata *unsafe.Pointer) bool {
 	return fnGetEventFilter(filter, userdata)
 }
@@ -1922,6 +1926,8 @@ var fnAddEventWatch func(filter EventFilter, userdata unsafe.Pointer) bool
 // Since: SDL 3.2.0.
 //
 // See also: RemoveEventWatch, SetEventFilter
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func AddEventWatch(filter EventFilter, userdata unsafe.Pointer) bool {
 	return fnAddEventWatch(filter, userdata)
 }

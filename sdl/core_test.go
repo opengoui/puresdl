@@ -795,7 +795,7 @@ func TestCoreFilesystemAndStorage(t *testing.T) {
 		t.Errorf("storage glob = %v", g)
 	}
 	if GetStorageSpaceRemaining(st) == 0 {
-		t.Log("GetStorageSpaceRemaining = 0")
+		t.Errorf("GetStorageSpaceRemaining = 0 for a writable temp directory (%s)", GetError())
 	}
 }
 
@@ -884,7 +884,7 @@ func TestCoreTimerCallbackOnForeignThread(t *testing.T) {
 		t.Errorf("timer kept running after returning 0: %d calls", n)
 	}
 	if RemoveTimer(id) {
-		t.Log("RemoveTimer succeeded on a self-cancelled timer")
+		t.Error("RemoveTimer succeeded on a self-cancelled timer")
 	}
 }
 
@@ -1349,10 +1349,19 @@ func TestCoreHashAndRandom(t *testing.T) {
 }
 
 func TestCoreIconv(t *testing.T) {
-	// inbytesleft includes the terminating NUL; the result is a C string
-	// copied and freed by the wrapper.
-	if got := IconvString("ISO-8859-1", "UTF-8", "\u00e9a", 4); got != "\xe9a" {
+	// The input length derives from the Go value; the result is Go memory.
+	if got := IconvString("ISO-8859-1", "UTF-8", []byte("\u00e9a")); string(got) != "\xe9a" {
 		t.Errorf("IconvString = %q", got)
+	}
+	// Wide targets are not cut at the zero bytes inside their code units.
+	if got := IconvString("UTF-16LE", "UTF-8", []byte("hi")); string(got) != "h\x00i\x00" {
+		t.Errorf("IconvString UTF-16LE = %q", got)
+	}
+	if got := IconvString("UCS-4LE", "UTF-8", []byte("a")); string(got) != "a\x00\x00\x00" {
+		t.Errorf("IconvString UCS-4LE = %q", got)
+	}
+	if got := IconvString("UTF-8", "UTF-8", nil); got == nil || len(got) != 0 {
+		t.Errorf("IconvString of empty input = %#v, want empty non-nil", got)
 	}
 }
 
@@ -1378,21 +1387,35 @@ func TestCoreSystemInfo(t *testing.T) {
 	if hasARM == hasX86 {
 		t.Errorf("NEON=%v SSE2=%v", hasARM, hasX86)
 	}
-	_ = []bool{HasAltiVec(), HasMMX(), HasSSE(), HasSSE3(), HasSSE41(), HasSSE42(), HasAVX(), HasAVX2(), HasAVX512F(), HasARMSIMD(), HasLSX(), HasLASX()}
+	// Newer x86 extensions imply the older ones they build on.
+	for _, imp := range []struct {
+		name       string
+		has, needs bool
+	}{
+		{"SSE42=>SSE41", HasSSE42(), HasSSE41()},
+		{"SSE41=>SSE3", HasSSE41(), HasSSE3()},
+		{"SSE3=>SSE2", HasSSE3(), HasSSE2()},
+		{"SSE2=>SSE", HasSSE2(), HasSSE()},
+		{"AVX2=>AVX", HasAVX2(), HasAVX()},
+	} {
+		if imp.has && !imp.needs {
+			t.Errorf("%s violated", imp.name)
+		}
+	}
 	coreSkipUnless(t, "SDL_HasSVE2")
 	_ = HasSVE2()
 }
 
 func TestCoreLocalePowerMisc(t *testing.T) {
-	if locs := GetPreferredLocales(); len(locs) > 0 {
-		if locs[0].Language == "" {
-			t.Errorf("locales first=%+v", locs[0])
+	// The host may have no preferred locales; every one reported must be
+	// fully decoded.
+	for _, l := range GetPreferredLocales() {
+		if l.Language == "" {
+			t.Errorf("locale without language: %+v", l)
 		}
-		if unsafe.Sizeof(Locale{}) != 16 {
-			t.Errorf("sizeof(Locale) = %d", unsafe.Sizeof(Locale{}))
-		}
-	} else {
-		t.Logf("no preferred locales: %s", GetError())
+	}
+	if unsafe.Sizeof(Locale{}) != 16 {
+		t.Errorf("sizeof(Locale) = %d", unsafe.Sizeof(Locale{}))
 	}
 
 	var secs, pct int32

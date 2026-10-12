@@ -167,11 +167,11 @@ const (
 	MOUSEWHEEL_FLIPPED MouseWheelDirection = 1
 )
 const (
-	BUTTON_LEFT   MouseButtonFlags = 1
-	BUTTON_MIDDLE MouseButtonFlags = 2
-	BUTTON_RIGHT  MouseButtonFlags = 3
-	BUTTON_X1     MouseButtonFlags = 4
-	BUTTON_X2     MouseButtonFlags = 5
+	BUTTON_LEFT                    = 1
+	BUTTON_MIDDLE                  = 2
+	BUTTON_RIGHT                   = 3
+	BUTTON_X1                      = 4
+	BUTTON_X2                      = 5
 	BUTTON_LMASK  MouseButtonFlags = 1
 	BUTTON_MMASK  MouseButtonFlags = 2
 	BUTTON_RMASK  MouseButtonFlags = 4
@@ -426,6 +426,8 @@ var fnSetRelativeMouseTransform func(callback MouseMotionTransformCallback, user
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.4.0.
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetRelativeMouseTransform(callback MouseMotionTransformCallback, userdata unsafe.Pointer) bool {
 	return fnSetRelativeMouseTransform(callback, userdata)
 }

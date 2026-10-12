@@ -174,6 +174,8 @@ var fnReadAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size
 // Since: SDL 3.2.0.
 //
 // See also: WriteAsyncIO, CreateAsyncIOQueue
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func ReadAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnReadAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
@@ -212,6 +214,8 @@ var fnWriteAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, siz
 // Since: SDL 3.2.0.
 //
 // See also: ReadAsyncIO, CreateAsyncIOQueue
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func WriteAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnWriteAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
@@ -262,6 +266,8 @@ var fnCloseAsyncIO func(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userd
 // Thread safety: It is safe to call this function from any thread, but two threads should not attempt to close the same object.
 //
 // Since: SDL 3.2.0.
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func CloseAsyncIO(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnCloseAsyncIO(asyncio, flush, queue, userdata)
 }
@@ -449,6 +455,8 @@ var fnLoadFileAsync func(file *byte, queue *AsyncIOQueue, userdata unsafe.Pointe
 // Since: SDL 3.2.0.
 //
 // See also: LoadFile_IO
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func LoadFileAsync(file string, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnLoadFileAsync(cstr(file), queue, userdata)
 }

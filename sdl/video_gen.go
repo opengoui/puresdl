@@ -3609,6 +3609,8 @@ var fnEGL_SetAttributeCallbacks func(platformAttribCallback EGLAttribArrayCallba
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.2.0.
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func EGL_SetAttributeCallbacks(platformAttribCallback EGLAttribArrayCallback, surfaceAttribCallback EGLIntArrayCallback, contextAttribCallback EGLIntArrayCallback, userdata unsafe.Pointer) {
 	fnEGL_SetAttributeCallbacks(platformAttribCallback, surfaceAttribCallback, contextAttribCallback, userdata)
 }

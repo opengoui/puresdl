@@ -267,6 +267,8 @@ var fnAddTimer func(interval uint32, callback TimerCallback, userdata unsafe.Poi
 // Since: SDL 3.2.0.
 //
 // See also: AddTimerNS, RemoveTimer
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func AddTimer(interval uint32, callback TimerCallback, userdata unsafe.Pointer) TimerID {
 	return fnAddTimer(interval, callback, userdata)
 }
@@ -304,6 +306,8 @@ var fnAddTimerNS func(interval uint64, callback NSTimerCallback, userdata unsafe
 // Since: SDL 3.2.0.
 //
 // See also: AddTimer, RemoveTimer
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func AddTimerNS(interval uint64, callback NSTimerCallback, userdata unsafe.Pointer) TimerID {
 	return fnAddTimerNS(interval, callback, userdata)
 }

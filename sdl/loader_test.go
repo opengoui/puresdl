@@ -1,19 +1,27 @@
 package sdl
 
 import (
-	"errors"
+	"strings"
 	"testing"
 )
 
-func TestLoadExplicitMissingPath(t *testing.T) {
-	if LoadError() == nil {
-		t.Skip("library already loaded; Load is a no-op")
+// TestOpenFirstMissingPath exercises the load failure path on the helper
+// behind Load, so it runs whether or not the global library is loaded.
+func TestOpenFirstMissingPath(t *testing.T) {
+	h, err := openFirst([]string{"/nonexistent/libSDL3-missing", "/nonexistent/libSDL3-other"})
+	if err == nil || h != 0 {
+		t.Fatalf("openFirst of missing paths = %#x, %v", h, err)
 	}
-	err := Load("/nonexistent/libSDL3-missing")
-	if err == nil {
-		t.Fatal("Load of a missing path succeeded")
+	if !strings.Contains(err.Error(), "cannot load SDL3") || !strings.Contains(err.Error(), "libSDL3-other") {
+		t.Errorf("error %q lacks the failure summary or a candidate", err)
 	}
-	if errors.Is(LoadError(), ErrNotLoaded) {
-		t.Errorf("LoadError() = %v, want the load failure", LoadError())
+}
+
+func TestLoadAfterSuccessIsNoop(t *testing.T) {
+	if LoadError() != nil {
+		t.Skip("SDL3 not loaded")
+	}
+	if err := Load("/nonexistent/libSDL3-missing"); err != nil {
+		t.Errorf("Load after a successful load = %v, want nil", err)
 	}
 }

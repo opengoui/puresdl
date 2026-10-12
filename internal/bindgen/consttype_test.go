@@ -49,7 +49,8 @@ func TestConstType(t *testing.T) {
 		{c("SDL_D", "Uint32", 1), ""},                     // builtin typedefs are not named Go types
 		{c("SDL_E", "SDL_Flags", -1), ""},                 // negative into unsigned
 		{c("SDL_WINDOWPOS_CENTERED", "SDL_Flags", 1), ""}, // override: untyped
-		{c("SDL_BUTTON_LEFT", "SDL_Small", 1), "MouseButtonFlags"},
+		{c("SDL_BUTTON_LEFT", "SDL_Small", 1), ""},        // button index: untyped
+		{c("SDL_BUTTON_LMASK", "SDL_Small", 1), "MouseButtonFlags"},
 	} {
 		if got := g.constType(tc.k); got != tc.want {
 			t.Errorf("constType(%s) = %q, want %q", tc.k.Name, got, tc.want)

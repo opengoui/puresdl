@@ -61,8 +61,10 @@ var fnOpenTitleStorage func(override *byte, props PropertiesID) *Storage
 // Since: SDL 3.2.0.
 //
 // See also: CloseStorage, GetStorageFileSize, OpenUserStorage, ReadStorageFile
-func OpenTitleStorage(override string, props PropertiesID) *Storage {
-	return fnOpenTitleStorage(cstr(override), props)
+//
+// A nil override is passed as NULL, which selects the default title root; an empty string is passed as an empty C string.
+func OpenTitleStorage(override *string, props PropertiesID) *Storage {
+	return fnOpenTitleStorage(cstrPtr(override), props)
 }
 
 var fnOpenUserStorage func(org *byte, app *byte, props PropertiesID) *Storage
@@ -131,6 +133,8 @@ var fnOpenStorage func(iface *StorageInterface, userdata unsafe.Pointer) *Storag
 // Since: SDL 3.2.0.
 //
 // See also: CloseStorage, GetStorageFileSize, GetStorageSpaceRemaining, `SDL_INIT_INTERFACE`, ReadStorageFile, StorageReady, WriteStorageFile
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func OpenStorage(iface *StorageInterface, userdata unsafe.Pointer) *Storage {
 	return fnOpenStorage(iface, userdata)
 }

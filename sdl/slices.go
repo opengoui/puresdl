@@ -6,12 +6,15 @@ import "unsafe"
 // SDL_free-able array: they copy the array into Go memory and release the
 // SDL allocation.
 
-// copyFree copies n elements at p into a new slice and frees p.
+// copyFree copies n elements at p into a new slice and frees p. A non-nil p
+// yields a non-nil slice, even for n == 0, so that an empty result can be told
+// from NULL.
 func copyFree[E any](p *E, n int) []E {
 	if p == nil {
 		return nil
 	}
-	s := append([]E(nil), unsafe.Slice(p, n)...)
+	s := make([]E, n)
+	copy(s, unsafe.Slice(p, n))
 	Free(unsafe.Pointer(p))
 	return s
 }
@@ -60,7 +63,8 @@ func copyFreeBytes(p unsafe.Pointer, n int) []byte {
 	if p == nil {
 		return nil
 	}
-	s := append([]byte(nil), unsafe.Slice((*byte)(p), n)...)
+	s := make([]byte, n)
+	copy(s, unsafe.Slice((*byte)(p), n))
 	Free(p)
 	return s
 }

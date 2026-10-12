@@ -358,6 +358,8 @@ var fnOpenIO func(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream
 // Since: SDL 3.2.0.
 //
 // See also: CloseIO, `SDL_INIT_INTERFACE`, IOFromConstMem, IOFromFile, IOFromMem
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func OpenIO(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream {
 	return fnOpenIO(iface, userdata)
 }

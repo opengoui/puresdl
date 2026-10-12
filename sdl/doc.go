@@ -21,7 +21,8 @@
 //     NULL is allowed and NULL only selects a default, the empty string is
 //     passed as NULL. Where NULL means something different from "" (deleting
 //     a property in [SetStringProperty], [SetAppMetadataProperty],
-//     [SetGamepadMapping]; a separator in [InsertTrayEntryAt]) the parameter
+//     [SetGamepadMapping]; a separator in [InsertTrayEntryAt]; the default root in
+//     [OpenTitleStorage]) the parameter
 //     is a *string: nil is NULL and [Ptr]("") is an empty string.
 //   - const char * results are copied into Go strings and NULL becomes "";
 //     results the caller must release with SDL_free are copied and freed.

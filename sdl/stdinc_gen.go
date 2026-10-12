@@ -1182,37 +1182,3 @@ func Iconv(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesle
 }
 
 var fnIconvString func(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft uint) *byte
-
-// Helper function to convert a string's encoding in one call.
-//
-// This function converts a buffer or string between encodings in one pass.
-//
-// The string does not need to be NULL-terminated; this function operates on
-// the number of bytes specified in `inbytesleft` whether there is a NULL
-// character anywhere in the buffer.
-//
-// The returned string is owned by the caller, and should be passed to
-// Free when no longer needed.
-//
-// Parameters:
-//   - tocode: the character encoding of the output string. Examples are "UTF-8", "UCS-4", etc.
-//   - fromcode: the character encoding of data in `inbuf`.
-//   - inbuf: the string to convert to a different encoding.
-//   - inbytesleft: the size of the input string _in bytes_.
-//
-// Returns: a new string, converted to the new encoding, or NULL on error.
-//
-// Thread safety: It is safe to call this function from any thread.
-//
-// Since: SDL 3.2.0.
-//
-// See also: IconvOpen, IconvClose, Iconv
-func IconvString(tocode string, fromcode string, inbuf string, inbytesleft uint) string {
-	p := fnIconvString(cstr(tocode), cstr(fromcode), cstr(inbuf), inbytesleft)
-	if p == nil {
-		return ""
-	}
-	s := GoString(p)
-	Free(unsafe.Pointer(p))
-	return s
-}

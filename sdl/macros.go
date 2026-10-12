@@ -296,7 +296,7 @@ func WINDOWPOS_ISCENTERED(x int32) bool {
 
 // BUTTON_MASK returns the [MouseButtonFlags] mask for mouse button x (1-based,
 // such as [BUTTON_LEFT]).
-func BUTTON_MASK(x MouseButtonFlags) MouseButtonFlags { return 1 << (x - 1) }
+func BUTTON_MASK(x uint8) MouseButtonFlags { return MouseButtonFlags(1) << (x - 1) }
 
 // SCANCODE_TO_KEYCODE converts a [Scancode] to the matching extended
 // [Keycode].

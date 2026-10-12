@@ -409,19 +409,40 @@ func TestMediaInputState(t *testing.T) {
 
 func TestMediaEmptyDeviceLists(t *testing.T) {
 	mediaInit(t, INIT_VIDEO|INIT_AUDIO|INIT_JOYSTICK|INIT_GAMEPAD|INIT_SENSOR|INIT_HAPTIC|INIT_CAMERA)
-	if l := GetJoysticks(); len(l) != 0 {
-		t.Errorf("joysticks = %v", l)
+	// The host may have real controllers, sensors, haptics or cameras, so
+	// check the shape of each list and that it agrees with the Has* queries.
+	checkIDs := func(name string, ids []uint32) {
+		seen := map[uint32]bool{}
+		for _, id := range ids {
+			if id == 0 || seen[id] {
+				t.Errorf("%s: zero or duplicate instance ID in %v", name, ids)
+			}
+			seen[id] = true
+		}
 	}
-	if l := GetGamepads(); len(l) != 0 {
-		t.Errorf("gamepads = %v", l)
+	var js, gs, ss, hs, cs []uint32
+	for _, id := range GetJoysticks() {
+		js = append(js, uint32(id))
 	}
-	if l := GetSensors(); len(l) != 0 {
-		t.Errorf("sensors = %v", l)
+	for _, id := range GetGamepads() {
+		gs = append(gs, uint32(id))
 	}
-	// A host may have real cameras; only check the call works.
-	_ = GetCameras()
-	if l := GetHaptics(); len(l) != 0 {
-		t.Errorf("haptics = %v", l)
+	for _, id := range GetSensors() {
+		ss = append(ss, uint32(id))
+	}
+	for _, id := range GetHaptics() {
+		hs = append(hs, uint32(id))
+	}
+	for _, id := range GetCameras() {
+		cs = append(cs, uint32(id))
+	}
+	checkIDs("joysticks", js)
+	checkIDs("gamepads", gs)
+	checkIDs("sensors", ss)
+	checkIDs("haptics", hs)
+	checkIDs("cameras", cs)
+	if HasJoystick() != (len(js) > 0) || HasGamepad() != (len(gs) > 0) {
+		t.Errorf("HasJoystick/HasGamepad disagree with %d joysticks, %d gamepads", len(js), len(gs))
 	}
 	// SDL lists its virtual mouse and pen touch devices (IDs -1 and -2)
 	// on some platforms; only real devices count.
@@ -429,9 +450,6 @@ func TestMediaEmptyDeviceLists(t *testing.T) {
 		if id != TouchID(math.MaxUint64) && id != TouchID(math.MaxUint64-1) {
 			t.Errorf("unexpected touch device %d", id)
 		}
-	}
-	if HasJoystick() || HasGamepad() {
-		t.Error("unexpected joystick or gamepad")
 	}
 }
 
@@ -539,7 +557,11 @@ func TestMediaMisc(t *testing.T) {
 	if GetPlatform() == "" || GetNumRenderDrivers() < 1 {
 		t.Error("platform or render drivers missing")
 	}
-	_ = GetPreferredLocales()
+	for _, l := range GetPreferredLocales() {
+		if l.Language == "" {
+			t.Errorf("locale without language: %+v", l)
+		}
+	}
 	if GetPixelFormatName(PIXELFORMAT_ARGB8888) != "SDL_PIXELFORMAT_ARGB8888" {
 		t.Errorf("format name = %q", GetPixelFormatName(PIXELFORMAT_ARGB8888))
 	}
@@ -552,5 +574,7 @@ func TestMediaMisc(t *testing.T) {
 			t.Errorf("%s unavailable", name)
 		}
 	}
-	_ = GetTicks()
+	if a := GetTicks(); a > GetTicks() {
+		t.Error("GetTicks went backwards")
+	}
 }

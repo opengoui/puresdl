@@ -1771,6 +1771,8 @@ var fnSetAudioStreamGetCallback func(stream *AudioStream, callback AudioStreamCa
 // Since: SDL 3.2.0.
 //
 // See also: SetAudioStreamPutCallback
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetAudioStreamGetCallback(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool {
 	return fnSetAudioStreamGetCallback(stream, callback, userdata)
 }
@@ -1821,6 +1823,8 @@ var fnSetAudioStreamPutCallback func(stream *AudioStream, callback AudioStreamCa
 // Since: SDL 3.2.0.
 //
 // See also: SetAudioStreamGetCallback
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetAudioStreamPutCallback(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool {
 	return fnSetAudioStreamPutCallback(stream, callback, userdata)
 }
@@ -1901,6 +1905,8 @@ var fnOpenAudioDeviceStream func(devid AudioDeviceID, spec *AudioSpec, callback 
 // Since: SDL 3.2.0.
 //
 // See also: GetAudioStreamDevice, ResumeAudioStreamDevice
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func OpenAudioDeviceStream(devid AudioDeviceID, spec *AudioSpec, callback AudioStreamCallback, userdata unsafe.Pointer) *AudioStream {
 	return fnOpenAudioDeviceStream(devid, spec, callback, userdata)
 }
@@ -1958,6 +1964,8 @@ var fnSetAudioPostmixCallback func(devid AudioDeviceID, callback AudioPostmixCal
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetAudioPostmixCallback(devid AudioDeviceID, callback AudioPostmixCallback, userdata unsafe.Pointer) bool {
 	return fnSetAudioPostmixCallback(devid, callback, userdata)
 }

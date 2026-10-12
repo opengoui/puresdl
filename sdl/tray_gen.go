@@ -511,6 +511,8 @@ var fnSetTrayEntryCallback func(entry *TrayEntry, callback TrayCallback, userdat
 // Since: SDL 3.2.0.
 //
 // See also: GetTrayEntries, InsertTrayEntryAt
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetTrayEntryCallback(entry *TrayEntry, callback TrayCallback, userdata unsafe.Pointer) {
 	fnSetTrayEntryCallback(entry, callback, userdata)
 }

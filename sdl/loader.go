@@ -58,6 +58,21 @@ func Load(path string) error {
 	} else if env := os.Getenv(LibraryEnv); env != "" {
 		candidates = append([]string{env}, candidates...)
 	}
+	h, err := openFirst(candidates)
+	if err != nil {
+		loadErr = err
+		return loadErr
+	}
+	handle = h
+	clear(missing)
+	bindAll()
+	loaded, loadErr = true, nil
+	return nil
+}
+
+// openFirst opens the first candidate that loads. The error joins every
+// failure.
+func openFirst(candidates []string) (uintptr, error) {
 	var errs []error
 	for _, c := range candidates {
 		h, err := openLibrary(c)
@@ -65,14 +80,9 @@ func Load(path string) error {
 			errs = append(errs, err)
 			continue
 		}
-		handle = h
-		clear(missing)
-		bindAll()
-		loaded, loadErr = true, nil
-		return nil
+		return h, nil
 	}
-	loadErr = fmt.Errorf("sdl: cannot load SDL3: %w", errors.Join(errs...))
-	return loadErr
+	return 0, fmt.Errorf("sdl: cannot load SDL3: %w", errors.Join(errs...))
 }
 
 // LoadError reports why the shared library could not be loaded, or nil if

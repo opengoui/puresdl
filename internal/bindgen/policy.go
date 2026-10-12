@@ -61,7 +61,13 @@ var initialisms = map[string]string{"hid": "HID", "id": "ID", "io": "IO", "utf":
 // handWritten functions get only their raw function variable (fn<Name>); the
 // exported wrapper lives in a hand-written file because a generic rule would
 // be wrong for them.
-var handWritten = map[string]bool{"SDL_GetPreferredLocales": true}
+var handWritten = map[string]bool{
+	"SDL_GetPreferredLocales": true,
+	// SDL keeps the name pointer; the wrapper has to own a permanent copy.
+	"SDL_SetScancodeName": true,
+	// The output has no length and the input length must derive from the Go value.
+	"SDL_iconv_string": true,
+}
 
 // constTypeOverrides pins the type of macro constants whose contiguous
 // #define block does not name the right typedef. The value is the C typedef
@@ -81,12 +87,14 @@ var constTypeOverrides = map[string]string{
 	"SDL_MOUSE_TOUCHID": "SDL_TouchID",
 	// SDL_HAPTIC_INFINITY is an effect length, not part of SDL_Haptic.
 	"SDL_HAPTIC_INFINITY": "",
-	// Button numbers and masks share SDL_MouseButtonFlags in the headers.
-	"SDL_BUTTON_LEFT":   "SDL_MouseButtonFlags",
-	"SDL_BUTTON_MIDDLE": "SDL_MouseButtonFlags",
-	"SDL_BUTTON_RIGHT":  "SDL_MouseButtonFlags",
-	"SDL_BUTTON_X1":     "SDL_MouseButtonFlags",
-	"SDL_BUTTON_X2":     "SDL_MouseButtonFlags",
+	// Button numbers are indices that are compared with the uint8 Button field
+	// of the mouse events, so they stay untyped; only the masks are
+	// SDL_MouseButtonFlags.
+	"SDL_BUTTON_LEFT":   "",
+	"SDL_BUTTON_MIDDLE": "",
+	"SDL_BUTTON_RIGHT":  "",
+	"SDL_BUTTON_X1":     "",
+	"SDL_BUTTON_X2":     "",
 	"SDL_BUTTON_LMASK":  "SDL_MouseButtonFlags",
 	"SDL_BUTTON_MMASK":  "SDL_MouseButtonFlags",
 	"SDL_BUTTON_RMASK":  "SDL_MouseButtonFlags",
@@ -154,7 +162,10 @@ var nullParams = map[string]nullParam{
 	"SDL_SetAppMetadataProperty.value": {true, "the value of the property, or NULL to remove that property.", "removes the property"},
 	"SDL_SetGamepadMapping.mapping":    {true, "the mapping to use for this device, or NULL to clear the mapping.", "clears the mapping"},
 	// NULL makes a separator; "" is an entry with an empty label.
-	"SDL_InsertTrayEntryAt.label": {true, "the text to be displayed on the entry, in UTF-8 encoding, or NULL for a separator.", "inserts a separator"},
+	// NULL selects the default title root (SDL_OpenTitleStorage(NULL, 0)); ""
+	// is an empty override. The header documents neither, see undocumentedNull.
+	"SDL_OpenTitleStorage.override": {true, "a path to override the backend's default title root.", "selects the default title root"},
+	"SDL_InsertTrayEntryAt.label":   {true, "the text to be displayed on the entry, in UTF-8 encoding, or NULL for a separator.", "inserts a separator"},
 
 	// The remaining parameters select a default; "" and NULL are interchangeable.
 	"SDL_GL_LoadLibrary.path":                   {doc: "the platform dependent OpenGL library name, or NULL to open the default OpenGL library."},
@@ -178,6 +189,10 @@ var nullParams = map[string]nullParam{
 	"SDL_SetTrayTooltip.tooltip":         {doc: "the new tooltip in UTF-8 encoding. May be NULL."},
 	"SDL_RegisterApp.name":               {doc: "the window class name, in UTF-8 encoding. If NULL, SDL currently uses \"SDL_app\" but this isn't guaranteed."},
 }
+
+// undocumentedNull lists the nullParams whose \param text does not mention
+// NULL although the header's examples and the implementation accept it.
+var undocumentedNull = map[string]bool{"SDL_OpenTitleStorage.override": true}
 
 // nullDistinctResults are the string results where NULL means "not set" and
 // is different from an empty string. Each gets an extra exported variant
@@ -278,8 +293,7 @@ func CheckNullPolicy(api *ir.API) []string {
 			continue
 		}
 		for _, p := range f.Sig.Params {
-			if isCString(p.Type) && p.Type.Resolve().Const && nullable(p.Doc) {
-				k := f.Name + "." + p.Name
+			if k := f.Name + "." + p.Name; isCString(p.Type) && p.Type.Resolve().Const && (nullable(p.Doc) || undocumentedNull[k]) {
 				seenP[k] = true
 				if _, ok := nullParams[k]; !ok {
 					out = append(out, "unclassified nullable parameter "+k+" (add it to nullParams): "+strings.Join(strings.Fields(p.Doc), " "))

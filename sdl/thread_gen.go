@@ -381,6 +381,8 @@ var fnSetTLS func(id *TLSID, value unsafe.Pointer, destructor TLSDestructorCallb
 // Since: SDL 3.2.0.
 //
 // See also: GetTLS
+//
+// Keep alive: SDL stores the value argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetTLS(id *TLSID, value unsafe.Pointer, destructor TLSDestructorCallback) bool {
 	return fnSetTLS(id, value, destructor)
 }

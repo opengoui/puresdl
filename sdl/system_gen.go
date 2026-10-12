@@ -123,6 +123,8 @@ var fnSetX11EventHook func(callback X11EventHook, userdata unsafe.Pointer)
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.2.0.
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetX11EventHook(callback X11EventHook, userdata unsafe.Pointer) {
 	fnSetX11EventHook(callback, userdata)
 }
@@ -414,6 +416,7 @@ var fnSetWindowsMessageHook func(callback WindowsMessageHook, userdata unsafe.Po
 //
 // See also: WindowsMessageHook, HINT_WINDOWS_ENABLE_MESSAGELOOP
 //
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 // Only declared by the SDL headers for windows/amd64.
 func SetWindowsMessageHook(callback WindowsMessageHook, userdata unsafe.Pointer) {
 	fnSetWindowsMessageHook(callback, userdata)

@@ -292,26 +292,6 @@ func GetScancodeFromKey(key Keycode, modstate *Keymod) Scancode {
 }
 
 var fnSetScancodeName func(scancode Scancode, name *byte) bool
-
-// Set a human-readable name for a scancode.
-//
-// Parameters:
-//   - scancode: the desired Scancode.
-//   - name: the name to use for the scancode, encoded as UTF-8. The string is not copied, so the pointer given to this function must stay valid while SDL is being used.
-//
-// Returns: true on success or false on failure; call GetError() for more information.
-//
-// Thread safety: This function is not thread safe.
-//
-// Since: SDL 3.2.0.
-//
-// See also: GetScancodeName
-//
-// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. String arguments are converted to a temporary C string per call and are not kept alive by this wrapper.
-func SetScancodeName(scancode Scancode, name string) bool {
-	return fnSetScancodeName(scancode, cstr(name))
-}
-
 var fnGetScancodeName func(scancode Scancode) *byte
 
 // Get a human-readable name for a scancode.

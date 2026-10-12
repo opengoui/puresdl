@@ -171,17 +171,24 @@ func TestFreedString(t *testing.T) {
 }
 
 func TestMissingSymbolPanics(t *testing.T) {
-	var missing string
-	for _, b := range allBindings() {
-		if !Available(b) {
-			missing = b
-			break
+	if LoadError() != nil {
+		t.Skip("SDL3 not loaded")
+	}
+	const sym = "SDL_ThisSymbolDoesNotExist"
+	var fn func(int32) int32
+	register(&fn, sym)
+	loadMu.Lock()
+	delete(missing, sym)
+	loadMu.Unlock()
+	defer func() {
+		r := recover()
+		want := "sdl: " + sym + " is not available in the loaded SDL3 library"
+		if r != want {
+			t.Errorf("panic = %v, want %q", r, want)
 		}
-	}
-	if missing == "" {
-		t.Skip("every symbol is present in this SDL build")
-	}
-	t.Logf("first symbol absent from this build: %s", missing)
+	}()
+	fn(1)
+	t.Fatal("calling an unresolved binding did not panic")
 }
 
 func TestGUIDABILayout(t *testing.T) {

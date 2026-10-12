@@ -420,11 +420,42 @@ func keepAliveNote(f *ir.Function) string {
 		}
 	}
 	if !retained || !hasPtr {
-		return ""
+		return storedPointerNote(f)
 	}
 	n := "Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it."
 	if hasString {
 		n += " String arguments are converted to a temporary C string per call and are not kept alive by this wrapper."
 	}
 	return n
+}
+
+// storedPointerFuncs are functions that store a void * argument without any
+// doc text saying so.
+var storedPointerFuncs = map[string]string{
+	"SDL_SetPointerProperty":            "value",
+	"SDL_SetPointerPropertyWithCleanup": "value",
+	"SDL_SetTLS":                        "value",
+}
+
+// syncUserdataRe matches the functions whose userdata argument is only used
+// during the call, or is a lookup key, so no reference outlives the call.
+var syncUserdataRe = regexp.MustCompile(`^SDL_(Enumerate|FilterEvents|Remove)`)
+
+// storedPointerNote returns the "Keep alive:" note for the functions that
+// hand a void * (the userdata of a callback registration, or a property or
+// TLS value) to SDL, which stores it and passes it back later. The Go garbage
+// collector cannot see that reference.
+func storedPointerNote(f *ir.Function) string {
+	arg := storedPointerFuncs[f.Name]
+	if arg == "" && !syncUserdataRe.MatchString(f.Name) {
+		for _, p := range f.Sig.Params {
+			if p.Name == "userdata" && p.Type.Resolve().Kind == ir.Pointer {
+				arg = "userdata"
+			}
+		}
+	}
+	if arg == "" {
+		return ""
+	}
+	return "Keep alive: SDL stores the " + arg + " argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it."
 }

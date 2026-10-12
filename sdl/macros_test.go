@@ -348,9 +348,17 @@ func TestMacroWindowPos(t *testing.T) {
 	}
 }
 
+// The button indices compare with the uint8 Button field of the mouse events.
+func TestButtonIndexMatchesEventField(t *testing.T) {
+	ev := MouseButtonEvent{Button: BUTTON_RIGHT}
+	if ev.Button != BUTTON_RIGHT || ev.Button == BUTTON_LEFT {
+		t.Errorf("Button = %d", ev.Button)
+	}
+}
+
 func TestMacroButtonMask(t *testing.T) {
 	for _, tc := range []struct {
-		button MouseButtonFlags
+		button uint8
 		want   MouseButtonFlags
 	}{
 		{1, 0x1},
@@ -360,7 +368,7 @@ func TestMacroButtonMask(t *testing.T) {
 		{5, 0x10},
 	} {
 		if got := BUTTON_MASK(tc.button); got != tc.want {
-			t.Errorf("BUTTON_MASK(%d) = %#x, want %#x", uint32(tc.button), uint32(got), uint32(tc.want))
+			t.Errorf("BUTTON_MASK(%d) = %#x, want %#x", tc.button, uint32(got), uint32(tc.want))
 		}
 	}
 	if BUTTON_MASK(BUTTON_LEFT) != BUTTON_LMASK || BUTTON_MASK(BUTTON_RIGHT) != BUTTON_RMASK {

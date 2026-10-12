@@ -382,6 +382,8 @@ var fnGetLogOutputFunction func(callback *LogOutputFunction, userdata *unsafe.Po
 // Since: SDL 3.2.0.
 //
 // See also: GetDefaultLogOutputFunction, SetLogOutputFunction
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func GetLogOutputFunction(callback *LogOutputFunction, userdata *unsafe.Pointer) {
 	fnGetLogOutputFunction(callback, userdata)
 }
@@ -399,6 +401,8 @@ var fnSetLogOutputFunction func(callback LogOutputFunction, userdata unsafe.Poin
 // Since: SDL 3.2.0.
 //
 // See also: GetDefaultLogOutputFunction, GetLogOutputFunction
+//
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetLogOutputFunction(callback LogOutputFunction, userdata unsafe.Pointer) {
 	fnSetLogOutputFunction(callback, userdata)
 }
