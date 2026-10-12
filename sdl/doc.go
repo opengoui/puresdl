@@ -21,6 +21,9 @@
 //     NULL is allowed, the empty string is passed as NULL.
 //   - const char * results are copied into Go strings; results the caller
 //     must release with SDL_free are copied and freed.
+//   - functions that return an SDL_free-able array ([GetDisplays],
+//     [GetWindows], [LoadFile] ...) return a Go slice and release the SDL
+//     allocation; the count out-parameter is dropped from the signature.
 //   - printf-style functions ([SetError], [Log] ...) take a Go format string
 //     and arguments, formatted with fmt.Sprintf before SDL sees them.
 //   - C unions such as [Event] expose their members through accessor methods.
