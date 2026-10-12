@@ -16,7 +16,7 @@ env:
   SDL_RUNTIME_VERSION: 3.4.2
   # Commit of libsdl-org/SDL whose headers the checked-in bindings were
   # generated from (they report SDL 3.5.0, which has no release tag yet).
-  SDL_HEADERS_REF: 30bbdedde
+  SDL_HEADERS_REF: 30bbdedde042b2d4e78ec9e81d2d575a0e6a7321
 
 jobs:
   lint:
@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       SDL_VIDEODRIVER: dummy
