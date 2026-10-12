@@ -125,7 +125,7 @@ CGO_ENABLED=0 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy go test ./...
 完整清单见 [docs/skipped.txt](docs/skipped.txt)。
 
 - **C 变参 / `va_list`**：purego 不支持真正的 C 变参。只有以 `const char *fmt, ...` 结尾的 printf 风格函数被特殊处理（在 Go 侧格式化）；其余变参函数不绑定。带 `va_list` 的 `SDL_*V`、`SDL_IOvprintf` 等不绑定。
-- **`wchar_t`**：宽字符 API（`SDL_hid_open`、`SDL_hid_get_*_string`、`Hid_device_info.serial_number` 等）因宽度随平台而异，不绑定，结构体按原始存储输出。
+- **`wchar_t`**：映射为手写的 `sdl.Wchar`（非 Windows 为 `int32`，Windows 为 `uint16`），辅助函数 `WcharString(*Wchar) string` 与 `WcharCString(string) []Wchar` 负责与 Go 字符串互转（含 UTF-16 代理对）。`const wchar_t*` 输入（`HIDOpen` 的 `serial_number`）由包装函数接受 `string`，空串传 NULL；输出缓冲区（`HIDGet*String`）和 `HIDDeviceInfo` 的字符串字段使用 `*Wchar`。
 - **libc 替代函数**：`SDL_stdinc.h` 中的字符串、数学、内存拷贝、字符分类等（`SDL_strlen`、`SDL_sin`、`SDL_memcpy`…，约 135 个）在 Go 里有标准库等价物，不绑定；保留的只有 `malloc/free` 系列、环境变量、随机数、CRC/murmur、iconv、断言相关等。
 - **仅限特定平台的函数**：一些函数只在部分平台的头文件里声明（仅 Windows 的 `SDL_RegisterApp`、`SDL_SetWindowsMessageHook`、`SDL_GetDXGIOutputInfo`，仅 Linux 的 `SDL_SetLinuxThreadPriority`、`SDL_IsUbuntuTouch` 等）。三个目标（darwin/arm64、linux/amd64、windows/amd64）取并集，其文档会注明 “Only declared by the SDL headers for …”；在其他平台调用会因符号缺失而 panic。
 - **回调上限**：purego 每进程约 2000 个回调，且不能释放。Windows 上回调也不支持结构体参数。

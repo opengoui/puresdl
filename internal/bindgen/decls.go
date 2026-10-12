@@ -266,11 +266,7 @@ func (g *gen) emitRecord(r *ir.Record, n string, fb *fileBuf) {
 	for i, f := range r.Fields {
 		t, err := g.fieldType(n, f)
 		if err != nil {
-			g.skip(n, "field "+f.Name+": "+err.Error()+" (emitted as raw storage)")
-			unit, cnt := storageType(r.Size, r.Align)
-			fb.types = append(fb.types, start(doc).Type().Id(n).Struct(jen.Id("_").Index(jen.Lit(int(cnt))).Add(unit)))
-			g.layouts = append(g.layouts, layoutEntry{goName: n, size: r.Size, align: int64(r.Align)})
-			return
+			t = g.degradedField(n, f, err)
 		}
 		fnm := f.Name
 		if fnm == "" {
@@ -286,6 +282,19 @@ func (g *gen) emitRecord(r *ir.Record, n string, fb *fileBuf) {
 	}
 	fb.types = append(fb.types, start(doc).Type().Id(n).Struct(fields...))
 	g.layouts = append(g.layouts, layoutEntry{goName: n, size: r.Size, align: int64(r.Align), fields: lf})
+}
+
+// degradedField is the Go type of a field whose C type has no mapping. A
+// pointer becomes unsafe.Pointer and any other type becomes opaque storage of
+// the same size and alignment, so the rest of the record stays typed.
+func (g *gen) degradedField(rec string, f ir.Field, cause error) *jen.Statement {
+	g.skip(rec, "field "+f.Name+": "+cause.Error()+" (degraded to opaque storage)")
+	r := f.Type.Resolve()
+	if r != nil && r.Kind == ir.Pointer {
+		return jen.Qual("unsafe", "Pointer")
+	}
+	unit, cnt := storageType(r.Size, r.Align)
+	return jen.Index(jen.Lit(int(cnt))).Add(unit)
 }
 
 // emitUnion declares a union as aligned raw storage with typed accessors.

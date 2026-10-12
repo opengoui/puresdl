@@ -13,7 +13,42 @@ type HIDDevice struct{}
 //
 // Since: SDL 3.2.0.
 type HIDDeviceInfo struct {
-	_ [10]uint64
+	// Platform-specific device path
+	Path *byte
+	// Device Vendor ID
+	VendorId uint16
+	// Device Product ID
+	ProductId uint16
+	// Serial Number
+	SerialNumber *Wchar
+	// Device Release Number in binary-coded decimal,
+	// also known as Device Version Number
+	ReleaseNumber uint16
+	// Manufacturer String
+	ManufacturerString *Wchar
+	// Product string
+	ProductString *Wchar
+	// Usage Page for this Device/Interface
+	// (Windows/Mac/hidraw only)
+	UsagePage uint16
+	// Usage for this Device/Interface
+	// (Windows/Mac/hidraw only)
+	Usage uint16
+	// The USB interface which this logical device
+	// represents.
+	//
+	// Valid only if the device is a USB HID device.
+	// Set to -1 in all other cases.
+	InterfaceNumber int32
+	// Additional information about the USB interface.
+	// Valid on libusb and Android implementations.
+	InterfaceClass    int32
+	InterfaceSubclass int32
+	InterfaceProtocol int32
+	// Underlying bus type
+	BusType HIDBusType
+	// Pointer to the next device
+	Next *HIDDeviceInfo
 }
 
 // HID underlying bus types.
@@ -145,6 +180,28 @@ var fnHIDFreeEnumeration func(devs *HIDDeviceInfo)
 // Since: SDL 3.2.0.
 func HIDFreeEnumeration(devs *HIDDeviceInfo) {
 	fnHIDFreeEnumeration(devs)
+}
+
+var fnHIDOpen func(vendor_id uint16, product_id uint16, serial_number *Wchar) *HIDDevice
+
+// Open a HID device using a Vendor ID (VID), Product ID (PID) and optionally
+// a serial number.
+//
+// If `serial_number` is NULL, the first device with the specified VID and PID
+// is opened.
+//
+// Parameters:
+//   - vendor_id: the Vendor ID (VID) of the device to open.
+//   - product_id: the Product ID (PID) of the device to open.
+//   - serial_number: the Serial Number of the device to open (Optionally NULL).
+//
+// Returns: a pointer to a HIDDevice object on success or NULL on failure; call GetError() for more information.
+//
+// Since: SDL 3.2.0.
+//
+// An empty serial_number is passed as NULL.
+func HIDOpen(vendor_id uint16, product_id uint16, serial_number string) *HIDDevice {
+	return fnHIDOpen(vendor_id, product_id, wcstrNull(serial_number))
 }
 
 var fnHIDOpenPath func(path *byte) *HIDDevice
@@ -354,6 +411,71 @@ var fnHIDClose func(dev *HIDDevice) int32
 // Since: SDL 3.2.0.
 func HIDClose(dev *HIDDevice) int32 {
 	return fnHIDClose(dev)
+}
+
+var fnHIDGetManufacturerString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+
+// Get The Manufacturer String from a HID device.
+//
+// Parameters:
+//   - dev: a device handle returned from HIDOpen().
+//   - string: a wide string buffer to put the data into.
+//   - maxlen: the length of the buffer in multiples of wchar_t.
+//
+// Returns: 0 on success or a negative error code on failure; call GetError() for more information.
+//
+// Since: SDL 3.2.0.
+func HIDGetManufacturerString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	return fnHIDGetManufacturerString(dev, string_, maxlen)
+}
+
+var fnHIDGetProductString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+
+// Get The Product String from a HID device.
+//
+// Parameters:
+//   - dev: a device handle returned from HIDOpen().
+//   - string: a wide string buffer to put the data into.
+//   - maxlen: the length of the buffer in multiples of wchar_t.
+//
+// Returns: 0 on success or a negative error code on failure; call GetError() for more information.
+//
+// Since: SDL 3.2.0.
+func HIDGetProductString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	return fnHIDGetProductString(dev, string_, maxlen)
+}
+
+var fnHIDGetSerialNumberString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+
+// Get The Serial Number String from a HID device.
+//
+// Parameters:
+//   - dev: a device handle returned from HIDOpen().
+//   - string: a wide string buffer to put the data into.
+//   - maxlen: the length of the buffer in multiples of wchar_t.
+//
+// Returns: 0 on success or a negative error code on failure; call GetError() for more information.
+//
+// Since: SDL 3.2.0.
+func HIDGetSerialNumberString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	return fnHIDGetSerialNumberString(dev, string_, maxlen)
+}
+
+var fnHIDGetIndexedString func(dev *HIDDevice, string_index int32, string_ *Wchar, maxlen uint) int32
+
+// Get a string from a HID device, based on its string index.
+//
+// Parameters:
+//   - dev: a device handle returned from HIDOpen().
+//   - string_index: the index of the string to get.
+//   - string: a wide string buffer to put the data into.
+//   - maxlen: the length of the buffer in multiples of wchar_t.
+//
+// Returns: 0 on success or a negative error code on failure; call GetError() for more information.
+//
+// Since: SDL 3.2.0.
+func HIDGetIndexedString(dev *HIDDevice, string_index int32, string_ *Wchar, maxlen uint) int32 {
+	return fnHIDGetIndexedString(dev, string_index, string_, maxlen)
 }
 
 var fnHIDGetDeviceInfo func(dev *HIDDevice) *HIDDeviceInfo

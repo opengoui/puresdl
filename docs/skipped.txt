@@ -1,4 +1,3 @@
-HIDDeviceInfo: field serial_number: unsupported type wchar_t (emitted as raw storage)
 SDL_IOvprintf: parameter ap: unsupported type va_list
 SDL_LogMessageV: parameter ap: unsupported type va_list
 SDL_SetErrorV: parameter ap: unsupported type va_list
@@ -34,11 +33,6 @@ SDL_floor: libc replacement
 SDL_floorf: libc replacement
 SDL_fmod: libc replacement
 SDL_fmodf: libc replacement
-SDL_hid_get_indexed_string: parameter string_: unsupported type wchar_t
-SDL_hid_get_manufacturer_string: parameter string_: unsupported type wchar_t
-SDL_hid_get_product_string: parameter string_: unsupported type wchar_t
-SDL_hid_get_serial_number_string: parameter string_: unsupported type wchar_t
-SDL_hid_open: parameter serial_number: unsupported type wchar_t
 SDL_isalnum: libc replacement
 SDL_isalpha: libc replacement
 SDL_isblank: libc replacement

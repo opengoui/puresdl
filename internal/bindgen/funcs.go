@@ -170,6 +170,12 @@ func (g *gen) bindFunc(f *ir.Function) string {
 				expr: jen.Id(fn).Call(jen.Id(name))})
 			continue
 		}
+		if isWcharString(p.Type) {
+			notes = append(notes, "An empty "+name+" is passed as NULL.")
+			plans = append(plans, argPlan{name: name, pub: jen.String(), raw: jen.Op("*").Id("Wchar"),
+				expr: jen.Id("wcstrNull").Call(jen.Id(name))})
+			continue
+		}
 		t, err := g.typ(p.Type)
 		if err != nil {
 			return "parameter " + name + ": " + err.Error()

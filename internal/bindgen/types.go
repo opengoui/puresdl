@@ -17,10 +17,13 @@ var builtinNames = map[string]string{
 	"int8_t": "int8", "int16_t": "int16", "int32_t": "int32", "int64_t": "int64",
 	"size_t": "uint", "ptrdiff_t": "int", "intptr_t": "int", "uintptr_t": "uintptr",
 	"intmax_t": "int64", "uintmax_t": "uint64",
+	// Wchar is defined by hand-written build-tagged files in package sdl
+	// (int32, or uint16 on Windows).
+	"wchar_t": "Wchar",
 }
 
 // unsupportedNames are typedefs the generator cannot express portably.
-var unsupportedNames = map[string]bool{"va_list": true, "wchar_t": true, "__builtin_va_list": true}
+var unsupportedNames = map[string]bool{"va_list": true, "__builtin_va_list": true}
 
 func intName(size int64, signed bool) string {
 	switch size {
@@ -155,4 +158,13 @@ func isCString(t *ir.Type) bool {
 func isFuncPtr(t *ir.Type) bool {
 	r := t.Resolve()
 	return r != nil && r.Kind == ir.Pointer && r.Elem.Resolve().Kind == ir.Func
+}
+
+// isWcharString reports whether t is const wchar_t *.
+func isWcharString(t *ir.Type) bool {
+	r := t.Resolve()
+	if r == nil || r.Kind != ir.Pointer || !r.Const {
+		return false
+	}
+	return r.Elem.Kind == ir.Named && r.Elem.Name == "wchar_t"
 }

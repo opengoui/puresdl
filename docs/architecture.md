@@ -60,7 +60,8 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 | 数组 | `[N]T` |
 | 不透明结构体（`typedef struct X X;`） | `type X struct{}`，句柄是 `*X` |
 | 标量 typedef | 具名 Go 类型（`type WindowFlags uint64`） |
-| `va_list`、`wchar_t` | 不支持（记入 skipped） |
+| `va_list` | 不支持（记入 skipped） |
+| `wchar_t` | `Wchar`（手写，`sdl/wchar*.go`：非 Windows `int32`，Windows `uint16`）；`const wchar_t*` 输入参数在包装函数里为 `string`（空串即 NULL，`wcstrNull`），其余为 `*Wchar` |
 
 ### 带类型的常量（`policy.go: constType`）
 
@@ -102,7 +103,7 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 
 ### 结构体与布局测试
 
-普通结构体按 C 字段顺序输出；任何字段类型不受支持时整个结构体退化成 `_ [N]uintN` 原始存储（例如含 `wchar_t` 的 `Hid_device_info`）。每个输出的类型都在 `layout_gen_test.go` 里记录期望的 `Sizeof/Alignof` 与每个字段的 `Offsetof`，`TestGeneratedLayout` 把 Go 布局与 cc/v4 算出的 C 布局逐项比对，保证按值/按指针传递时与 C 一致。
+普通结构体按 C 字段顺序输出；某个字段类型不受支持时只降级该字段：指针字段变成 `unsafe.Pointer`，其他类型变成同尺寸同对齐的不透明数组，并记入 skipped；结构体其余字段保持类型化。每个输出的类型都在 `layout_gen_test.go` 里记录期望的 `Sizeof/Alignof` 与每个字段的 `Offsetof`，`TestGeneratedLayout` 把 Go 布局与 cc/v4 算出的 C 布局逐项比对，保证按值/按指针传递时与 C 一致。
 
 ### 输出
 
@@ -110,7 +111,7 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 
 ## 4. 如何扩展
 
-- **新增一类映射**（例如 `wchar_t`）：在 `types.go` 的 `unsupportedNames` 移除条目并在 `typ` / `bindFunc` 里加转换规则；同时更新 `ccfront` 的桩头文件使其带上正确宽度（宽度随平台变，需要按目标分别处理，这也是目前跳过的原因）。
+- **新增一类映射**（例如 `wchar_t`）：在 `types.go` 的 `builtinNames` 里映射到手写类型（或从 `unsupportedNames` 移除），并在 `bindFunc` 里加转换规则。`wchar_t` 的宽度随平台而异（ccfront 按 darwin/linux 为 4 字节、windows 为 2 字节），所以 `Wchar` 由带构建标签的手写文件定义；生成的布局只在 `wchar_t` 指向的元素宽度上不同，指针与结构体大小一致，`layout_gen_test.go` 在各平台都成立。
 - **保留更多 `SDL_stdinc.h` 函数**：编辑 `policy.go` 的 `keptStdinc` 正则。
 - **新增目标平台**：在 `ccfront.Targets` 加一项，并在 `data/predef/` 放对应 triple 的预定义宏（`clang --target=<triple> -dM -E - </dev/null`）；若该平台需要不同的 libc 桩，参照 `stubs_win` 另建目录并在 `translate` 里选择。同时在 `sdl/loader_*.go` 添加库搜索路径。
 - **增加包装规则**：在 `funcs.go: bindFunc` 的参数循环里增加新的 `argPlan`（参数类型、原始类型、转换表达式）；返回值同理。
