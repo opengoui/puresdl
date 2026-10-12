@@ -306,6 +306,8 @@ var fnSetScancodeName func(scancode Scancode, name *byte) bool
 // Since: SDL 3.2.0.
 //
 // See also: GetScancodeName
+//
+// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. String arguments are converted to a temporary C string per call and are not kept alive by this wrapper.
 func SetScancodeName(scancode Scancode, name string) bool {
 	return fnSetScancodeName(scancode, cstr(name))
 }
@@ -314,7 +316,7 @@ var fnGetScancodeName func(scancode Scancode) *byte
 
 // Get a human-readable name for a scancode.
 //
-// **Warning**: The returned name is by design not stable across platforms,
+// Warning: The returned name is by design not stable across platforms,
 // e.g. the name for `SCANCODE_LGUI` is "Left GUI" under Linux but "Left
 // Windows" under Microsoft Windows, and some scancodes like
 // `SCANCODE_NONUSBACKSLASH` don't have any name at all. There are even

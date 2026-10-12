@@ -43,10 +43,10 @@ var fnMain func(argc int32, argv **byte) int32
 // might get redefined.
 //
 // This function is only provided by the app if it isn't using
-// SDL_MAIN_USE_CALLBACKS.
+// `SDL_MAIN_USE_CALLBACKS`.
 //
 // Program startup is a surprisingly complex topic. Please see
-// [README-main-functions](README-main-functions), (or
+// README-main-functions, (or
 // docs/README-main-functions.md in the source tree) for a more detailed
 // explanation.
 //
@@ -70,7 +70,7 @@ var fnSetMainReady func()
 //
 // This function is defined in Main.h, along with the preprocessor rule to
 // redefine main() as Main(). Thus to ensure that your main() function
-// will not be changed it is necessary to define SDL_MAIN_HANDLED before
+// will not be changed it is necessary to define `SDL_MAIN_HANDLED` before
 // including SDL.h.
 //
 // Thread safety: This function is not thread safe.
@@ -90,7 +90,7 @@ var fnRunApp func(argc int32, argv **byte, mainFunction MainFunc, reserved unsaf
 // mainFunction.
 //
 // You can use this if you want to use your own main() implementation without
-// using Main (like when using SDL_MAIN_HANDLED). When using this, you do
+// using Main (like when using `SDL_MAIN_HANDLED`). When using this, you do
 // *not* need SetMainReady().
 //
 // If `argv` is NULL, SDL will provide command line arguments, either by
@@ -113,7 +113,7 @@ func RunApp(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Poin
 
 var fnEnterAppMainCallbacks func(argc int32, argv **byte, appinit AppInit_func, appiter AppIterate_func, appevent AppEvent_func, appquit AppQuit_func) int32
 
-// An entry point for SDL's use in SDL_MAIN_USE_CALLBACKS.
+// An entry point for SDL's use in `SDL_MAIN_USE_CALLBACKS`.
 //
 // Generally, you should not call this function directly. This only exists to
 // hand off work into SDL as soon as possible, where it has a lot more control
@@ -127,10 +127,10 @@ var fnEnterAppMainCallbacks func(argc int32, argv **byte, appinit AppInit_func, 
 // Parameters:
 //   - argc: standard Unix main argc.
 //   - argv: standard Unix main argv.
-//   - appinit: the application's SDL_AppInit function.
-//   - appiter: the application's SDL_AppIterate function.
-//   - appevent: the application's SDL_AppEvent function.
-//   - appquit: the application's SDL_AppQuit function.
+//   - appinit: the application's `SDL_AppInit` function.
+//   - appiter: the application's `SDL_AppIterate` function.
+//   - appevent: the application's `SDL_AppEvent` function.
+//   - appquit: the application's `SDL_AppQuit` function.
 //
 // Returns: standard Unix main return value.
 //
@@ -151,10 +151,10 @@ var fnGDKSuspendComplete func()
 // the app has suppressed all rendering operations, then call this from the
 // application render thread.
 //
-// When using SDL_Render, this should be called after calling
-// SDL_GDKSuspendRenderer.
+// When using `SDL_Render`, this should be called after calling
+// `SDL_GDKSuspendRenderer`.
 //
-// When using SDL_GPU, this should be called after calling SDL_GDKSuspendGPU.
+// When using `SDL_GPU`, this should be called after calling `SDL_GDKSuspendGPU`.
 //
 // If you're writing your own D3D12 renderer, this should be called after
 // calling `ID3D12CommandQueue::SuspendX`.
@@ -188,7 +188,7 @@ var fnRegisterApp func(name *byte, style uint32, hInst unsafe.Pointer) bool
 // the style, regardless of what is specified here.
 //
 // Parameters:
-//   - name: the window class name, in UTF-8 encoding. If NULL, SDL currently uses "SDL_app" but this isn't guaranteed.
+//   - name: the window class name, in UTF-8 encoding. If NULL, SDL currently uses "`SDL_app`" but this isn't guaranteed.
 //   - style: the value to use in WNDCLASSEX::style.
 //   - hInst: the HINSTANCE to use in WNDCLASSEX::hInstance. If zero, SDL will use `GetModuleHandle(NULL)` instead.
 //

@@ -3,6 +3,7 @@ package bindgen
 import (
 	"fmt"
 	"math/big"
+	"regexp"
 	"strings"
 
 	"github.com/dave/jennifer/jen"
@@ -231,6 +232,9 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	if printf {
 		notes = append(notes, "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.")
 	}
+	if n := keepAliveNote(f); n != "" {
+		notes = append(notes, n)
+	}
 	if len(f.Targets) < 3 {
 		notes = append(notes, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
 	}
@@ -381,4 +385,32 @@ func (g *gen) sliceResult(f *ir.Function) *sliceRes {
 	}
 	_ = free
 	return sr
+}
+
+// retainedRe matches doc text saying that SDL keeps using a pointer argument
+// after the call returns instead of copying what it points to.
+var retainedRe = regexp.MustCompile(`(?i)not copied|NoCopy|must (?:remain|stay) valid|keeps? a reference|remain valid[^.]{0,40}until the [^.]{0,40}(?:destroyed|closed)`)
+
+// keepAliveNote returns the "Keep alive:" doc note of f, or "" when neither
+// the function doc nor a parameter doc says that SDL retains a pointer
+// argument. Go's garbage collector does not know about the reference SDL
+// holds, so the caller has to keep the memory reachable.
+func keepAliveNote(f *ir.Function) string {
+	retained := retainedRe.MatchString(f.Doc) || retainedRe.MatchString(f.Name)
+	hasPtr, hasString := false, false
+	for _, p := range f.Sig.Params {
+		retained = retained || retainedRe.MatchString(p.Doc)
+		if r := p.Type.Resolve(); r.Kind == ir.Pointer {
+			hasPtr = true
+			hasString = hasString || isCString(p.Type)
+		}
+	}
+	if !retained || !hasPtr {
+		return ""
+	}
+	n := "Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it."
+	if hasString {
+		n += " String arguments are converted to a temporary C string per call and are not kept alive by this wrapper."
+	}
+	return n
 }

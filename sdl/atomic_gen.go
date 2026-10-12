@@ -79,8 +79,8 @@ var fnTryLockSpinlock func(lock *SpinLock) bool
 
 // Try to lock a spin lock by setting it to a non-zero value.
 //
-// ***Please note that spinlocks are dangerous if you don't know what you're
-// doing. Please be careful using any sort of spinlock!***
+// Please note that spinlocks are dangerous if you don't know what you're
+// doing. Please be careful using any sort of spinlock!
 //
 // Parameters:
 //   - lock: a pointer to a lock variable.
@@ -100,8 +100,8 @@ var fnLockSpinlock func(lock *SpinLock)
 
 // Lock a spin lock by setting it to a non-zero value.
 //
-// ***Please note that spinlocks are dangerous if you don't know what you're
-// doing. Please be careful using any sort of spinlock!***
+// Please note that spinlocks are dangerous if you don't know what you're
+// doing. Please be careful using any sort of spinlock!
 //
 // Parameters:
 //   - lock: a pointer to a lock variable.
@@ -121,8 +121,8 @@ var fnUnlockSpinlock func(lock *SpinLock)
 //
 // Always returns immediately.
 //
-// ***Please note that spinlocks are dangerous if you don't know what you're
-// doing. Please be careful using any sort of spinlock!***
+// Please note that spinlocks are dangerous if you don't know what you're
+// doing. Please be careful using any sort of spinlock!
 //
 // Parameters:
 //   - lock: a pointer to a lock variable.
@@ -140,7 +140,7 @@ var fnMemoryBarrierReleaseFunction func()
 
 // Insert a memory release barrier (function version).
 //
-// Please refer to SDL_MemoryBarrierRelease for details. This is a function
+// Please refer to `SDL_MemoryBarrierRelease` for details. This is a function
 // version, which might be useful if you need to use this functionality from a
 // scripting language, etc. Also, some of the macro versions call this
 // function behind the scenes, where more heavy lifting can happen inside of
@@ -151,7 +151,7 @@ var fnMemoryBarrierReleaseFunction func()
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_MemoryBarrierRelease
+// See also: `SDL_MemoryBarrierRelease`
 func MemoryBarrierReleaseFunction() {
 	fnMemoryBarrierReleaseFunction()
 }
@@ -160,7 +160,7 @@ var fnMemoryBarrierAcquireFunction func()
 
 // Insert a memory acquire barrier (function version).
 //
-// Please refer to SDL_MemoryBarrierRelease for details. This is a function
+// Please refer to `SDL_MemoryBarrierRelease` for details. This is a function
 // version, which might be useful if you need to use this functionality from a
 // scripting language, etc. Also, some of the macro versions call this
 // function behind the scenes, where more heavy lifting can happen inside of
@@ -171,7 +171,7 @@ var fnMemoryBarrierAcquireFunction func()
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_MemoryBarrierAcquire
+// See also: `SDL_MemoryBarrierAcquire`
 func MemoryBarrierAcquireFunction() {
 	fnMemoryBarrierAcquireFunction()
 }
@@ -180,8 +180,8 @@ var fnCompareAndSwapAtomicInt func(a *AtomicInt, oldval int32, newval int32) boo
 
 // Set an atomic variable to a new value if it is currently an old value.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicInt variable to be modified.
@@ -205,8 +205,8 @@ var fnSetAtomicInt func(a *AtomicInt, v int32) int32
 //
 // This function also acts as a full memory barrier.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicInt variable to be modified.
@@ -227,8 +227,8 @@ var fnGetAtomicInt func(a *AtomicInt) int32
 
 // Get the value of an atomic variable.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicInt variable.
@@ -250,8 +250,8 @@ var fnAddAtomicInt func(a *AtomicInt, v int32) int32
 //
 // This function also acts as a full memory barrier.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicInt variable to be modified.
@@ -263,7 +263,7 @@ var fnAddAtomicInt func(a *AtomicInt, v int32) int32
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_AtomicDecRef, SDL_AtomicIncRef
+// See also: `SDL_AtomicDecRef`, `SDL_AtomicIncRef`
 func AddAtomicInt(a *AtomicInt, v int32) int32 {
 	return fnAddAtomicInt(a, v)
 }
@@ -272,8 +272,8 @@ var fnCompareAndSwapAtomicU32 func(a *AtomicU32, oldval uint32, newval uint32) b
 
 // Set an atomic variable to a new value if it is currently an old value.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicU32 variable to be modified.
@@ -297,8 +297,8 @@ var fnSetAtomicU32 func(a *AtomicU32, v uint32) uint32
 //
 // This function also acts as a full memory barrier.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicU32 variable to be modified.
@@ -319,8 +319,8 @@ var fnGetAtomicU32 func(a *AtomicU32) uint32
 
 // Get the value of an atomic variable.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicU32 variable.
@@ -342,8 +342,8 @@ var fnAddAtomicU32 func(a *AtomicU32, v int32) uint32
 //
 // This function also acts as a full memory barrier.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to an AtomicU32 variable to be modified.
@@ -362,8 +362,8 @@ var fnCompareAndSwapAtomicPointer func(a *unsafe.Pointer, oldval unsafe.Pointer,
 
 // Set a pointer to a new value if it is currently an old value.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to a pointer.
@@ -385,8 +385,8 @@ var fnSetAtomicPointer func(a *unsafe.Pointer, v unsafe.Pointer) unsafe.Pointer
 
 // Set a pointer to a value atomically.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to a pointer.
@@ -407,8 +407,8 @@ var fnGetAtomicPointer func(a *unsafe.Pointer) unsafe.Pointer
 
 // Get the value of a pointer atomically.
 //
-// ***Note: If you don't know what this function is for, you shouldn't use
-// it!***
+// Note: If you don't know what this function is for, you shouldn't use
+// it!
 //
 // Parameters:
 //   - a: a pointer to a pointer.

@@ -89,7 +89,7 @@ var fnReportAssertion func(data *AssertData, func_ *byte, file *byte, line int32
 
 // Never call this directly.
 //
-// Use the SDL_assert macros instead.
+// Use the `SDL_assert` macros instead.
 //
 // Parameters:
 //   - data: assert data structure.

@@ -154,8 +154,8 @@ var fnSetLogPriorityPrefix func(priority LogPriority, prefix *byte) bool
 // LOG_PRIORITY_WARN and higher have a prefix showing their priority, e.g.
 // "WARNING: ".
 //
-// This function makes a copy of its string argument, **prefix**, so it is not
-// necessary to keep the value of **prefix** alive after the call returns.
+// This function makes a copy of its string argument, prefix, so it is not
+// necessary to keep the value of prefix alive after the call returns.
 //
 // Parameters:
 //   - priority: the LogPriority to modify.
@@ -200,7 +200,7 @@ var fnLogTrace func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -220,7 +220,7 @@ var fnLogVerbose func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -240,7 +240,7 @@ var fnLogDebug func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -260,7 +260,7 @@ var fnLogInfo func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -280,7 +280,7 @@ var fnLogWarn func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -300,7 +300,7 @@ var fnLogError func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -320,7 +320,7 @@ var fnLogCritical func(category int32, fmt_ *byte)
 // Parameters:
 //   - category: the category of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -341,7 +341,7 @@ var fnLogMessage func(category int32, priority LogPriority, fmt_ *byte)
 //   - category: the category of the message.
 //   - priority: the priority of the message.
 //   - fmt: a printf() style message format string.
-//   - ...: additional parameters matching % tokens in the **fmt** string, if any.
+//   - ...: additional parameters matching % tokens in the fmt string, if any.
 //
 // Thread safety: It is safe to call this function from any thread.
 //

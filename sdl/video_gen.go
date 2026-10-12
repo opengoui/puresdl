@@ -506,7 +506,7 @@ const (
 	// A magic value used with WINDOWPOS_UNDEFINED.
 	//
 	// Generally this macro isn't used directly, but rather through
-	// WINDOWPOS_UNDEFINED or SDL_WINDOWPOS_UNDEFINED_DISPLAY.
+	// WINDOWPOS_UNDEFINED or WINDOWPOS_UNDEFINED_DISPLAY.
 	//
 	// Since: SDL 3.2.0.
 	//
@@ -523,7 +523,7 @@ const (
 	// A magic value used with WINDOWPOS_CENTERED.
 	//
 	// Generally this macro isn't used directly, but rather through
-	// WINDOWPOS_CENTERED or SDL_WINDOWPOS_CENTERED_DISPLAY.
+	// WINDOWPOS_CENTERED or WINDOWPOS_CENTERED_DISPLAY.
 	//
 	// Since: SDL 3.2.0.
 	//
@@ -678,7 +678,7 @@ var fnGetVideoDriver func(index int32) *byte
 // Parameters:
 //   - index: the index of a video driver.
 //
-// Returns: the name of the video driver with the given **index**, or NULL if index is out of bounds.
+// Returns: the name of the video driver with the given index, or NULL if index is out of bounds.
 //
 // Thread safety: This function should only be called on the main thread.
 //
@@ -1291,7 +1291,7 @@ var fnCreateWindow func(title *byte, w int32, h int32, flags WindowFlags) *Windo
 // The Window will be shown if WINDOW_HIDDEN is not set. If hidden at
 // creation time, ShowWindow() can be used to show it later.
 //
-// On Apple's macOS, you **must** set the NSHighResolutionCapable Info.plist
+// On Apple's macOS, you must set the NSHighResolutionCapable Info.plist
 // property to YES, otherwise you will not receive a High-DPI OpenGL canvas.
 //
 // The window pixel size may differ from its window coordinate size if the
@@ -1346,7 +1346,7 @@ var fnCreatePopupWindow func(parent *Window, offset_x int32, offset_y int32, w i
 // the desktop layout and window manager policies. Your application should be
 // prepared to handle a window of any size.
 //
-// The flags parameter **must** contain at least one of the following:
+// The flags parameter must contain at least one of the following:
 //
 //   - `WINDOW_TOOLTIP`: The popup window is a tooltip and will not pass any
 //     input events.
@@ -1367,7 +1367,7 @@ var fnCreatePopupWindow func(parent *Window, offset_x int32, offset_y int32, w i
 // - `WINDOW_UTILITY`
 // - `WINDOW_MODAL`
 //
-// The parent parameter **must** be non-null and a valid window. The parent of
+// The parent parameter must be non-null and a valid window. The parent of
 // a popup window can be either a regular, toplevel window, or another popup
 // window.
 //
@@ -1496,7 +1496,7 @@ var fnCreateWindowWithProperties func(props PropertiesID) *Window
 //   - `PROP_WINDOW_CREATE_WAYLAND_SURFACE_ROLE_CUSTOM_BOOLEAN` - true if
 //     the application wants to use the Wayland surface for a custom role and
 //     does not want it attached to an XDG toplevel window. See
-//     [README-wayland](README-wayland) for more information on using custom
+//     README-wayland for more information on using custom
 //     surfaces.
 //   - `PROP_WINDOW_CREATE_WAYLAND_CREATE_EGL_WINDOW_BOOLEAN` - true if the
 //     application wants an associated `wl_egl_window` object to be created and
@@ -1509,10 +1509,10 @@ var fnCreateWindowWithProperties func(props PropertiesID) *Window
 //     window.
 //   - `PROP_WINDOW_CREATE_WAYLAND_WL_SURFACE_POINTER` - the wl_surface
 //     associated with the window, if you want to wrap an existing window. See
-//     [README-wayland](README-wayland) for more information.
+//     README-wayland for more information.
 //   - `PROP_WINDOW_CREATE_WAYLAND_ENABLE_INSETS_BOOLEAN` - true if the
 //     application wants to enable custom border inset window properties. See
-//     [README-wayland](README-wayland) for more information.
+//     README-wayland for more information.
 //
 // These are additional supported properties on Windows:
 //
@@ -2671,7 +2671,7 @@ var fnUpdateWindowSurface func(window *Window) bool
 // This is the function you use to reflect any changes to the surface on the
 // screen.
 //
-// This function is equivalent to the SDL 1.2 API SDL_Flip().
+// This function is equivalent to the SDL 1.2 API `SDL_Flip`().
 //
 // Parameters:
 //   - window: the window to update.
@@ -2694,7 +2694,7 @@ var fnUpdateWindowSurfaceRects func(window *Window, rects *Rect, numrects int32)
 // This is the function you use to reflect changes to portions of the surface
 // on the screen.
 //
-// This function is equivalent to the SDL 1.2 API SDL_UpdateRects().
+// This function is equivalent to the SDL 1.2 API `SDL_UpdateRects`().
 //
 // Note that this function will update _at least_ the rectangles specified,
 // but this is only intended as an optimization; in practice, this might
@@ -3065,7 +3065,7 @@ var fnSetWindowHitTest func(window *Window, callback HitTest, callback_data unsa
 // Parameters:
 //   - window: the window to set hit-testing on.
 //   - callback: the function to call when doing a hit-test.
-//   - callback_data: an app-defined void pointer passed to **callback**.
+//   - callback_data: an app-defined void pointer passed to callback.
 //
 // Returns: true on success or false on failure; call GetError() for more information.
 //

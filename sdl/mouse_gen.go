@@ -276,7 +276,7 @@ var fnGetMouseState func(x *float32, y *float32) MouseButtonFlags
 //   - x: a pointer to receive the SDL-cursor's x-position from the focused window's top left corner, can be NULL if unused.
 //   - y: a pointer to receive the SDL-cursor's y-position from the focused window's top left corner, can be NULL if unused.
 //
-// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the SDL_BUTTON_MASK(X) macro.
+// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the BUTTON_MASK(X) macro.
 //
 // Thread safety: This function should only be called on the main thread.
 //
@@ -312,7 +312,7 @@ var fnGetGlobalMouseState func(x *float32, y *float32) MouseButtonFlags
 //   - x: a pointer to receive the platform-cursor's x-position from the desktop's top left corner, can be NULL if unused.
 //   - y: a pointer to receive the platform-cursor's y-position from the desktop's top left corner, can be NULL if unused.
 //
-// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the SDL_BUTTON_MASK(X) macro.
+// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the BUTTON_MASK(X) macro.
 //
 // Thread safety: This function should only be called on the main thread.
 //
@@ -347,7 +347,7 @@ var fnGetRelativeMouseState func(x *float32, y *float32) MouseButtonFlags
 //   - x: a pointer to receive the x mouse delta accumulated since last call, can be NULL if unused.
 //   - y: a pointer to receive the y mouse delta accumulated since last call, can be NULL if unused.
 //
-// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the SDL_BUTTON_MASK(X) macro.
+// Returns: a 32-bit bitmask of the button state that can be bitwise-compared against the BUTTON_MASK(X) macro.
 //
 // Thread safety: This function should only be called on the main thread.
 //

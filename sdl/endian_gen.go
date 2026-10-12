@@ -8,7 +8,6 @@ const (
 	// This is used with the preprocessor macro BYTEORDER, to determine a
 	// platform's byte ordering:
 	//
-	//
 	// 	#if BYTEORDER == LIL_ENDIAN
 	// 	Log("This system is littleendian.");
 	// 	#endif
@@ -21,7 +20,6 @@ const (
 	//
 	// This is used with the preprocessor macro BYTEORDER, to determine a
 	// platform's byte ordering:
-	//
 	//
 	// 	#if BYTEORDER == BIG_ENDIAN
 	// 	Log("This system is bigendian.");

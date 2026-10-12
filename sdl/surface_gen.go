@@ -425,7 +425,7 @@ var fnLockSurface func(surface *Surface) bool
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_MUSTLOCK, UnlockSurface
+// See also: `SDL_MUSTLOCK`, UnlockSurface
 func LockSurface(surface *Surface) bool {
 	return fnLockSurface(surface)
 }
@@ -1341,7 +1341,7 @@ var fnFillSurfaceRects func(dst *Surface, rects *Rect, count int32, color uint32
 //
 // Parameters:
 //   - dst: the Surface structure that is the drawing target.
-//   - rects: an array of SDL_Rects representing the rectangles to fill.
+//   - rects: an array of `SDL_Rects` representing the rectangles to fill.
 //   - count: the number of rectangles in the array.
 //   - color: the color to fill with.
 //
@@ -1372,10 +1372,10 @@ var fnBlitSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect)
 //	 RGBA->RGB:
 //	   Source surface blend mode set to BLENDMODE_BLEND:
 //	    alpha-blend (using the source alpha-channel and per-surface alpha)
-//	    SDL_SRCCOLORKEY ignored.
+//	    `SDL_SRCCOLORKEY` ignored.
 //	  Source surface blend mode set to BLENDMODE_NONE:
 //	    copy RGB.
-//	    if SDL_SRCCOLORKEY set, only copy the pixels that do not match the
+//	    if `SDL_SRCCOLORKEY` set, only copy the pixels that do not match the
 //	    RGB values of the source color key, ignoring alpha in the
 //	    comparison.
 //
@@ -1385,16 +1385,16 @@ var fnBlitSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect)
 //	  Source surface blend mode set to BLENDMODE_NONE:
 //	    copy RGB, set destination alpha to source per-surface alpha value.
 //	  both:
-//	    if SDL_SRCCOLORKEY set, only copy the pixels that do not match the
+//	    if `SDL_SRCCOLORKEY` set, only copy the pixels that do not match the
 //	    source color key.
 //
 //	RGBA->RGBA:
 //	  Source surface blend mode set to BLENDMODE_BLEND:
 //	    alpha-blend (using the source alpha-channel and per-surface alpha)
-//	    SDL_SRCCOLORKEY ignored.
+//	    `SDL_SRCCOLORKEY` ignored.
 //	  Source surface blend mode set to BLENDMODE_NONE:
 //	    copy all of RGBA to the destination.
-//	    if SDL_SRCCOLORKEY set, only copy the pixels that do not match the
+//	    if `SDL_SRCCOLORKEY` set, only copy the pixels that do not match the
 //	    RGB values of the source color key, ignoring alpha in the
 //	    comparison.
 //
@@ -1404,7 +1404,7 @@ var fnBlitSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect)
 //	  Source surface blend mode set to BLENDMODE_NONE:
 //	    copy RGB.
 //	  both:
-//	    if SDL_SRCCOLORKEY set, only copy the pixels that do not match the
+//	    if `SDL_SRCCOLORKEY` set, only copy the pixels that do not match the
 //	    source color key.
 //
 // Parameters:

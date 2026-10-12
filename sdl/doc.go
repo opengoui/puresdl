@@ -31,6 +31,12 @@
 //   - functions that return an SDL_free-able array ([GetDisplays],
 //     [GetWindows], [LoadFile] ...) return a Go slice and release the SDL
 //     allocation; the count out-parameter is dropped from the signature.
+//   - [GoStrings], [GoStringsN] and [Slice] help with arrays that SDL hands out
+//     and that have no generated wrapper; the first two copy, [Slice] aliases
+//     the C memory.
+//   - Functions whose SDL documentation says that a pointer argument is
+//     retained rather than copied carry a "Keep alive:" note: the caller must
+//     keep that Go memory reachable while SDL uses it.
 //   - printf-style functions ([SetError], [Log] ...) take a Go format string
 //     and arguments, formatted with fmt.Sprintf before SDL sees them.
 //   - C unions such as [Event] expose their members through accessor methods.

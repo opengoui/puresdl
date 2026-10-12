@@ -76,19 +76,19 @@ type GlobFlags uint32
 //
 // The folders supported per platform are:
 //
-// |             | Windows | macOS/iOS | tvOS | Unix (XDG) | Haiku | Emscripten |
-// | ----------- | ------- | --------- | ---- | ---------- | ----- | ---------- |
-// | HOME        | X       | X         |      | X          | X     | X          |
-// | DESKTOP     | X       | X         |      | X          | X     |            |
-// | DOCUMENTS   | X       | X         |      | X          |       |            |
-// | DOWNLOADS   | Vista+  | X         |      | X          |       |            |
-// | MUSIC       | X       | X         |      | X          |       |            |
-// | PICTURES    | X       | X         |      | X          |       |            |
-// | PUBLICSHARE |         | X         |      | X          |       |            |
-// | SAVEDGAMES  | Vista+  |           |      |            |       |            |
-// | SCREENSHOTS | Vista+  |           |      |            |       |            |
-// | TEMPLATES   | X       | X         |      | X          |       |            |
-// | VIDEOS      | X       | X*        |      | X          |       |            |
+//	|             | Windows | macOS/iOS | tvOS | Unix (XDG) | Haiku | Emscripten |
+//	| ----------- | ------- | --------- | ---- | ---------- | ----- | ---------- |
+//	| HOME        | X       | X         |      | X          | X     | X          |
+//	| DESKTOP     | X       | X         |      | X          | X     |            |
+//	| DOCUMENTS   | X       | X         |      | X          |       |            |
+//	| DOWNLOADS   | Vista+  | X         |      | X          |       |            |
+//	| MUSIC       | X       | X         |      | X          |       |            |
+//	| PICTURES    | X       | X         |      | X          |       |            |
+//	| PUBLICSHARE |         | X         |      | X          |       |            |
+//	| SAVEDGAMES  | Vista+  |           |      |            |       |            |
+//	| SCREENSHOTS | Vista+  |           |      |            |       |            |
+//	| TEMPLATES   | X       | X         |      | X          |       |            |
+//	| VIDEOS      | X       | X*        |      | X          |       |            |
 //
 // Note that on macOS/iOS, the Videos folder is called "Movies".
 //
@@ -169,14 +169,14 @@ var fnGetBasePath func() *byte
 // SDL caches the result of this call internally, but the first call to this
 // function is not necessarily fast, so plan accordingly.
 //
-// **macOS and iOS Specific Functionality**: If the application is in a ".app"
+// macOS and iOS Specific Functionality: If the application is in a ".app"
 // bundle, this function returns the Resource directory (e.g.
 // MyApp.app/Contents/Resources/). This behaviour can be overridden by adding
 // a property to the Info.plist file. Adding a string key with the name
-// SDL_FILESYSTEM_BASE_DIR_TYPE with a supported value will change the
+// `SDL_FILESYSTEM_BASE_DIR_TYPE` with a supported value will change the
 // behaviour.
 //
-// Supported values for the SDL_FILESYSTEM_BASE_DIR_TYPE property (Given an
+// Supported values for the `SDL_FILESYSTEM_BASE_DIR_TYPE` property (Given an
 // application in /Applications/SDLApp/MyApp.app):
 //
 //   - `resource`: bundle resource directory (the default). For example:
@@ -186,10 +186,10 @@ var fnGetBasePath func() *byte
 //   - `parent`: the containing directory of the bundle. For example:
 //     `/Applications/SDLApp/`
 //
-// **Android Specific Functionality**: This function returns "./", which
+// Android Specific Functionality: This function returns "./", which
 // allows filesystem operations to use internal storage and the asset system.
 //
-// **Nintendo 3DS Specific Functionality**: This function returns "romfs"
+// Nintendo 3DS Specific Functionality: This function returns "romfs"
 // directory of the application as it is uncommon to store resources outside
 // the executable. As such it is not a writable directory.
 //

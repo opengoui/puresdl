@@ -13,7 +13,7 @@ import (
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_CreateThread, WaitThread
+// See also: CreateThread, WaitThread
 //
 // It is an opaque handle owned by SDL.
 type Thread struct{}
@@ -50,10 +50,10 @@ func NewTLSDestructorCallback(fn func(value unsafe.Pointer)) TLSDestructorCallba
 // See also: GetTLS, SetTLS
 type TLSID = AtomicInt
 
-// The function passed to SDL_CreateThread() as the new thread's entry point.
+// The function passed to CreateThread() as the new thread's entry point.
 //
 // Parameters:
-//   - data: what was passed as `data` to SDL_CreateThread().
+//   - data: what was passed as `data` to CreateThread().
 //
 // Returns: a value that can be reported through WaitThread().
 //
@@ -128,7 +128,7 @@ const (
 
 var fnCreateThreadRuntime func(fn ThreadFunction, name *byte, data unsafe.Pointer, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread
 
-// The actual entry point for SDL_CreateThread.
+// The actual entry point for CreateThread.
 //
 // Parameters:
 //   - fn: the ThreadFunction function to call in the new thread
@@ -148,7 +148,7 @@ func CreateThreadRuntime(fn ThreadFunction, name string, data unsafe.Pointer, pf
 
 var fnCreateThreadWithPropertiesRuntime func(props PropertiesID, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread
 
-// The actual entry point for SDL_CreateThreadWithProperties.
+// The actual entry point for CreateThreadWithProperties.
 //
 // Parameters:
 //   - props: the properties to use
@@ -166,7 +166,7 @@ func CreateThreadWithPropertiesRuntime(props PropertiesID, pfnBeginThread Functi
 
 var fnGetThreadName func(thread *Thread) *byte
 
-// Get the thread name as it was specified in SDL_CreateThread().
+// Get the thread name as it was specified in CreateThread().
 //
 // Parameters:
 //   - thread: the thread to query.
@@ -268,14 +268,14 @@ var fnWaitThread func(thread *Thread, status *int32)
 // afterward.
 //
 // Parameters:
-//   - thread: the Thread pointer that was returned from the SDL_CreateThread() call that started this thread.
+//   - thread: the Thread pointer that was returned from the CreateThread() call that started this thread.
 //   - status: a pointer filled in with the value returned from the thread function by its 'return', or -1 if the thread has been detached or isn't valid, may be NULL.
 //
 // Thread safety: It is safe to call this function from any thread, but only a single thread can wait any specific thread to finish.
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_CreateThread, DetachThread
+// See also: CreateThread, DetachThread
 func WaitThread(thread *Thread, status *int32) {
 	fnWaitThread(thread, status)
 }
@@ -326,13 +326,13 @@ var fnDetachThread func(thread *Thread)
 // It is safe to pass NULL to this function; it is a no-op.
 //
 // Parameters:
-//   - thread: the Thread pointer that was returned from the SDL_CreateThread() call that started this thread.
+//   - thread: the Thread pointer that was returned from the CreateThread() call that started this thread.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_CreateThread, WaitThread
+// See also: CreateThread, WaitThread
 func DetachThread(thread *Thread) {
 	fnDetachThread(thread)
 }

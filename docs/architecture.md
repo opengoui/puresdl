@@ -82,7 +82,9 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 - 以 `const char *fmt, ...` 结尾的 printf 风格变参函数 → `(format string, args ...any)`，经 `cprintf` 做 `fmt.Sprintf` 并把 `%` 转义成 `%%`，作为字面量交给 SDL；其余变参函数、带 `va_list` 的函数、`SDL_stdinc.h` 里非保留名单（`policy.go` 的 `keptStdinc`）的函数一律跳过，原因写入 skipped。
 - 其余参数/返回值直接用映射类型；结构体按值传递交给 purego。
 - 只在少于 3 个目标声明的函数，在文档加 “Only declared by the SDL headers for …”。
-- 文档里的 C 标识符通过 `docNames` 改写成 Go 名字。
+- 文档转换在 `doc.go`：先按段落预处理（代码块与 Markdown 表格 → 缩进的预格式块，`[文本](Category…)` 链接、`**粗体**`、HTML 实体、行内 `\p \c \a \ref \b \e \em \sa`、行首 `@tag` 还原为纯文本），再按出现顺序输出 `Parameters:` / `Returns:` / `Note:` / `Thread safety:` / `Since:` / `See also:` 段落（`\returns` 之后的正文段落留在原位，不再被提前或缩进成预格式文本），并折叠连续空注释行。
+- 文档里的 C 标识符通过 `docNames`（已绑定）和 `Options.HandDir`/输出目录里手写文件的导出名（如 `VERSIONNUM`）改写成 Go 名字；其余 `SDL_` 名字写成带反引号的 C 名字。`checkDocNames` 在生成结束时校验：这些名字必须是被跳过的声明或在 `docAllow` 里，否则生成失败并列出全部违规名字（`SDL_HINT_*` 这类通配前缀、`SDL_xxx.h` 文件名不算）。
+- 文档（函数文档或参数文档）里出现 `not copied`、`NoCopy`、`must remain/stay valid`、`keeps a reference` 等表示 SDL 保留指针的措辞，且函数有指针参数时，在文档加 `Keep alive:` 说明（`funcs.go: keepAliveNote`）。
 
 ### 加载与缺失符号（手写，`sdl/loader*.go`）
 

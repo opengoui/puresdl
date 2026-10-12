@@ -6,7 +6,7 @@ package sdl
 //
 // Since: SDL 3.2.0.
 //
-// See also: GetRectEnclosingPointsFloat, SDL_PointInRectFloat
+// See also: GetRectEnclosingPointsFloat, PointInRectFloat
 type FPoint struct {
 	X float32
 	Y float32
@@ -20,7 +20,7 @@ type FPoint struct {
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_RectEmptyFloat, SDL_RectsEqualFloat, SDL_RectsEqualEpsilon, HasRectIntersectionFloat, GetRectIntersectionFloat, GetRectAndLineIntersectionFloat, GetRectUnionFloat, GetRectEnclosingPointsFloat, SDL_PointInRectFloat
+// See also: RectEmptyFloat, RectsEqualFloat, RectsEqualEpsilon, HasRectIntersectionFloat, GetRectIntersectionFloat, GetRectAndLineIntersectionFloat, GetRectUnionFloat, GetRectEnclosingPointsFloat, PointInRectFloat
 type FRect struct {
 	X float32
 	Y float32
@@ -32,7 +32,7 @@ type FRect struct {
 //
 // Since: SDL 3.2.0.
 //
-// See also: GetRectEnclosingPoints, SDL_PointInRect
+// See also: GetRectEnclosingPoints, PointInRect
 type Point struct {
 	X int32
 	Y int32
@@ -42,7 +42,7 @@ type Point struct {
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_RectEmpty, SDL_RectsEqual, HasRectIntersection, GetRectIntersection, GetRectAndLineIntersection, GetRectUnion, GetRectEnclosingPoints
+// See also: RectEmpty, RectsEqual, HasRectIntersection, GetRectIntersection, GetRectAndLineIntersection, GetRectUnion, GetRectEnclosingPoints
 type Rect struct {
 	X int32
 	Y int32

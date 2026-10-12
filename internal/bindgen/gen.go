@@ -20,6 +20,9 @@ import (
 type Options struct {
 	Package string // Go package name, default "sdl"
 	OutDir  string
+	// HandDir is the directory whose hand-written Go files name the extra
+	// exported identifiers that docs may refer to; default OutDir.
+	HandDir string
 }
 
 // Result reports what Generate produced.
@@ -47,6 +50,13 @@ type gen struct {
 	errs     []string
 	// typedConsts counts the macro constants emitted with a typedef type.
 	typedConsts int
+	// handNames holds the exported identifiers of the hand-written files in
+	// the output directory.
+	handNames map[string]bool
+	// docUnknown collects SDL_ names that docs mention but that have no Go
+	// counterpart; skippedNames holds the C names the generator skipped.
+	docUnknown   map[string]bool
+	skippedNames map[string]bool
 }
 
 type fileBuf struct {
@@ -77,6 +87,13 @@ func (g *gen) file(header string) *fileBuf {
 
 func (g *gen) skip(what, why string) {
 	g.skipped = append(g.skipped, fmt.Sprintf("%s: %s", what, why))
+	if g.skippedNames == nil {
+		g.skippedNames = map[string]bool{}
+	}
+	g.skippedNames[what] = true
+	if i := strings.IndexByte(what, '.'); i > 0 {
+		g.skippedNames[what[:i]] = true
+	}
 }
 
 func (g *gen) errorf(format string, a ...any) {
@@ -99,11 +116,14 @@ func Generate(api *ir.API, opt Options) (*Result, error) {
 	if opt.Package == "" {
 		opt.Package = "sdl"
 	}
+	if opt.HandDir == "" {
+		opt.HandDir = opt.OutDir
+	}
 	g := &gen{
 		api: api, pkg: opt.Package,
 		docNames: map[string]string{}, claimed: map[string]string{}, tdGo: map[string]string{},
 		typedefs: map[string]*ir.Typedef{}, recName: map[*ir.Record]string{}, enumName: map[*ir.EnumDecl]string{},
-		files: map[string]*fileBuf{},
+		files: map[string]*fileBuf{}, handNames: loadHandNames(opt.HandDir),
 	}
 	for _, m := range CheckNullPolicy(api) {
 		g.errorf("%s", m)
@@ -113,6 +133,7 @@ func Generate(api *ir.API, opt Options) (*Result, error) {
 	g.emitEnums()
 	g.emitConsts()
 	g.emitFuncs()
+	g.checkDocNames()
 	if len(g.errs) > 0 {
 		return nil, fmt.Errorf("bindgen: %s", strings.Join(g.errs, "\n"))
 	}

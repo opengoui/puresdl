@@ -413,7 +413,7 @@ type GPUDepthStencilTargetInfo struct {
 	Layer uint8
 }
 
-// An opaque handle representing the SDL_GPU context.
+// An opaque handle representing the `SDL_GPU` context.
 //
 // Since: SDL 3.2.0.
 //
@@ -862,7 +862,7 @@ type GPUTextureSamplerBinding struct {
 // DownloadFromGPUTexture are used as default values respectively and data
 // is considered to be tightly packed.
 //
-// **WARNING**: On some older/integrated hardware, Direct3D 12 requires
+// WARNING: On some older/integrated hardware, Direct3D 12 requires
 // texture data row pitch to be 256 byte aligned, and offsets to be aligned to
 // 512 bytes. If they are not, SDL will make a temporary copy of the data that
 // is properly aligned, but this adds overhead to the transfer process. Apps
@@ -1901,9 +1901,9 @@ var fnCreateGPUDevice func(format_flags GPUShaderFormat, debug_mode bool, name *
 //
 // The GPU driver name can be one of the following:
 //
-// - "vulkan": [Vulkan](CategoryGPU#vulkan)
-// - "direct3d12": [D3D12](CategoryGPU#d3d12)
-// - "metal": [Metal](CategoryGPU#metal)
+// - "vulkan": Vulkan
+// - "direct3d12": D3D12
+// - "metal": Metal
 // - NULL: let SDL pick the optimal driver
 //
 // Parameters:
@@ -2006,7 +2006,7 @@ var fnCreateGPUDeviceWithProperties func(props PropertiesID) *GPUDevice
 //   - `PROP_GPU_DEVICE_CREATE_VULKAN_REQUIRE_HARDWARE_ACCELERATION_BOOLEAN`:
 //     By default, Vulkan device enumeration includes drivers of all types,
 //     including software renderers (for example, the Lavapipe Mesa driver).
-//     This can be useful if your application _requires_ SDL_GPU, but if you can
+//     This can be useful if your application _requires_ `SDL_GPU`, but if you can
 //     provide your own fallback renderer (for example, an OpenGL renderer) this
 //     property can be set to true. Defaults to false.
 //   - `PROP_GPU_DEVICE_CREATE_VULKAN_OPTIONS_POINTER`: a pointer to an
@@ -2022,7 +2022,7 @@ var fnCreateGPUDeviceWithProperties func(props PropertiesID) *GPUDevice
 // support for "MTLGPUFamilyMac1" hardware, if (and only if) the application
 // does not write to sRGB textures. (For history's sake: MacFamily1 also does
 // not support indirect command buffers, MSAA depth resolve, and stencil
-// resolve/feedback, but these are not exposed features in SDL_GPU.)
+// resolve/feedback, but these are not exposed features in `SDL_GPU`.)
 //
 // Parameters:
 //   - props: the properties to use.
@@ -2077,7 +2077,7 @@ var fnGetGPUDriver func(index int32) *byte
 // Parameters:
 //   - index: the index of a GPU driver.
 //
-// Returns: the name of the GPU driver with the given **index** or NULL when the index is out of bounds; call GetError() for more information.
+// Returns: the name of the GPU driver with the given index or NULL when the index is out of bounds; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
 //
@@ -2228,7 +2228,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 //
 // ---
 //
-// **SPIR-V (GLSL)**
+// SPIR-V (GLSL)
 //
 // For compute shaders, use:
 //
@@ -2259,7 +2259,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 // textures in the binding order, in order of how they are bound via
 // `BeginGPUComputePass()`.
 //
-// **Example**
+// # Example
 //
 // If a compute shader binds 2 of each resource type, its binding layout
 // should look like this:
@@ -2285,7 +2285,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 //
 // ---
 //
-// **DXBC / DXIL (HLSL)**
+// DXBC / DXIL (HLSL)
 //
 // For compute shaders, use:
 //
@@ -2321,7 +2321,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 // textures in the `u` register set in `space1`, in order of how they are
 // bound via `BeginGPUComputePass()`.
 //
-// **Example**
+// # Example
 //
 // If a compute shader binds 2 of each resource type, the layout should look
 // like this:
@@ -2349,7 +2349,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 //
 // ---
 //
-// **MSL / Metallib (Metal Shading Language)**
+// MSL / Metallib (Metal Shading Language)
 //
 // The first resource in a given argument table must have an index of `0`.
 // Additional resources must appear at consecutive indices (1, 2, etc),
@@ -2380,7 +2380,7 @@ var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePip
 // buffers in the `[[buffer]]` argument table, in order of how they are bound
 // via `BeginGPUComputePass()`.
 //
-// **Example**
+// # Example
 //
 // For a compute shader binding 2 of each resource type, the main function
 // signature should look like this:
@@ -2485,7 +2485,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 //
 // ---
 //
-// **SPIR-V (GLSL)**
+// SPIR-V (GLSL)
 //
 // For vertex shaders, use: - Set 0 for samplers, storage textures, and
 // storage buffers - Set 1 for uniform data
@@ -2506,7 +2506,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 // All storage buffers must come after all storage textures in the binding
 // order, in order of how they are bound via `SDL_Bind*StorageBuffers()`.
 //
-// **Example**
+// # Example
 //
 // If a vertex shader binds 2 samplers, 2 storage textures, 2 storage buffers,
 // and 2 uniform buffers, its binding layout should look like this:
@@ -2526,7 +2526,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 //
 // ---
 //
-// **DXBC / DXIL (HLSL)**
+// DXBC / DXIL (HLSL)
 //
 // For vertex shaders, use: - `(t[n], space0)` for sampled textures, storage
 // textures, and storage buffers - `(s[n], space0)` for samplers - `(b[n],
@@ -2553,7 +2553,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 // register set, in order of how they are bound via
 // `SDL_Bind*StorageBuffers()`.
 //
-// **Example**
+// # Example
 //
 // If a pixel shader binds 2 samplers, 2 storage textures, 2 storage buffers,
 // and 2 uniform buffers, its binding layout should look like this:
@@ -2575,7 +2575,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 //
 // ---
 //
-// **MSL / Metallib (Metal Shading Language)**
+// MSL / Metallib (Metal Shading Language)
 //
 // The first resource in a given argument table must have an index of `0`.
 // Additional resources must appear at consecutive indices (1, 2, etc),
@@ -2606,7 +2606,7 @@ var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *
 // indices, use the `[[stage_in]]` attribute which will automatically use the
 // vertex input information from the GPUGraphicsPipeline.
 //
-// **Example**
+// # Example
 //
 // For a vertex shader with 1 vertex buffer, 2 samplers, 2 storage textures, 2
 // storage buffers, and 2 uniform buffers, the main function signature should
@@ -2731,7 +2731,7 @@ var fnCreateGPUBuffer func(device *GPUDevice, createinfo *GPUBufferCreateInfo) *
 //
 // For better understanding of underlying concepts and memory management with
 // SDL GPU API, you may refer
-// [this blog post](https://moonside.games/posts/sdl-gpu-concepts-cycling/)
+// this blog post (https://moonside.games/posts/sdl-gpu-concepts-cycling/)
 // .
 //
 // There are optional properties that can be provided through `props`. These
@@ -2832,7 +2832,7 @@ var fnInsertGPUDebugLabel func(command_buffer *GPUCommandBuffer, text *byte)
 // On Direct3D 12, using InsertGPUDebugLabel requires
 // WinPixEventRuntime.dll to be in your PATH or in the same directory as your
 // executable. See
-// [here](https://devblogs.microsoft.com/pix/winpixeventruntime/)
+// here (https://devblogs.microsoft.com/pix/winpixeventruntime/)
 // for instructions on how to obtain it.
 //
 // Parameters:
@@ -2856,7 +2856,7 @@ var fnPushGPUDebugGroup func(command_buffer *GPUCommandBuffer, name *byte)
 //
 // On Direct3D 12, using PushGPUDebugGroup requires WinPixEventRuntime.dll
 // to be in your PATH or in the same directory as your executable. See
-// [here](https://devblogs.microsoft.com/pix/winpixeventruntime/)
+// here (https://devblogs.microsoft.com/pix/winpixeventruntime/)
 // for instructions on how to obtain it.
 //
 // On some backends (e.g. Metal), pushing a debug group during a
@@ -2881,7 +2881,7 @@ var fnPopGPUDebugGroup func(command_buffer *GPUCommandBuffer)
 //
 // On Direct3D 12, using PopGPUDebugGroup requires WinPixEventRuntime.dll
 // to be in your PATH or in the same directory as your executable. See
-// [here](https://devblogs.microsoft.com/pix/winpixeventruntime/)
+// here (https://devblogs.microsoft.com/pix/winpixeventruntime/)
 // for instructions on how to obtain it.
 //
 // Parameters:

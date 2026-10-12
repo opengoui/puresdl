@@ -18,7 +18,7 @@ type Scancode uint32
 
 const (
 	SCANCODE_UNKNOWN Scancode = 0
-	//  These values are from usage page 0x07 (USB keyboard page).
+	// These values are from usage page 0x07 (USB keyboard page).
 	SCANCODE_A            Scancode = 4
 	SCANCODE_B            Scancode = 5
 	SCANCODE_C            Scancode = 6
@@ -65,49 +65,49 @@ const (
 	SCANCODE_LEFTBRACKET  Scancode = 47
 	SCANCODE_RIGHTBRACKET Scancode = 48
 	// Located at the lower left of the return
-	//   key on ISO keyboards and at the right end
-	//   of the QWERTY row on ANSI keyboards.
-	//   Produces REVERSE SOLIDUS (backslash) and
-	//   VERTICAL LINE in a US layout, REVERSE
-	//   SOLIDUS and VERTICAL LINE in a UK Mac
-	//   layout, NUMBER SIGN and TILDE in a UK
-	//   Windows layout, DOLLAR SIGN and POUND SIGN
-	//   in a Swiss German layout, NUMBER SIGN and
-	//   APOSTROPHE in a German layout, GRAVE
-	//   ACCENT and POUND SIGN in a French Mac
-	//   layout, and ASTERISK and MICRO SIGN in a
-	//   French Windows layout.
+	// key on ISO keyboards and at the right end
+	// of the QWERTY row on ANSI keyboards.
+	// Produces REVERSE SOLIDUS (backslash) and
+	// VERTICAL LINE in a US layout, REVERSE
+	// SOLIDUS and VERTICAL LINE in a UK Mac
+	// layout, NUMBER SIGN and TILDE in a UK
+	// Windows layout, DOLLAR SIGN and POUND SIGN
+	// in a Swiss German layout, NUMBER SIGN and
+	// APOSTROPHE in a German layout, GRAVE
+	// ACCENT and POUND SIGN in a French Mac
+	// layout, and ASTERISK and MICRO SIGN in a
+	// French Windows layout.
 	SCANCODE_BACKSLASH Scancode = 49
 	// ISO USB keyboards actually use this code
-	//   instead of 49 for the same key, but all
-	//   OSes I've seen treat the two codes
-	//   identically. So, as an implementer, unless
-	//   your keyboard generates both of those
-	//   codes and your OS treats them differently,
-	//   you should generate SCANCODE_BACKSLASH
-	//   instead of this code. As a user, you
-	//   should not rely on this code because SDL
-	//   will never generate it with most (all?)
-	//   keyboards.
+	// instead of 49 for the same key, but all
+	// OSes I've seen treat the two codes
+	// identically. So, as an implementer, unless
+	// your keyboard generates both of those
+	// codes and your OS treats them differently,
+	// you should generate SCANCODE_BACKSLASH
+	// instead of this code. As a user, you
+	// should not rely on this code because SDL
+	// will never generate it with most (all?)
+	// keyboards.
 	SCANCODE_NONUSHASH  Scancode = 50
 	SCANCODE_SEMICOLON  Scancode = 51
 	SCANCODE_APOSTROPHE Scancode = 52
 	// Located in the top left corner (on both ANSI
-	//   and ISO keyboards). Produces GRAVE ACCENT and
-	//   TILDE in a US Windows layout and in US and UK
-	//   Mac layouts on ANSI keyboards, GRAVE ACCENT
-	//   and NOT SIGN in a UK Windows layout, SECTION
-	//   SIGN and PLUS-MINUS SIGN in US and UK Mac
-	//   layouts on ISO keyboards, SECTION SIGN and
-	//   DEGREE SIGN in a Swiss German layout (Mac:
-	//   only on ISO keyboards), CIRCUMFLEX ACCENT and
-	//   DEGREE SIGN in a German layout (Mac: only on
-	//   ISO keyboards), SUPERSCRIPT TWO and TILDE in a
-	//   French Windows layout, COMMERCIAL AT and
-	//   NUMBER SIGN in a French Mac layout on ISO
-	//   keyboards, and LESS-THAN SIGN and GREATER-THAN
-	//   SIGN in a Swiss German, German, or French Mac
-	//   layout on ANSI keyboards.
+	// and ISO keyboards). Produces GRAVE ACCENT and
+	// TILDE in a US Windows layout and in US and UK
+	// Mac layouts on ANSI keyboards, GRAVE ACCENT
+	// and NOT SIGN in a UK Windows layout, SECTION
+	// SIGN and PLUS-MINUS SIGN in US and UK Mac
+	// layouts on ISO keyboards, SECTION SIGN and
+	// DEGREE SIGN in a Swiss German layout (Mac:
+	// only on ISO keyboards), CIRCUMFLEX ACCENT and
+	// DEGREE SIGN in a German layout (Mac: only on
+	// ISO keyboards), SUPERSCRIPT TWO and TILDE in a
+	// French Windows layout, COMMERCIAL AT and
+	// NUMBER SIGN in a French Mac layout on ISO
+	// keyboards, and LESS-THAN SIGN and GREATER-THAN
+	// SIGN in a Swiss German, German, or French Mac
+	// layout on ANSI keyboards.
 	SCANCODE_GRAVE       Scancode = 53
 	SCANCODE_COMMA       Scancode = 54
 	SCANCODE_PERIOD      Scancode = 55
@@ -159,21 +159,21 @@ const (
 	SCANCODE_KP_0         Scancode = 98
 	SCANCODE_KP_PERIOD    Scancode = 99
 	// This is the additional key that ISO
-	//   keyboards have over ANSI ones,
-	//   located between left shift and Z.
-	//   Produces GRAVE ACCENT and TILDE in a
-	//   US or UK Mac layout, REVERSE SOLIDUS
-	//   (backslash) and VERTICAL LINE in a
-	//   US or UK Windows layout, and
-	//   LESS-THAN SIGN and GREATER-THAN SIGN
-	//   in a Swiss German, German, or French
-	//   layout.
+	// keyboards have over ANSI ones,
+	// located between left shift and Z.
+	// Produces GRAVE ACCENT and TILDE in a
+	// US or UK Mac layout, REVERSE SOLIDUS
+	// (backslash) and VERTICAL LINE in a
+	// US or UK Windows layout, and
+	// LESS-THAN SIGN and GREATER-THAN SIGN
+	// in a Swiss German, German, or French
+	// layout.
 	SCANCODE_NONUSBACKSLASH Scancode = 100
 	// windows contextual menu, compose
 	SCANCODE_APPLICATION Scancode = 101
 	// The USB document says this is a status flag,
-	//   not a physical key - but some Mac keyboards
-	//   do have a power key.
+	// not a physical key - but some Mac keyboards
+	// do have a power key.
 	SCANCODE_POWER     Scancode = 102
 	SCANCODE_KP_EQUALS Scancode = 103
 	SCANCODE_F13       Scancode = 104
@@ -318,14 +318,14 @@ const (
 	// windows, command (apple), meta
 	SCANCODE_RGUI Scancode = 231
 	// I'm not sure if this is really not covered
-	//   by any of the above, but since there's a
-	//   special KMOD_MODE for it I'm adding it here
+	// by any of the above, but since there's a
+	// special KMOD_MODE for it I'm adding it here
 	SCANCODE_MODE Scancode = 0x101
-	//  These values are mapped from usage page 0x0C (USB consumer page).
+	// These values are mapped from usage page 0x0C (USB consumer page).
 	//
-	//  There are way more keys in the spec than we can represent in the
-	//  current scancode range, so pick the ones that commonly come up in
-	//  real world usage.
+	// There are way more keys in the spec than we can represent in the
+	// current scancode range, so pick the ones that commonly come up in
+	// real world usage.
 	SCANCODE_SLEEP Scancode = 0x102
 	// Wake
 	SCANCODE_WAKE Scancode = 0x103
@@ -382,7 +382,7 @@ const (
 	SCANCODE_AC_REFRESH Scancode = 0x11D
 	// AC Bookmarks
 	SCANCODE_AC_BOOKMARKS Scancode = 0x11E
-	//  These are values that are often used on mobile phones.
+	// These are values that are often used on mobile phones.
 	SCANCODE_SOFTLEFT Scancode = 0x11F
 	// Usually situated below the display on phones and
 	// used as a multi-function feature key for selecting

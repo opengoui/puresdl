@@ -83,8 +83,8 @@ func NewFunctionPointer(fn func()) FunctionPointer {
 // SDL times are signed, 64-bit integers representing nanoseconds since the
 // Unix epoch (Jan 1, 1970).
 //
-// They can be converted between POSIX time_t values with SDL_NS_TO_SECONDS()
-// and SDL_SECONDS_TO_NS(), and between Windows FILETIME values with
+// They can be converted between POSIX time_t values with NS_TO_SECONDS()
+// and SECONDS_TO_NS(), and between Windows FILETIME values with
 // TimeToWindows() and TimeFromWindows().
 //
 // Since: SDL 3.2.0.

@@ -165,7 +165,6 @@ type HapticCustom struct {
 //	              |__|~')_____('
 //	                [ COMPUTER ]
 //
-//
 //	                  North (0,-1)
 //	                      ^
 //	                      |
@@ -175,7 +174,6 @@ type HapticCustom struct {
 //	                      |
 //	                      v
 //	                   South (0,1)
-//
 //
 //	                   [ USER ]
 //	                     \|||/

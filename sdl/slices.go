@@ -37,9 +37,8 @@ func copyFreeStrings(p **byte, n int) []string {
 	if p == nil {
 		return nil
 	}
-	src := unsafe.Slice(p, n)
 	s := make([]string, n)
-	for i, e := range src {
+	for i, e := range unsafe.Slice(p, n) {
 		s[i] = GoString(e)
 	}
 	Free(unsafe.Pointer(p))
@@ -51,10 +50,7 @@ func copyFreeStrings0(p **byte) []string {
 	if p == nil {
 		return nil
 	}
-	var s []string
-	for q := p; *q != nil; q = (**byte)(unsafe.Add(unsafe.Pointer(q), unsafe.Sizeof(q))) {
-		s = append(s, GoString(*q))
-	}
+	s := GoStrings(p)
 	Free(unsafe.Pointer(p))
 	return s
 }
@@ -67,4 +63,44 @@ func copyFreeBytes(p unsafe.Pointer, n int) []byte {
 	s := append([]byte(nil), unsafe.Slice((*byte)(p), n)...)
 	Free(p)
 	return s
+}
+
+// GoStrings copies the C strings of the NULL-terminated array at p into Go
+// strings. It returns nil for a nil p and does not free the array, which
+// stays owned by whoever allocated it.
+func GoStrings(p **byte) []string {
+	if p == nil {
+		return nil
+	}
+	var s []string
+	for q := p; *q != nil; q = (**byte)(unsafe.Add(unsafe.Pointer(q), unsafe.Sizeof(q))) {
+		s = append(s, GoString(*q))
+	}
+	return s
+}
+
+// GoStringsN copies the n C strings of the array at p into Go strings. It
+// returns nil for a nil p or n <= 0 and does not free the array. A nil
+// element becomes the empty string.
+func GoStringsN(p **byte, n int) []string {
+	if p == nil || n <= 0 {
+		return nil
+	}
+	s := make([]string, n)
+	for i, e := range unsafe.Slice(p, n) {
+		s[i] = GoString(e)
+	}
+	return s
+}
+
+// Slice views the n elements at p as a Go slice without copying them. It
+// returns nil for a nil p or n <= 0. The slice aliases C memory, so it must
+// not be used after SDL frees or reuses that memory; copy it first
+// (for example with slices.Clone) when it has to outlive the call that
+// produced it.
+func Slice[T any](p *T, n int) []T {
+	if p == nil || n <= 0 {
+		return nil
+	}
+	return unsafe.Slice(p, n)
 }

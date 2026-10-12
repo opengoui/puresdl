@@ -90,6 +90,9 @@ puresdl 运行时需要 SDL3 动态库（本仓库按 3.4.x 动态库测试，�
 - 可空参数与 NULL 结果的分类表在 `internal/bindgen/policy.go`（`nullParams`、`nullDistinctResults`、`nullFailureResults`）；SDL 升级后出现未分类的项时，`gensdl` 与 `go test ./internal/bindgen` 都会失败。
 - printf 风格函数（`sdl.SetError`、`sdl.Log` 等）接受 Go 格式串与参数，先用 `fmt.Sprintf` 格式化，再作为字面量交给 SDL，不涉及 C 变参。
 - C 联合体（如 `sdl.Event`）是对齐的原始存储，通过访问器方法读取成员：`event.Type()`、`event.Key()`、`event.Window()`…；带指针结果的访问器返回指向联合体内部的指针。
+- 返回值是 `SDL_free` 数组的函数返回 Go 切片（已拷贝并释放）。需要自己处理 SDL 分配的数组时有三个泛型辅助：`sdl.GoStrings(p **byte)`（NULL 结尾的 `char **`）、`sdl.GoStringsN(p, n)`（定长 `char **`）和 `sdl.Slice(p *T, n)`（`unsafe.Slice` 的 nil 安全封装，不拷贝）；前两者只拷贝、不释放。
+- 文档里写明 SDL 会保留指针参数而不拷贝的函数（`IOFromMem`、`PutAudioStreamDataNoCopy`、`SetScancodeName` 等）在 godoc 中带有 `Keep alive:` 说明：调用方必须让这块 Go 内存在 SDL 使用期间保持可达（例如放进包级变量）。
+- 文档注释由 doxygen 转换而来：`\param`/`\returns` 等被整理成 `Parameters:`/`Returns:` 段落，Markdown 链接、粗体、表格被还原为纯文本或缩进块；文中提到的 SDL 名字会改写成 Go 名字（含手写的 `VERSIONNUM`、`FOURCC` 等宏函数），没有对应 Go 符号的名字写成带反引号的 C 名字。生成器会检查文档里是否出现既未绑定、也不是手写、又不在 `docAllow`（`internal/bindgen/doc.go`）里的 `SDL_` 名字，发现则生成失败并列出。
 - 回调 typedef 是 `uintptr` 类型，用对应的 `NewXxx` 构造器从 Go 函数创建（如 `sdl.NewEventFilter`）。purego 每个进程最多约 2000 个回调且从不释放，所以每个回调只创建一次并复用。
 - 结构体按值传递的函数（如 `GUID`）由 purego 直接处理；布局由生成的 `layout_gen_test.go` 与 C 前端计算的结果比对。
 - 线程：SDL 要求大多数视频与事件函数在主线程运行。macOS 上必须在 `init` 中调用 `runtime.LockOSThread()`。
@@ -122,14 +125,14 @@ CGO_ENABLED=0 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy go test ./...
 
 ## 已知限制
 
-完整清单见 [docs/skipped.txt](docs/skipped.txt)。
+完整清单见 [docs/skipped.txt](docs/skipped.txt)（当前共 138 项：135 个 libc 替代函数 + 3 个 `va_list` 函数）。
 
 - **C 变参 / `va_list`**：purego 不支持真正的 C 变参。只有以 `const char *fmt, ...` 结尾的 printf 风格函数被特殊处理（在 Go 侧格式化）；其余变参函数不绑定。带 `va_list` 的 `SDL_*V`、`SDL_IOvprintf` 等不绑定。
 - **`wchar_t`**：映射为手写的 `sdl.Wchar`（非 Windows 为 `int32`，Windows 为 `uint16`），辅助函数 `WcharString(*Wchar) string` 与 `WcharCString(string) []Wchar` 负责与 Go 字符串互转（含 UTF-16 代理对）。`const wchar_t*` 输入（`HIDOpen` 的 `serial_number`）由包装函数接受 `string`，空串传 NULL；输出缓冲区（`HIDGet*String`）和 `HIDDeviceInfo` 的字符串字段使用 `*Wchar`。
 - **libc 替代函数**：`SDL_stdinc.h` 中的字符串、数学、内存拷贝、字符分类等（`SDL_strlen`、`SDL_sin`、`SDL_memcpy`…，约 135 个）在 Go 里有标准库等价物，不绑定；保留的只有 `malloc/free` 系列、环境变量、随机数、CRC/murmur、iconv、断言相关等。
 - **仅限特定平台的函数**：一些函数只在部分平台的头文件里声明（仅 Windows 的 `SDL_RegisterApp`、`SDL_SetWindowsMessageHook`、`SDL_GetDXGIOutputInfo`，仅 Linux 的 `SDL_SetLinuxThreadPriority`、`SDL_IsUbuntuTouch` 等）。三个目标（darwin/arm64、linux/amd64、windows/amd64）取并集，其文档会注明 “Only declared by the SDL headers for …”；在其他平台调用会因符号缺失而 panic。
 - **回调上限**：purego 每进程约 2000 个回调，且不能释放。Windows 上回调也不支持结构体参数。
-- **SDL 3.4 与 3.5**：头文件是 3.5.0，但常见发行版动态库是 3.4.x，约 70 个新函数在旧库里不存在。它们仍有 Go 签名，但调用时 panic 并提示 `sdl: SDL_Xxx is not available in the loaded SDL3 library`；用 `sdl.Available(...)` 提前检测，或用 `sdl.GetVersion()` 判断版本。
+- **SDL 3.4 与 3.5**：头文件是 3.5.0，但常见发行版动态库是 3.4.x，约 30 个新函数在旧库里不存在（用 3.4.18 实测：1147 个绑定中 32 个缺失，其中 `SDL_main`、`SDL_IsUbuntuTouch` 这类只属于特定平台或构建的符号也算在内）。它们仍有 Go 签名，但调用时 panic 并提示 `sdl: SDL_Xxx is not available in the loaded SDL3 library`；用 `sdl.Available(...)` 提前检测，或用 `sdl.GetVersion()` 判断版本。
 - `SDL_main` 式的回调入口（`SDL_RunApp`、`SDL_EnterAppMainCallbacks`）虽然有绑定，但在 Go 程序里不适用，请自己写 `main`。
 
 ## 目录结构

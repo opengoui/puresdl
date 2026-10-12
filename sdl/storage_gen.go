@@ -24,11 +24,11 @@ type Storage struct{}
 // It is not usually necessary to do this; SDL provides standard
 // implementations for many things you might expect to do with an Storage.
 //
-// This structure should be initialized using SDL_INIT_INTERFACE()
+// This structure should be initialized using `SDL_INIT_INTERFACE`()
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_INIT_INTERFACE
+// See also: `SDL_INIT_INTERFACE`
 type StorageInterface struct {
 	Version        uint32
 	Close          uintptr
@@ -123,14 +123,14 @@ var fnOpenStorage func(iface *StorageInterface, userdata unsafe.Pointer) *Storag
 // it around after this call.
 //
 // Parameters:
-//   - iface: the interface that implements this storage, initialized using SDL_INIT_INTERFACE().
+//   - iface: the interface that implements this storage, initialized using `SDL_INIT_INTERFACE`().
 //   - userdata: the pointer that will be passed to the interface functions.
 //
 // Returns: a storage container on success or NULL on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
 //
-// See also: CloseStorage, GetStorageFileSize, GetStorageSpaceRemaining, SDL_INIT_INTERFACE, ReadStorageFile, StorageReady, WriteStorageFile
+// See also: CloseStorage, GetStorageFileSize, GetStorageSpaceRemaining, `SDL_INIT_INTERFACE`, ReadStorageFile, StorageReady, WriteStorageFile
 func OpenStorage(iface *StorageInterface, userdata unsafe.Pointer) *Storage {
 	return fnOpenStorage(iface, userdata)
 }

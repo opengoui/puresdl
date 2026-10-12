@@ -15,12 +15,12 @@ type Joystick struct{}
 
 // The structure that describes a virtual joystick.
 //
-// This structure should be initialized using SDL_INIT_INTERFACE(). All
+// This structure should be initialized using `SDL_INIT_INTERFACE`(). All
 // elements of this structure are optional.
 //
 // Since: SDL 3.2.0.
 //
-// See also: AttachVirtualJoystick, SDL_INIT_INTERFACE, VirtualJoystickSensorDesc, VirtualJoystickTouchpadDesc
+// See also: AttachVirtualJoystick, `SDL_INIT_INTERFACE`, VirtualJoystickSensorDesc, VirtualJoystickTouchpadDesc
 type VirtualJoystickDesc struct {
 	// the version of this interface
 	Version uint32
@@ -115,7 +115,7 @@ type JoystickID uint32
 // a computer.
 //
 // You may refer to
-// [XInput Controller Types](https://learn.microsoft.com/en-us/windows/win32/xinput/xinput-and-controller-subtypes)
+// XInput Controller Types (https://learn.microsoft.com/en-us/windows/win32/xinput/xinput-and-controller-subtypes)
 // table for a general understanding of each joystick type.
 //
 // Since: SDL 3.2.0.
@@ -494,7 +494,7 @@ var fnAttachVirtualJoystick func(desc *VirtualJoystickDesc) JoystickID
 // DetachVirtualJoystick().
 //
 // Parameters:
-//   - desc: joystick description, initialized using SDL_INIT_INTERFACE().
+//   - desc: joystick description, initialized using `SDL_INIT_INTERFACE`().
 //
 // Returns: the joystick instance ID, or 0 on failure; call GetError() for more information.
 //
@@ -502,7 +502,7 @@ var fnAttachVirtualJoystick func(desc *VirtualJoystickDesc) JoystickID
 //
 // Since: SDL 3.2.0.
 //
-// See also: DetachVirtualJoystick, SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, SDL_SetJoystickVirtualSensorData
+// See also: DetachVirtualJoystick, SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, `SDL_SetJoystickVirtualSensorData`
 func AttachVirtualJoystick(desc *VirtualJoystickDesc) JoystickID {
 	return fnAttachVirtualJoystick(desc)
 }
@@ -566,7 +566,7 @@ var fnSetJoystickVirtualAxis func(joystick *Joystick, axis int32, value int16) b
 //
 // Since: SDL 3.2.0.
 //
-// See also: SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, SDL_SetJoystickVirtualSensorData
+// See also: SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, `SDL_SetJoystickVirtualSensorData`
 func SetJoystickVirtualAxis(joystick *Joystick, axis int32, value int16) bool {
 	return fnSetJoystickVirtualAxis(joystick, axis, value)
 }
@@ -593,7 +593,7 @@ var fnSetJoystickVirtualBall func(joystick *Joystick, ball int32, xrel int16, yr
 //
 // Since: SDL 3.2.0.
 //
-// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, SDL_SetJoystickVirtualSensorData
+// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, `SDL_SetJoystickVirtualSensorData`
 func SetJoystickVirtualBall(joystick *Joystick, ball int32, xrel int16, yrel int16) bool {
 	return fnSetJoystickVirtualBall(joystick, ball, xrel, yrel)
 }
@@ -619,7 +619,7 @@ var fnSetJoystickVirtualButton func(joystick *Joystick, button int32, down bool)
 //
 // Since: SDL 3.2.0.
 //
-// See also: SetJoystickVirtualAxis, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, SDL_SetJoystickVirtualSensorData
+// See also: SetJoystickVirtualAxis, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad, `SDL_SetJoystickVirtualSensorData`
 func SetJoystickVirtualButton(joystick *Joystick, button int32, down bool) bool {
 	return fnSetJoystickVirtualButton(joystick, button, down)
 }
@@ -645,7 +645,7 @@ var fnSetJoystickVirtualHat func(joystick *Joystick, hat int32, value uint8) boo
 //
 // Since: SDL 3.2.0.
 //
-// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualTouchpad, SDL_SetJoystickVirtualSensorData
+// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualTouchpad, `SDL_SetJoystickVirtualSensorData`
 func SetJoystickVirtualHat(joystick *Joystick, hat int32, value uint8) bool {
 	return fnSetJoystickVirtualHat(joystick, hat, value)
 }
@@ -675,7 +675,7 @@ var fnSetJoystickVirtualTouchpad func(joystick *Joystick, touchpad int32, finger
 //
 // Since: SDL 3.2.0.
 //
-// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SDL_SetJoystickVirtualSensorData
+// See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, `SDL_SetJoystickVirtualSensorData`
 func SetJoystickVirtualTouchpad(joystick *Joystick, touchpad int32, finger int32, down bool, x float32, y float32, pressure float32) bool {
 	return fnSetJoystickVirtualTouchpad(joystick, touchpad, finger, down, x, y, pressure)
 }

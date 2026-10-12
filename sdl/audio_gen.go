@@ -177,7 +177,7 @@ func NewAudioStreamDataCompleteCallback(fn func(userdata unsafe.Pointer, buf uns
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_AUDIO_BITSIZE, SDL_AUDIO_BYTESIZE, SDL_AUDIO_ISINT, SDL_AUDIO_ISFLOAT, SDL_AUDIO_ISBIGENDIAN, SDL_AUDIO_ISLITTLEENDIAN, SDL_AUDIO_ISSIGNED, SDL_AUDIO_ISUNSIGNED
+// See also: AUDIO_BITSIZE, AUDIO_BYTESIZE, AUDIO_ISINT, AUDIO_ISFLOAT, AUDIO_ISBIGENDIAN, AUDIO_ISLITTLEENDIAN, AUDIO_ISSIGNED, AUDIO_ISUNSIGNED
 type AudioFormat uint32
 
 const (
@@ -206,26 +206,26 @@ const (
 const (
 	// Mask of bits in an AudioFormat that contains the format bit size.
 	//
-	// Generally one should use SDL_AUDIO_BITSIZE instead of this macro directly.
+	// Generally one should use AUDIO_BITSIZE instead of this macro directly.
 	//
 	// Since: SDL 3.2.0.
 	AUDIO_MASK_BITSIZE = 255
 	// Mask of bits in an AudioFormat that contain the floating point flag.
 	//
-	// Generally one should use SDL_AUDIO_ISFLOAT instead of this macro directly.
+	// Generally one should use AUDIO_ISFLOAT instead of this macro directly.
 	//
 	// Since: SDL 3.2.0.
 	AUDIO_MASK_FLOAT = 0x100
 	// Mask of bits in an AudioFormat that contain the bigendian flag.
 	//
-	// Generally one should use SDL_AUDIO_ISBIGENDIAN or SDL_AUDIO_ISLITTLEENDIAN
+	// Generally one should use AUDIO_ISBIGENDIAN or AUDIO_ISLITTLEENDIAN
 	// instead of this macro directly.
 	//
 	// Since: SDL 3.2.0.
 	AUDIO_MASK_BIG_ENDIAN = 0x1000
 	// Mask of bits in an AudioFormat that contain the signed data flag.
 	//
-	// Generally one should use SDL_AUDIO_ISSIGNED instead of this macro directly.
+	// Generally one should use AUDIO_ISSIGNED instead of this macro directly.
 	//
 	// Since: SDL 3.2.0.
 	AUDIO_MASK_SIGNED = 0x8000
@@ -387,7 +387,7 @@ var fnGetAudioDeviceName func(devid AudioDeviceID) *byte
 
 // Get the human-readable name of a specific audio device.
 //
-// **WARNING**: this function will work with AUDIO_DEVICE_DEFAULT_PLAYBACK
+// WARNING: this function will work with AUDIO_DEVICE_DEFAULT_PLAYBACK
 // and AUDIO_DEVICE_DEFAULT_RECORDING, returning the current default
 // physical devices' names. However, as the default device may change at any
 // time, it is likely better to show a generic name to the user, like "System
@@ -452,7 +452,7 @@ var fnGetAudioDeviceChannelMap func(devid AudioDeviceID, count *int32) *int32
 // Get the current channel map of an audio device.
 //
 // Channel maps are optional; most things do not need them, instead passing
-// data in the [order that SDL expects](CategoryAudio#channel-layouts).
+// data in the order that SDL expects.
 //
 // Audio devices usually have no remapping applied. This is represented by
 // returning NULL, and does not signify an error.
@@ -1158,7 +1158,7 @@ var fnGetAudioStreamInputChannelMap func(stream *AudioStream, count *int32) *int
 // Get the current input channel map of an audio stream.
 //
 // Channel maps are optional; most things do not need them, instead passing
-// data in the [order that SDL expects](CategoryAudio#channel-layouts).
+// data in the order that SDL expects.
 //
 // Audio streams default to no remapping applied. This is represented by
 // returning NULL, and does not signify an error.
@@ -1187,7 +1187,7 @@ var fnGetAudioStreamOutputChannelMap func(stream *AudioStream, count *int32) *in
 // Get the current output channel map of an audio stream.
 //
 // Channel maps are optional; most things do not need them, instead passing
-// data in the [order that SDL expects](CategoryAudio#channel-layouts).
+// data in the order that SDL expects.
 //
 // Audio streams default to no remapping applied. This is represented by
 // returning NULL, and does not signify an error.
@@ -1216,7 +1216,7 @@ var fnSetAudioStreamInputChannelMap func(stream *AudioStream, chmap *int32, coun
 // Set the current input channel map of an audio stream.
 //
 // Channel maps are optional; most things do not need them, instead passing
-// data in the [order that SDL expects](CategoryAudio#channel-layouts).
+// data in the order that SDL expects.
 //
 // The input channel map reorders data that is added to a stream via
 // PutAudioStreamData. Future calls to PutAudioStreamData must provide
@@ -1276,7 +1276,7 @@ var fnSetAudioStreamOutputChannelMap func(stream *AudioStream, chmap *int32, cou
 // Set the current output channel map of an audio stream.
 //
 // Channel maps are optional; most things do not need them, instead passing
-// data in the [order that SDL expects](CategoryAudio#channel-layouts).
+// data in the order that SDL expects.
 //
 // The output channel map reorders data that is leaving a stream via
 // GetAudioStreamData.
@@ -1396,6 +1396,8 @@ var fnPutAudioStreamDataNoCopy func(stream *AudioStream, buf unsafe.Pointer, len
 // Since: SDL 3.4.0.
 //
 // See also: ClearAudioStream, FlushAudioStream, GetAudioStreamData, GetAudioStreamQueued
+//
+// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
 func PutAudioStreamDataNoCopy(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool {
 	return fnPutAudioStreamDataNoCopy(stream, buf, len_, callback, userdata)
 }
@@ -2006,15 +2008,7 @@ var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **
 // Note that the LoadWAV function does this same thing for you, but in a
 // less messy way:
 //
-//		LoadWAV("sample.wav", &spec, &buf, &len);
-//
-//
-//	         This function returns false if the .WAV file cannot be opened,
-//	         uses an unknown data format, or is corrupt; call GetError()
-//	         for more information.
-//
-//	         When the application is done with the data returned in
-//	         `audio_buf`, it should call Free() to dispose of it.
+//	LoadWAV("sample.wav", &spec, &buf, &len);
 //
 // Parameters:
 //   - src: the data source for the WAVE data.
@@ -2024,6 +2018,13 @@ var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **
 //   - audio_len: a pointer filled with the length of the audio data buffer in bytes.
 //
 // Returns: true on success. `audio_buf` will be filled with a pointer to an allocated buffer containing the audio data, and `audio_len` is filled with the length of that audio buffer in bytes.
+//
+// This function returns false if the .WAV file cannot be opened,
+// uses an unknown data format, or is corrupt; call GetError()
+// for more information.
+//
+// When the application is done with the data returned in
+// `audio_buf`, it should call Free() to dispose of it.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
@@ -2040,15 +2041,7 @@ var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *ui
 //
 // This is a convenience function that is effectively the same as:
 //
-//		LoadWAV_IO(IOFromFile(path, "rb"), true, spec, audio_buf, audio_len);
-//
-//
-//	         This function returns false if the .WAV file cannot be opened,
-//	         uses an unknown data format, or is corrupt; call GetError()
-//	         for more information.
-//
-//	         When the application is done with the data returned in
-//	         `audio_buf`, it should call Free() to dispose of it.
+//	LoadWAV_IO(IOFromFile(path, "rb"), true, spec, audio_buf, audio_len);
 //
 // Parameters:
 //   - path: the file path of the WAV file to open.
@@ -2057,6 +2050,13 @@ var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *ui
 //   - audio_len: a pointer filled with the length of the audio data buffer in bytes.
 //
 // Returns: true on success. `audio_buf` will be filled with a pointer to an allocated buffer containing the audio data, and `audio_len` is filled with the length of that audio buffer in bytes.
+//
+// This function returns false if the .WAV file cannot be opened,
+// uses an unknown data format, or is corrupt; call GetError()
+// for more information.
+//
+// When the application is done with the data returned in
+// `audio_buf`, it should call Free() to dispose of it.
 //
 // Thread safety: It is safe to call this function from any thread.
 //

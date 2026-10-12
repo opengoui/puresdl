@@ -781,7 +781,7 @@ const (
 	//
 	// deviceclass:path[,deviceclass:path[,...]]
 	//
-	// where device class is an integer representing the SDL_UDEV_deviceclass and
+	// where device class is an integer representing the `SDL_UDEV_deviceclass` and
 	// path is the full path to the event device.
 	//
 	// This hint should be set before SDL is initialized.
@@ -943,7 +943,7 @@ const (
 	// This variable sets the default text of the TextInput window on GDK
 	// platforms.
 	//
-	// This hint is available only if SDL_GDK_TEXTINPUT defined.
+	// This hint is available only if `SDL_GDK_TEXTINPUT` defined.
 	//
 	// This hint should be set before calling StartTextInput()
 	//
@@ -952,7 +952,7 @@ const (
 	// This variable sets the description of the TextInput window on GDK
 	// platforms.
 	//
-	// This hint is available only if SDL_GDK_TEXTINPUT defined.
+	// This hint is available only if `SDL_GDK_TEXTINPUT` defined.
 	//
 	// This hint should be set before calling StartTextInput()
 	//
@@ -964,7 +964,7 @@ const (
 	// The value must be a stringified integer, for example "10" to allow for up
 	// to 10 characters of text input.
 	//
-	// This hint is available only if SDL_GDK_TEXTINPUT defined.
+	// This hint is available only if `SDL_GDK_TEXTINPUT` defined.
 	//
 	// This hint should be set before calling StartTextInput()
 	//
@@ -977,7 +977,7 @@ const (
 	// passed to the window creation function. The value must be a stringified
 	// integer, for example "0" for XGameUiTextEntryInputScope::Default.
 	//
-	// This hint is available only if SDL_GDK_TEXTINPUT defined.
+	// This hint is available only if `SDL_GDK_TEXTINPUT` defined.
 	//
 	// This hint should be set before calling StartTextInput()
 	//
@@ -985,7 +985,7 @@ const (
 	HINT_GDK_TEXTINPUT_SCOPE = "SDL_GDK_TEXTINPUT_SCOPE"
 	// This variable sets the title of the TextInput window on GDK platforms.
 	//
-	// This hint is available only if SDL_GDK_TEXTINPUT defined.
+	// This hint is available only if `SDL_GDK_TEXTINPUT` defined.
 	//
 	// This hint should be set before calling StartTextInput()
 	//
@@ -2404,7 +2404,7 @@ const (
 	//
 	// Since: SDL 3.4.0.
 	HINT_MAC_PRESS_AND_HOLD = "SDL_MAC_PRESS_AND_HOLD"
-	// Request SDL_AppIterate() be called at a specific rate.
+	// Request `SDL_AppIterate`() be called at a specific rate.
 	//
 	// If this is set to a number, it represents Hz, so "60" means try to iterate
 	// 60 times per second. "0" means to iterate as fast as possible. Negative
@@ -2412,15 +2412,15 @@ const (
 	// revision of SDL.
 	//
 	// There are other strings that have special meaning. If set to "waitevent",
-	// SDL_AppIterate will not be called until new event(s) have arrived (and been
-	// processed by SDL_AppEvent). This can be useful for apps that are completely
+	// `SDL_AppIterate` will not be called until new event(s) have arrived (and been
+	// processed by `SDL_AppEvent`). This can be useful for apps that are completely
 	// idle except in response to input. As of SDL 3.6.0, SDL will allow a single
-	// call to SDL_AppIterate to proceed without an event immediately after this
+	// call to `SDL_AppIterate` to proceed without an event immediately after this
 	// hint is set to "waitevent", so apps can have a minimum of activity, perhaps
 	// to render an initial image to a window before the user has otherwise
 	// interacted with the app.
 	//
-	// On some platforms, or if you are using Main instead of SDL_AppIterate,
+	// On some platforms, or if you are using Main instead of `SDL_AppIterate`,
 	// this hint is ignored. When the hint can be used, it is allowed to be
 	// changed at any time.
 	//
@@ -3289,7 +3289,7 @@ const (
 	// A variable controlling whether the dummy video driver saves output frames.
 	//
 	// - "0": Video frames are not saved to disk. (default)
-	// - "1": Video frames are saved to files in the format "SDL_windowX-Y.bmp",
+	// - "1": Video frames are saved to files in the format "`SDL_windowX`-Y.bmp",
 	//   where X is the window ID, and Y is the frame number.
 	//
 	// This hint can be set anytime.
@@ -3406,7 +3406,7 @@ const (
 	// accelerated OpenGL rendering.
 	//
 	// - "0": Video frames are not saved to disk. (default)
-	// - "1": Video frames are saved to files in the format "SDL_windowX-Y.bmp",
+	// - "1": Video frames are saved to files in the format "`SDL_windowX`-Y.bmp",
 	//   where X is the window ID, and Y is the frame number.
 	//
 	// This hint can be set anytime.
@@ -4157,13 +4157,13 @@ const (
 	//
 	// Since: SDL 3.2.0.
 	HINT_XINPUT_ENABLED = "SDL_XINPUT_ENABLED"
-	// A variable controlling response to SDL_assert failures.
+	// A variable controlling response to `SDL_assert` failures.
 	//
 	// The variable can be set to the following case-sensitive values:
 	//
 	// - "abort": Program terminates immediately.
 	// - "break": Program triggers a debugger breakpoint.
-	// - "retry": Program reruns the SDL_assert's test again.
+	// - "retry": Program reruns the `SDL_assert`'s test again.
 	// - "ignore": Program continues on, ignoring this assertion failure this
 	//   time.
 	// - "always_ignore": Program continues on, ignoring this assertion failure

@@ -125,17 +125,17 @@ var fnComposeCustomBlendMode func(srcColorFactor BlendFactor, dstColorFactor Ble
 // All renderers support the four blend modes listed in the BlendMode
 // enumeration.
 //
-//   - **direct3d**: Supports all operations with all factors. However, some
+//   - direct3d: Supports all operations with all factors. However, some
 //     factors produce unexpected results with `BLENDOPERATION_MINIMUM` and
 //     `BLENDOPERATION_MAXIMUM`.
-//   - **direct3d11**: Same as Direct3D 9.
-//   - **opengl**: Supports the `BLENDOPERATION_ADD` operation with all
+//   - direct3d11: Same as Direct3D 9.
+//   - opengl: Supports the `BLENDOPERATION_ADD` operation with all
 //     factors. OpenGL versions 1.1, 1.2, and 1.3 do not work correctly here.
-//   - **opengles2**: Supports the `BLENDOPERATION_ADD`,
+//   - opengles2: Supports the `BLENDOPERATION_ADD`,
 //     `BLENDOPERATION_SUBTRACT`, `BLENDOPERATION_REV_SUBTRACT`
 //     operations with all factors.
-//   - **psp**: No custom blend mode support.
-//   - **software**: No custom blend mode support.
+//   - psp: No custom blend mode support.
+//   - software: No custom blend mode support.
 //
 // Some renderers do not provide an alpha component for the default render
 // target. The `BLENDFACTOR_DST_ALPHA` and

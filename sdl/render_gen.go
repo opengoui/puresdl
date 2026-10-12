@@ -1520,7 +1520,7 @@ func UpdateNVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, 
 
 var fnLockTexture func(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *int32) bool
 
-// Lock a portion of the texture for **write-only** pixel access.
+// Lock a portion of the texture for write-only pixel access.
 //
 // As an optimization, the pixels made available for editing don't necessarily
 // contain the old texture data. This is a write-only operation, and if you
@@ -1549,7 +1549,7 @@ func LockTexture(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *in
 
 var fnLockTextureToSurface func(texture *Texture, rect *Rect, surface **Surface) bool
 
-// Lock a portion of the texture for **write-only** pixel access, and expose
+// Lock a portion of the texture for write-only pixel access, and expose
 // it as a SDL surface.
 //
 // Besides providing an Surface instead of raw pixel data, this function
@@ -1569,7 +1569,7 @@ var fnLockTextureToSurface func(texture *Texture, rect *Rect, surface **Surface)
 // Parameters:
 //   - texture: the texture to lock for access, which must be created with `TEXTUREACCESS_STREAMING`.
 //   - rect: a pointer to the rectangle to lock for access. If the rect is NULL, the entire texture will be locked.
-//   - surface: a pointer to an SDL surface of size **rect**. Don't assume any specific pixel content.
+//   - surface: a pointer to an SDL surface of size rect. Don't assume any specific pixel content.
 //
 // Returns: true on success or false on failure; call GetError() for more information.
 //
@@ -1586,7 +1586,7 @@ var fnUnlockTexture func(texture *Texture)
 
 // Unlock a texture, uploading the changes to video memory, if needed.
 //
-// **Warning**: Please note that LockTexture() is intended to be
+// Warning: Please note that LockTexture() is intended to be
 // write-only; it will not guarantee the previous contents of the texture will
 // be provided. You must fully initialize any area of a texture that you lock
 // before unlocking it, as the pixels might otherwise be uninitialized memory.
@@ -2809,7 +2809,7 @@ var fnRenderReadPixels func(renderer *Renderer, rect *Rect) *Surface
 // logical presentation you should use GetRenderLogicalPresentationRect()
 // to get the area containing your content.
 //
-// **WARNING**: This is a very slow operation, and should not be used
+// WARNING: This is a very slow operation, and should not be used
 // frequently. If you're using this on the main rendering target, it should be
 // called after rendering and before RenderPresent().
 //
@@ -2846,7 +2846,7 @@ var fnRenderPresent func(renderer *Renderer) bool
 // starting each new frame's drawing, even if you plan to overwrite every
 // pixel.
 //
-// Please note, that in case of rendering to a texture - there is **no need**
+// Please note, that in case of rendering to a texture - there is no need
 // to call `RenderPresent` after drawing needed objects to a texture, and
 // should not be done; you are only required to change back the rendering
 // target to default via `SetRenderTarget(renderer, NULL)` afterwards, as
@@ -3010,7 +3010,7 @@ var fnAddVulkanRenderSemaphores func(renderer *Renderer, wait_stage_mask uint32,
 //
 // Returns: true on success or false on failure; call GetError() for more information.
 //
-// Thread safety: It is **NOT** safe to call this function from two threads at once.
+// Thread safety: It is NOT safe to call this function from two threads at once.
 //
 // Since: SDL 3.2.0.
 func AddVulkanRenderSemaphores(renderer *Renderer, wait_stage_mask uint32, wait_semaphore int64, signal_semaphore int64) bool {
@@ -3083,7 +3083,7 @@ var fnRenderDebugText func(renderer *Renderer, x float32, y float32, str *byte) 
 //     break. If the text goes out of the window, it's gone.
 //
 // For serious text rendering, there are several good options, such as
-// SDL_ttf, stb_truetype, or other external libraries.
+// `SDL_ttf`, stb_truetype, or other external libraries.
 //
 // On first use, this will create an internal texture for rendering glyphs.
 // This texture will live until the renderer is destroyed.

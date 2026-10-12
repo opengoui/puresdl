@@ -23,11 +23,11 @@ type IOStream struct{}
 // already offers several common types of I/O streams, via functions like
 // IOFromFile() and IOFromMem().
 //
-// This structure should be initialized using SDL_INIT_INTERFACE()
+// This structure should be initialized using `SDL_INIT_INTERFACE`()
 //
 // Since: SDL 3.2.0.
 //
-// See also: SDL_INIT_INTERFACE
+// See also: `SDL_INIT_INTERFACE`
 type IOStreamInterface struct {
 	Version uint32
 	// Return the number of bytes in this IOStream
@@ -35,43 +35,43 @@ type IOStreamInterface struct {
 	// Returns: the total size of the data stream, or -1 on error.
 	Size uintptr
 	// Seek to `offset` relative to `whence`, one of stdio's whence values:
-	//  IO_SEEK_SET, IO_SEEK_CUR, IO_SEEK_END
+	// IO_SEEK_SET, IO_SEEK_CUR, IO_SEEK_END
 	//
 	// Returns: the final offset in the data stream, or -1 on error.
 	Seek uintptr
 	// Read up to `size` bytes from the data stream to the area pointed
-	//  at by `ptr`. `size` will always be > 0.
+	// at by `ptr`. `size` will always be > 0.
 	//
-	//  On an incomplete read, you should set `*status` to a value from the
-	//  IOStatus enum. You do not have to explicitly set this on
-	//  a complete, successful read.
+	// On an incomplete read, you should set `*status` to a value from the
+	// IOStatus enum. You do not have to explicitly set this on
+	// a complete, successful read.
 	//
 	// Returns: the number of bytes read
 	Read uintptr
 	// Write exactly `size` bytes from the area pointed at by `ptr`
-	//  to data stream. `size` will always be > 0.
+	// to data stream. `size` will always be > 0.
 	//
-	//  On an incomplete write, you should set `*status` to a value from the
-	//  IOStatus enum. You do not have to explicitly set this on
-	//  a complete, successful write.
+	// On an incomplete write, you should set `*status` to a value from the
+	// IOStatus enum. You do not have to explicitly set this on
+	// a complete, successful write.
 	//
 	// Returns: the number of bytes written
 	Write uintptr
 	// If the stream is buffering, make sure the data is written out.
 	//
-	//  On failure, you should set `*status` to a value from the
-	//  IOStatus enum. You do not have to explicitly set this on
-	//  a successful flush.
+	// On failure, you should set `*status` to a value from the
+	// IOStatus enum. You do not have to explicitly set this on
+	// a successful flush.
 	//
 	// Returns: true if successful or false on write error when flushing data.
 	Flush uintptr
 	// Close and free any allocated resources.
 	//
-	//  This does not guarantee file writes will sync to physical media; they
-	//  can be in the system's file cache, waiting to go to disk.
+	// This does not guarantee file writes will sync to physical media; they
+	// can be in the system's file cache, waiting to go to disk.
 	//
-	//  The IOStream is still destroyed even if this fails, so clean up anything
-	//  even if flushing buffers, etc, returns an error.
+	// The IOStream is still destroyed even if this fails, so clean up anything
+	// even if flushing buffers, etc, returns an error.
 	//
 	// Returns: true if successful or false on write error when flushing data.
 	Close uintptr
@@ -157,7 +157,7 @@ var fnIOFromFile func(file *byte, mode *byte) *IOStream
 //     anywhere in the file for reading, but writing operations will move it
 //     back to the end of file. The file is created if it does not exist.
 //
-// **NOTE**: In order to open a file as a binary file, a "b" character has to
+// NOTE: In order to open a file as a binary file, a "b" character has to
 // be included in the `mode` string. This additional "b" character can either
 // be appended at the end of the string (thus making the following compound
 // modes: "rb", "wb", "ab", "r+b", "w+b", "a+b") or be inserted between the
@@ -254,6 +254,8 @@ var fnIOFromMem func(mem unsafe.Pointer, size uint) *IOStream
 // Since: SDL 3.2.0.
 //
 // See also: IOFromConstMem, CloseIO, FlushIO, ReadIO, SeekIO, TellIO, WriteIO
+//
+// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
 func IOFromMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromMem(mem, size)
 }
@@ -300,6 +302,8 @@ var fnIOFromConstMem func(mem unsafe.Pointer, size uint) *IOStream
 // Since: SDL 3.2.0.
 //
 // See also: IOFromMem, CloseIO, ReadIO, SeekIO, TellIO
+//
+// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
 func IOFromConstMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromConstMem(mem, size)
 }
@@ -344,7 +348,7 @@ var fnOpenIO func(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream
 // it around after this call.
 //
 // Parameters:
-//   - iface: the interface that implements this IOStream, initialized using SDL_INIT_INTERFACE().
+//   - iface: the interface that implements this IOStream, initialized using `SDL_INIT_INTERFACE`().
 //   - userdata: the pointer that will be passed to the interface functions.
 //
 // Returns: a pointer to the allocated memory on success or NULL on failure; call GetError() for more information.
@@ -353,7 +357,7 @@ var fnOpenIO func(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream
 //
 // Since: SDL 3.2.0.
 //
-// See also: CloseIO, SDL_INIT_INTERFACE, IOFromConstMem, IOFromFile, IOFromMem
+// See also: CloseIO, `SDL_INIT_INTERFACE`, IOFromConstMem, IOFromFile, IOFromMem
 func OpenIO(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream {
 	return fnOpenIO(iface, userdata)
 }

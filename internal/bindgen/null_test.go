@@ -79,7 +79,7 @@ func TestNullPolicyCoversHeaders(t *testing.T) {
 		t.Error(m)
 	}
 	out := t.TempDir()
-	if _, err := Generate(api, Options{OutDir: out}); err != nil {
+	if _, err := Generate(api, Options{OutDir: out, HandDir: "../../sdl"}); err != nil {
 		t.Fatal(err)
 	}
 	read := func(name string) string {

@@ -7,14 +7,14 @@ import (
 	"unsafe"
 )
 
-// Function pointer typedef for SDL_AppEvent.
+// Function pointer typedef for `SDL_AppEvent`.
 //
 // These are used by EnterAppMainCallbacks. This mechanism operates behind
 // the scenes for apps using the optional main callbacks. Apps that want to
-// use this should just implement SDL_AppEvent directly.
+// use this should just implement `SDL_AppEvent` directly.
 //
 // Parameters:
-//   - appstate: an optional pointer, provided by the app in SDL_AppInit.
+//   - appstate: an optional pointer, provided by the app in `SDL_AppInit`.
 //   - event: the new event for the app to examine.
 //
 // Returns: APP_FAILURE to terminate with an error, APP_SUCCESS to terminate with success, APP_CONTINUE to continue.
@@ -32,11 +32,11 @@ func NewAppEvent_func(fn func(appstate unsafe.Pointer, event *Event) AppResult) 
 	return AppEvent_func(purego.NewCallback(fn))
 }
 
-// Function pointer typedef for SDL_AppInit.
+// Function pointer typedef for `SDL_AppInit`.
 //
 // These are used by EnterAppMainCallbacks. This mechanism operates behind
 // the scenes for apps using the optional main callbacks. Apps that want to
-// use this should just implement SDL_AppInit directly.
+// use this should just implement `SDL_AppInit` directly.
 //
 // Parameters:
 //   - appstate: a place where the app can optionally store a pointer for future use.
@@ -58,14 +58,14 @@ func NewAppInit_func(fn func(appstate *unsafe.Pointer, argc int32, argv **byte) 
 	return AppInit_func(purego.NewCallback(fn))
 }
 
-// Function pointer typedef for SDL_AppIterate.
+// Function pointer typedef for `SDL_AppIterate`.
 //
 // These are used by EnterAppMainCallbacks. This mechanism operates behind
 // the scenes for apps using the optional main callbacks. Apps that want to
-// use this should just implement SDL_AppIterate directly.
+// use this should just implement `SDL_AppIterate` directly.
 //
 // Parameters:
-//   - appstate: an optional pointer, provided by the app in SDL_AppInit.
+//   - appstate: an optional pointer, provided by the app in `SDL_AppInit`.
 //
 // Returns: APP_FAILURE to terminate with an error, APP_SUCCESS to terminate with success, APP_CONTINUE to continue.
 //
@@ -82,14 +82,14 @@ func NewAppIterate_func(fn func(appstate unsafe.Pointer) AppResult) AppIterate_f
 	return AppIterate_func(purego.NewCallback(fn))
 }
 
-// Function pointer typedef for SDL_AppQuit.
+// Function pointer typedef for `SDL_AppQuit`.
 //
 // These are used by EnterAppMainCallbacks. This mechanism operates behind
 // the scenes for apps using the optional main callbacks. Apps that want to
-// use this should just implement SDL_AppEvent directly.
+// use this should just implement `SDL_AppEvent` directly.
 //
 // Parameters:
-//   - appstate: an optional pointer, provided by the app in SDL_AppInit.
+//   - appstate: an optional pointer, provided by the app in `SDL_AppInit`.
 //   - result: the result code that terminated the app (success or failure).
 //
 // Since: SDL 3.2.0.
@@ -137,8 +137,8 @@ func NewMainThreadCallback(fn func(userdata unsafe.Pointer)) MainThreadCallback 
 
 // Return values for optional main callbacks.
 //
-// Returning APP_SUCCESS or APP_FAILURE from SDL_AppInit,
-// SDL_AppEvent, or SDL_AppIterate will terminate the program and report
+// Returning APP_SUCCESS or APP_FAILURE from `SDL_AppInit`,
+// `SDL_AppEvent`, or `SDL_AppIterate` will terminate the program and report
 // success/failure to the operating system. What that means is
 // platform-dependent. On Unix, for example, on success, the process error
 // code will be zero, and on failure it will be 1. This interface doesn't
@@ -149,7 +149,7 @@ func NewMainThreadCallback(fn func(userdata unsafe.Pointer)) MainThreadCallback 
 // to run.
 //
 // See
-// [Main callbacks in SDL3](https://wiki.libsdl.org/SDL3/README-main-functions#main-callbacks-in-sdl3)
+// Main callbacks in SDL3 (https://wiki.libsdl.org/SDL3/README-main-functions#main-callbacks-in-sdl3)
 // for complete details.
 //
 // Since: SDL 3.2.0.
@@ -195,7 +195,7 @@ var fnInit func(flags InitFlags) bool
 // two may be used interchangeably. Though for readability of your code
 // InitSubSystem() might be preferred.
 //
-// The file I/O (for example: IOFromFile) and threading (SDL_CreateThread)
+// The file I/O (for example: IOFromFile) and threading (CreateThread)
 // subsystems are initialized by default. Message boxes
 // (ShowSimpleMessageBox) also attempt to work without initializing the
 // video subsystem, in hopes of being useful in showing an error dialog when
@@ -330,7 +330,7 @@ var fnIsMainThread func() bool
 // main() entry point. On other platforms, the main thread is the one that
 // calls Init(INIT_VIDEO), which should usually be the one that runs
 // your program's main() entry point. If you are using the main callbacks,
-// SDL_AppInit(), SDL_AppIterate(), and SDL_AppQuit() are all called on the
+// `SDL_AppInit`(), `SDL_AppIterate`(), and `SDL_AppQuit`() are all called on the
 // main thread.
 //
 // Returns: true if this thread is the main thread, or false otherwise.
