@@ -1,0 +1,3 @@
+package sdl
+
+func bindAll() {}
