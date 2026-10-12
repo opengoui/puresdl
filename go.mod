@@ -3,6 +3,7 @@ module github.com/opengoui/puresdl
 go 1.27.2
 
 require (
+	github.com/dave/jennifer v1.7.1
 	github.com/ebitengine/purego v0.11.1
 	modernc.org/cc/v4 v4.30.2
 )
