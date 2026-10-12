@@ -246,7 +246,7 @@ func (c *converter) collectConsts(ast *cc.AST) {
 	})
 	versions := map[string]string{}
 	for _, e := range all {
-		k := &ir.Const{Name: e.name, File: filepath.Base(e.pos.file)}
+		k := &ir.Const{Name: e.name, File: filepath.Base(e.pos.file), Offset: e.pos.off}
 		switch v := e.m.Value().(type) {
 		case cc.Int64Value:
 			k.Kind, k.Int = ir.ConstInt, bigInt(int64(v))
@@ -274,6 +274,9 @@ func (c *converter) collectConsts(ast *cc.AST) {
 		}
 		if k.Kind == ir.ConstInt {
 			versions[e.name] = k.Int.String()
+		}
+		if k.Kind == ir.ConstInt {
+			k.After = c.precedingTypedef(e.pos.file, e.pos.off)
 		}
 		c.api.Consts = append(c.api.Consts, k)
 	}

@@ -84,6 +84,7 @@ puresdl 运行时需要 SDL3 动态库（本仓库按 3.4.x 动态库测试，�
 
 - 去掉 `SDL_` 前缀：`SDL_CreateWindow` → `sdl.CreateWindow`，`SDL_Window` → `sdl.Window`，`SDL_INIT_VIDEO` → `sdl.INIT_VIDEO`。键码常量的前缀是 `SDLK_` 而不是 `SDL_`，因此保持原样（`sdl.SDLK_ESCAPE`）。去前缀后若与已有 Go 名字冲突，冲突项会被跳过。
 - C 的 `bool`、整数、浮点、枚举映射到同宽度的 Go 类型；不透明句柄是指向空结构体的指针（`*sdl.Window`）。
+- 标志位常量带类型：`sdl.WINDOW_RESIZABLE` 是 `sdl.WindowFlags`，`sdl.INIT_VIDEO` 是 `sdl.InitFlags`，`sdl.KMOD_*` 是 `sdl.Keymod`，`sdl.BUTTON_*` 是 `sdl.MouseButtonFlags`。同类型常量可直接 `|`；赋给结构体里的原始整数字段时需要显式转换（如 `uint16(sdl.HAPTIC_SINE)`）。
 - `const char *` 参数是 Go `string`；文档允许 NULL 的参数，传空字符串即传 NULL。
 - `const char *` 返回值被复制成 Go `string`；文档要求调用者 `SDL_free` 的返回值会被复制后自动释放。
 - printf 风格函数（`sdl.SetError`、`sdl.Log` 等）接受 Go 格式串与参数，先用 `fmt.Sprintf` 格式化，再作为字面量交给 SDL，不涉及 C 变参。

@@ -62,11 +62,11 @@ const (
 	// The MouseID for mouse events simulated with touch input.
 	//
 	// Since: SDL 3.2.0.
-	TOUCH_MOUSEID = 0xFFFFFFFF
+	TOUCH_MOUSEID MouseID = 0xFFFFFFFF
 	// The TouchID for touch events simulated with mouse input.
 	//
 	// Since: SDL 3.2.0.
-	MOUSE_TOUCHID = 0xFFFFFFFFFFFFFFFF
+	MOUSE_TOUCHID TouchID = 0xFFFFFFFFFFFFFFFF
 )
 
 var fnGetTouchDevices func(count *int32) *TouchID

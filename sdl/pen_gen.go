@@ -85,27 +85,27 @@ const (
 	// The MouseID for mouse events simulated with pen input.
 	//
 	// Since: SDL 3.2.0.
-	PEN_MOUSEID = 0xFFFFFFFE
+	PEN_MOUSEID MouseID = 0xFFFFFFFE
 	// The TouchID for touch events simulated with pen input.
 	//
 	// Since: SDL 3.2.0.
-	PEN_TOUCHID = 0xFFFFFFFFFFFFFFFE
+	PEN_TOUCHID TouchID = 0xFFFFFFFFFFFFFFFE
 	// pen is pressed down
-	PEN_INPUT_DOWN = 1
+	PEN_INPUT_DOWN PenInputFlags = 1
 	// button 1 is pressed
-	PEN_INPUT_BUTTON_1 = 2
+	PEN_INPUT_BUTTON_1 PenInputFlags = 2
 	// button 2 is pressed
-	PEN_INPUT_BUTTON_2 = 4
+	PEN_INPUT_BUTTON_2 PenInputFlags = 4
 	// button 3 is pressed
-	PEN_INPUT_BUTTON_3 = 8
+	PEN_INPUT_BUTTON_3 PenInputFlags = 8
 	// button 4 is pressed
-	PEN_INPUT_BUTTON_4 = 16
+	PEN_INPUT_BUTTON_4 PenInputFlags = 16
 	// button 5 is pressed
-	PEN_INPUT_BUTTON_5 = 32
+	PEN_INPUT_BUTTON_5 PenInputFlags = 32
 	// eraser tip is used
-	PEN_INPUT_ERASER_TIP = 0x40000000
+	PEN_INPUT_ERASER_TIP PenInputFlags = 0x40000000
 	// pen is in proximity (since SDL 3.4.0)
-	PEN_INPUT_IN_PROXIMITY = 0x80000000
+	PEN_INPUT_IN_PROXIMITY PenInputFlags = 0x80000000
 )
 
 var fnGetPenDeviceType func(instance_id PenID) PenDeviceType

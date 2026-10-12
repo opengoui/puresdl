@@ -61,19 +61,19 @@ const (
 )
 const (
 	// Surface uses preallocated pixel memory
-	SURFACE_PREALLOCATED = 1
+	SURFACE_PREALLOCATED SurfaceFlags = 1
 	// Surface needs to be locked to access pixels
-	SURFACE_LOCK_NEEDED = 2
+	SURFACE_LOCK_NEEDED SurfaceFlags = 2
 	// Surface is currently locked
-	SURFACE_LOCKED = 4
+	SURFACE_LOCKED SurfaceFlags = 4
 	// Surface uses pixel memory allocated with AlignedAlloc()
-	SURFACE_SIMD_ALIGNED                 = 8
-	PROP_SURFACE_SDR_WHITE_POINT_FLOAT   = "SDL.surface.SDR_white_point"
-	PROP_SURFACE_HDR_HEADROOM_FLOAT      = "SDL.surface.HDR_headroom"
-	PROP_SURFACE_TONEMAP_OPERATOR_STRING = "SDL.surface.tonemap"
-	PROP_SURFACE_HOTSPOT_X_NUMBER        = "SDL.surface.hotspot.x"
-	PROP_SURFACE_HOTSPOT_Y_NUMBER        = "SDL.surface.hotspot.y"
-	PROP_SURFACE_ROTATION_FLOAT          = "SDL.surface.rotation"
+	SURFACE_SIMD_ALIGNED                 SurfaceFlags = 8
+	PROP_SURFACE_SDR_WHITE_POINT_FLOAT                = "SDL.surface.SDR_white_point"
+	PROP_SURFACE_HDR_HEADROOM_FLOAT                   = "SDL.surface.HDR_headroom"
+	PROP_SURFACE_TONEMAP_OPERATOR_STRING              = "SDL.surface.tonemap"
+	PROP_SURFACE_HOTSPOT_X_NUMBER                     = "SDL.surface.hotspot.x"
+	PROP_SURFACE_HOTSPOT_Y_NUMBER                     = "SDL.surface.hotspot.y"
+	PROP_SURFACE_ROTATION_FLOAT                       = "SDL.surface.rotation"
 )
 
 var fnCreateSurface func(width int32, height int32, format PixelFormat) *Surface

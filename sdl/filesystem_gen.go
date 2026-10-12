@@ -159,7 +159,7 @@ const (
 	PATHTYPE_OTHER PathType = 3
 )
 const (
-	GLOB_CASEINSENSITIVE = 1
+	GLOB_CASEINSENSITIVE GlobFlags = 1
 )
 
 var fnGetBasePath func() *byte

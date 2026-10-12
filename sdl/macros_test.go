@@ -350,7 +350,7 @@ func TestMacroWindowPos(t *testing.T) {
 
 func TestMacroButtonMask(t *testing.T) {
 	for _, tc := range []struct {
-		button int
+		button MouseButtonFlags
 		want   MouseButtonFlags
 	}{
 		{1, 0x1},
@@ -360,7 +360,7 @@ func TestMacroButtonMask(t *testing.T) {
 		{5, 0x10},
 	} {
 		if got := BUTTON_MASK(tc.button); got != tc.want {
-			t.Errorf("BUTTON_MASK(%d) = %#x, want %#x", tc.button, uint32(got), uint32(tc.want))
+			t.Errorf("BUTTON_MASK(%d) = %#x, want %#x", uint32(tc.button), uint32(got), uint32(tc.want))
 		}
 	}
 	if BUTTON_MASK(BUTTON_LEFT) != BUTTON_LMASK || BUTTON_MASK(BUTTON_RIGHT) != BUTTON_RMASK {

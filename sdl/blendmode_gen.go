@@ -65,20 +65,20 @@ const (
 )
 const (
 	// no blending: dstRGBA = srcRGBA
-	BLENDMODE_NONE = 0
+	BLENDMODE_NONE BlendMode = 0
 	// alpha blending: dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA)), dstA = srcA + (dstA * (1-srcA))
-	BLENDMODE_BLEND = 1
+	BLENDMODE_BLEND BlendMode = 1
 	// pre-multiplied alpha blending: dstRGBA = srcRGBA + (dstRGBA * (1-srcA))
-	BLENDMODE_BLEND_PREMULTIPLIED = 16
+	BLENDMODE_BLEND_PREMULTIPLIED BlendMode = 16
 	// additive blending: dstRGB = (srcRGB * srcA) + dstRGB, dstA = dstA
-	BLENDMODE_ADD = 2
+	BLENDMODE_ADD BlendMode = 2
 	// pre-multiplied additive blending: dstRGB = srcRGB + dstRGB, dstA = dstA
-	BLENDMODE_ADD_PREMULTIPLIED = 32
+	BLENDMODE_ADD_PREMULTIPLIED BlendMode = 32
 	// color modulate: dstRGB = srcRGB * dstRGB, dstA = dstA
-	BLENDMODE_MOD = 4
+	BLENDMODE_MOD BlendMode = 4
 	// color multiply: dstRGB = (srcRGB * dstRGB) + (dstRGB * (1-srcA)), dstA = dstA
-	BLENDMODE_MUL     = 8
-	BLENDMODE_INVALID = 0x7FFFFFFF
+	BLENDMODE_MUL     BlendMode = 8
+	BLENDMODE_INVALID BlendMode = 0x7FFFFFFF
 )
 
 var fnComposeCustomBlendMode func(srcColorFactor BlendFactor, dstColorFactor BlendFactor, colorOperation BlendOperation, srcAlphaFactor BlendFactor, dstAlphaFactor BlendFactor, alphaOperation BlendOperation) BlendMode

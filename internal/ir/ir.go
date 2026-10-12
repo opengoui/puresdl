@@ -118,6 +118,8 @@ type Typedef struct {
 	// Std is set for typedefs that come from the libc stubs (uint8_t...)
 	// instead of the SDL headers.
 	Std bool
+	// Offset is the byte offset of the typedef name in File (0 for Std).
+	Offset int
 }
 
 // Function is an exported function.
@@ -148,6 +150,13 @@ type Const struct {
 	Str   string
 	Doc   string
 	File  string
+	// Offset is the byte offset of the #define in File.
+	Offset int
+	// After names the typedef whose declaration is immediately followed
+	// by this macro's contiguous #define block: nothing but directives,
+	// comments and blank lines separates them in the same header. "" if
+	// there is none.
+	After string
 }
 
 // API is everything extracted from the headers, merged across targets.

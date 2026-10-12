@@ -1,8 +1,11 @@
 package ccfront
 
 import (
+	"bytes"
 	"os"
 	"strings"
+
+	"github.com/opengoui/puresdl/internal/ir"
 )
 
 // sources caches header contents for doc comment recovery.
@@ -168,4 +171,72 @@ func lineTrailingDoc(src []byte, off int) string {
 		return ""
 	}
 	return cleanComment(rest[:j])
+}
+
+// precedingTypedef returns the name of the typedef that the #define at off
+// directly follows, or "". Between the end of the typedef declaration and the
+// #define there may only be preprocessor directives, comments and blank
+// lines.
+func (c *converter) precedingTypedef(file string, off int) string {
+	var best *ir.Typedef
+	for _, td := range c.api.Typedefs {
+		if td.Std || td.File != file || td.Offset >= off {
+			continue
+		}
+		if best == nil || td.Offset > best.Offset {
+			best = td
+		}
+	}
+	if best == nil {
+		return ""
+	}
+	src := c.src.get(file)
+	if off > len(src) {
+		return ""
+	}
+	end := bytes.IndexByte(src[best.Offset:off], ';')
+	if end < 0 {
+		return ""
+	}
+	if onlyDirectives(string(src[best.Offset+end+1 : off])) {
+		return best.Name
+	}
+	return ""
+}
+
+// onlyDirectives reports whether s holds nothing but comments, blank lines
+// and preprocessor directives (including their continuation lines).
+func onlyDirectives(s string) bool {
+	// Drop comments first, keeping newlines so line structure survives.
+	var b strings.Builder
+	for i := 0; i < len(s); {
+		switch {
+		case strings.HasPrefix(s[i:], "/*"):
+			j := strings.Index(s[i+2:], "*/")
+			if j < 0 {
+				return false
+			}
+			b.WriteByte(' ')
+			i += j + 4
+		case strings.HasPrefix(s[i:], "//"):
+			for i < len(s) && s[i] != '\n' {
+				i++
+			}
+		default:
+			b.WriteByte(s[i])
+			i++
+		}
+	}
+	cont := false
+	for _, l := range strings.Split(b.String(), "\n") {
+		t := strings.TrimSpace(l)
+		switch {
+		case cont:
+		case t == "" || strings.HasPrefix(t, "#"):
+		default:
+			return false
+		}
+		cont = strings.HasSuffix(t, "\\") && (cont || strings.HasPrefix(t, "#"))
+	}
+	return true
 }

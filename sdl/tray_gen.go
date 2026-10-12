@@ -85,21 +85,21 @@ type TrayEntryFlags uint32
 
 const (
 	// Make the entry a simple button. Required.
-	TRAYENTRY_BUTTON = 1
+	TRAYENTRY_BUTTON TrayEntryFlags = 1
 	// Make the entry a checkbox. Required.
-	TRAYENTRY_CHECKBOX = 2
+	TRAYENTRY_CHECKBOX TrayEntryFlags = 2
 	// Prepare the entry to have a submenu. Required
-	TRAYENTRY_SUBMENU = 4
+	TRAYENTRY_SUBMENU TrayEntryFlags = 4
 	// Make the entry disabled. Optional.
-	TRAYENTRY_DISABLED = 0x80000000
+	TRAYENTRY_DISABLED TrayEntryFlags = 0x80000000
 	// Make the entry checked. This is valid only for checkboxes. Optional.
-	TRAYENTRY_CHECKED                             = 0x40000000
-	PROP_TRAY_CREATE_ICON_POINTER                 = "SDL.tray.create.icon"
-	PROP_TRAY_CREATE_TOOLTIP_STRING               = "SDL.tray.create.tooltip"
-	PROP_TRAY_CREATE_USERDATA_POINTER             = "SDL.tray.create.userdata"
-	PROP_TRAY_CREATE_LEFTCLICK_CALLBACK_POINTER   = "SDL.tray.create.leftclick_callback"
-	PROP_TRAY_CREATE_RIGHTCLICK_CALLBACK_POINTER  = "SDL.tray.create.rightclick_callback"
-	PROP_TRAY_CREATE_MIDDLECLICK_CALLBACK_POINTER = "SDL.tray.create.middleclick_callback"
+	TRAYENTRY_CHECKED                             TrayEntryFlags = 0x40000000
+	PROP_TRAY_CREATE_ICON_POINTER                                = "SDL.tray.create.icon"
+	PROP_TRAY_CREATE_TOOLTIP_STRING                              = "SDL.tray.create.tooltip"
+	PROP_TRAY_CREATE_USERDATA_POINTER                            = "SDL.tray.create.userdata"
+	PROP_TRAY_CREATE_LEFTCLICK_CALLBACK_POINTER                  = "SDL.tray.create.leftclick_callback"
+	PROP_TRAY_CREATE_RIGHTCLICK_CALLBACK_POINTER                 = "SDL.tray.create.rightclick_callback"
+	PROP_TRAY_CREATE_MIDDLECLICK_CALLBACK_POINTER                = "SDL.tray.create.middleclick_callback"
 )
 
 var fnCreateTray func(icon *Surface, tooltip *byte) *Tray

@@ -236,7 +236,7 @@ const (
 	// of the app providing a specific one.
 	//
 	// Since: SDL 3.2.0.
-	AUDIO_DEVICE_DEFAULT_PLAYBACK = 0xFFFFFFFF
+	AUDIO_DEVICE_DEFAULT_PLAYBACK AudioDeviceID = 0xFFFFFFFF
 	// A value used to request a default recording audio device.
 	//
 	// Several functions that require an AudioDeviceID will accept this value
@@ -244,9 +244,9 @@ const (
 	// of the app providing a specific one.
 	//
 	// Since: SDL 3.2.0.
-	AUDIO_DEVICE_DEFAULT_RECORDING        = 0xFFFFFFFE
-	PROP_AUDIO_DEVICE_UNIQUE_ID_STRING    = "SDL.audio.device.unique_id"
-	PROP_AUDIOSTREAM_AUTO_CLEANUP_BOOLEAN = "SDL.audiostream.auto_cleanup"
+	AUDIO_DEVICE_DEFAULT_RECORDING        AudioDeviceID = 0xFFFFFFFE
+	PROP_AUDIO_DEVICE_UNIQUE_ID_STRING                  = "SDL.audio.device.unique_id"
+	PROP_AUDIOSTREAM_AUTO_CLEANUP_BOOLEAN               = "SDL.audiostream.auto_cleanup"
 )
 
 var fnGetNumAudioDrivers func() int32

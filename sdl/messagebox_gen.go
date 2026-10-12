@@ -73,19 +73,19 @@ const (
 )
 const (
 	// error dialog
-	MESSAGEBOX_ERROR = 16
+	MESSAGEBOX_ERROR MessageBoxFlags = 16
 	// warning dialog
-	MESSAGEBOX_WARNING = 32
+	MESSAGEBOX_WARNING MessageBoxFlags = 32
 	// informational dialog
-	MESSAGEBOX_INFORMATION = 64
+	MESSAGEBOX_INFORMATION MessageBoxFlags = 64
 	// buttons placed left to right
-	MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT = 128
+	MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT MessageBoxFlags = 128
 	// buttons placed right to left
-	MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT = 0x100
+	MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT MessageBoxFlags = 0x100
 	// Marks the default button when return is hit
-	MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT = 1
+	MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT MessageBoxButtonFlags = 1
 	// Marks the default button when escape is hit
-	MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT = 2
+	MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT MessageBoxButtonFlags = 2
 )
 
 var fnShowMessageBox func(messageboxdata *MessageBoxData, buttonid *int32) bool

@@ -167,16 +167,16 @@ const (
 	MOUSEWHEEL_FLIPPED MouseWheelDirection = 1
 )
 const (
-	BUTTON_LEFT   = 1
-	BUTTON_MIDDLE = 2
-	BUTTON_RIGHT  = 3
-	BUTTON_X1     = 4
-	BUTTON_X2     = 5
-	BUTTON_LMASK  = 1
-	BUTTON_MMASK  = 2
-	BUTTON_RMASK  = 4
-	BUTTON_X1MASK = 8
-	BUTTON_X2MASK = 16
+	BUTTON_LEFT   MouseButtonFlags = 1
+	BUTTON_MIDDLE MouseButtonFlags = 2
+	BUTTON_RIGHT  MouseButtonFlags = 3
+	BUTTON_X1     MouseButtonFlags = 4
+	BUTTON_X2     MouseButtonFlags = 5
+	BUTTON_LMASK  MouseButtonFlags = 1
+	BUTTON_MMASK  MouseButtonFlags = 2
+	BUTTON_RMASK  MouseButtonFlags = 4
+	BUTTON_X1MASK MouseButtonFlags = 8
+	BUTTON_X2MASK MouseButtonFlags = 16
 )
 
 var fnHasMouse func() bool

@@ -62,6 +62,16 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 | 标量 typedef | 具名 Go 类型（`type WindowFlags uint64`） |
 | `va_list`、`wchar_t` | 不支持（记入 skipped） |
 
+### 带类型的常量（`policy.go: constType`）
+
+宏常量默认无类型，但 SDL 的标志位（`SDL_WindowFlags`、`SDL_InitFlags`、`SDL_Keymod`…）都有对应的整数 typedef。`ccfront` 在 `ir.Const` 记录 `#define` 的偏移，并在 `ir.Typedef` 记录 typedef 偏移；若某个整数宏与它之前最近的 typedef 之间（同一头文件）只有预处理指令、注释和空行，就把 typedef 名写入 `Const.After`。`bindgen` 据此输出 `Name TypedefName = value`，条件是：
+
+- 该 typedef 被输出为具名 Go 类型（`Uint32` 等内建 typedef 不算，所以 `SDL_MAX_UINT32` 保持无类型）；
+- 底层是整数（枚举、结构体 typedef 不算），值能放进该类型（`SDL_HAPTIC_GAIN` 等超出 `uint16` 的值保持无类型）；
+- 常量之间做 `|` 仍然合法，因为同类型常量表达式的结果还是该类型。
+
+`constTypeOverrides` 是人工核对头文件后的例外表：`SDL_WINDOWPOS_*` 是 `int` 坐标，保持无类型；`SDL_PEN_MOUSEID`、`SDL_TOUCH_MOUSEID` 等在头文件里被强转为 `SDL_MouseID`/`SDL_TouchID`；`SDL_BUTTON_*` 显式归入 `MouseButtonFlags`。`gensdl` 会打印被加类型的常量总数。需要把带类型常量赋给结构体里的原始整数字段（如 `HapticPeriodic.Type` 是 `uint16`）时，需要显式转换。
+
 ### 函数包装规则（`funcs.go`）
 
 每个 C 函数生成一个未导出的 `var fnXxx func(...)`（原始签名，由 `bindAll` 在加载库后 `register` 绑定）和一个导出的包装函数：

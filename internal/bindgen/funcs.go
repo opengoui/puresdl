@@ -75,9 +75,11 @@ func (g *gen) emitConsts() {
 		}
 		g.claim(n, k.Name)
 		var v jen.Code
+		typeName := ""
 		switch k.Kind {
 		case ir.ConstInt:
 			v = intLit(k.Int)
+			typeName = g.constType(k)
 		case ir.ConstFloat:
 			v = jen.Lit(k.Float)
 		default:
@@ -86,7 +88,12 @@ func (g *gen) emitConsts() {
 		if _, ok := byFile[k.File]; !ok {
 			order = append(order, k.File)
 		}
-		byFile[k.File] = append(byFile[k.File], start(g.docText(k.Doc)).Id(n).Op("=").Add(v))
+		stmt := start(g.docText(k.Doc)).Id(n)
+		if typeName != "" {
+			stmt.Id(typeName)
+			g.typedConsts++
+		}
+		byFile[k.File] = append(byFile[k.File], stmt.Op("=").Add(v))
 	}
 	for _, f := range order {
 		g.file(f).consts = append(g.file(f).consts, jen.Const().Defs(byFile[f]...))

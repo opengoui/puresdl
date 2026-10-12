@@ -62,7 +62,7 @@ func (c *converter) typedefType(td *cc.Declarator) *ir.Type {
 	if d, ok := c.named[name]; ok {
 		return d.Type
 	}
-	d := &ir.Typedef{Name: name, File: td.Position().Filename, Std: !c.inSDL(td.Position().Filename)}
+	d := &ir.Typedef{Name: name, File: td.Position().Filename, Std: !c.inSDL(td.Position().Filename), Offset: td.Position().Offset}
 	d.Type = &ir.Type{Kind: ir.Named, Name: name}
 	c.named[name] = d
 	c.api.Typedefs = append(c.api.Typedefs, d)

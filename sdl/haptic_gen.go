@@ -543,7 +543,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticCondition
-	HAPTIC_CONSTANT = 1
+	HAPTIC_CONSTANT HapticEffectType = 1
 	// Sine wave effect supported.
 	//
 	// Periodic haptic effect that simulates sine waves.
@@ -551,7 +551,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticPeriodic
-	HAPTIC_SINE = 2
+	HAPTIC_SINE HapticEffectType = 2
 	// Square wave effect supported.
 	//
 	// Periodic haptic effect that simulates square waves.
@@ -559,7 +559,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticPeriodic
-	HAPTIC_SQUARE = 4
+	HAPTIC_SQUARE HapticEffectType = 4
 	// Triangle wave effect supported.
 	//
 	// Periodic haptic effect that simulates triangular waves.
@@ -567,7 +567,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticPeriodic
-	HAPTIC_TRIANGLE = 8
+	HAPTIC_TRIANGLE HapticEffectType = 8
 	// Sawtoothup wave effect supported.
 	//
 	// Periodic haptic effect that simulates saw tooth up waves.
@@ -575,7 +575,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticPeriodic
-	HAPTIC_SAWTOOTHUP = 16
+	HAPTIC_SAWTOOTHUP HapticEffectType = 16
 	// Sawtoothdown wave effect supported.
 	//
 	// Periodic haptic effect that simulates saw tooth down waves.
@@ -583,7 +583,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticPeriodic
-	HAPTIC_SAWTOOTHDOWN = 32
+	HAPTIC_SAWTOOTHDOWN HapticEffectType = 32
 	// Ramp effect supported.
 	//
 	// Ramp haptic effect.
@@ -591,7 +591,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticRamp
-	HAPTIC_RAMP = 64
+	HAPTIC_RAMP HapticEffectType = 64
 	// Spring effect supported - uses axes position.
 	//
 	// Condition haptic effect that simulates a spring. Effect is based on the
@@ -600,7 +600,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticCondition
-	HAPTIC_SPRING = 128
+	HAPTIC_SPRING HapticEffectType = 128
 	// Damper effect supported - uses axes velocity.
 	//
 	// Condition haptic effect that simulates dampening. Effect is based on the
@@ -609,7 +609,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticCondition
-	HAPTIC_DAMPER = 0x100
+	HAPTIC_DAMPER HapticEffectType = 0x100
 	// Inertia effect supported - uses axes acceleration.
 	//
 	// Condition haptic effect that simulates inertia. Effect is based on the axes
@@ -618,7 +618,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticCondition
-	HAPTIC_INERTIA = 0x200
+	HAPTIC_INERTIA HapticEffectType = 0x200
 	// Friction effect supported - uses axes movement.
 	//
 	// Condition haptic effect that simulates friction. Effect is based on the
@@ -627,7 +627,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticCondition
-	HAPTIC_FRICTION = 0x400
+	HAPTIC_FRICTION HapticEffectType = 0x400
 	// Left/Right effect supported.
 	//
 	// Haptic effect for direct control over high/low frequency motors.
@@ -635,25 +635,25 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticLeftRight
-	HAPTIC_LEFTRIGHT = 0x800
+	HAPTIC_LEFTRIGHT HapticEffectType = 0x800
 	// Reserved for future use.
 	//
 	// Since: SDL 3.2.0.
-	HAPTIC_RESERVED1 = 0x1000
+	HAPTIC_RESERVED1 HapticEffectType = 0x1000
 	// Reserved for future use.
 	//
 	// Since: SDL 3.2.0.
-	HAPTIC_RESERVED2 = 0x2000
+	HAPTIC_RESERVED2 HapticEffectType = 0x2000
 	// Reserved for future use.
 	//
 	// Since: SDL 3.2.0.
-	HAPTIC_RESERVED3 = 0x4000
+	HAPTIC_RESERVED3 HapticEffectType = 0x4000
 	// Custom effect is supported.
 	//
 	// User defined custom haptic effect.
 	//
 	// Since: SDL 3.2.0.
-	HAPTIC_CUSTOM = 0x8000
+	HAPTIC_CUSTOM HapticEffectType = 0x8000
 	// Device can set global gain.
 	//
 	// Device supports setting the global gain.
@@ -691,19 +691,19 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticDirection
-	HAPTIC_POLAR = 0
+	HAPTIC_POLAR HapticDirectionType = 0
 	// Uses cartesian coordinates for the direction.
 	//
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticDirection
-	HAPTIC_CARTESIAN = 1
+	HAPTIC_CARTESIAN HapticDirectionType = 1
 	// Uses spherical coordinates for the direction.
 	//
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticDirection
-	HAPTIC_SPHERICAL = 2
+	HAPTIC_SPHERICAL HapticDirectionType = 2
 	// Use this value to play an effect on the steering wheel axis.
 	//
 	// This provides better compatibility across platforms and devices as SDL will
@@ -712,7 +712,7 @@ const (
 	// Since: SDL 3.2.0.
 	//
 	// See also: HapticDirection
-	HAPTIC_STEERING_AXIS = 3
+	HAPTIC_STEERING_AXIS HapticDirectionType = 3
 )
 
 var fnGetHaptics func(count *int32) *HapticID

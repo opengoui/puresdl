@@ -452,57 +452,57 @@ const (
 	// See also: CreateWindowWithProperties
 	PROP_GLOBAL_VIDEO_WAYLAND_SESSION_ID_STRING = "SDL.video.wayland.session_id"
 	// window is in fullscreen mode
-	WINDOW_FULLSCREEN = 1
+	WINDOW_FULLSCREEN WindowFlags = 1
 	// window usable with OpenGL context
-	WINDOW_OPENGL = 2
+	WINDOW_OPENGL WindowFlags = 2
 	// window is occluded
-	WINDOW_OCCLUDED = 4
+	WINDOW_OCCLUDED WindowFlags = 4
 	// window is neither mapped onto the desktop nor shown in the taskbar/dock/window list; ShowWindow() is required for it to become visible
-	WINDOW_HIDDEN = 8
+	WINDOW_HIDDEN WindowFlags = 8
 	// no window decoration
-	WINDOW_BORDERLESS = 16
+	WINDOW_BORDERLESS WindowFlags = 16
 	// window can be resized
-	WINDOW_RESIZABLE = 32
+	WINDOW_RESIZABLE WindowFlags = 32
 	// window is minimized
-	WINDOW_MINIMIZED = 64
+	WINDOW_MINIMIZED WindowFlags = 64
 	// window is maximized
-	WINDOW_MAXIMIZED = 128
+	WINDOW_MAXIMIZED WindowFlags = 128
 	// window has grabbed mouse input
-	WINDOW_MOUSE_GRABBED = 0x100
+	WINDOW_MOUSE_GRABBED WindowFlags = 0x100
 	// window has input focus
-	WINDOW_INPUT_FOCUS = 0x200
+	WINDOW_INPUT_FOCUS WindowFlags = 0x200
 	// window has mouse focus
-	WINDOW_MOUSE_FOCUS = 0x400
+	WINDOW_MOUSE_FOCUS WindowFlags = 0x400
 	// window not created by SDL
-	WINDOW_EXTERNAL = 0x800
+	WINDOW_EXTERNAL WindowFlags = 0x800
 	// window is modal
-	WINDOW_MODAL = 0x1000
+	WINDOW_MODAL WindowFlags = 0x1000
 	// window uses high pixel density back buffer if possible
-	WINDOW_HIGH_PIXEL_DENSITY = 0x2000
+	WINDOW_HIGH_PIXEL_DENSITY WindowFlags = 0x2000
 	// window has mouse captured (unrelated to MOUSE_GRABBED)
-	WINDOW_MOUSE_CAPTURE = 0x4000
+	WINDOW_MOUSE_CAPTURE WindowFlags = 0x4000
 	// window has relative mode enabled
-	WINDOW_MOUSE_RELATIVE_MODE = 0x8000
+	WINDOW_MOUSE_RELATIVE_MODE WindowFlags = 0x8000
 	// window should always be above others
-	WINDOW_ALWAYS_ON_TOP = 0x10000
+	WINDOW_ALWAYS_ON_TOP WindowFlags = 0x10000
 	// window should be treated as a utility window, not showing in the task bar and window list
-	WINDOW_UTILITY = 0x20000
+	WINDOW_UTILITY WindowFlags = 0x20000
 	// window should be treated as a tooltip and does not get mouse or keyboard focus, requires a parent window
-	WINDOW_TOOLTIP = 0x40000
+	WINDOW_TOOLTIP WindowFlags = 0x40000
 	// window should be treated as a popup menu, requires a parent window
-	WINDOW_POPUP_MENU = 0x80000
+	WINDOW_POPUP_MENU WindowFlags = 0x80000
 	// window has grabbed keyboard input
-	WINDOW_KEYBOARD_GRABBED = 0x100000
+	WINDOW_KEYBOARD_GRABBED WindowFlags = 0x100000
 	// window is in fill-document mode (Emscripten only), since SDL 3.4.0
-	WINDOW_FILL_DOCUMENT = 0x200000
+	WINDOW_FILL_DOCUMENT WindowFlags = 0x200000
 	// window usable for Vulkan surface
-	WINDOW_VULKAN = 0x10000000
+	WINDOW_VULKAN WindowFlags = 0x10000000
 	// window usable for Metal view
-	WINDOW_METAL = 0x20000000
+	WINDOW_METAL WindowFlags = 0x20000000
 	// window with transparent buffer
-	WINDOW_TRANSPARENT = 0x40000000
+	WINDOW_TRANSPARENT WindowFlags = 0x40000000
 	// window should not be focusable
-	WINDOW_NOT_FOCUSABLE = 0x80000000
+	WINDOW_NOT_FOCUSABLE WindowFlags = 0x80000000
 	// A magic value used with WINDOWPOS_UNDEFINED.
 	//
 	// Generally this macro isn't used directly, but rather through
@@ -538,115 +538,115 @@ const (
 	// See also: SetWindowPosition
 	WINDOWPOS_CENTERED = 0x2FFF0000
 	// OpenGL Core Profile context
-	GL_CONTEXT_PROFILE_CORE = 1
+	GL_CONTEXT_PROFILE_CORE GLProfile = 1
 	// OpenGL Compatibility Profile context
-	GL_CONTEXT_PROFILE_COMPATIBILITY = 2
+	GL_CONTEXT_PROFILE_COMPATIBILITY GLProfile = 2
 	// GLX_CONTEXT_ES2_PROFILE_BIT_EXT
-	GL_CONTEXT_PROFILE_ES                                  = 4
-	GL_CONTEXT_DEBUG_FLAG                                  = 1
-	GL_CONTEXT_FORWARD_COMPATIBLE_FLAG                     = 2
-	GL_CONTEXT_ROBUST_ACCESS_FLAG                          = 4
-	GL_CONTEXT_RESET_ISOLATION_FLAG                        = 8
-	GL_CONTEXT_RELEASE_BEHAVIOR_NONE                       = 0
-	GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH                      = 1
-	GL_CONTEXT_RESET_NO_NOTIFICATION                       = 0
-	GL_CONTEXT_RESET_LOSE_CONTEXT                          = 1
-	PROP_DISPLAY_HDR_ENABLED_BOOLEAN                       = "SDL.display.HDR_enabled"
-	PROP_DISPLAY_KMSDRM_PANEL_ORIENTATION_NUMBER           = "SDL.display.KMSDRM.panel_orientation"
-	PROP_DISPLAY_WAYLAND_WL_OUTPUT_POINTER                 = "SDL.display.wayland.wl_output"
-	PROP_DISPLAY_WINDOWS_HMONITOR_POINTER                  = "SDL.display.windows.hmonitor"
-	PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN               = "SDL.window.create.always_on_top"
-	PROP_WINDOW_CREATE_BORDERLESS_BOOLEAN                  = "SDL.window.create.borderless"
-	PROP_WINDOW_CREATE_CONSTRAIN_POPUP_BOOLEAN             = "SDL.window.create.constrain_popup"
-	PROP_WINDOW_CREATE_FOCUSABLE_BOOLEAN                   = "SDL.window.create.focusable"
-	PROP_WINDOW_CREATE_EXTERNAL_GRAPHICS_CONTEXT_BOOLEAN   = "SDL.window.create.external_graphics_context"
-	PROP_WINDOW_CREATE_FLAGS_NUMBER                        = "SDL.window.create.flags"
-	PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN                  = "SDL.window.create.fullscreen"
-	PROP_WINDOW_CREATE_HEIGHT_NUMBER                       = "SDL.window.create.height"
-	PROP_WINDOW_CREATE_HIDDEN_BOOLEAN                      = "SDL.window.create.hidden"
-	PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN          = "SDL.window.create.high_pixel_density"
-	PROP_WINDOW_CREATE_MAXIMIZED_BOOLEAN                   = "SDL.window.create.maximized"
-	PROP_WINDOW_CREATE_MENU_BOOLEAN                        = "SDL.window.create.menu"
-	PROP_WINDOW_CREATE_METAL_BOOLEAN                       = "SDL.window.create.metal"
-	PROP_WINDOW_CREATE_MINIMIZED_BOOLEAN                   = "SDL.window.create.minimized"
-	PROP_WINDOW_CREATE_MODAL_BOOLEAN                       = "SDL.window.create.modal"
-	PROP_WINDOW_CREATE_MOUSE_GRABBED_BOOLEAN               = "SDL.window.create.mouse_grabbed"
-	PROP_WINDOW_CREATE_OPENGL_BOOLEAN                      = "SDL.window.create.opengl"
-	PROP_WINDOW_CREATE_PARENT_POINTER                      = "SDL.window.create.parent"
-	PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN                   = "SDL.window.create.resizable"
-	PROP_WINDOW_CREATE_TITLE_STRING                        = "SDL.window.create.title"
-	PROP_WINDOW_CREATE_TRANSPARENT_BOOLEAN                 = "SDL.window.create.transparent"
-	PROP_WINDOW_CREATE_TOOLTIP_BOOLEAN                     = "SDL.window.create.tooltip"
-	PROP_WINDOW_CREATE_UTILITY_BOOLEAN                     = "SDL.window.create.utility"
-	PROP_WINDOW_CREATE_VULKAN_BOOLEAN                      = "SDL.window.create.vulkan"
-	PROP_WINDOW_CREATE_WIDTH_NUMBER                        = "SDL.window.create.width"
-	PROP_WINDOW_CREATE_X_NUMBER                            = "SDL.window.create.x"
-	PROP_WINDOW_CREATE_Y_NUMBER                            = "SDL.window.create.y"
-	PROP_WINDOW_CREATE_COCOA_WINDOW_POINTER                = "SDL.window.create.cocoa.window"
-	PROP_WINDOW_CREATE_COCOA_VIEW_POINTER                  = "SDL.window.create.cocoa.view"
-	PROP_WINDOW_CREATE_WINDOWSCENE_POINTER                 = "SDL.window.create.uikit.windowscene"
-	PROP_WINDOW_CREATE_WAYLAND_SURFACE_ROLE_CUSTOM_BOOLEAN = "SDL.window.create.wayland.surface_role_custom"
-	PROP_WINDOW_CREATE_WAYLAND_CREATE_EGL_WINDOW_BOOLEAN   = "SDL.window.create.wayland.create_egl_window"
-	PROP_WINDOW_CREATE_WAYLAND_WINDOW_ID_STRING            = "SDL.window.create.wayland.window_id"
-	PROP_WINDOW_CREATE_WAYLAND_WL_SURFACE_POINTER          = "SDL.window.create.wayland.wl_surface"
-	PROP_WINDOW_CREATE_WAYLAND_ENABLE_INSETS_BOOLEAN       = "SDL.window.create.wayland.enable_insets"
-	PROP_WINDOW_CREATE_WIN32_HWND_POINTER                  = "SDL.window.create.win32.hwnd"
-	PROP_WINDOW_CREATE_WIN32_PIXEL_FORMAT_HWND_POINTER     = "SDL.window.create.win32.pixel_format_hwnd"
-	PROP_WINDOW_CREATE_WIN32_STYLE_EX_NUMBER               = "SDL.window.create.win32.style_ex"
-	PROP_WINDOW_CREATE_X11_WINDOW_NUMBER                   = "SDL.window.create.x11.window"
-	PROP_WINDOW_CREATE_EMSCRIPTEN_CANVAS_ID_STRING         = "SDL.window.create.emscripten.canvas_id"
-	PROP_WINDOW_CREATE_EMSCRIPTEN_KEYBOARD_ELEMENT_STRING  = "SDL.window.create.emscripten.keyboard_element"
-	PROP_WINDOW_CREATE_VISIONOS_SETTINGS_STRING            = "SDL.window.create.visionos.settings"
-	PROP_WINDOW_SHAPE_POINTER                              = "SDL.window.shape"
-	PROP_WINDOW_HDR_ENABLED_BOOLEAN                        = "SDL.window.HDR_enabled"
-	PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT                      = "SDL.window.SDR_white_level"
-	PROP_WINDOW_HDR_HEADROOM_FLOAT                         = "SDL.window.HDR_headroom"
-	PROP_WINDOW_ANDROID_WINDOW_POINTER                     = "SDL.window.android.window"
-	PROP_WINDOW_ANDROID_SURFACE_POINTER                    = "SDL.window.android.surface"
-	PROP_WINDOW_OPENHARMONY_XCOMPONENT_POINTER             = "SDL.window.openharmony.xcomponent"
-	PROP_WINDOW_OPENHARMONY_WINDOW_POINTER                 = "SDL.window.openharmony.window"
-	PROP_WINDOW_OPENHARMONY_SURFACE_POINTER                = "SDL.window.openharmony.surface"
-	PROP_WINDOW_UIKIT_WINDOW_POINTER                       = "SDL.window.uikit.window"
-	PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER                = "SDL.window.uikit.metal_view_tag"
-	PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER            = "SDL.window.uikit.opengl.framebuffer"
-	PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER           = "SDL.window.uikit.opengl.renderbuffer"
-	PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER    = "SDL.window.uikit.opengl.resolve_framebuffer"
-	PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER                 = "SDL.window.kmsdrm.dev_index"
-	PROP_WINDOW_KMSDRM_DRM_FD_NUMBER                       = "SDL.window.kmsdrm.drm_fd"
-	PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER                  = "SDL.window.kmsdrm.gbm_dev"
-	PROP_WINDOW_COCOA_WINDOW_POINTER                       = "SDL.window.cocoa.window"
-	PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER                = "SDL.window.cocoa.metal_view_tag"
-	PROP_WINDOW_OPENVR_OVERLAY_ID_NUMBER                   = "SDL.window.openvr.overlay_id"
-	PROP_WINDOW_QNX_WINDOW_POINTER                         = "SDL.window.qnx.window"
-	PROP_WINDOW_QNX_SURFACE_POINTER                        = "SDL.window.qnx.surface"
-	PROP_WINDOW_VIVANTE_DISPLAY_POINTER                    = "SDL.window.vivante.display"
-	PROP_WINDOW_VIVANTE_WINDOW_POINTER                     = "SDL.window.vivante.window"
-	PROP_WINDOW_VIVANTE_SURFACE_POINTER                    = "SDL.window.vivante.surface"
-	PROP_WINDOW_WIN32_HWND_POINTER                         = "SDL.window.win32.hwnd"
-	PROP_WINDOW_WIN32_HDC_POINTER                          = "SDL.window.win32.hdc"
-	PROP_WINDOW_WIN32_INSTANCE_POINTER                     = "SDL.window.win32.instance"
-	PROP_WINDOW_WAYLAND_DISPLAY_POINTER                    = "SDL.window.wayland.display"
-	PROP_WINDOW_WAYLAND_SURFACE_POINTER                    = "SDL.window.wayland.surface"
-	PROP_WINDOW_WAYLAND_VIEWPORT_POINTER                   = "SDL.window.wayland.viewport"
-	PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER                 = "SDL.window.wayland.egl_window"
-	PROP_WINDOW_WAYLAND_WINDOW_ID_STRING                   = "SDL.window.wayland.window_id"
-	PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER                = "SDL.window.wayland.xdg_surface"
-	PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER               = "SDL.window.wayland.xdg_toplevel"
-	PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING  = "SDL.window.wayland.xdg_toplevel_export_handle"
-	PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER                  = "SDL.window.wayland.xdg_popup"
-	PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER             = "SDL.window.wayland.xdg_positioner"
-	PROP_WINDOW_WAYLAND_BORDER_INSET_LEFT_NUMBER           = "SDL.window.wayland.border_inset_left"
-	PROP_WINDOW_WAYLAND_BORDER_INSET_TOP_NUMBER            = "SDL.window.wayland.border_inset_top"
-	PROP_WINDOW_WAYLAND_BORDER_INSET_RIGHT_NUMBER          = "SDL.window.wayland.border_inset_right"
-	PROP_WINDOW_WAYLAND_BORDER_INSET_BOTTOM_NUMBER         = "SDL.window.wayland.border_inset_bottom"
-	PROP_WINDOW_X11_DISPLAY_POINTER                        = "SDL.window.x11.display"
-	PROP_WINDOW_X11_SCREEN_NUMBER                          = "SDL.window.x11.screen"
-	PROP_WINDOW_X11_WINDOW_NUMBER                          = "SDL.window.x11.window"
-	PROP_WINDOW_EMSCRIPTEN_CANVAS_ID_STRING                = "SDL.window.emscripten.canvas_id"
-	PROP_WINDOW_EMSCRIPTEN_KEYBOARD_ELEMENT_STRING         = "SDL.window.emscripten.keyboard_element"
-	PROP_WINDOW_VISIONOS_SETTINGS_STRING                   = "SDL.window.visionos.settings"
-	WINDOW_SURFACE_VSYNC_DISABLED                          = 0
-	WINDOW_SURFACE_VSYNC_ADAPTIVE                          = -1
+	GL_CONTEXT_PROFILE_ES                                  GLProfile                  = 4
+	GL_CONTEXT_DEBUG_FLAG                                  GLContextFlag              = 1
+	GL_CONTEXT_FORWARD_COMPATIBLE_FLAG                     GLContextFlag              = 2
+	GL_CONTEXT_ROBUST_ACCESS_FLAG                          GLContextFlag              = 4
+	GL_CONTEXT_RESET_ISOLATION_FLAG                        GLContextFlag              = 8
+	GL_CONTEXT_RELEASE_BEHAVIOR_NONE                       GLContextReleaseFlag       = 0
+	GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH                      GLContextReleaseFlag       = 1
+	GL_CONTEXT_RESET_NO_NOTIFICATION                       GLContextResetNotification = 0
+	GL_CONTEXT_RESET_LOSE_CONTEXT                          GLContextResetNotification = 1
+	PROP_DISPLAY_HDR_ENABLED_BOOLEAN                                                  = "SDL.display.HDR_enabled"
+	PROP_DISPLAY_KMSDRM_PANEL_ORIENTATION_NUMBER                                      = "SDL.display.KMSDRM.panel_orientation"
+	PROP_DISPLAY_WAYLAND_WL_OUTPUT_POINTER                                            = "SDL.display.wayland.wl_output"
+	PROP_DISPLAY_WINDOWS_HMONITOR_POINTER                                             = "SDL.display.windows.hmonitor"
+	PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN                                          = "SDL.window.create.always_on_top"
+	PROP_WINDOW_CREATE_BORDERLESS_BOOLEAN                                             = "SDL.window.create.borderless"
+	PROP_WINDOW_CREATE_CONSTRAIN_POPUP_BOOLEAN                                        = "SDL.window.create.constrain_popup"
+	PROP_WINDOW_CREATE_FOCUSABLE_BOOLEAN                                              = "SDL.window.create.focusable"
+	PROP_WINDOW_CREATE_EXTERNAL_GRAPHICS_CONTEXT_BOOLEAN                              = "SDL.window.create.external_graphics_context"
+	PROP_WINDOW_CREATE_FLAGS_NUMBER                                                   = "SDL.window.create.flags"
+	PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN                                             = "SDL.window.create.fullscreen"
+	PROP_WINDOW_CREATE_HEIGHT_NUMBER                                                  = "SDL.window.create.height"
+	PROP_WINDOW_CREATE_HIDDEN_BOOLEAN                                                 = "SDL.window.create.hidden"
+	PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN                                     = "SDL.window.create.high_pixel_density"
+	PROP_WINDOW_CREATE_MAXIMIZED_BOOLEAN                                              = "SDL.window.create.maximized"
+	PROP_WINDOW_CREATE_MENU_BOOLEAN                                                   = "SDL.window.create.menu"
+	PROP_WINDOW_CREATE_METAL_BOOLEAN                                                  = "SDL.window.create.metal"
+	PROP_WINDOW_CREATE_MINIMIZED_BOOLEAN                                              = "SDL.window.create.minimized"
+	PROP_WINDOW_CREATE_MODAL_BOOLEAN                                                  = "SDL.window.create.modal"
+	PROP_WINDOW_CREATE_MOUSE_GRABBED_BOOLEAN                                          = "SDL.window.create.mouse_grabbed"
+	PROP_WINDOW_CREATE_OPENGL_BOOLEAN                                                 = "SDL.window.create.opengl"
+	PROP_WINDOW_CREATE_PARENT_POINTER                                                 = "SDL.window.create.parent"
+	PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN                                              = "SDL.window.create.resizable"
+	PROP_WINDOW_CREATE_TITLE_STRING                                                   = "SDL.window.create.title"
+	PROP_WINDOW_CREATE_TRANSPARENT_BOOLEAN                                            = "SDL.window.create.transparent"
+	PROP_WINDOW_CREATE_TOOLTIP_BOOLEAN                                                = "SDL.window.create.tooltip"
+	PROP_WINDOW_CREATE_UTILITY_BOOLEAN                                                = "SDL.window.create.utility"
+	PROP_WINDOW_CREATE_VULKAN_BOOLEAN                                                 = "SDL.window.create.vulkan"
+	PROP_WINDOW_CREATE_WIDTH_NUMBER                                                   = "SDL.window.create.width"
+	PROP_WINDOW_CREATE_X_NUMBER                                                       = "SDL.window.create.x"
+	PROP_WINDOW_CREATE_Y_NUMBER                                                       = "SDL.window.create.y"
+	PROP_WINDOW_CREATE_COCOA_WINDOW_POINTER                                           = "SDL.window.create.cocoa.window"
+	PROP_WINDOW_CREATE_COCOA_VIEW_POINTER                                             = "SDL.window.create.cocoa.view"
+	PROP_WINDOW_CREATE_WINDOWSCENE_POINTER                                            = "SDL.window.create.uikit.windowscene"
+	PROP_WINDOW_CREATE_WAYLAND_SURFACE_ROLE_CUSTOM_BOOLEAN                            = "SDL.window.create.wayland.surface_role_custom"
+	PROP_WINDOW_CREATE_WAYLAND_CREATE_EGL_WINDOW_BOOLEAN                              = "SDL.window.create.wayland.create_egl_window"
+	PROP_WINDOW_CREATE_WAYLAND_WINDOW_ID_STRING                                       = "SDL.window.create.wayland.window_id"
+	PROP_WINDOW_CREATE_WAYLAND_WL_SURFACE_POINTER                                     = "SDL.window.create.wayland.wl_surface"
+	PROP_WINDOW_CREATE_WAYLAND_ENABLE_INSETS_BOOLEAN                                  = "SDL.window.create.wayland.enable_insets"
+	PROP_WINDOW_CREATE_WIN32_HWND_POINTER                                             = "SDL.window.create.win32.hwnd"
+	PROP_WINDOW_CREATE_WIN32_PIXEL_FORMAT_HWND_POINTER                                = "SDL.window.create.win32.pixel_format_hwnd"
+	PROP_WINDOW_CREATE_WIN32_STYLE_EX_NUMBER                                          = "SDL.window.create.win32.style_ex"
+	PROP_WINDOW_CREATE_X11_WINDOW_NUMBER                                              = "SDL.window.create.x11.window"
+	PROP_WINDOW_CREATE_EMSCRIPTEN_CANVAS_ID_STRING                                    = "SDL.window.create.emscripten.canvas_id"
+	PROP_WINDOW_CREATE_EMSCRIPTEN_KEYBOARD_ELEMENT_STRING                             = "SDL.window.create.emscripten.keyboard_element"
+	PROP_WINDOW_CREATE_VISIONOS_SETTINGS_STRING                                       = "SDL.window.create.visionos.settings"
+	PROP_WINDOW_SHAPE_POINTER                                                         = "SDL.window.shape"
+	PROP_WINDOW_HDR_ENABLED_BOOLEAN                                                   = "SDL.window.HDR_enabled"
+	PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT                                                 = "SDL.window.SDR_white_level"
+	PROP_WINDOW_HDR_HEADROOM_FLOAT                                                    = "SDL.window.HDR_headroom"
+	PROP_WINDOW_ANDROID_WINDOW_POINTER                                                = "SDL.window.android.window"
+	PROP_WINDOW_ANDROID_SURFACE_POINTER                                               = "SDL.window.android.surface"
+	PROP_WINDOW_OPENHARMONY_XCOMPONENT_POINTER                                        = "SDL.window.openharmony.xcomponent"
+	PROP_WINDOW_OPENHARMONY_WINDOW_POINTER                                            = "SDL.window.openharmony.window"
+	PROP_WINDOW_OPENHARMONY_SURFACE_POINTER                                           = "SDL.window.openharmony.surface"
+	PROP_WINDOW_UIKIT_WINDOW_POINTER                                                  = "SDL.window.uikit.window"
+	PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER                                           = "SDL.window.uikit.metal_view_tag"
+	PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER                                       = "SDL.window.uikit.opengl.framebuffer"
+	PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER                                      = "SDL.window.uikit.opengl.renderbuffer"
+	PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER                               = "SDL.window.uikit.opengl.resolve_framebuffer"
+	PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER                                            = "SDL.window.kmsdrm.dev_index"
+	PROP_WINDOW_KMSDRM_DRM_FD_NUMBER                                                  = "SDL.window.kmsdrm.drm_fd"
+	PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER                                             = "SDL.window.kmsdrm.gbm_dev"
+	PROP_WINDOW_COCOA_WINDOW_POINTER                                                  = "SDL.window.cocoa.window"
+	PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER                                           = "SDL.window.cocoa.metal_view_tag"
+	PROP_WINDOW_OPENVR_OVERLAY_ID_NUMBER                                              = "SDL.window.openvr.overlay_id"
+	PROP_WINDOW_QNX_WINDOW_POINTER                                                    = "SDL.window.qnx.window"
+	PROP_WINDOW_QNX_SURFACE_POINTER                                                   = "SDL.window.qnx.surface"
+	PROP_WINDOW_VIVANTE_DISPLAY_POINTER                                               = "SDL.window.vivante.display"
+	PROP_WINDOW_VIVANTE_WINDOW_POINTER                                                = "SDL.window.vivante.window"
+	PROP_WINDOW_VIVANTE_SURFACE_POINTER                                               = "SDL.window.vivante.surface"
+	PROP_WINDOW_WIN32_HWND_POINTER                                                    = "SDL.window.win32.hwnd"
+	PROP_WINDOW_WIN32_HDC_POINTER                                                     = "SDL.window.win32.hdc"
+	PROP_WINDOW_WIN32_INSTANCE_POINTER                                                = "SDL.window.win32.instance"
+	PROP_WINDOW_WAYLAND_DISPLAY_POINTER                                               = "SDL.window.wayland.display"
+	PROP_WINDOW_WAYLAND_SURFACE_POINTER                                               = "SDL.window.wayland.surface"
+	PROP_WINDOW_WAYLAND_VIEWPORT_POINTER                                              = "SDL.window.wayland.viewport"
+	PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER                                            = "SDL.window.wayland.egl_window"
+	PROP_WINDOW_WAYLAND_WINDOW_ID_STRING                                              = "SDL.window.wayland.window_id"
+	PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER                                           = "SDL.window.wayland.xdg_surface"
+	PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER                                          = "SDL.window.wayland.xdg_toplevel"
+	PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING                             = "SDL.window.wayland.xdg_toplevel_export_handle"
+	PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER                                             = "SDL.window.wayland.xdg_popup"
+	PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER                                        = "SDL.window.wayland.xdg_positioner"
+	PROP_WINDOW_WAYLAND_BORDER_INSET_LEFT_NUMBER                                      = "SDL.window.wayland.border_inset_left"
+	PROP_WINDOW_WAYLAND_BORDER_INSET_TOP_NUMBER                                       = "SDL.window.wayland.border_inset_top"
+	PROP_WINDOW_WAYLAND_BORDER_INSET_RIGHT_NUMBER                                     = "SDL.window.wayland.border_inset_right"
+	PROP_WINDOW_WAYLAND_BORDER_INSET_BOTTOM_NUMBER                                    = "SDL.window.wayland.border_inset_bottom"
+	PROP_WINDOW_X11_DISPLAY_POINTER                                                   = "SDL.window.x11.display"
+	PROP_WINDOW_X11_SCREEN_NUMBER                                                     = "SDL.window.x11.screen"
+	PROP_WINDOW_X11_WINDOW_NUMBER                                                     = "SDL.window.x11.window"
+	PROP_WINDOW_EMSCRIPTEN_CANVAS_ID_STRING                                           = "SDL.window.emscripten.canvas_id"
+	PROP_WINDOW_EMSCRIPTEN_KEYBOARD_ELEMENT_STRING                                    = "SDL.window.emscripten.keyboard_element"
+	PROP_WINDOW_VISIONOS_SETTINGS_STRING                                              = "SDL.window.visionos.settings"
+	WINDOW_SURFACE_VSYNC_DISABLED                                                     = 0
+	WINDOW_SURFACE_VSYNC_ADAPTIVE                                                     = -1
 )
 
 var fnGetNumVideoDrivers func() int32

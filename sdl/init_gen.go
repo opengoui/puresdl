@@ -165,26 +165,26 @@ const (
 )
 const (
 	// `INIT_AUDIO` implies `INIT_EVENTS`
-	INIT_AUDIO = 16
+	INIT_AUDIO InitFlags = 16
 	// `INIT_VIDEO` implies `INIT_EVENTS`, should be initialized on the main thread
-	INIT_VIDEO = 32
+	INIT_VIDEO InitFlags = 32
 	// `INIT_JOYSTICK` implies `INIT_EVENTS`
-	INIT_JOYSTICK = 0x200
-	INIT_HAPTIC   = 0x1000
+	INIT_JOYSTICK InitFlags = 0x200
+	INIT_HAPTIC   InitFlags = 0x1000
 	// `INIT_GAMEPAD` implies `INIT_JOYSTICK`
-	INIT_GAMEPAD = 0x2000
-	INIT_EVENTS  = 0x4000
+	INIT_GAMEPAD InitFlags = 0x2000
+	INIT_EVENTS  InitFlags = 0x4000
 	// `INIT_SENSOR` implies `INIT_EVENTS`
-	INIT_SENSOR = 0x8000
+	INIT_SENSOR InitFlags = 0x8000
 	// `INIT_CAMERA` implies `INIT_EVENTS`
-	INIT_CAMERA                         = 0x10000
-	PROP_APP_METADATA_NAME_STRING       = "SDL.app.metadata.name"
-	PROP_APP_METADATA_VERSION_STRING    = "SDL.app.metadata.version"
-	PROP_APP_METADATA_IDENTIFIER_STRING = "SDL.app.metadata.identifier"
-	PROP_APP_METADATA_CREATOR_STRING    = "SDL.app.metadata.creator"
-	PROP_APP_METADATA_COPYRIGHT_STRING  = "SDL.app.metadata.copyright"
-	PROP_APP_METADATA_URL_STRING        = "SDL.app.metadata.url"
-	PROP_APP_METADATA_TYPE_STRING       = "SDL.app.metadata.type"
+	INIT_CAMERA                         InitFlags = 0x10000
+	PROP_APP_METADATA_NAME_STRING                 = "SDL.app.metadata.name"
+	PROP_APP_METADATA_VERSION_STRING              = "SDL.app.metadata.version"
+	PROP_APP_METADATA_IDENTIFIER_STRING           = "SDL.app.metadata.identifier"
+	PROP_APP_METADATA_CREATOR_STRING              = "SDL.app.metadata.creator"
+	PROP_APP_METADATA_COPYRIGHT_STRING            = "SDL.app.metadata.copyright"
+	PROP_APP_METADATA_URL_STRING                  = "SDL.app.metadata.url"
+	PROP_APP_METADATA_TYPE_STRING                 = "SDL.app.metadata.type"
 )
 
 var fnInit func(flags InitFlags) bool

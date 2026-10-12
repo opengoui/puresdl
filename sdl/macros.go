@@ -296,12 +296,12 @@ func WINDOWPOS_ISCENTERED(x int32) bool {
 
 // BUTTON_MASK returns the [MouseButtonFlags] mask for mouse button x (1-based,
 // such as [BUTTON_LEFT]).
-func BUTTON_MASK(x int) MouseButtonFlags { return 1 << (x - 1) }
+func BUTTON_MASK(x MouseButtonFlags) MouseButtonFlags { return 1 << (x - 1) }
 
 // SCANCODE_TO_KEYCODE converts a [Scancode] to the matching extended
 // [Keycode].
 func SCANCODE_TO_KEYCODE(s Scancode) Keycode {
-	return Keycode(uint32(s) | SDLK_SCANCODE_MASK)
+	return Keycode(s) | SDLK_SCANCODE_MASK
 }
 
 // Time conversion macros (SDL_timer.h).

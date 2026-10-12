@@ -26,6 +26,9 @@ type Options struct {
 type Result struct {
 	Files   []string
 	Skipped []string
+	// TypedConsts is the number of macro constants emitted with a named
+	// integer type instead of as untyped constants.
+	TypedConsts int
 }
 
 type gen struct {
@@ -42,6 +45,8 @@ type gen struct {
 	binds    [][2]string // {Go func var, C symbol}
 	layouts  []layoutEntry
 	errs     []string
+	// typedConsts counts the macro constants emitted with a typedef type.
+	typedConsts int
 }
 
 type fileBuf struct {
@@ -146,6 +151,7 @@ func Generate(api *ir.API, opt Options) (*Result, error) {
 	}
 	sort.Strings(g.skipped)
 	res.Skipped = g.skipped
+	res.TypedConsts = g.typedConsts
 	return res, nil
 }
 

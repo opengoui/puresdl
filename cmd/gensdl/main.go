@@ -39,7 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("SDL %s: wrote %d files, %d declarations not bound\n", api.Version, len(res.Files), len(res.Skipped))
+	fmt.Printf("SDL %s: wrote %d files, %d declarations not bound, %d typed constants\n", api.Version, len(res.Files), len(res.Skipped), res.TypedConsts)
 	if *skipped != "" {
 		var b []byte
 		for _, s := range res.Skipped {

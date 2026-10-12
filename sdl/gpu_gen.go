@@ -1761,103 +1761,103 @@ const (
 )
 const (
 	// Texture supports sampling.
-	GPU_TEXTUREUSAGE_SAMPLER = 1
+	GPU_TEXTUREUSAGE_SAMPLER GPUTextureUsageFlags = 1
 	// Texture is a color render target.
-	GPU_TEXTUREUSAGE_COLOR_TARGET = 2
+	GPU_TEXTUREUSAGE_COLOR_TARGET GPUTextureUsageFlags = 2
 	// Texture is a depth stencil target.
-	GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET = 4
+	GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET GPUTextureUsageFlags = 4
 	// Texture supports storage reads in graphics stages.
-	GPU_TEXTUREUSAGE_GRAPHICS_STORAGE_READ = 8
+	GPU_TEXTUREUSAGE_GRAPHICS_STORAGE_READ GPUTextureUsageFlags = 8
 	// Texture supports storage reads in the compute stage.
-	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_READ = 16
+	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_READ GPUTextureUsageFlags = 16
 	// Texture supports storage writes in the compute stage.
-	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE = 32
+	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE GPUTextureUsageFlags = 32
 	// Texture supports reads and writes in the same compute shader. This is NOT equivalent to READ | WRITE.
-	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_SIMULTANEOUS_READ_WRITE = 64
+	GPU_TEXTUREUSAGE_COMPUTE_STORAGE_SIMULTANEOUS_READ_WRITE GPUTextureUsageFlags = 64
 	// Buffer is a vertex buffer.
-	GPU_BUFFERUSAGE_VERTEX = 1
+	GPU_BUFFERUSAGE_VERTEX GPUBufferUsageFlags = 1
 	// Buffer is an index buffer.
-	GPU_BUFFERUSAGE_INDEX = 2
+	GPU_BUFFERUSAGE_INDEX GPUBufferUsageFlags = 2
 	// Buffer is an indirect buffer.
-	GPU_BUFFERUSAGE_INDIRECT = 4
+	GPU_BUFFERUSAGE_INDIRECT GPUBufferUsageFlags = 4
 	// Buffer supports storage reads in graphics stages.
-	GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ = 8
+	GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ GPUBufferUsageFlags = 8
 	// Buffer supports storage reads in the compute stage.
-	GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ = 16
+	GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ GPUBufferUsageFlags = 16
 	// Buffer supports storage writes in the compute stage.
-	GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE = 32
-	GPU_SHADERFORMAT_INVALID              = 0
+	GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE GPUBufferUsageFlags = 32
+	GPU_SHADERFORMAT_INVALID              GPUShaderFormat     = 0
 	// Shaders for NDA'd platforms.
-	GPU_SHADERFORMAT_PRIVATE = 1
+	GPU_SHADERFORMAT_PRIVATE GPUShaderFormat = 1
 	// SPIR-V shaders for Vulkan.
-	GPU_SHADERFORMAT_SPIRV = 2
+	GPU_SHADERFORMAT_SPIRV GPUShaderFormat = 2
 	// DXBC SM5_1 shaders for D3D12.
-	GPU_SHADERFORMAT_DXBC = 4
+	GPU_SHADERFORMAT_DXBC GPUShaderFormat = 4
 	// DXIL SM6_0 shaders for D3D12.
-	GPU_SHADERFORMAT_DXIL = 8
+	GPU_SHADERFORMAT_DXIL GPUShaderFormat = 8
 	// MSL shaders for Metal.
-	GPU_SHADERFORMAT_MSL = 16
+	GPU_SHADERFORMAT_MSL GPUShaderFormat = 16
 	// Precompiled metallib shaders for Metal.
-	GPU_SHADERFORMAT_METALLIB = 32
+	GPU_SHADERFORMAT_METALLIB GPUShaderFormat = 32
 	// the red component
-	GPU_COLORCOMPONENT_R = 1
+	GPU_COLORCOMPONENT_R GPUColorComponentFlags = 1
 	// the green component
-	GPU_COLORCOMPONENT_G = 2
+	GPU_COLORCOMPONENT_G GPUColorComponentFlags = 2
 	// the blue component
-	GPU_COLORCOMPONENT_B = 4
+	GPU_COLORCOMPONENT_B GPUColorComponentFlags = 4
 	// the alpha component
-	GPU_COLORCOMPONENT_A                                                = 8
-	PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN                            = "SDL.gpu.device.create.debugmode"
-	PROP_GPU_DEVICE_CREATE_PREFERLOWPOWER_BOOLEAN                       = "SDL.gpu.device.create.preferlowpower"
-	PROP_GPU_DEVICE_CREATE_VERBOSE_BOOLEAN                              = "SDL.gpu.device.create.verbose"
-	PROP_GPU_DEVICE_CREATE_NAME_STRING                                  = "SDL.gpu.device.create.name"
-	PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN                = "SDL.gpu.device.create.feature.clip_distance"
-	PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN               = "SDL.gpu.device.create.feature.depth_clamping"
-	PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN = "SDL.gpu.device.create.feature.indirect_draw_first_instance"
-	PROP_GPU_DEVICE_CREATE_FEATURE_ANISOTROPY_BOOLEAN                   = "SDL.gpu.device.create.feature.anisotropy"
-	PROP_GPU_DEVICE_CREATE_SHADERS_PRIVATE_BOOLEAN                      = "SDL.gpu.device.create.shaders.private"
-	PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN                        = "SDL.gpu.device.create.shaders.spirv"
-	PROP_GPU_DEVICE_CREATE_SHADERS_DXBC_BOOLEAN                         = "SDL.gpu.device.create.shaders.dxbc"
-	PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN                         = "SDL.gpu.device.create.shaders.dxil"
-	PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN                          = "SDL.gpu.device.create.shaders.msl"
-	PROP_GPU_DEVICE_CREATE_SHADERS_METALLIB_BOOLEAN                     = "SDL.gpu.device.create.shaders.metallib"
-	PROP_GPU_DEVICE_CREATE_D3D12_ALLOW_FEWER_RESOURCE_SLOTS_BOOLEAN     = "SDL.gpu.device.create.d3d12.allowtier1resourcebinding"
-	PROP_GPU_DEVICE_CREATE_D3D12_SEMANTIC_NAME_STRING                   = "SDL.gpu.device.create.d3d12.semantic"
-	PROP_GPU_DEVICE_CREATE_D3D12_AGILITY_SDK_VERSION_NUMBER             = "SDL.gpu.device.create.d3d12.agility_sdk_version"
-	PROP_GPU_DEVICE_CREATE_D3D12_AGILITY_SDK_PATH_STRING                = "SDL.gpu.device.create.d3d12.agility_sdk_path"
-	PROP_GPU_DEVICE_CREATE_VULKAN_REQUIRE_HARDWARE_ACCELERATION_BOOLEAN = "SDL.gpu.device.create.vulkan.requirehardwareacceleration"
-	PROP_GPU_DEVICE_CREATE_VULKAN_OPTIONS_POINTER                       = "SDL.gpu.device.create.vulkan.options"
-	PROP_GPU_DEVICE_CREATE_METAL_ALLOW_MACFAMILY1_BOOLEAN               = "SDL.gpu.device.create.metal.allowmacfamily1"
-	PROP_GPU_DEVICE_CREATE_XR_ENABLE_BOOLEAN                            = "SDL.gpu.device.create.xr.enable"
-	PROP_GPU_DEVICE_CREATE_XR_INSTANCE_POINTER                          = "SDL.gpu.device.create.xr.instance_out"
-	PROP_GPU_DEVICE_CREATE_XR_SYSTEM_ID_POINTER                         = "SDL.gpu.device.create.xr.system_id_out"
-	PROP_GPU_DEVICE_CREATE_XR_VERSION_NUMBER                            = "SDL.gpu.device.create.xr.version"
-	PROP_GPU_DEVICE_CREATE_XR_FORM_FACTOR_NUMBER                        = "SDL.gpu.device.create.xr.form_factor"
-	PROP_GPU_DEVICE_CREATE_XR_EXTENSION_COUNT_NUMBER                    = "SDL.gpu.device.create.xr.extensions.count"
-	PROP_GPU_DEVICE_CREATE_XR_EXTENSION_NAMES_POINTER                   = "SDL.gpu.device.create.xr.extensions.names"
-	PROP_GPU_DEVICE_CREATE_XR_LAYER_COUNT_NUMBER                        = "SDL.gpu.device.create.xr.layers.count"
-	PROP_GPU_DEVICE_CREATE_XR_LAYER_NAMES_POINTER                       = "SDL.gpu.device.create.xr.layers.names"
-	PROP_GPU_DEVICE_CREATE_XR_APPLICATION_NAME_STRING                   = "SDL.gpu.device.create.xr.application.name"
-	PROP_GPU_DEVICE_CREATE_XR_APPLICATION_VERSION_NUMBER                = "SDL.gpu.device.create.xr.application.version"
-	PROP_GPU_DEVICE_CREATE_XR_ENGINE_NAME_STRING                        = "SDL.gpu.device.create.xr.engine.name"
-	PROP_GPU_DEVICE_CREATE_XR_ENGINE_VERSION_NUMBER                     = "SDL.gpu.device.create.xr.engine.version"
-	PROP_GPU_DEVICE_NAME_STRING                                         = "SDL.gpu.device.name"
-	PROP_GPU_DEVICE_DRIVER_NAME_STRING                                  = "SDL.gpu.device.driver_name"
-	PROP_GPU_DEVICE_DRIVER_VERSION_STRING                               = "SDL.gpu.device.driver_version"
-	PROP_GPU_DEVICE_DRIVER_INFO_STRING                                  = "SDL.gpu.device.driver_info"
-	PROP_GPU_COMPUTEPIPELINE_CREATE_NAME_STRING                         = "SDL.gpu.computepipeline.create.name"
-	PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING                        = "SDL.gpu.graphicspipeline.create.name"
-	PROP_GPU_SAMPLER_CREATE_NAME_STRING                                 = "SDL.gpu.sampler.create.name"
-	PROP_GPU_SHADER_CREATE_NAME_STRING                                  = "SDL.gpu.shader.create.name"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_R_FLOAT                         = "SDL.gpu.texture.create.d3d12.clear.r"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_G_FLOAT                         = "SDL.gpu.texture.create.d3d12.clear.g"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_B_FLOAT                         = "SDL.gpu.texture.create.d3d12.clear.b"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_A_FLOAT                         = "SDL.gpu.texture.create.d3d12.clear.a"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_DEPTH_FLOAT                     = "SDL.gpu.texture.create.d3d12.clear.depth"
-	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_STENCIL_NUMBER                  = "SDL.gpu.texture.create.d3d12.clear.stencil"
-	PROP_GPU_TEXTURE_CREATE_NAME_STRING                                 = "SDL.gpu.texture.create.name"
-	PROP_GPU_BUFFER_CREATE_NAME_STRING                                  = "SDL.gpu.buffer.create.name"
-	PROP_GPU_TRANSFERBUFFER_CREATE_NAME_STRING                          = "SDL.gpu.transferbuffer.create.name"
+	GPU_COLORCOMPONENT_A                                                GPUColorComponentFlags = 8
+	PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN                                                   = "SDL.gpu.device.create.debugmode"
+	PROP_GPU_DEVICE_CREATE_PREFERLOWPOWER_BOOLEAN                                              = "SDL.gpu.device.create.preferlowpower"
+	PROP_GPU_DEVICE_CREATE_VERBOSE_BOOLEAN                                                     = "SDL.gpu.device.create.verbose"
+	PROP_GPU_DEVICE_CREATE_NAME_STRING                                                         = "SDL.gpu.device.create.name"
+	PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN                                       = "SDL.gpu.device.create.feature.clip_distance"
+	PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN                                      = "SDL.gpu.device.create.feature.depth_clamping"
+	PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN                        = "SDL.gpu.device.create.feature.indirect_draw_first_instance"
+	PROP_GPU_DEVICE_CREATE_FEATURE_ANISOTROPY_BOOLEAN                                          = "SDL.gpu.device.create.feature.anisotropy"
+	PROP_GPU_DEVICE_CREATE_SHADERS_PRIVATE_BOOLEAN                                             = "SDL.gpu.device.create.shaders.private"
+	PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN                                               = "SDL.gpu.device.create.shaders.spirv"
+	PROP_GPU_DEVICE_CREATE_SHADERS_DXBC_BOOLEAN                                                = "SDL.gpu.device.create.shaders.dxbc"
+	PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN                                                = "SDL.gpu.device.create.shaders.dxil"
+	PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN                                                 = "SDL.gpu.device.create.shaders.msl"
+	PROP_GPU_DEVICE_CREATE_SHADERS_METALLIB_BOOLEAN                                            = "SDL.gpu.device.create.shaders.metallib"
+	PROP_GPU_DEVICE_CREATE_D3D12_ALLOW_FEWER_RESOURCE_SLOTS_BOOLEAN                            = "SDL.gpu.device.create.d3d12.allowtier1resourcebinding"
+	PROP_GPU_DEVICE_CREATE_D3D12_SEMANTIC_NAME_STRING                                          = "SDL.gpu.device.create.d3d12.semantic"
+	PROP_GPU_DEVICE_CREATE_D3D12_AGILITY_SDK_VERSION_NUMBER                                    = "SDL.gpu.device.create.d3d12.agility_sdk_version"
+	PROP_GPU_DEVICE_CREATE_D3D12_AGILITY_SDK_PATH_STRING                                       = "SDL.gpu.device.create.d3d12.agility_sdk_path"
+	PROP_GPU_DEVICE_CREATE_VULKAN_REQUIRE_HARDWARE_ACCELERATION_BOOLEAN                        = "SDL.gpu.device.create.vulkan.requirehardwareacceleration"
+	PROP_GPU_DEVICE_CREATE_VULKAN_OPTIONS_POINTER                                              = "SDL.gpu.device.create.vulkan.options"
+	PROP_GPU_DEVICE_CREATE_METAL_ALLOW_MACFAMILY1_BOOLEAN                                      = "SDL.gpu.device.create.metal.allowmacfamily1"
+	PROP_GPU_DEVICE_CREATE_XR_ENABLE_BOOLEAN                                                   = "SDL.gpu.device.create.xr.enable"
+	PROP_GPU_DEVICE_CREATE_XR_INSTANCE_POINTER                                                 = "SDL.gpu.device.create.xr.instance_out"
+	PROP_GPU_DEVICE_CREATE_XR_SYSTEM_ID_POINTER                                                = "SDL.gpu.device.create.xr.system_id_out"
+	PROP_GPU_DEVICE_CREATE_XR_VERSION_NUMBER                                                   = "SDL.gpu.device.create.xr.version"
+	PROP_GPU_DEVICE_CREATE_XR_FORM_FACTOR_NUMBER                                               = "SDL.gpu.device.create.xr.form_factor"
+	PROP_GPU_DEVICE_CREATE_XR_EXTENSION_COUNT_NUMBER                                           = "SDL.gpu.device.create.xr.extensions.count"
+	PROP_GPU_DEVICE_CREATE_XR_EXTENSION_NAMES_POINTER                                          = "SDL.gpu.device.create.xr.extensions.names"
+	PROP_GPU_DEVICE_CREATE_XR_LAYER_COUNT_NUMBER                                               = "SDL.gpu.device.create.xr.layers.count"
+	PROP_GPU_DEVICE_CREATE_XR_LAYER_NAMES_POINTER                                              = "SDL.gpu.device.create.xr.layers.names"
+	PROP_GPU_DEVICE_CREATE_XR_APPLICATION_NAME_STRING                                          = "SDL.gpu.device.create.xr.application.name"
+	PROP_GPU_DEVICE_CREATE_XR_APPLICATION_VERSION_NUMBER                                       = "SDL.gpu.device.create.xr.application.version"
+	PROP_GPU_DEVICE_CREATE_XR_ENGINE_NAME_STRING                                               = "SDL.gpu.device.create.xr.engine.name"
+	PROP_GPU_DEVICE_CREATE_XR_ENGINE_VERSION_NUMBER                                            = "SDL.gpu.device.create.xr.engine.version"
+	PROP_GPU_DEVICE_NAME_STRING                                                                = "SDL.gpu.device.name"
+	PROP_GPU_DEVICE_DRIVER_NAME_STRING                                                         = "SDL.gpu.device.driver_name"
+	PROP_GPU_DEVICE_DRIVER_VERSION_STRING                                                      = "SDL.gpu.device.driver_version"
+	PROP_GPU_DEVICE_DRIVER_INFO_STRING                                                         = "SDL.gpu.device.driver_info"
+	PROP_GPU_COMPUTEPIPELINE_CREATE_NAME_STRING                                                = "SDL.gpu.computepipeline.create.name"
+	PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING                                               = "SDL.gpu.graphicspipeline.create.name"
+	PROP_GPU_SAMPLER_CREATE_NAME_STRING                                                        = "SDL.gpu.sampler.create.name"
+	PROP_GPU_SHADER_CREATE_NAME_STRING                                                         = "SDL.gpu.shader.create.name"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_R_FLOAT                                                = "SDL.gpu.texture.create.d3d12.clear.r"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_G_FLOAT                                                = "SDL.gpu.texture.create.d3d12.clear.g"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_B_FLOAT                                                = "SDL.gpu.texture.create.d3d12.clear.b"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_A_FLOAT                                                = "SDL.gpu.texture.create.d3d12.clear.a"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_DEPTH_FLOAT                                            = "SDL.gpu.texture.create.d3d12.clear.depth"
+	PROP_GPU_TEXTURE_CREATE_D3D12_CLEAR_STENCIL_NUMBER                                         = "SDL.gpu.texture.create.d3d12.clear.stencil"
+	PROP_GPU_TEXTURE_CREATE_NAME_STRING                                                        = "SDL.gpu.texture.create.name"
+	PROP_GPU_BUFFER_CREATE_NAME_STRING                                                         = "SDL.gpu.buffer.create.name"
+	PROP_GPU_TRANSFERBUFFER_CREATE_NAME_STRING                                                 = "SDL.gpu.transferbuffer.create.name"
 )
 
 var fnGPUSupportsShaderFormats func(format_flags GPUShaderFormat, name *byte) bool
