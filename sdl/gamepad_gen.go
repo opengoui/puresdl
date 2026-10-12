@@ -481,9 +481,9 @@ var fnSetGamepadMapping func(instance_id JoystickID, mapping *byte) bool
 //
 // See also: AddGamepadMapping, GetGamepadMapping
 //
-// An empty mapping is passed as NULL.
-func SetGamepadMapping(instance_id JoystickID, mapping string) bool {
-	return fnSetGamepadMapping(instance_id, cstrNull(mapping))
+// A nil mapping is passed as NULL, which clears the mapping; an empty string is passed as an empty C string.
+func SetGamepadMapping(instance_id JoystickID, mapping *string) bool {
+	return fnSetGamepadMapping(instance_id, cstrPtr(mapping))
 }
 
 var fnHasGamepad func() bool

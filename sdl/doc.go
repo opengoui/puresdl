@@ -18,9 +18,16 @@
 // pointers; opaque handles are pointers to empty structs.
 //
 //   - const char * parameters are Go strings. Where the documentation says
-//     NULL is allowed, the empty string is passed as NULL.
-//   - const char * results are copied into Go strings; results the caller
-//     must release with SDL_free are copied and freed.
+//     NULL is allowed and NULL only selects a default, the empty string is
+//     passed as NULL. Where NULL means something different from "" (deleting
+//     a property in [SetStringProperty], [SetAppMetadataProperty],
+//     [SetGamepadMapping]; a separator in [InsertTrayEntryAt]) the parameter
+//     is a *string: nil is NULL and [Ptr]("") is an empty string.
+//   - const char * results are copied into Go strings and NULL becomes "";
+//     results the caller must release with SDL_free are copied and freed.
+//     Where NULL means "not set" ([GetHint], [GetEnvironmentVariable],
+//     [Getenv], [GetAppMetadataProperty]) a sibling with an OK suffix
+//     ([GetHintOK] ...) returns (string, bool).
 //   - functions that return an SDL_free-able array ([GetDisplays],
 //     [GetWindows], [LoadFile] ...) return a Go slice and release the SDL
 //     allocation; the count out-parameter is dropped from the signature.

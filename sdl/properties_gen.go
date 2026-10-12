@@ -275,9 +275,9 @@ var fnSetStringProperty func(props PropertiesID, name *byte, value *byte) bool
 //
 // See also: GetStringProperty
 //
-// An empty value is passed as NULL.
-func SetStringProperty(props PropertiesID, name string, value string) bool {
-	return fnSetStringProperty(props, cstr(name), cstrNull(value))
+// A nil value is passed as NULL, which deletes the property; an empty string is passed as an empty C string.
+func SetStringProperty(props PropertiesID, name string, value *string) bool {
+	return fnSetStringProperty(props, cstr(name), cstrPtr(value))
 }
 
 var fnSetNumberProperty func(props PropertiesID, name *byte, value int64) bool

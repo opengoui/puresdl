@@ -588,8 +588,33 @@ var fnGetEnvironmentVariable func(env *Environment, name *byte) *byte
 // Since: SDL 3.2.0.
 //
 // See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariables, SetEnvironmentVariable, UnsetEnvironmentVariable
+//
+// NULL is returned as an empty string; use GetEnvironmentVariableOK to tell it from an empty value.
 func GetEnvironmentVariable(env *Environment, name string) string {
 	return GoString(fnGetEnvironmentVariable(env, cstr(name)))
+}
+
+// Get the value of a variable in the environment.
+//
+// Parameters:
+//   - env: the environment to query.
+//   - name: the name of the variable to get.
+//
+// Returns: a pointer to the value of the variable or NULL if it can't be found.
+//
+// Thread safety: It is safe to call this function from any thread.
+//
+// Since: SDL 3.2.0.
+//
+// See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariables, SetEnvironmentVariable, UnsetEnvironmentVariable
+//
+// The boolean is false when SDL returned NULL, which is different from an empty value.
+func GetEnvironmentVariableOK(env *Environment, name string) (string, bool) {
+	p := fnGetEnvironmentVariable(env, cstr(name))
+	if p == nil {
+		return "", false
+	}
+	return GoString(p), true
 }
 
 var fnGetEnvironmentVariables func(env *Environment) **byte
@@ -684,8 +709,34 @@ var fnGetenv func(name *byte) *byte
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// NULL is returned as an empty string; use GetenvOK to tell it from an empty value.
 func Getenv(name string) string {
 	return GoString(fnGetenv(cstr(name)))
+}
+
+// Get the value of a variable in the environment.
+//
+// The name of the variable is case sensitive on all platforms.
+//
+// This function uses SDL's cached copy of the environment and is thread-safe.
+//
+// Parameters:
+//   - name: the name of the variable to get.
+//
+// Returns: a pointer to the value of the variable or NULL if it can't be found.
+//
+// Thread safety: It is safe to call this function from any thread.
+//
+// Since: SDL 3.2.0.
+//
+// The boolean is false when SDL returned NULL, which is different from an empty value.
+func GetenvOK(name string) (string, bool) {
+	p := fnGetenv(cstr(name))
+	if p == nil {
+		return "", false
+	}
+	return GoString(p), true
 }
 
 var fnGetenvUnsafe func(name *byte) *byte
@@ -710,8 +761,40 @@ var fnGetenvUnsafe func(name *byte) *byte
 // Since: SDL 3.2.0.
 //
 // See also: Getenv
+//
+// NULL is returned as an empty string; use GetenvUnsafeOK to tell it from an empty value.
 func GetenvUnsafe(name string) string {
 	return GoString(fnGetenvUnsafe(cstr(name)))
+}
+
+// Get the value of a variable in the environment.
+//
+// This function bypasses SDL's cached copy of the environment and is not
+// thread-safe.
+//
+// On some platforms, this may make case-insensitive matches, while other
+// platforms are case-sensitive. It is best to be precise with strings used
+// for queries through this interface. Getenv is always case-sensitive,
+// however.
+//
+// Parameters:
+//   - name: the name of the variable to get.
+//
+// Returns: a pointer to the value of the variable or NULL if it can't be found.
+//
+// Thread safety: This function is not thread safe, consider using Getenv() instead.
+//
+// Since: SDL 3.2.0.
+//
+// See also: Getenv
+//
+// The boolean is false when SDL returned NULL, which is different from an empty value.
+func GetenvUnsafeOK(name string) (string, bool) {
+	p := fnGetenvUnsafe(cstr(name))
+	if p == nil {
+		return "", false
+	}
+	return GoString(p), true
 }
 
 var fnSetenvUnsafe func(name *byte, value *byte, overwrite int32) int32

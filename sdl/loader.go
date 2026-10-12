@@ -144,6 +144,15 @@ func cstrNull(s string) *byte {
 	return CString(s)
 }
 
+// cstrPtr returns a NUL-terminated copy of *s, or NULL when s is nil. Unlike
+// cstrNull it keeps the empty string distinct from NULL.
+func cstrPtr(s *string) *byte {
+	if s == nil {
+		return nil
+	}
+	return CString(*s)
+}
+
 // cprintf formats a printf-style message and escapes it so that SDL's own
 // format processing prints it verbatim. No C varargs are involved.
 func cprintf(format string, args []any) *byte {

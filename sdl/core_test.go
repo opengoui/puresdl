@@ -381,7 +381,7 @@ func TestCoreProperties(t *testing.T) {
 	SetNumberProperty(p, "n", -1<<40)
 	SetFloatProperty(p, "f", 1.5)
 	SetBooleanProperty(p, "b", true)
-	SetStringProperty(p, "s", "héllo")
+	SetStringProperty(p, "s", Ptr("héllo"))
 	if !SetPointerPropertyWithCleanup(p, "p", unsafe.Pointer(&target), cleanup, nil) {
 		t.Fatal(GetError())
 	}

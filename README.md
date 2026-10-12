@@ -85,8 +85,9 @@ puresdl 运行时需要 SDL3 动态库（本仓库按 3.4.x 动态库测试，�
 - 去掉 `SDL_` 前缀：`SDL_CreateWindow` → `sdl.CreateWindow`，`SDL_Window` → `sdl.Window`，`SDL_INIT_VIDEO` → `sdl.INIT_VIDEO`。键码常量的前缀是 `SDLK_` 而不是 `SDL_`，因此保持原样（`sdl.SDLK_ESCAPE`）。去前缀后若与已有 Go 名字冲突，冲突项会被跳过。
 - C 的 `bool`、整数、浮点、枚举映射到同宽度的 Go 类型；不透明句柄是指向空结构体的指针（`*sdl.Window`）。
 - 标志位常量带类型：`sdl.WINDOW_RESIZABLE` 是 `sdl.WindowFlags`，`sdl.INIT_VIDEO` 是 `sdl.InitFlags`，`sdl.KMOD_*` 是 `sdl.Keymod`，`sdl.BUTTON_*` 是 `sdl.MouseButtonFlags`。同类型常量可直接 `|`；赋给结构体里的原始整数字段时需要显式转换（如 `uint16(sdl.HAPTIC_SINE)`）。
-- `const char *` 参数是 Go `string`；文档允许 NULL 的参数，传空字符串即传 NULL。
-- `const char *` 返回值被复制成 Go `string`；文档要求调用者 `SDL_free` 的返回值会被复制后自动释放。
+- `const char *` 参数是 Go `string`；文档允许 NULL 且 NULL 只表示“用默认值”的参数，传空字符串即传 NULL。NULL 与空串语义不同的参数（`SetStringProperty` 的 `value`：NULL 删除属性；`SetAppMetadataProperty`、`SetGamepadMapping`、`InsertTrayEntryAt` 的 `label`）是 `*string`：`nil` 即 NULL，`sdl.Ptr("")` 是空串。
+- `const char *` 返回值被复制成 Go `string`（NULL 变成 `""`）；文档要求调用者 `SDL_free` 的返回值会被复制后自动释放。NULL 表示“未设置”的函数（`GetHint`、`GetEnvironmentVariable`、`Getenv`、`GetenvUnsafe`、`GetAppMetadataProperty`）另有 `GetHintOK` 等 `OK` 变体，返回 `(string, bool)`；原函数签名不变。
+- 可空参数与 NULL 结果的分类表在 `internal/bindgen/policy.go`（`nullParams`、`nullDistinctResults`、`nullFailureResults`）；SDL 升级后出现未分类的项时，`gensdl` 与 `go test ./internal/bindgen` 都会失败。
 - printf 风格函数（`sdl.SetError`、`sdl.Log` 等）接受 Go 格式串与参数，先用 `fmt.Sprintf` 格式化，再作为字面量交给 SDL，不涉及 C 变参。
 - C 联合体（如 `sdl.Event`）是对齐的原始存储，通过访问器方法读取成员：`event.Type()`、`event.Key()`、`event.Window()`…；带指针结果的访问器返回指向联合体内部的指针。
 - 回调 typedef 是 `uintptr` 类型，用对应的 `NewXxx` 构造器从 Go 函数创建（如 `sdl.NewEventFilter`）。purego 每个进程最多约 2000 个回调且从不释放，所以每个回调只创建一次并复用。

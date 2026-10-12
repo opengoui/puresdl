@@ -76,8 +76,8 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 
 每个 C 函数生成一个未导出的 `var fnXxx func(...)`（原始签名，由 `bindAll` 在加载库后 `register` 绑定）和一个导出的包装函数：
 
-- `const char *` 参数 → `string`，用 `cstr` 转成以 NUL 结尾的拷贝；`\param` 文档里出现 `NULL` 时用 `cstrNull`（空串传 NULL），并在文档里加注。
-- `char *` / `const char *` 返回 → 拷贝成 `string`（`GoString`）；文档里提到 `SDL_free` 的非 const 返回值，拷贝后调用 `Free`。
+- `const char *` 参数 → `string`，用 `cstr` 转成以 NUL 结尾的拷贝；`\param` 文档里出现 `NULL` 时必须在 `policy.go: nullParams` 里分类（未分类则生成失败）：NULL 只表示默认值的用 `cstrNull`（空串传 NULL，文档加注）；NULL 与空串语义不同的（`distinct`）参数公开类型为 `*string`，用 `cstrPtr`（`nil` → NULL，`sdl.Ptr("")` → 空串）。
+- `char *` / `const char *` 返回 → 拷贝成 `string`（`GoString`，NULL 变 `""`）；`\returns` 提到 NULL 的结果同样必须在 `nullDistinctResults`（NULL 表示“未设置”，额外生成 `<Name>OK` 返回 `(string, bool)`，原函数不变）或 `nullFailureResults`（仅表示失败/无此项，`""` 足够）中分类。`CheckNullPolicy` 会在 `Generate` 和 `internal/bindgen` 测试里校验分类表既不缺项也无过期项；文档里提到 `SDL_free` 的非 const 返回值，拷贝后调用 `Free`。
 - 以 `const char *fmt, ...` 结尾的 printf 风格变参函数 → `(format string, args ...any)`，经 `cprintf` 做 `fmt.Sprintf` 并把 `%` 转义成 `%%`，作为字面量交给 SDL；其余变参函数、带 `va_list` 的函数、`SDL_stdinc.h` 里非保留名单（`policy.go` 的 `keptStdinc`）的函数一律跳过，原因写入 skipped。
 - 其余参数/返回值直接用映射类型；结构体按值传递交给 purego。
 - 只在少于 3 个目标声明的函数，在文档加 “Only declared by the SDL headers for …”。

@@ -155,6 +155,12 @@ func (g *gen) bindFunc(f *ir.Function) string {
 			continue
 		}
 		if isCString(p.Type) && p.Type.Resolve().Const {
+			if np, ok := nullParams[f.Name+"."+p.Name]; ok && np.distinct {
+				notes = append(notes, "A nil "+name+" is passed as NULL, which "+np.effect+"; an empty string is passed as an empty C string.")
+				plans = append(plans, argPlan{name: name, pub: jen.Op("*").String(), raw: jen.Op("*").Id("byte"),
+					expr: jen.Id("cstrPtr").Call(jen.Id(name))})
+				continue
+			}
 			fn := "cstr"
 			if nullable(p.Doc) {
 				fn = "cstrNull"
@@ -222,6 +228,12 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	if len(f.Targets) < 3 {
 		notes = append(notes, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
 	}
+	_, okVariant := nullDistinctResults[f.Name]
+	okVariant = okVariant && retString && !retFree
+	okName := n + "OK"
+	if okVariant {
+		notes = append(notes, "NULL is returned as an empty string; use "+okName+" to tell it from an empty value.")
+	}
 	if len(notes) > 0 {
 		doc = append(doc, "")
 		doc = append(doc, notes...)
@@ -255,6 +267,18 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		w = w.Add(pubRet)
 	}
 	fb.funcs = append(fb.funcs, w.Block(body...))
+	if okVariant && g.claim(okName, f.Name+" (OK variant)") {
+		okDoc := append(g.docText(f.Doc), "", "The boolean is false when SDL returned NULL, which is different from an empty value.")
+		if len(f.Targets) < 3 {
+			okDoc = append(okDoc, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
+		}
+		okBody := []jen.Code{
+			jen.Id("p").Op(":=").Add(jen.Id(fnVar).Call(args...)),
+			jen.If(jen.Id("p").Op("==").Nil()).Block(jen.Return(jen.Lit(""), jen.False())),
+			jen.Return(jen.Id("GoString").Call(jen.Id("p")), jen.True()),
+		}
+		fb.funcs = append(fb.funcs, start(okDoc).Func().Id(okName).Params(pubParams...).Params(jen.String(), jen.Bool()).Block(okBody...))
+	}
 	_ = fmt.Sprint
 	return ""
 }

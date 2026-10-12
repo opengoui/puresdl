@@ -376,9 +376,9 @@ var fnInsertTrayEntryAt func(menu *TrayMenu, pos int32, label *byte, flags TrayE
 //
 // See also: TrayEntryFlags, GetTrayEntries, RemoveTrayEntry, GetTrayEntryParent
 //
-// An empty label is passed as NULL.
-func InsertTrayEntryAt(menu *TrayMenu, pos int32, label string, flags TrayEntryFlags) *TrayEntry {
-	return fnInsertTrayEntryAt(menu, pos, cstrNull(label), flags)
+// A nil label is passed as NULL, which inserts a separator; an empty string is passed as an empty C string.
+func InsertTrayEntryAt(menu *TrayMenu, pos int32, label *string, flags TrayEntryFlags) *TrayEntry {
+	return fnInsertTrayEntryAt(menu, pos, cstrPtr(label), flags)
 }
 
 var fnSetTrayEntryLabel func(entry *TrayEntry, label *byte)

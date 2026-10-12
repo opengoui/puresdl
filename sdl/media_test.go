@@ -96,7 +96,7 @@ func TestMediaDisplaysAndWindow(t *testing.T) {
 	// Window created from properties.
 	props := CreateProperties()
 	defer DestroyProperties(props)
-	SetStringProperty(props, PROP_WINDOW_CREATE_TITLE_STRING, "props-title")
+	SetStringProperty(props, PROP_WINDOW_CREATE_TITLE_STRING, Ptr("props-title"))
 	SetNumberProperty(props, PROP_WINDOW_CREATE_WIDTH_NUMBER, 320)
 	SetNumberProperty(props, PROP_WINDOW_CREATE_HEIGHT_NUMBER, 240)
 	SetBooleanProperty(props, PROP_WINDOW_CREATE_HIDDEN_BOOLEAN, true)

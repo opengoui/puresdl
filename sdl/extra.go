@@ -2,6 +2,11 @@ package sdl
 
 import "unsafe"
 
+// Ptr returns a pointer to a copy of v. It is the way to pass a non-nil value
+// for the *string parameters that distinguish nil (C NULL) from an empty
+// string, for example SetStringProperty(props, name, Ptr("value")).
+func Ptr[T any](v T) *T { return &v }
+
 // LocaleInfo is a preferred locale: a language and an optional country.
 type LocaleInfo struct {
 	Language string

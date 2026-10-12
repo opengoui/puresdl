@@ -473,9 +473,9 @@ var fnSetAppMetadataProperty func(name *byte, value *byte) bool
 //
 // See also: GetAppMetadataProperty, SetAppMetadata
 //
-// An empty value is passed as NULL.
-func SetAppMetadataProperty(name string, value string) bool {
-	return fnSetAppMetadataProperty(cstr(name), cstrNull(value))
+// A nil value is passed as NULL, which removes the property; an empty string is passed as an empty C string.
+func SetAppMetadataProperty(name string, value *string) bool {
+	return fnSetAppMetadataProperty(cstr(name), cstrPtr(value))
 }
 
 var fnGetAppMetadataProperty func(name *byte) *byte
@@ -496,6 +496,34 @@ var fnGetAppMetadataProperty func(name *byte) *byte
 // Since: SDL 3.2.0.
 //
 // See also: SetAppMetadata, SetAppMetadataProperty
+//
+// NULL is returned as an empty string; use GetAppMetadataPropertyOK to tell it from an empty value.
 func GetAppMetadataProperty(name string) string {
 	return GoString(fnGetAppMetadataProperty(cstr(name)))
+}
+
+// Get metadata about your app.
+//
+// This returns metadata previously set using SetAppMetadata() or
+// SetAppMetadataProperty(). See SetAppMetadataProperty() for the list
+// of available properties and their meanings.
+//
+// Parameters:
+//   - name: the name of the metadata property to get.
+//
+// Returns: the current value of the metadata property, or the default if it is not set, NULL for properties with no default.
+//
+// Thread safety: It is safe to call this function from any thread, although the string returned is not protected and could potentially be freed if you call SetAppMetadataProperty() to set that property from another thread.
+//
+// Since: SDL 3.2.0.
+//
+// See also: SetAppMetadata, SetAppMetadataProperty
+//
+// The boolean is false when SDL returned NULL, which is different from an empty value.
+func GetAppMetadataPropertyOK(name string) (string, bool) {
+	p := fnGetAppMetadataProperty(cstr(name))
+	if p == nil {
+		return "", false
+	}
+	return GoString(p), true
 }

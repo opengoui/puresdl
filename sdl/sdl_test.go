@@ -82,7 +82,7 @@ func TestPropertiesNullableStrings(t *testing.T) {
 		t.Fatal(GetError())
 	}
 	defer DestroyProperties(p)
-	if !SetStringProperty(p, "name", "puresdl") {
+	if !SetStringProperty(p, "name", Ptr("puresdl")) {
 		t.Fatal(GetError())
 	}
 	if got := GetStringProperty(p, "name", ""); got != "puresdl" {

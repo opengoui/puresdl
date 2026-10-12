@@ -4304,8 +4304,32 @@ var fnGetHint func(name *byte) *byte
 // Since: SDL 3.2.0.
 //
 // See also: SetHint, SetHintWithPriority
+//
+// NULL is returned as an empty string; use GetHintOK to tell it from an empty value.
 func GetHint(name string) string {
 	return GoString(fnGetHint(cstr(name)))
+}
+
+// Get the value of a hint.
+//
+// Parameters:
+//   - name: the hint to query.
+//
+// Returns: the string value of a hint or NULL if the hint isn't set.
+//
+// Thread safety: It is safe to call this function from any thread.
+//
+// Since: SDL 3.2.0.
+//
+// See also: SetHint, SetHintWithPriority
+//
+// The boolean is false when SDL returned NULL, which is different from an empty value.
+func GetHintOK(name string) (string, bool) {
+	p := fnGetHint(cstr(name))
+	if p == nil {
+		return "", false
+	}
+	return GoString(p), true
 }
 
 var fnGetHintBoolean func(name *byte, default_value bool) bool

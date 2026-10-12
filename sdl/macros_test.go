@@ -631,7 +631,7 @@ func TestMacroCreateThread(t *testing.T) {
 	props := CreateProperties()
 	defer DestroyProperties(props)
 	SetPointerProperty(props, PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, *(*unsafe.Pointer)(unsafe.Pointer(&fn)))
-	SetStringProperty(props, PROP_THREAD_CREATE_NAME_STRING, "macro-props")
+	SetStringProperty(props, PROP_THREAD_CREATE_NAME_STRING, Ptr("macro-props"))
 	th = CreateThreadWithProperties(props)
 	if th == nil {
 		t.Fatalf("CreateThreadWithProperties returned nil: %s", GetError())

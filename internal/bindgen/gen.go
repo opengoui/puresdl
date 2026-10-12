@@ -105,6 +105,9 @@ func Generate(api *ir.API, opt Options) (*Result, error) {
 		typedefs: map[string]*ir.Typedef{}, recName: map[*ir.Record]string{}, enumName: map[*ir.EnumDecl]string{},
 		files: map[string]*fileBuf{},
 	}
+	for _, m := range CheckNullPolicy(api) {
+		g.errorf("%s", m)
+	}
 	g.index()
 	g.emitTypes()
 	g.emitEnums()
