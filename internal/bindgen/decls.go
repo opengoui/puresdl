@@ -19,7 +19,7 @@ func (g *gen) index() {
 	}
 	// typedef-named types
 	for _, td := range g.api.Typedefs {
-		if td.Std || unsupportedNames[td.Name] {
+		if td.Std || unsupportedNames[td.Name] || skipTypes[td.Name] {
 			continue
 		}
 		if _, ok := builtinNames[td.Name]; ok {
@@ -44,7 +44,7 @@ func (g *gen) index() {
 	}
 	// tag-named records and enums without a typedef
 	for _, r := range g.api.Records {
-		if _, ok := g.recName[r]; ok || r.Tag == "" || !hasPrefix(r.Tag, "SDL_") {
+		if _, ok := g.recName[r]; ok || r.Tag == "" || !hasPrefix(r.Tag, "SDL_") || skipTypes[r.Tag] {
 			continue
 		}
 		if g.claim(goName(r.Tag), r.Tag) {
@@ -52,7 +52,7 @@ func (g *gen) index() {
 		}
 	}
 	for _, e := range g.api.Enums {
-		if _, ok := g.enumName[e]; ok || e.Tag == "" || !hasPrefix(e.Tag, "SDL_") {
+		if _, ok := g.enumName[e]; ok || e.Tag == "" || !hasPrefix(e.Tag, "SDL_") || skipTypes[e.Tag] {
 			continue
 		}
 		if g.claim(goName(e.Tag), e.Tag) {
@@ -264,7 +264,7 @@ func (g *gen) emitRecord(r *ir.Record, n string, fb *fileBuf) {
 	var lf []layoutField
 	used := map[string]bool{}
 	for i, f := range r.Fields {
-		t, err := g.typ(f.Type)
+		t, err := g.fieldType(n, f)
 		if err != nil {
 			g.skip(n, "field "+f.Name+": "+err.Error()+" (emitted as raw storage)")
 			unit, cnt := storageType(r.Size, r.Align)
@@ -296,7 +296,7 @@ func (g *gen) emitUnion(r *ir.Record, n string, doc []string, fb *fileBuf) {
 	g.layouts = append(g.layouts, layoutEntry{goName: n, size: r.Size, align: int64(r.Align), union: true})
 	used := map[string]bool{}
 	for i, f := range r.Fields {
-		t, err := g.typ(f.Type)
+		t, err := g.fieldType(n, f)
 		if err != nil {
 			g.skip(n+"."+f.Name, err.Error())
 			continue
@@ -325,4 +325,12 @@ func (g *gen) emitUnion(r *ir.Record, n string, doc []string, fb *fileBuf) {
 		fb.types = append(fb.types, start([]string{"Set" + name + " stores v in the " + f.Name + " member."}).Func().Params(recv).Id("Set"+name).Params(jen.Id("v").Add(t)).Block(
 			jen.Op("*").Add(ptr).Op("=").Id("v")))
 	}
+}
+
+// fieldType maps a member type, applying the enum overrides.
+func (g *gen) fieldType(rec string, f ir.Field) (*jen.Statement, error) {
+	if ov, ok := fieldTypeOverrides[rec+"."+f.Name]; ok {
+		return jen.Id(ov), nil
+	}
+	return g.typ(f.Type)
 }

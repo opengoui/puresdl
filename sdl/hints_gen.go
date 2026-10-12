@@ -1066,13 +1066,13 @@ const (
 	// This hint should be set before the OpenXR loader is loaded. For example,
 	// creating an OpenXR GPU device will load the OpenXR loader.
 	HINT_OPENXR_LIBRARY = "SDL_OPENXR_LIBRARY"
-	// A variable to control whether Hid_enumerate() enumerates all HID
+	// A variable to control whether HIDEnumerate() enumerates all HID
 	// devices or only controllers.
 	//
 	// The variable can be set to the following values:
 	//
-	// - "0": Hid_enumerate() will enumerate all HID devices.
-	// - "1": Hid_enumerate() will only enumerate controllers. (default)
+	// - "0": HIDEnumerate() will enumerate all HID devices.
+	// - "1": HIDEnumerate() will only enumerate controllers. (default)
 	//
 	// By default SDL will only enumerate controllers, to reduce risk of hanging
 	// or crashing on devices with bad drivers and avoiding macOS keyboard capture
@@ -1082,7 +1082,7 @@ const (
 	//
 	// Since: SDL 3.2.0.
 	HINT_HIDAPI_ENUMERATE_ONLY_CONTROLLERS = "SDL_HIDAPI_ENUMERATE_ONLY_CONTROLLERS"
-	// A variable containing a list of devices to ignore in Hid_enumerate().
+	// A variable containing a list of devices to ignore in HIDEnumerate().
 	//
 	// The format of the string is a comma separated list of USB VID/PID pairs in
 	// hexadecimal form, e.g.

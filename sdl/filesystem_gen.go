@@ -500,8 +500,12 @@ var fnGlobDirectory func(path *byte, pattern *byte, flags GlobFlags, count *int3
 // Since: SDL 3.2.0.
 //
 // An empty pattern is passed as NULL.
-func GlobDirectory(path string, pattern string, flags GlobFlags, count *int32) **byte {
-	return fnGlobDirectory(cstr(path), cstrNull(pattern), flags, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GlobDirectory(path string, pattern string, flags GlobFlags) []string {
+	var n int32
+	p := fnGlobDirectory(cstr(path), cstrNull(pattern), flags, &n)
+	return copyFreeStrings(p, int(n))
 }
 
 var fnGetCurrentDirectory func() *byte

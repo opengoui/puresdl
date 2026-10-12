@@ -7,11 +7,6 @@ import (
 	"unsafe"
 )
 
-type Alignment_test struct {
-	A uint8
-	B unsafe.Pointer
-}
-
 // A thread-safe set of environment variables
 //
 // Since: SDL 3.2.0.
@@ -25,7 +20,7 @@ type Environment struct{}
 type GLContextState struct{}
 
 // It is an opaque handle owned by SDL.
-type Iconv_data_t struct{}
+type IconvDataT struct{}
 
 // A callback used with SDL sorting and binary search functions.
 //
@@ -61,7 +56,7 @@ func NewCompareCallback(fn func(a unsafe.Pointer, b unsafe.Pointer) int32) Compa
 //
 // Since: SDL 3.2.0.
 //
-// See also: Qsort_r, Bsearch_r
+// See also: QsortR, BsearchR
 //
 // It holds a C function pointer; create one with NewCompareCallback_r.
 type CompareCallback_r uintptr
@@ -114,15 +109,15 @@ type Time int64
 //
 // See also: Calloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
-// It holds a C function pointer; create one with NewCalloc_func.
-type Calloc_func uintptr
+// It holds a C function pointer; create one with NewCallocFunc.
+type CallocFunc uintptr
 
-// NewCalloc_func wraps fn as a C callback of type Calloc_func.
+// NewCallocFunc wraps fn as a C callback of type CallocFunc.
 //
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
-func NewCalloc_func(fn func(nmemb uint, size uint) unsafe.Pointer) Calloc_func {
-	return Calloc_func(purego.NewCallback(fn))
+func NewCallocFunc(fn func(nmemb uint, size uint) unsafe.Pointer) CallocFunc {
+	return CallocFunc(purego.NewCallback(fn))
 }
 
 // A callback used to implement Free().
@@ -138,23 +133,23 @@ func NewCalloc_func(fn func(nmemb uint, size uint) unsafe.Pointer) Calloc_func {
 //
 // See also: Free, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
-// It holds a C function pointer; create one with NewFree_func.
-type Free_func uintptr
+// It holds a C function pointer; create one with NewFreeFunc.
+type FreeFunc uintptr
 
-// NewFree_func wraps fn as a C callback of type Free_func.
+// NewFreeFunc wraps fn as a C callback of type FreeFunc.
 //
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
-func NewFree_func(fn func(mem unsafe.Pointer)) Free_func {
-	return Free_func(purego.NewCallback(fn))
+func NewFreeFunc(fn func(mem unsafe.Pointer)) FreeFunc {
+	return FreeFunc(purego.NewCallback(fn))
 }
 
 // An opaque handle representing string encoding conversion state.
 //
 // Since: SDL 3.2.0.
 //
-// See also: Iconv_open
-type Iconv_t unsafe.Pointer
+// See also: IconvOpen
+type IconvT unsafe.Pointer
 
 // A callback used to implement Malloc().
 //
@@ -171,15 +166,15 @@ type Iconv_t unsafe.Pointer
 //
 // See also: Malloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
-// It holds a C function pointer; create one with NewMalloc_func.
-type Malloc_func uintptr
+// It holds a C function pointer; create one with NewMallocFunc.
+type MallocFunc uintptr
 
-// NewMalloc_func wraps fn as a C callback of type Malloc_func.
+// NewMallocFunc wraps fn as a C callback of type MallocFunc.
 //
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
-func NewMalloc_func(fn func(size uint) unsafe.Pointer) Malloc_func {
-	return Malloc_func(purego.NewCallback(fn))
+func NewMallocFunc(fn func(size uint) unsafe.Pointer) MallocFunc {
+	return MallocFunc(purego.NewCallback(fn))
 }
 
 // A callback used to implement Realloc().
@@ -198,21 +193,19 @@ func NewMalloc_func(fn func(size uint) unsafe.Pointer) Malloc_func {
 //
 // See also: Realloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
-// It holds a C function pointer; create one with NewRealloc_func.
-type Realloc_func uintptr
+// It holds a C function pointer; create one with NewReallocFunc.
+type ReallocFunc uintptr
 
-// NewRealloc_func wraps fn as a C callback of type Realloc_func.
+// NewReallocFunc wraps fn as a C callback of type ReallocFunc.
 //
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
-func NewRealloc_func(fn func(mem unsafe.Pointer, size uint) unsafe.Pointer) Realloc_func {
-	return Realloc_func(purego.NewCallback(fn))
+func NewReallocFunc(fn func(mem unsafe.Pointer, size uint) unsafe.Pointer) ReallocFunc {
+	return ReallocFunc(purego.NewCallback(fn))
 }
 
-type DUMMY_ENUM uint32
-
 const (
-	DUMMY_ENUM_VALUE DUMMY_ENUM = 0
+	DUMMY_ENUM_VALUE = 0
 )
 const (
 	SIZE_MAX   = 0xFFFFFFFFFFFFFFFF
@@ -286,7 +279,7 @@ var fnMalloc func(size uint) unsafe.Pointer
 // If the allocation is successful, the returned pointer is guaranteed to be
 // aligned to either the *fundamental alignment* (`alignof(max_align_t)` in
 // C11 and later) or `2 * sizeof(void *)`, whichever is smaller. Use
-// Aligned_alloc() if you need to allocate memory aligned to an alignment
+// AlignedAlloc() if you need to allocate memory aligned to an alignment
 // greater than this guarantee.
 //
 // Parameters:
@@ -298,7 +291,7 @@ var fnMalloc func(size uint) unsafe.Pointer
 //
 // Since: SDL 3.2.0.
 //
-// See also: Free, Calloc, Realloc, Aligned_alloc
+// See also: Free, Calloc, Realloc, AlignedAlloc
 func Malloc(size uint) unsafe.Pointer {
 	return fnMalloc(size)
 }
@@ -314,7 +307,7 @@ var fnCalloc func(nmemb uint, size uint) unsafe.Pointer
 // If the allocation is successful, the returned pointer is guaranteed to be
 // aligned to either the *fundamental alignment* (`alignof(max_align_t)` in
 // C11 and later) or `2 * sizeof(void *)`, whichever is smaller. Use
-// Aligned_alloc_zero() if you need to allocate memory aligned to an
+// AlignedAllocZero() if you need to allocate memory aligned to an
 // alignment greater than this guarantee.
 //
 // Parameters:
@@ -394,7 +387,7 @@ func Free(mem unsafe.Pointer) {
 	fnFree(mem)
 }
 
-var fnGetOriginalMemoryFunctions func(malloc_func *Malloc_func, calloc_func *Calloc_func, realloc_func *Realloc_func, free_func *Free_func)
+var fnGetOriginalMemoryFunctions func(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc)
 
 // Get the original set of SDL memory functions.
 //
@@ -412,11 +405,11 @@ var fnGetOriginalMemoryFunctions func(malloc_func *Malloc_func, calloc_func *Cal
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
-func GetOriginalMemoryFunctions(malloc_func *Malloc_func, calloc_func *Calloc_func, realloc_func *Realloc_func, free_func *Free_func) {
+func GetOriginalMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc) {
 	fnGetOriginalMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnGetMemoryFunctions func(malloc_func *Malloc_func, calloc_func *Calloc_func, realloc_func *Realloc_func, free_func *Free_func)
+var fnGetMemoryFunctions func(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc)
 
 // Get the current set of SDL memory functions.
 //
@@ -431,11 +424,11 @@ var fnGetMemoryFunctions func(malloc_func *Malloc_func, calloc_func *Calloc_func
 // Since: SDL 3.2.0.
 //
 // See also: SetMemoryFunctions, GetOriginalMemoryFunctions
-func GetMemoryFunctions(malloc_func *Malloc_func, calloc_func *Calloc_func, realloc_func *Realloc_func, free_func *Free_func) {
+func GetMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc) {
 	fnGetMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnSetMemoryFunctions func(malloc_func Malloc_func, calloc_func Calloc_func, realloc_func Realloc_func, free_func Free_func) bool
+var fnSetMemoryFunctions func(malloc_func MallocFunc, calloc_func CallocFunc, realloc_func ReallocFunc, free_func FreeFunc) bool
 
 // Replace SDL's memory allocation functions with a custom set.
 //
@@ -463,15 +456,15 @@ var fnSetMemoryFunctions func(malloc_func Malloc_func, calloc_func Calloc_func, 
 // Since: SDL 3.2.0.
 //
 // See also: GetMemoryFunctions, GetOriginalMemoryFunctions
-func SetMemoryFunctions(malloc_func Malloc_func, calloc_func Calloc_func, realloc_func Realloc_func, free_func Free_func) bool {
+func SetMemoryFunctions(malloc_func MallocFunc, calloc_func CallocFunc, realloc_func ReallocFunc, free_func FreeFunc) bool {
 	return fnSetMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnAligned_alloc func(alignment uint, size uint) unsafe.Pointer
+var fnAlignedAlloc func(alignment uint, size uint) unsafe.Pointer
 
 // Allocate memory aligned to a specific alignment.
 //
-// The memory returned by this function must be freed with Aligned_free(),
+// The memory returned by this function must be freed with AlignedFree(),
 // _not_ Free().
 //
 // If `alignment` is less than the size of `void *`, it will be increased to
@@ -490,14 +483,14 @@ var fnAligned_alloc func(alignment uint, size uint) unsafe.Pointer
 //
 // Since: SDL 3.2.0.
 //
-// See also: Aligned_free
-func Aligned_alloc(alignment uint, size uint) unsafe.Pointer {
-	return fnAligned_alloc(alignment, size)
+// See also: AlignedFree
+func AlignedAlloc(alignment uint, size uint) unsafe.Pointer {
+	return fnAlignedAlloc(alignment, size)
 }
 
-var fnAligned_free func(mem unsafe.Pointer)
+var fnAlignedFree func(mem unsafe.Pointer)
 
-// Free memory allocated by Aligned_alloc().
+// Free memory allocated by AlignedAlloc().
 //
 // The pointer is no longer valid after this call and cannot be dereferenced
 // anymore.
@@ -505,15 +498,15 @@ var fnAligned_free func(mem unsafe.Pointer)
 // If `mem` is NULL, this function does nothing.
 //
 // Parameters:
-//   - mem: a pointer previously returned by Aligned_alloc(), or NULL.
+//   - mem: a pointer previously returned by AlignedAlloc(), or NULL.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
 //
-// See also: Aligned_alloc
-func Aligned_free(mem unsafe.Pointer) {
-	fnAligned_free(mem)
+// See also: AlignedAlloc
+func AlignedFree(mem unsafe.Pointer) {
+	fnAlignedFree(mem)
 }
 
 var fnGetNumAllocations func() int32
@@ -536,7 +529,7 @@ var fnGetEnvironment func() *Environment
 // This is initialized at application start and is not affected by setenv()
 // and unsetenv() calls after that point. Use SetEnvironmentVariable() and
 // UnsetEnvironmentVariable() if you want to modify this environment, or
-// Setenv_unsafe() or Unsetenv_unsafe() if you want changes to persist
+// SetenvUnsafe() or UnsetenvUnsafe() if you want changes to persist
 // in the C runtime environment after Quit().
 //
 // Note that on Windows, the variable names pulled in from the system at
@@ -613,8 +606,10 @@ var fnGetEnvironmentVariables func(env *Environment) **byte
 // Since: SDL 3.2.0.
 //
 // See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariable, SetEnvironmentVariable, UnsetEnvironmentVariable
-func GetEnvironmentVariables(env *Environment) **byte {
-	return fnGetEnvironmentVariables(env)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetEnvironmentVariables(env *Environment) []string {
+	return copyFreeStrings0(fnGetEnvironmentVariables(env))
 }
 
 var fnSetEnvironmentVariable func(env *Environment, name *byte, value *byte, overwrite bool) bool
@@ -693,7 +688,7 @@ func Getenv(name string) string {
 	return GoString(fnGetenv(cstr(name)))
 }
 
-var fnGetenv_unsafe func(name *byte) *byte
+var fnGetenvUnsafe func(name *byte) *byte
 
 // Get the value of a variable in the environment.
 //
@@ -715,11 +710,11 @@ var fnGetenv_unsafe func(name *byte) *byte
 // Since: SDL 3.2.0.
 //
 // See also: Getenv
-func Getenv_unsafe(name string) string {
-	return GoString(fnGetenv_unsafe(cstr(name)))
+func GetenvUnsafe(name string) string {
+	return GoString(fnGetenvUnsafe(cstr(name)))
 }
 
-var fnSetenv_unsafe func(name *byte, value *byte, overwrite int32) int32
+var fnSetenvUnsafe func(name *byte, value *byte, overwrite int32) int32
 
 // Set the value of a variable in the environment.
 //
@@ -735,11 +730,11 @@ var fnSetenv_unsafe func(name *byte, value *byte, overwrite int32) int32
 // Since: SDL 3.2.0.
 //
 // See also: SetEnvironmentVariable
-func Setenv_unsafe(name string, value string, overwrite int32) int32 {
-	return fnSetenv_unsafe(cstr(name), cstr(value), overwrite)
+func SetenvUnsafe(name string, value string, overwrite int32) int32 {
+	return fnSetenvUnsafe(cstr(name), cstr(value), overwrite)
 }
 
-var fnUnsetenv_unsafe func(name *byte) int32
+var fnUnsetenvUnsafe func(name *byte) int32
 
 // Clear a variable from the environment.
 //
@@ -753,8 +748,8 @@ var fnUnsetenv_unsafe func(name *byte) int32
 // Since: SDL 3.2.0.
 //
 // See also: UnsetEnvironmentVariable
-func Unsetenv_unsafe(name string) int32 {
-	return fnUnsetenv_unsafe(cstr(name))
+func UnsetenvUnsafe(name string) int32 {
+	return fnUnsetenvUnsafe(cstr(name))
 }
 
 var fnCrc16 func(crc uint16, data unsafe.Pointer, len_ uint) uint16
@@ -851,7 +846,7 @@ var fnSrand func(seed uint64)
 //
 // Since: SDL 3.2.0.
 //
-// See also: Rand, Rand_bits, Randf
+// See also: Rand, RandBits, Randf
 func Srand(seed uint64) {
 	fnSrand(seed)
 }
@@ -868,7 +863,7 @@ var fnRand func(n int32) int32
 // 1..6
 //
 // If you want to generate a pseudo-random number in the full range of Sint32,
-// you should use: (Sint32)Rand_bits()
+// you should use: (Sint32)RandBits()
 //
 // If you want reproducible output, be sure to initialize with Srand()
 // first.
@@ -917,7 +912,7 @@ func Randf() float32 {
 	return fnRandf()
 }
 
-var fnRand_bits func() uint32
+var fnRandBits func() uint32
 
 // Generate 32 pseudo-random bits.
 //
@@ -936,11 +931,11 @@ var fnRand_bits func() uint32
 // Since: SDL 3.2.0.
 //
 // See also: Rand, Randf, Srand
-func Rand_bits() uint32 {
-	return fnRand_bits()
+func RandBits() uint32 {
+	return fnRandBits()
 }
 
-var fnRand_r func(state *uint64, n int32) int32
+var fnRandR func(state *uint64, n int32) int32
 
 // Generate a pseudo-random number less than n for positive n
 //
@@ -948,11 +943,11 @@ var fnRand_r func(state *uint64, n int32) int32
 // roughly 99.9% even for n = 1 million. Evenness is better for smaller n, and
 // much worse as n gets bigger.
 //
-// Example: to simulate a d6 use `Rand_r(state, 6) + 1` The +1 converts
+// Example: to simulate a d6 use `RandR(state, 6) + 1` The +1 converts
 // 0..5 to 1..6
 //
 // If you want to generate a pseudo-random number in the full range of Sint32,
-// you should use: (Sint32)Rand_bits_r(state)
+// you should use: (Sint32)RandBitsR(state)
 //
 // There are no guarantees as to the quality of the random sequence produced,
 // and this should not be used for security (cryptography, passwords) or where
@@ -970,12 +965,12 @@ var fnRand_r func(state *uint64, n int32) int32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Rand, Rand_bits_r, Randf_r
-func Rand_r(state *uint64, n int32) int32 {
-	return fnRand_r(state, n)
+// See also: Rand, RandBitsR, RandfR
+func RandR(state *uint64, n int32) int32 {
+	return fnRandR(state, n)
 }
 
-var fnRandf_r func(state *uint64) float32
+var fnRandfR func(state *uint64) float32
 
 // Generate a uniform pseudo-random floating point number less than 1.0
 //
@@ -994,16 +989,16 @@ var fnRandf_r func(state *uint64) float32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Rand_bits_r, Rand_r, Randf
-func Randf_r(state *uint64) float32 {
-	return fnRandf_r(state)
+// See also: RandBitsR, RandR, Randf
+func RandfR(state *uint64) float32 {
+	return fnRandfR(state)
 }
 
-var fnRand_bits_r func(state *uint64) uint32
+var fnRandBitsR func(state *uint64) uint32
 
 // Generate 32 pseudo-random bits.
 //
-// You likely want to use Rand_r() to get a pseudo-random number instead.
+// You likely want to use RandR() to get a pseudo-random number instead.
 //
 // There are no guarantees as to the quality of the random sequence produced,
 // and this should not be used for security (cryptography, passwords) or where
@@ -1020,12 +1015,12 @@ var fnRand_bits_r func(state *uint64) uint32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Rand_r, Randf_r
-func Rand_bits_r(state *uint64) uint32 {
-	return fnRand_bits_r(state)
+// See also: RandR, RandfR
+func RandBitsR(state *uint64) uint32 {
+	return fnRandBitsR(state)
 }
 
-var fnIconv_open func(tocode *byte, fromcode *byte) Iconv_t
+var fnIconvOpen func(tocode *byte, fromcode *byte) IconvT
 
 // This function allocates a context for the specified character set
 // conversion.
@@ -1034,21 +1029,18 @@ var fnIconv_open func(tocode *byte, fromcode *byte) Iconv_t
 //   - tocode: The target character encoding, must not be NULL.
 //   - fromcode: The source character encoding, must not be NULL.
 //
-// Returns: a handle that must be freed with Iconv_close, or ICONV_ERROR on failure.
+// Returns: a handle that must be freed with IconvClose, or ICONV_ERROR on failure.
 //
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
 //
-// See also: Iconv, Iconv_close, Iconv_string
-//
-// An empty tocode is passed as NULL.
-// An empty fromcode is passed as NULL.
-func Iconv_open(tocode string, fromcode string) Iconv_t {
-	return fnIconv_open(cstrNull(tocode), cstrNull(fromcode))
+// See also: Iconv, IconvClose, IconvString
+func IconvOpen(tocode string, fromcode string) IconvT {
+	return fnIconvOpen(cstr(tocode), cstr(fromcode))
 }
 
-var fnIconv_close func(cd Iconv_t) int32
+var fnIconvClose func(cd IconvT) int32
 
 // This function frees a context used for character set conversion.
 //
@@ -1061,12 +1053,12 @@ var fnIconv_close func(cd Iconv_t) int32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Iconv, Iconv_open, Iconv_string
-func Iconv_close(cd Iconv_t) int32 {
-	return fnIconv_close(cd)
+// See also: Iconv, IconvOpen, IconvString
+func IconvClose(cd IconvT) int32 {
+	return fnIconvClose(cd)
 }
 
-var fnIconv func(cd Iconv_t, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint
+var fnIconv func(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint
 
 // This function converts text between encodings, reading from and writing to
 // a buffer.
@@ -1089,7 +1081,7 @@ var fnIconv func(cd Iconv_t, inbuf **byte, inbytesleft *uint, outbuf **byte, out
 //     buffer.
 //
 // Parameters:
-//   - cd: The character set conversion context, created in Iconv_open().
+//   - cd: The character set conversion context, created in IconvOpen().
 //   - inbuf: Address of variable that points to the first character of the input sequence.
 //   - inbytesleft: The number of bytes in the input buffer.
 //   - outbuf: Address of variable that points to the output buffer.
@@ -1097,16 +1089,16 @@ var fnIconv func(cd Iconv_t, inbuf **byte, inbytesleft *uint, outbuf **byte, out
 //
 // Returns: the number of conversions on success, or a negative error code.
 //
-// Thread safety: Do not use the same Iconv_t from two threads at once.
+// Thread safety: Do not use the same IconvT from two threads at once.
 //
 // Since: SDL 3.2.0.
 //
-// See also: Iconv_open, Iconv_close, Iconv_string
-func Iconv(cd Iconv_t, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint {
+// See also: IconvOpen, IconvClose, IconvString
+func Iconv(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint {
 	return fnIconv(cd, inbuf, inbytesleft, outbuf, outbytesleft)
 }
 
-var fnIconv_string func(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft uint) *byte
+var fnIconvString func(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft uint) *byte
 
 // Helper function to convert a string's encoding in one call.
 //
@@ -1131,9 +1123,9 @@ var fnIconv_string func(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft u
 //
 // Since: SDL 3.2.0.
 //
-// See also: Iconv_open, Iconv_close, Iconv
-func Iconv_string(tocode string, fromcode string, inbuf string, inbytesleft uint) string {
-	p := fnIconv_string(cstr(tocode), cstr(fromcode), cstr(inbuf), inbytesleft)
+// See also: IconvOpen, IconvClose, Iconv
+func IconvString(tocode string, fromcode string, inbuf string, inbytesleft uint) string {
+	p := fnIconvString(cstr(tocode), cstr(fromcode), cstr(inbuf), inbytesleft)
 	if p == nil {
 		return ""
 	}

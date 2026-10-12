@@ -251,8 +251,12 @@ var fnGetJoysticks func(count *int32) *JoystickID
 // Since: SDL 3.2.0.
 //
 // See also: HasJoystick, OpenJoystick
-func GetJoysticks(count *int32) *JoystickID {
-	return fnGetJoysticks(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetJoysticks() []JoystickID {
+	var n int32
+	p := fnGetJoysticks(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetJoystickNameForID func(instance_id JoystickID) *byte

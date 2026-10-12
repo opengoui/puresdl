@@ -733,8 +733,12 @@ var fnGetDisplays func(count *int32) *DisplayID
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.2.0.
-func GetDisplays(count *int32) *DisplayID {
-	return fnGetDisplays(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetDisplays() []DisplayID {
+	var n int32
+	p := fnGetDisplays(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetPrimaryDisplay func() DisplayID
@@ -950,8 +954,12 @@ var fnGetFullscreenDisplayModes func(displayID DisplayID, count *int32) **Displa
 // Since: SDL 3.2.0.
 //
 // See also: GetDisplays
-func GetFullscreenDisplayModes(displayID DisplayID, count *int32) **DisplayMode {
-	return fnGetFullscreenDisplayModes(displayID, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetFullscreenDisplayModes(displayID DisplayID) []DisplayMode {
+	var n int32
+	p := fnGetFullscreenDisplayModes(displayID, &n)
+	return copyFreeDeref(p, int(n))
 }
 
 var fnGetClosestFullscreenDisplayMode func(displayID DisplayID, w int32, h int32, refresh_rate float32, include_high_density_modes bool, closest *DisplayMode) bool
@@ -1197,8 +1205,12 @@ var fnGetWindowICCProfile func(window *Window, size *uint) unsafe.Pointer
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.2.0.
-func GetWindowICCProfile(window *Window, size *uint) unsafe.Pointer {
-	return fnGetWindowICCProfile(window, size)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetWindowICCProfile(window *Window) []byte {
+	var n uint
+	p := fnGetWindowICCProfile(window, &n)
+	return copyFreeBytes(p, int(n))
 }
 
 var fnGetWindowPixelFormat func(window *Window) PixelFormat
@@ -1229,8 +1241,12 @@ var fnGetWindows func(count *int32) **Window
 // Thread safety: This function should only be called on the main thread.
 //
 // Since: SDL 3.2.0.
-func GetWindows(count *int32) **Window {
-	return fnGetWindows(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetWindows() []*Window {
+	var n int32
+	p := fnGetWindows(&n)
+	return copyFree(p, int(n))
 }
 
 var fnCreateWindow func(title *byte, w int32, h int32, flags WindowFlags) *Window

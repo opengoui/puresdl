@@ -111,8 +111,12 @@ var fnGetKeyboards func(count *int32) *KeyboardID
 // Since: SDL 3.2.0.
 //
 // See also: GetKeyboardNameForID, HasKeyboard
-func GetKeyboards(count *int32) *KeyboardID {
-	return fnGetKeyboards(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetKeyboards() []KeyboardID {
+	var n int32
+	p := fnGetKeyboards(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetKeyboardNameForID func(instance_id KeyboardID) *byte

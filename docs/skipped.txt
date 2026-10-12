@@ -1,4 +1,4 @@
-Hid_device_info: field serial_number: unsupported type wchar_t (emitted as raw storage)
+HIDDeviceInfo: field serial_number: unsupported type wchar_t (emitted as raw storage)
 SDL_IOvprintf: parameter ap: unsupported type va_list
 SDL_LogMessageV: parameter ap: unsupported type va_list
 SDL_SetErrorV: parameter ap: unsupported type va_list

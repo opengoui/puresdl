@@ -405,8 +405,12 @@ var fnGetGamepadMappings func(count *int32) **byte
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
-func GetGamepadMappings(count *int32) **byte {
-	return fnGetGamepadMappings(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetGamepadMappings() []string {
+	var n int32
+	p := fnGetGamepadMappings(&n)
+	return copyFreeStrings(p, int(n))
 }
 
 var fnGetGamepadMappingForGUID func(guid GUID) *byte
@@ -511,8 +515,12 @@ var fnGetGamepads func(count *int32) *JoystickID
 // Since: SDL 3.2.0.
 //
 // See also: HasGamepad, OpenGamepad
-func GetGamepads(count *int32) *JoystickID {
-	return fnGetGamepads(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetGamepads() []JoystickID {
+	var n int32
+	p := fnGetGamepads(&n)
+	return copyFree(p, int(n))
 }
 
 var fnIsGamepad func(instance_id JoystickID) bool
@@ -1198,8 +1206,12 @@ var fnGetGamepadBindings func(gamepad *Gamepad, count *int32) **GamepadBinding
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
-func GetGamepadBindings(gamepad *Gamepad, count *int32) **GamepadBinding {
-	return fnGetGamepadBindings(gamepad, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetGamepadBindings(gamepad *Gamepad) []GamepadBinding {
+	var n int32
+	p := fnGetGamepadBindings(gamepad, &n)
+	return copyFreeDeref(p, int(n))
 }
 
 var fnUpdateGamepads func()

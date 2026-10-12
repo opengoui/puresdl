@@ -405,6 +405,10 @@ var fnGlobStorageDirectory func(storage *Storage, path *byte, pattern *byte, fla
 //
 // An empty path is passed as NULL.
 // An empty pattern is passed as NULL.
-func GlobStorageDirectory(storage *Storage, path string, pattern string, flags GlobFlags, count *int32) **byte {
-	return fnGlobStorageDirectory(storage, cstrNull(path), cstrNull(pattern), flags, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GlobStorageDirectory(storage *Storage, path string, pattern string, flags GlobFlags) []string {
+	var n int32
+	p := fnGlobStorageDirectory(storage, cstrNull(path), cstrNull(pattern), flags, &n)
+	return copyFreeStrings(p, int(n))
 }

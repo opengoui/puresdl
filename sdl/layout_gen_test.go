@@ -10,9 +10,6 @@ import (
 // TestGeneratedLayout compares every generated struct with the layout the C
 // front end computed from the headers.
 func TestGeneratedLayout(t *testing.T) {
-	checkLayout(t, "Alignment_test", unsafe.Sizeof(Alignment_test{}), unsafe.Alignof(Alignment_test{}), 16, 8)
-	checkOffset(t, "Alignment_test.A", unsafe.Offsetof(Alignment_test{}.A), 0)
-	checkOffset(t, "Alignment_test.B", unsafe.Offsetof(Alignment_test{}.B), 8)
 	checkLayout(t, "AssertData", unsafe.Sizeof(AssertData{}), unsafe.Alignof(AssertData{}), 48, 8)
 	checkOffset(t, "AssertData.AlwaysIgnore", unsafe.Offsetof(AssertData{}.AlwaysIgnore), 0)
 	checkOffset(t, "AssertData.TriggerCount", unsafe.Offsetof(AssertData{}.TriggerCount), 4)
@@ -487,6 +484,7 @@ func TestGeneratedLayout(t *testing.T) {
 	checkOffset(t, "GamepadTouchpadEvent.X", unsafe.Offsetof(GamepadTouchpadEvent{}.X), 28)
 	checkOffset(t, "GamepadTouchpadEvent.Y", unsafe.Offsetof(GamepadTouchpadEvent{}.Y), 32)
 	checkOffset(t, "GamepadTouchpadEvent.Pressure", unsafe.Offsetof(GamepadTouchpadEvent{}.Pressure), 36)
+	checkLayout(t, "HIDDeviceInfo", unsafe.Sizeof(HIDDeviceInfo{}), unsafe.Alignof(HIDDeviceInfo{}), 80, 8)
 	checkLayout(t, "HapticCondition", unsafe.Sizeof(HapticCondition{}), unsafe.Alignof(HapticCondition{}), 68, 4)
 	checkOffset(t, "HapticCondition.Type", unsafe.Offsetof(HapticCondition{}.Type), 0)
 	checkOffset(t, "HapticCondition.Direction", unsafe.Offsetof(HapticCondition{}.Direction), 4)
@@ -564,7 +562,6 @@ func TestGeneratedLayout(t *testing.T) {
 	checkOffset(t, "HapticRamp.AttackLevel", unsafe.Offsetof(HapticRamp{}.AttackLevel), 36)
 	checkOffset(t, "HapticRamp.FadeLength", unsafe.Offsetof(HapticRamp{}.FadeLength), 38)
 	checkOffset(t, "HapticRamp.FadeLevel", unsafe.Offsetof(HapticRamp{}.FadeLevel), 40)
-	checkLayout(t, "Hid_device_info", unsafe.Sizeof(Hid_device_info{}), unsafe.Alignof(Hid_device_info{}), 80, 8)
 	checkLayout(t, "IOStreamInterface", unsafe.Sizeof(IOStreamInterface{}), unsafe.Alignof(IOStreamInterface{}), 56, 8)
 	checkOffset(t, "IOStreamInterface.Version", unsafe.Offsetof(IOStreamInterface{}.Version), 0)
 	checkOffset(t, "IOStreamInterface.Size", unsafe.Offsetof(IOStreamInterface{}.Size), 8)

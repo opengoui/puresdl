@@ -213,8 +213,12 @@ var fnGetMice func(count *int32) *MouseID
 // Since: SDL 3.2.0.
 //
 // See also: GetMouseNameForID, HasMouse
-func GetMice(count *int32) *MouseID {
-	return fnGetMice(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetMice() []MouseID {
+	var n int32
+	p := fnGetMice(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetMouseNameForID func(instance_id MouseID) *byte
@@ -526,7 +530,7 @@ func CaptureMouse(enabled bool) bool {
 	return fnCaptureMouse(enabled)
 }
 
-var fnCreateCursor func(data *byte, mask *byte, w int32, h int32, hot_x int32, hot_y int32) *Cursor
+var fnCreateCursor func(data *uint8, mask *uint8, w int32, h int32, hot_x int32, hot_y int32) *Cursor
 
 // Create a cursor using the specified bitmap data and mask (in MSB format).
 //
@@ -566,8 +570,8 @@ var fnCreateCursor func(data *byte, mask *byte, w int32, h int32, hot_x int32, h
 // Since: SDL 3.2.0.
 //
 // See also: CreateAnimatedCursor, CreateColorCursor, CreateSystemCursor, DestroyCursor, SetCursor
-func CreateCursor(data string, mask string, w int32, h int32, hot_x int32, hot_y int32) *Cursor {
-	return fnCreateCursor(cstr(data), cstr(mask), w, h, hot_x, hot_y)
+func CreateCursor(data *uint8, mask *uint8, w int32, h int32, hot_x int32, hot_y int32) *Cursor {
+	return fnCreateCursor(data, mask, w, h, hot_x, hot_y)
 }
 
 var fnCreateColorCursor func(surface *Surface, hot_x int32, hot_y int32) *Cursor

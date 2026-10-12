@@ -63,7 +63,7 @@ func TestEventUnion(t *testing.T) {
 	}
 	defer Quit()
 	var ev Event
-	ev.SetType(uint32(EVENT_USER))
+	ev.SetType(EVENT_USER)
 	*ev.User() = UserEvent{Type: uint32(EVENT_USER), Code: 42}
 	if !PushEvent(&ev) {
 		t.Fatal(GetError())
@@ -71,7 +71,7 @@ func TestEventUnion(t *testing.T) {
 	var out Event
 	for i := 0; i < 100 && !PollEvent(&out); i++ {
 	}
-	if out.Type() != uint32(EVENT_USER) || out.User().Code != 42 {
+	if out.Type() != EVENT_USER || out.User().Code != 42 {
 		t.Errorf("polled event type=%d user=%+v", out.Type(), out.User())
 	}
 }
@@ -121,14 +121,14 @@ func TestEventWatchCallback(t *testing.T) {
 	defer Quit()
 	n := 0
 	cb := NewEventFilter(func(userdata unsafe.Pointer, e *Event) bool {
-		if e.Type() == uint32(EVENT_USER) {
+		if e.Type() == EVENT_USER {
 			n++
 		}
 		return true
 	})
 	AddEventWatch(cb, nil)
 	var ev Event
-	ev.SetType(uint32(EVENT_USER))
+	ev.SetType(EVENT_USER)
 	PushEvent(&ev)
 	RemoveEventWatch(cb, nil)
 	if n != 1 {

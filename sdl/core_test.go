@@ -514,10 +514,9 @@ func TestCoreIOStreamSigned(t *testing.T) {
 		t.Fatal(GetError())
 	}
 	defer CloseIO(io)
-	// ReadS8 takes *byte in this binding (C: Sint8*); same size, reinterpret.
-	var s8 byte
-	if !ReadS8(io, &s8) || int8(s8) != -1 {
-		t.Errorf("ReadS8 = %d", int8(s8))
+	var s8 int8
+	if !ReadS8(io, &s8) || s8 != -1 {
+		t.Errorf("ReadS8 = %d", s8)
 	}
 	var s16 int16
 	if !ReadS16LE(io, &s16) || s16 != -2 {
@@ -569,15 +568,13 @@ func TestCoreIOStreamDynamicAndFile(t *testing.T) {
 	if onDisk, err := os.ReadFile(path); err != nil || !bytes.Equal(onDisk, data) {
 		t.Errorf("on disk = %v %v", onDisk, err)
 	}
-	var n uint
-	p := LoadFile(path, &n)
-	if p == nil || n != 5 {
-		t.Fatalf("LoadFile = %v %d: %s", p, n, GetError())
+	p := LoadFile(path)
+	if len(p) != 5 {
+		t.Fatalf("LoadFile = %v: %s", p, GetError())
 	}
-	if !bytes.Equal(unsafe.Slice((*byte)(p), n), data) {
+	if !bytes.Equal(p, data) {
 		t.Error("LoadFile data mismatch")
 	}
-	Free(p)
 
 	f := IOFromFile(path, "rb")
 	if f == nil {
@@ -714,7 +711,7 @@ func TestCoreFilesystemAndStorage(t *testing.T) {
 		t.Error("ENUM_FAILURE did not propagate")
 	}
 
-	files := coreCStrings(GlobDirectory(sub, "*.TXT", GLOB_CASEINSENSITIVE, new(int32)))
+	files := GlobDirectory(sub, "*.TXT", GLOB_CASEINSENSITIVE)
 	if len(files) != 1 || files[0] != "x.txt" {
 		t.Errorf("glob = %v", files)
 	}
@@ -793,10 +790,9 @@ func TestCoreFilesystemAndStorage(t *testing.T) {
 	if len(names) != 3 || names[0] != "a" || names[1] != "newdir" || names[2] != "w.txt" {
 		t.Errorf("storage enumerate = %v", names)
 	}
-	var cnt int32
-	g := coreCStrings(GlobStorageDirectory(st, "", "*.txt", 0, &cnt))
-	if cnt != 1 || len(g) != 1 || g[0] != "w.txt" {
-		t.Errorf("storage glob = %v (%d)", g, cnt)
+	g := GlobStorageDirectory(st, "", "*.txt", 0)
+	if len(g) != 1 || g[0] != "w.txt" {
+		t.Errorf("storage glob = %v", g)
 	}
 	if GetStorageSpaceRemaining(st) == 0 {
 		t.Log("GetStorageSpaceRemaining = 0")
@@ -1148,7 +1144,7 @@ func TestCoreEnvironment(t *testing.T) {
 	if GetEnvironmentVariable(env, "CORE_X") != "uno" {
 		t.Error("overwrite=true did not replace")
 	}
-	vars := coreCStrings(GetEnvironmentVariables(env))
+	vars := GetEnvironmentVariables(env)
 	sort.Strings(vars)
 	if len(vars) != 2 || vars[0] != "CORE_X=uno" || vars[1] != "CORE_Y=two" {
 		t.Errorf("variables = %v", vars)
@@ -1166,11 +1162,11 @@ func TestCoreEnvironment(t *testing.T) {
 			t.Errorf("process environment lost value: %q", got)
 		}
 	}
-	if Setenv_unsafe("CORE_UNSAFE", "u", 1) != 0 || Getenv_unsafe("CORE_UNSAFE") != "u" {
-		t.Error("Setenv_unsafe/Getenv_unsafe")
+	if SetenvUnsafe("CORE_UNSAFE", "u", 1) != 0 || GetenvUnsafe("CORE_UNSAFE") != "u" {
+		t.Error("SetenvUnsafe/GetenvUnsafe")
 	}
-	if Unsetenv_unsafe("CORE_UNSAFE") != 0 || Getenv_unsafe("CORE_UNSAFE") != "" {
-		t.Error("Unsetenv_unsafe")
+	if UnsetenvUnsafe("CORE_UNSAFE") != 0 || GetenvUnsafe("CORE_UNSAFE") != "" {
+		t.Error("UnsetenvUnsafe")
 	}
 }
 
@@ -1275,17 +1271,17 @@ func TestCoreMemory(t *testing.T) {
 	}
 	Free(c)
 
-	a := Aligned_alloc(64, 100)
+	a := AlignedAlloc(64, 100)
 	if a == nil || uintptr(a)%64 != 0 {
-		t.Errorf("Aligned_alloc = %p", a)
+		t.Errorf("AlignedAlloc = %p", a)
 	}
-	Aligned_free(a)
+	AlignedFree(a)
 	Free(nil)
 
-	var m Malloc_func
-	var ca Calloc_func
-	var re Realloc_func
-	var fr Free_func
+	var m MallocFunc
+	var ca CallocFunc
+	var re ReallocFunc
+	var fr FreeFunc
 	GetMemoryFunctions(&m, &ca, &re, &fr)
 	if m == 0 || ca == 0 || re == 0 || fr == 0 {
 		t.Errorf("memory functions = %#x %#x %#x %#x", m, ca, re, fr)
@@ -1314,20 +1310,20 @@ func TestCoreHashAndRandom(t *testing.T) {
 
 	s1, s2 := uint64(1234), uint64(1234)
 	for i := 0; i < 16; i++ {
-		x, y := Rand_r(&s1, 100), Rand_r(&s2, 100)
+		x, y := RandR(&s1, 100), RandR(&s2, 100)
 		if x != y || x < 0 || x >= 100 {
-			t.Fatalf("Rand_r = %d / %d", x, y)
+			t.Fatalf("RandR = %d / %d", x, y)
 		}
-		if f := Randf_r(&s1); f < 0 || f >= 1 {
-			t.Fatalf("Randf_r = %v", f)
+		if f := RandfR(&s1); f < 0 || f >= 1 {
+			t.Fatalf("RandfR = %v", f)
 		}
-		Randf_r(&s2)
-		if Rand_bits_r(&s1) != Rand_bits_r(&s2) {
-			t.Fatal("Rand_bits_r diverged")
+		RandfR(&s2)
+		if RandBitsR(&s1) != RandBitsR(&s2) {
+			t.Fatal("RandBitsR diverged")
 		}
 	}
 	if s1 == 1234 {
-		t.Error("Rand_r did not advance state through the pointer")
+		t.Error("RandR did not advance state through the pointer")
 	}
 	Srand(42)
 	a := []int32{Rand(1000), Rand(1000), Rand(1000)}
@@ -1341,14 +1337,14 @@ func TestCoreHashAndRandom(t *testing.T) {
 	if f := Randf(); f < 0 || f >= 1 {
 		t.Errorf("Randf = %v", f)
 	}
-	_ = Rand_bits()
+	_ = RandBits()
 }
 
 func TestCoreIconv(t *testing.T) {
 	// inbytesleft includes the terminating NUL; the result is a C string
 	// copied and freed by the wrapper.
-	if got := Iconv_string("ISO-8859-1", "UTF-8", "\u00e9a", 4); got != "\xe9a" {
-		t.Errorf("Iconv_string = %q", got)
+	if got := IconvString("ISO-8859-1", "UTF-8", "\u00e9a", 4); got != "\xe9a" {
+		t.Errorf("IconvString = %q", got)
 	}
 }
 
@@ -1380,20 +1376,12 @@ func TestCoreSystemInfo(t *testing.T) {
 }
 
 func TestCoreLocalePowerMisc(t *testing.T) {
-	var n int32
-	locs := GetPreferredLocales(&n)
-	if locs != nil {
-		defer Free(unsafe.Pointer(locs))
-		first := *locs
-		if n < 1 || first == nil || GoString(first.Language) == "" {
-			t.Errorf("locales n=%d first=%+v", n, first)
+	if locs := GetPreferredLocales(); len(locs) > 0 {
+		if locs[0].Language == "" {
+			t.Errorf("locales first=%+v", locs[0])
 		}
 		if unsafe.Sizeof(Locale{}) != 16 {
 			t.Errorf("sizeof(Locale) = %d", unsafe.Sizeof(Locale{}))
-		}
-		// The array is NULL-terminated after n entries.
-		if *(**Locale)(unsafe.Add(unsafe.Pointer(locs), uintptr(n)*8)) != nil {
-			t.Error("locale list not NULL-terminated")
 		}
 	} else {
 		t.Logf("no preferred locales: %s", GetError())

@@ -116,10 +116,12 @@ func (c *converter) shape(t cc.Type) *ir.Type {
 		return &ir.Type{Kind: ir.Void, Align: 1}
 	case cc.Bool:
 		return basic(ir.Bool, 1, false, false)
-	case cc.Char, cc.SChar:
+	case cc.Char:
 		return basic(ir.Int, 1, true, true)
+	case cc.SChar:
+		return basic(ir.Int, 1, true, false)
 	case cc.UChar:
-		return basic(ir.Int, 1, false, true)
+		return basic(ir.Int, 1, false, false)
 	case cc.Short, cc.Int, cc.Long, cc.LongLong:
 		return basic(ir.Int, t.Size(), true, false)
 	case cc.UShort, cc.UInt, cc.ULong, cc.ULongLong:

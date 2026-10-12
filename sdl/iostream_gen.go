@@ -239,7 +239,7 @@ var fnIOFromMem func(mem unsafe.Pointer, size uint) *IOStream
 // Additionally, the following properties are recognized:
 //
 //   - `PROP_IOSTREAM_MEMORY_FREE_FUNC_POINTER`: if this property is set to
-//     a non-NULL value it will be interpreted as a function of Free_func
+//     a non-NULL value it will be interpreted as a function of FreeFunc
 //     type and called with the passed `mem` pointer when closing the stream. By
 //     default it is unset, i.e., the memory will not be freed.
 //
@@ -285,7 +285,7 @@ var fnIOFromConstMem func(mem unsafe.Pointer, size uint) *IOStream
 // Additionally, the following properties are recognized:
 //
 //   - `PROP_IOSTREAM_MEMORY_FREE_FUNC_POINTER`: if this property is set to
-//     a non-NULL value it will be interpreted as a function of Free_func
+//     a non-NULL value it will be interpreted as a function of FreeFunc
 //     type and called with the passed `mem` pointer when closing the stream. By
 //     default it is unset, i.e., the memory will not be freed.
 //
@@ -587,7 +587,7 @@ var fnIOprintf func(context *IOStream, fmt_ *byte) uint
 //
 // See also: IOvprintf, WriteIO
 //
-// The message is formatted with fmt.Sprintf before it reaches SDL.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
 func IOprintf(context *IOStream, format string, args ...any) uint {
 	return fnIOprintf(context, cprintf(format, args))
 }
@@ -636,8 +636,12 @@ var fnLoadFile_IO func(src *IOStream, datasize *uint, closeio bool) unsafe.Point
 // Since: SDL 3.2.0.
 //
 // See also: LoadFile, SaveFile_IO
-func LoadFile_IO(src *IOStream, datasize *uint, closeio bool) unsafe.Pointer {
-	return fnLoadFile_IO(src, datasize, closeio)
+//
+// The SDL allocation is copied into the returned slice and released.
+func LoadFile_IO(src *IOStream, closeio bool) []byte {
+	var n uint
+	p := fnLoadFile_IO(src, &n, closeio)
+	return copyFreeBytes(p, int(n))
 }
 
 var fnLoadFile func(file *byte, datasize *uint) unsafe.Pointer
@@ -661,8 +665,12 @@ var fnLoadFile func(file *byte, datasize *uint) unsafe.Pointer
 // Since: SDL 3.2.0.
 //
 // See also: LoadFile_IO, SaveFile
-func LoadFile(file string, datasize *uint) unsafe.Pointer {
-	return fnLoadFile(cstr(file), datasize)
+//
+// The SDL allocation is copied into the returned slice and released.
+func LoadFile(file string) []byte {
+	var n uint
+	p := fnLoadFile(cstr(file), &n)
+	return copyFreeBytes(p, int(n))
 }
 
 var fnSaveFile_IO func(src *IOStream, data unsafe.Pointer, datasize uint, closeio bool) bool
@@ -706,7 +714,7 @@ func SaveFile(file string, data unsafe.Pointer, datasize uint) bool {
 	return fnSaveFile(cstr(file), data, datasize)
 }
 
-var fnReadU8 func(src *IOStream, value *byte) bool
+var fnReadU8 func(src *IOStream, value *uint8) bool
 
 // Use this function to read a byte from an IOStream.
 //
@@ -724,11 +732,11 @@ var fnReadU8 func(src *IOStream, value *byte) bool
 // Thread safety: Do not use the same IOStream from two threads at once.
 //
 // Since: SDL 3.2.0.
-func ReadU8(src *IOStream, value *byte) bool {
+func ReadU8(src *IOStream, value *uint8) bool {
 	return fnReadU8(src, value)
 }
 
-var fnReadS8 func(src *IOStream, value *byte) bool
+var fnReadS8 func(src *IOStream, value *int8) bool
 
 // Use this function to read a signed byte from an IOStream.
 //
@@ -746,7 +754,7 @@ var fnReadS8 func(src *IOStream, value *byte) bool
 // Thread safety: Do not use the same IOStream from two threads at once.
 //
 // Since: SDL 3.2.0.
-func ReadS8(src *IOStream, value *byte) bool {
+func ReadS8(src *IOStream, value *int8) bool {
 	return fnReadS8(src, value)
 }
 

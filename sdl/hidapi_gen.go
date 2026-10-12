@@ -7,68 +7,68 @@ package sdl
 // Since: SDL 3.2.0.
 //
 // It is an opaque handle owned by SDL.
-type Hid_device struct{}
+type HIDDevice struct{}
 
 // Information about a connected HID device
 //
 // Since: SDL 3.2.0.
-type Hid_device_info struct {
+type HIDDeviceInfo struct {
 	_ [10]uint64
 }
 
 // HID underlying bus types.
 //
 // Since: SDL 3.2.0.
-type Hid_bus_type uint32
+type HIDBusType uint32
 
 const (
 	// Unknown bus type
-	HID_API_BUS_UNKNOWN Hid_bus_type = 0
+	HID_API_BUS_UNKNOWN HIDBusType = 0
 	// USB bus
 	// Specifications:
 	// https://usb.org/hid
-	HID_API_BUS_USB Hid_bus_type = 1
+	HID_API_BUS_USB HIDBusType = 1
 	// Bluetooth or Bluetooth LE bus
 	// Specifications:
 	// https://www.bluetooth.com/specifications/specs/human-interface-device-profile-1-1-1/
 	// https://www.bluetooth.com/specifications/specs/hid-service-1-0/
 	// https://www.bluetooth.com/specifications/specs/hid-over-gatt-profile-1-0/
-	HID_API_BUS_BLUETOOTH Hid_bus_type = 2
+	HID_API_BUS_BLUETOOTH HIDBusType = 2
 	// I2C bus
 	// Specifications:
 	// https://docs.microsoft.com/previous-versions/windows/hardware/design/dn642101(v=vs.85)
-	HID_API_BUS_I2C Hid_bus_type = 3
+	HID_API_BUS_I2C HIDBusType = 3
 	// SPI bus
 	// Specifications:
 	// https://www.microsoft.com/download/details.aspx?id=103325
-	HID_API_BUS_SPI Hid_bus_type = 4
+	HID_API_BUS_SPI HIDBusType = 4
 )
 const (
 	PROP_HIDAPI_LIBUSB_DEVICE_HANDLE_POINTER = "SDL.hidapi.libusb.device.handle"
 )
 
-var fnHid_init func() int32
+var fnHIDInit func() int32
 
 // Initialize the HIDAPI library.
 //
 // This function initializes the HIDAPI library. Calling it is not strictly
-// necessary, as it will be called automatically by Hid_enumerate(),
-// Hid_open(), and Hid_open_path() if needed. This function should be
+// necessary, as it will be called automatically by HIDEnumerate(),
+// HIDOpen(), and HIDOpenPath() if needed. This function should be
 // called at the beginning of execution however, if there is a chance of
 // HIDAPI handles being opened by different threads simultaneously.
 //
-// Each call to this function should have a matching call to Hid_exit()
+// Each call to this function should have a matching call to HIDExit()
 //
 // Returns: 0 on success or a negative error code on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
 //
-// See also: Hid_exit
-func Hid_init() int32 {
-	return fnHid_init()
+// See also: HIDExit
+func HIDInit() int32 {
+	return fnHIDInit()
 }
 
-var fnHid_exit func() int32
+var fnHIDExit func() int32
 
 // Finalize the HIDAPI library.
 //
@@ -79,19 +79,19 @@ var fnHid_exit func() int32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Hid_init
-func Hid_exit() int32 {
-	return fnHid_exit()
+// See also: HIDInit
+func HIDExit() int32 {
+	return fnHIDExit()
 }
 
-var fnHid_device_change_count func() uint32
+var fnHIDDeviceChangeCount func() uint32
 
 // Check to see if devices may have been added or removed.
 //
 // Enumerating the HID devices is an expensive operation, so you can call this
 // to see if there have been any system device changes since the last call to
 // this function. A change in the counter returned doesn't necessarily mean
-// that anything has changed, but you can call Hid_enumerate() to get an
+// that anything has changed, but you can call HIDEnumerate() to get an
 // updated device list.
 //
 // Calling this function for the first time may cause a thread or other system
@@ -101,12 +101,12 @@ var fnHid_device_change_count func() uint32
 //
 // Since: SDL 3.2.0.
 //
-// See also: Hid_enumerate
-func Hid_device_change_count() uint32 {
-	return fnHid_device_change_count()
+// See also: HIDEnumerate
+func HIDDeviceChangeCount() uint32 {
+	return fnHIDDeviceChangeCount()
 }
 
-var fnHid_enumerate func(vendor_id uint16, product_id uint16) *Hid_device_info
+var fnHIDEnumerate func(vendor_id uint16, product_id uint16) *HIDDeviceInfo
 
 // Enumerate the HID Devices.
 //
@@ -124,49 +124,49 @@ var fnHid_enumerate func(vendor_id uint16, product_id uint16) *Hid_device_info
 //   - vendor_id: the Vendor ID (VID) of the types of device to open, or 0 to match any vendor.
 //   - product_id: the Product ID (PID) of the types of device to open, or 0 to match any product.
 //
-// Returns: a pointer to a linked list of type Hid_device_info, containing information about the HID devices attached to the system, or NULL in the case of failure. Free this linked list by calling Hid_free_enumeration().
+// Returns: a pointer to a linked list of type HIDDeviceInfo, containing information about the HID devices attached to the system, or NULL in the case of failure. Free this linked list by calling HIDFreeEnumeration().
 //
 // Since: SDL 3.2.0.
 //
-// See also: Hid_device_change_count
-func Hid_enumerate(vendor_id uint16, product_id uint16) *Hid_device_info {
-	return fnHid_enumerate(vendor_id, product_id)
+// See also: HIDDeviceChangeCount
+func HIDEnumerate(vendor_id uint16, product_id uint16) *HIDDeviceInfo {
+	return fnHIDEnumerate(vendor_id, product_id)
 }
 
-var fnHid_free_enumeration func(devs *Hid_device_info)
+var fnHIDFreeEnumeration func(devs *HIDDeviceInfo)
 
 // Free an enumeration linked list.
 //
-// This function frees a linked list created by Hid_enumerate().
+// This function frees a linked list created by HIDEnumerate().
 //
 // Parameters:
-//   - devs: pointer to a list of struct_device returned from Hid_enumerate().
+//   - devs: pointer to a list of struct_device returned from HIDEnumerate().
 //
 // Since: SDL 3.2.0.
-func Hid_free_enumeration(devs *Hid_device_info) {
-	fnHid_free_enumeration(devs)
+func HIDFreeEnumeration(devs *HIDDeviceInfo) {
+	fnHIDFreeEnumeration(devs)
 }
 
-var fnHid_open_path func(path *byte) *Hid_device
+var fnHIDOpenPath func(path *byte) *HIDDevice
 
 // Open a HID device by its path name.
 //
-// The path name be determined by calling Hid_enumerate(), or a
+// The path name be determined by calling HIDEnumerate(), or a
 // platform-specific path name can be used (eg: /dev/hidraw0 on Linux).
 //
 // Parameters:
 //   - path: the path name of the device to open.
 //
-// Returns: a pointer to a Hid_device object on success or NULL on failure; call GetError() for more information.
+// Returns: a pointer to a HIDDevice object on success or NULL on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_open_path(path string) *Hid_device {
-	return fnHid_open_path(cstr(path))
+func HIDOpenPath(path string) *HIDDevice {
+	return fnHIDOpenPath(cstr(path))
 }
 
-var fnHid_get_properties func(dev *Hid_device) PropertiesID
+var fnHIDGetProperties func(dev *HIDDevice) PropertiesID
 
-// Get the properties associated with an Hid_device.
+// Get the properties associated with an HIDDevice.
 //
 // The following read-only properties are provided by SDL:
 //
@@ -174,45 +174,45 @@ var fnHid_get_properties func(dev *Hid_device) PropertiesID
 //     associated with the device, if it was opened using libusb.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //
 // Returns: a valid property ID on success or 0 on failure; call GetError() for more information.
 //
 // Since: SDL 3.4.0.
-func Hid_get_properties(dev *Hid_device) PropertiesID {
-	return fnHid_get_properties(dev)
+func HIDGetProperties(dev *HIDDevice) PropertiesID {
+	return fnHIDGetProperties(dev)
 }
 
-var fnHid_write func(dev *Hid_device, data *byte, length uint) int32
+var fnHIDWrite func(dev *HIDDevice, data *uint8, length uint) int32
 
 // Write an Output report to a HID device.
 //
 // The first byte of `data` must contain the Report ID. For devices which only
 // support a single report, this must be set to 0x0. The remaining bytes
 // contain the report data. Since the Report ID is mandatory, calls to
-// Hid_write() will always contain one more byte than the report contains.
+// HIDWrite() will always contain one more byte than the report contains.
 // For example, if a hid report is 16 bytes long, 17 bytes must be passed to
-// Hid_write(), the Report ID (or 0x0, for devices with a single report),
+// HIDWrite(), the Report ID (or 0x0, for devices with a single report),
 // followed by the report data (16 bytes). In this example, the length passed
 // in would be 17.
 //
-// Hid_write() will send the data on the first OUT endpoint, if one
+// HIDWrite() will send the data on the first OUT endpoint, if one
 // exists. If it does not, it will send the data through the Control Endpoint
 // (Endpoint 0).
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: the data to send, including the report number as the first byte.
 //   - length: the length in bytes of the data to send.
 //
 // Returns: the actual number of bytes written and -1 on on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_write(dev *Hid_device, data string, length uint) int32 {
-	return fnHid_write(dev, cstr(data), length)
+func HIDWrite(dev *HIDDevice, data *uint8, length uint) int32 {
+	return fnHIDWrite(dev, data, length)
 }
 
-var fnHid_read_timeout func(dev *Hid_device, data *byte, length uint, milliseconds int32) int32
+var fnHIDReadTimeout func(dev *HIDDevice, data *uint8, length uint, milliseconds int32) int32
 
 // Read an Input report from a HID device with timeout.
 //
@@ -221,7 +221,7 @@ var fnHid_read_timeout func(dev *Hid_device, data *byte, length uint, millisecon
 // reports.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: a buffer to put the read data into.
 //   - length: the number of bytes to read. For devices with multiple reports, make sure to read an extra byte for the report number.
 //   - milliseconds: timeout in milliseconds or -1 for blocking wait.
@@ -229,11 +229,11 @@ var fnHid_read_timeout func(dev *Hid_device, data *byte, length uint, millisecon
 // Returns: the actual number of bytes read and -1 on on failure; call GetError() for more information. If no packet was available to be read within the timeout period, this function returns 0.
 //
 // Since: SDL 3.2.0.
-func Hid_read_timeout(dev *Hid_device, data *byte, length uint, milliseconds int32) int32 {
-	return fnHid_read_timeout(dev, data, length, milliseconds)
+func HIDReadTimeout(dev *HIDDevice, data *uint8, length uint, milliseconds int32) int32 {
+	return fnHIDReadTimeout(dev, data, length, milliseconds)
 }
 
-var fnHid_read func(dev *Hid_device, data *byte, length uint) int32
+var fnHIDRead func(dev *HIDDevice, data *uint8, length uint) int32
 
 // Read an Input report from a HID device.
 //
@@ -242,39 +242,39 @@ var fnHid_read func(dev *Hid_device, data *byte, length uint) int32
 // reports.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: a buffer to put the read data into.
 //   - length: the number of bytes to read. For devices with multiple reports, make sure to read an extra byte for the report number.
 //
 // Returns: the actual number of bytes read and -1 on failure; call GetError() for more information. If no packet was available to be read and the handle is in non-blocking mode, this function returns 0.
 //
 // Since: SDL 3.2.0.
-func Hid_read(dev *Hid_device, data *byte, length uint) int32 {
-	return fnHid_read(dev, data, length)
+func HIDRead(dev *HIDDevice, data *uint8, length uint) int32 {
+	return fnHIDRead(dev, data, length)
 }
 
-var fnHid_set_nonblocking func(dev *Hid_device, nonblock int32) int32
+var fnHIDSetNonblocking func(dev *HIDDevice, nonblock int32) int32
 
 // Set the device handle to be non-blocking.
 //
-// In non-blocking mode calls to Hid_read() will return immediately with a
-// value of 0 if there is no data to be read. In blocking mode, Hid_read()
+// In non-blocking mode calls to HIDRead() will return immediately with a
+// value of 0 if there is no data to be read. In blocking mode, HIDRead()
 // will wait (block) until there is data to read before returning.
 //
 // Nonblocking can be turned on and off at any time.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - nonblock: enable or not the nonblocking reads - 1 to enable nonblocking - 0 to disable nonblocking.
 //
 // Returns: 0 on success or a negative error code on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_set_nonblocking(dev *Hid_device, nonblock int32) int32 {
-	return fnHid_set_nonblocking(dev, nonblock)
+func HIDSetNonblocking(dev *HIDDevice, nonblock int32) int32 {
+	return fnHIDSetNonblocking(dev, nonblock)
 }
 
-var fnHid_send_feature_report func(dev *Hid_device, data *byte, length uint) int32
+var fnHIDSendFeatureReport func(dev *HIDDevice, data *uint8, length uint) int32
 
 // Send a Feature report to the device.
 //
@@ -282,25 +282,25 @@ var fnHid_send_feature_report func(dev *Hid_device, data *byte, length uint) int
 // transfer. The first byte of `data` must contain the Report ID. For devices
 // which only support a single report, this must be set to 0x0. The remaining
 // bytes contain the report data. Since the Report ID is mandatory, calls to
-// Hid_send_feature_report() will always contain one more byte than the
+// HIDSendFeatureReport() will always contain one more byte than the
 // report contains. For example, if a hid report is 16 bytes long, 17 bytes
-// must be passed to Hid_send_feature_report(): the Report ID (or 0x0, for
+// must be passed to HIDSendFeatureReport(): the Report ID (or 0x0, for
 // devices which do not use numbered reports), followed by the report data (16
 // bytes). In this example, the length passed in would be 17.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: the data to send, including the report number as the first byte.
 //   - length: the length in bytes of the data to send, including the report number.
 //
 // Returns: the actual number of bytes written and -1 on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_send_feature_report(dev *Hid_device, data string, length uint) int32 {
-	return fnHid_send_feature_report(dev, cstr(data), length)
+func HIDSendFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	return fnHIDSendFeatureReport(dev, data, length)
 }
 
-var fnHid_get_feature_report func(dev *Hid_device, data *byte, length uint) int32
+var fnHIDGetFeatureReport func(dev *HIDDevice, data *uint8, length uint) int32
 
 // Get a feature report from a HID device.
 //
@@ -310,18 +310,18 @@ var fnHid_get_feature_report func(dev *Hid_device, data *byte, length uint) int3
 // in data[1].
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: a buffer to put the read data into, including the Report ID. Set the first byte of `data` to the Report ID of the report to be read, or set it to zero if your device does not use numbered reports.
 //   - length: the number of bytes to read, including an extra byte for the report ID. The buffer can be longer than the actual report.
 //
 // Returns: the number of bytes read plus one for the report ID (which is still in the first byte), or -1 on on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_get_feature_report(dev *Hid_device, data *byte, length uint) int32 {
-	return fnHid_get_feature_report(dev, data, length)
+func HIDGetFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	return fnHIDGetFeatureReport(dev, data, length)
 }
 
-var fnHid_get_input_report func(dev *Hid_device, data *byte, length uint) int32
+var fnHIDGetInputReport func(dev *HIDDevice, data *uint8, length uint) int32
 
 // Get an input report from a HID device.
 //
@@ -331,46 +331,46 @@ var fnHid_get_input_report func(dev *Hid_device, data *byte, length uint) int32
 // in data[1].
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - data: a buffer to put the read data into, including the Report ID. Set the first byte of `data` to the Report ID of the report to be read, or set it to zero if your device does not use numbered reports.
 //   - length: the number of bytes to read, including an extra byte for the report ID. The buffer can be longer than the actual report.
 //
 // Returns: the number of bytes read plus one for the report ID (which is still in the first byte), or -1 on on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_get_input_report(dev *Hid_device, data *byte, length uint) int32 {
-	return fnHid_get_input_report(dev, data, length)
+func HIDGetInputReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	return fnHIDGetInputReport(dev, data, length)
 }
 
-var fnHid_close func(dev *Hid_device) int32
+var fnHIDClose func(dev *HIDDevice) int32
 
 // Close a HID device.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //
 // Returns: 0 on success or a negative error code on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_close(dev *Hid_device) int32 {
-	return fnHid_close(dev)
+func HIDClose(dev *HIDDevice) int32 {
+	return fnHIDClose(dev)
 }
 
-var fnHid_get_device_info func(dev *Hid_device) *Hid_device_info
+var fnHIDGetDeviceInfo func(dev *HIDDevice) *HIDDeviceInfo
 
 // Get the device info from a HID device.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //
-// Returns: a pointer to the Hid_device_info for this hid_device or NULL on failure; call GetError() for more information. This struct is valid until the device is closed with Hid_close().
+// Returns: a pointer to the HIDDeviceInfo for this hid_device or NULL on failure; call GetError() for more information. This struct is valid until the device is closed with HIDClose().
 //
 // Since: SDL 3.2.0.
-func Hid_get_device_info(dev *Hid_device) *Hid_device_info {
-	return fnHid_get_device_info(dev)
+func HIDGetDeviceInfo(dev *HIDDevice) *HIDDeviceInfo {
+	return fnHIDGetDeviceInfo(dev)
 }
 
-var fnHid_get_report_descriptor func(dev *Hid_device, buf *byte, buf_size uint) int32
+var fnHIDGetReportDescriptor func(dev *HIDDevice, buf *uint8, buf_size uint) int32
 
 // Get a report descriptor from a HID device.
 //
@@ -378,18 +378,18 @@ var fnHid_get_report_descriptor func(dev *Hid_device, buf *byte, buf_size uint) 
 // to. The recommended size for a preallocated buffer is 4096 bytes.
 //
 // Parameters:
-//   - dev: a device handle returned from Hid_open().
+//   - dev: a device handle returned from HIDOpen().
 //   - buf: the buffer to copy descriptor into.
 //   - buf_size: the size of the buffer in bytes.
 //
 // Returns: the number of bytes actually copied or -1 on failure; call GetError() for more information.
 //
 // Since: SDL 3.2.0.
-func Hid_get_report_descriptor(dev *Hid_device, buf *byte, buf_size uint) int32 {
-	return fnHid_get_report_descriptor(dev, buf, buf_size)
+func HIDGetReportDescriptor(dev *HIDDevice, buf *uint8, buf_size uint) int32 {
+	return fnHIDGetReportDescriptor(dev, buf, buf_size)
 }
 
-var fnHid_ble_scan func(active bool)
+var fnHIDBleScan func(active bool)
 
 // Start or stop a BLE scan on iOS and tvOS to pair Steam Controllers.
 //
@@ -397,6 +397,6 @@ var fnHid_ble_scan func(active bool)
 //   - active: true to start the scan, false to stop the scan.
 //
 // Since: SDL 3.2.0.
-func Hid_ble_scan(active bool) {
-	fnHid_ble_scan(active)
+func HIDBleScan(active bool) {
+	fnHIDBleScan(active)
 }

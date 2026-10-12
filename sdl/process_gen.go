@@ -243,8 +243,12 @@ var fnReadProcess func(process *Process, datasize *uint, exitcode *int32) unsafe
 // Since: SDL 3.2.0.
 //
 // See also: CreateProcess, CreateProcessWithProperties, DestroyProcess
-func ReadProcess(process *Process, datasize *uint, exitcode *int32) unsafe.Pointer {
-	return fnReadProcess(process, datasize, exitcode)
+//
+// The SDL allocation is copied into the returned slice and released.
+func ReadProcess(process *Process, exitcode *int32) []byte {
+	var n uint
+	p := fnReadProcess(process, &n, exitcode)
+	return copyFreeBytes(p, int(n))
 }
 
 var fnGetProcessInput func(process *Process) *IOStream

@@ -697,7 +697,7 @@ func MapRGBA(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b u
 	return fnMapRGBA(format, palette, r, g, b, a)
 }
 
-var fnGetRGB func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *byte, g *byte, b *byte)
+var fnGetRGB func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8)
 
 // Get RGB values from a pixel in the specified format.
 //
@@ -719,11 +719,11 @@ var fnGetRGB func(pixelvalue uint32, format *PixelFormatDetails, palette *Palett
 // Since: SDL 3.2.0.
 //
 // See also: GetPixelFormatDetails, GetRGBA, MapRGB, MapRGBA
-func GetRGB(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *byte, g *byte, b *byte) {
+func GetRGB(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8) {
 	fnGetRGB(pixelvalue, format, palette, r, g, b)
 }
 
-var fnGetRGBA func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *byte, g *byte, b *byte, a *byte)
+var fnGetRGBA func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8, a *uint8)
 
 // Get RGBA values from a pixel in the specified format.
 //
@@ -749,6 +749,6 @@ var fnGetRGBA func(pixelvalue uint32, format *PixelFormatDetails, palette *Palet
 // Since: SDL 3.2.0.
 //
 // See also: GetPixelFormatDetails, GetRGB, MapRGB, MapRGBA
-func GetRGBA(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *byte, g *byte, b *byte, a *byte) {
+func GetRGBA(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8, a *uint8) {
 	fnGetRGBA(pixelvalue, format, palette, r, g, b, a)
 }

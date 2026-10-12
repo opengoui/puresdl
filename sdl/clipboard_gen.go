@@ -236,8 +236,12 @@ var fnGetClipboardData func(mime_type *byte, size *uint) unsafe.Pointer
 // Since: SDL 3.2.0.
 //
 // See also: HasClipboardData, SetClipboardData
-func GetClipboardData(mime_type string, size *uint) unsafe.Pointer {
-	return fnGetClipboardData(cstr(mime_type), size)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetClipboardData(mime_type string) []byte {
+	var n uint
+	p := fnGetClipboardData(cstr(mime_type), &n)
+	return copyFreeBytes(p, int(n))
 }
 
 var fnHasClipboardData func(mime_type *byte) bool
@@ -272,6 +276,10 @@ var fnGetClipboardMimeTypes func(num_mime_types *uint) **byte
 // Since: SDL 3.2.0.
 //
 // See also: SetClipboardData
-func GetClipboardMimeTypes(num_mime_types *uint) **byte {
-	return fnGetClipboardMimeTypes(num_mime_types)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetClipboardMimeTypes() []string {
+	var n uint
+	p := fnGetClipboardMimeTypes(&n)
+	return copyFreeStrings(p, int(n))
 }

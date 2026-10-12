@@ -22,15 +22,6 @@ func mediaInit(t *testing.T, flags InitFlags) {
 	})
 }
 
-// mediaIDs copies an SDL-allocated array of n elements and frees the original.
-func mediaIDs[T any](p *T, n int32) []T {
-	if p == nil {
-		return nil
-	}
-	defer Free(unsafe.Pointer(p))
-	return append([]T(nil), unsafe.Slice(p, n)...)
-}
-
 func mediaPixel(t *testing.T, s *Surface, x, y int32) [4]uint8 {
 	t.Helper()
 	var r, g, b, a byte
@@ -45,10 +36,9 @@ func TestMediaDisplaysAndWindow(t *testing.T) {
 	if got := GetCurrentVideoDriver(); got != "dummy" {
 		t.Fatalf("video driver = %q", got)
 	}
-	var n int32
-	ids := mediaIDs(GetDisplays(&n), n)
-	if n < 1 || len(ids) != int(n) {
-		t.Fatalf("GetDisplays count = %d (%s)", n, GetError())
+	ids := GetDisplays()
+	if len(ids) < 1 {
+		t.Fatalf("GetDisplays count = %d (%s)", len(ids), GetError())
 	}
 	for _, id := range ids {
 		if id == 0 {
@@ -68,17 +58,12 @@ func TestMediaDisplaysAndWindow(t *testing.T) {
 	if m := GetCurrentDisplayMode(ids[0]); m == nil || m.W <= 0 || m.DisplayID != ids[0] {
 		t.Errorf("GetCurrentDisplayMode = %+v", m)
 	}
-	var nm int32
-	// The dummy driver may expose no fullscreen modes; when it does, the
-	// **DisplayMode array must be readable.
-	if pp := GetFullscreenDisplayModes(ids[0], &nm); pp != nil {
-		if nm > 0 {
-			modes := unsafe.Slice(pp, nm)
-			if modes[0] == nil || modes[0].W <= 0 || modes[0].H <= 0 {
-				t.Errorf("n=%d mode[0] = %+v", nm, modes[0])
-			}
+	// The dummy driver may expose no fullscreen modes; when it does they
+	// are deep-copied out of the SDL allocation.
+	if modes := GetFullscreenDisplayModes(ids[0]); len(modes) > 0 {
+		if modes[0].W <= 0 || modes[0].H <= 0 {
+			t.Errorf("mode[0] = %+v", modes[0])
 		}
-		Free(unsafe.Pointer(pp))
 	}
 
 	// Plain CreateWindow.
@@ -323,20 +308,20 @@ func TestMediaEvents(t *testing.T) {
 
 	custom := EventType(RegisterEvents(1))
 	if custom < EVENT_USER {
-		t.Fatalf("RegisterEvents = %#x", uint32(custom))
+		t.Fatalf("RegisterEvents = %#x", custom)
 	}
 	var ev Event
-	ev.SetType(uint32(custom))
+	ev.SetType(custom)
 	ev.User().Code = 42
 	ev.User().Data1 = unsafe.Pointer(&mediaSentinel)
 	if !PushEvent(&ev) {
 		t.Fatal(GetError())
 	}
-	if !HasEvent(uint32(custom)) {
+	if !HasEvent(custom) {
 		t.Error("HasEvent false after push")
 	}
 	var got Event
-	if !PollEvent(&got) || got.Type() != uint32(custom) || got.User().Code != 42 ||
+	if !PollEvent(&got) || got.Type() != custom || got.User().Code != 42 ||
 		got.User().Data1 != unsafe.Pointer(&mediaSentinel) {
 		t.Errorf("PollEvent = type %#x user %+v", got.Type(), got.User())
 	}
@@ -363,9 +348,9 @@ func TestMediaEvents(t *testing.T) {
 	if WaitEventTimeout(&got, 5) {
 		t.Errorf("WaitEventTimeout returned event %#x", got.Type())
 	}
-	ev.SetType(uint32(custom))
+	ev.SetType(custom)
 	PushEvent(&ev)
-	if !WaitEventTimeout(&got, 100) || got.Type() != uint32(custom) {
+	if !WaitEventTimeout(&got, 100) || got.Type() != custom {
 		t.Error("WaitEventTimeout missed pushed event")
 	}
 
@@ -373,7 +358,7 @@ func TestMediaEvents(t *testing.T) {
 	var seen atomic.Int32
 	var seenCode atomic.Int32
 	watch := NewEventFilter(func(_ unsafe.Pointer, e *Event) bool {
-		if e.Type() == uint32(custom) {
+		if e.Type() == custom {
 			seen.Add(1)
 			seenCode.Store(e.User().Code)
 		}
@@ -413,9 +398,8 @@ func TestMediaInputState(t *testing.T) {
 	if b := GetMouseState(&x, &y); b != 0 {
 		t.Errorf("mouse buttons = %#x", uint32(b))
 	}
-	var n int32
-	mediaIDs(GetKeyboards(&n), n)
-	mediaIDs(GetMice(&n), n)
+	_ = GetKeyboards()
+	_ = GetMice()
 	if GetKeyboardFocus() != nil || GetMouseFocus() != nil {
 		t.Error("unexpected focus window")
 	}
@@ -424,32 +408,22 @@ func TestMediaInputState(t *testing.T) {
 
 func TestMediaEmptyDeviceLists(t *testing.T) {
 	mediaInit(t, INIT_VIDEO|INIT_AUDIO|INIT_JOYSTICK|INIT_GAMEPAD|INIT_SENSOR|INIT_HAPTIC|INIT_CAMERA)
-	var n int32 = -1
-	if p := GetJoysticks(&n); n != 0 {
-		t.Errorf("joysticks = %v", mediaIDs(p, n))
+	if l := GetJoysticks(); len(l) != 0 {
+		t.Errorf("joysticks = %v", l)
 	}
-	n = -1
-	if p := GetGamepads(&n); n != 0 {
-		t.Errorf("gamepads = %v", mediaIDs(p, n))
+	if l := GetGamepads(); len(l) != 0 {
+		t.Errorf("gamepads = %v", l)
 	}
-	n = -1
-	if p := GetSensors(&n); n != 0 {
-		t.Errorf("sensors = %v", mediaIDs(p, n))
+	if l := GetSensors(); len(l) != 0 {
+		t.Errorf("sensors = %v", l)
 	}
-	n = -1
-	// A host may have real cameras; only check the array is readable.
-	if p := GetCameras(&n); n < 0 || (n > 0) != (p != nil) {
-		t.Errorf("cameras n=%d p=%v", n, p)
-	} else {
-		mediaIDs(p, n)
+	// A host may have real cameras; only check the call works.
+	_ = GetCameras()
+	if l := GetHaptics(); len(l) != 0 {
+		t.Errorf("haptics = %v", l)
 	}
-	n = -1
-	if p := GetHaptics(&n); n != 0 {
-		t.Errorf("haptics = %v", mediaIDs(p, n))
-	}
-	n = -1
-	if p := GetTouchDevices(&n); n != 0 {
-		t.Errorf("touch devices = %v", mediaIDs(p, n))
+	if l := GetTouchDevices(); len(l) != 0 {
+		t.Errorf("touch devices = %v", l)
 	}
 	if HasJoystick() || HasGamepad() {
 		t.Error("unexpected joystick or gamepad")
@@ -495,11 +469,7 @@ func TestMediaAudio(t *testing.T) {
 	if !found {
 		t.Error("dummy audio driver not listed")
 	}
-	var n int32
-	devs := mediaIDs(GetAudioPlaybackDevices(&n), n)
-	if len(devs) != int(n) {
-		t.Errorf("devices %d != %d", len(devs), n)
-	}
+	_ = GetAudioPlaybackDevices()
 
 	var calls atomic.Int32
 	cb := NewAudioStreamCallback(func(_ unsafe.Pointer, s *AudioStream, additional, total int32) {
@@ -564,12 +534,7 @@ func TestMediaMisc(t *testing.T) {
 	if GetPlatform() == "" || GetNumRenderDrivers() < 1 {
 		t.Error("platform or render drivers missing")
 	}
-	var n int32
-	locs := GetPreferredLocales(&n)
-	if locs != nil {
-		_ = unsafe.Slice(locs, n)
-		Free(unsafe.Pointer(locs))
-	}
+	_ = GetPreferredLocales()
 	if GetPixelFormatName(PIXELFORMAT_ARGB8888) != "SDL_PIXELFORMAT_ARGB8888" {
 		t.Errorf("format name = %q", GetPixelFormatName(PIXELFORMAT_ARGB8888))
 	}

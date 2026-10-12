@@ -278,7 +278,7 @@ type GPUComputePipelineCreateInfo struct {
 	// The size in bytes of the compute shader code pointed to.
 	CodeSize uint
 	// A pointer to compute shader code.
-	Code *byte
+	Code *uint8
 	// A pointer to a null-terminated UTF-8 string specifying the entry point function name for the shader.
 	Entrypoint *byte
 	// The format of the compute shader code.
@@ -682,7 +682,7 @@ type GPUShaderCreateInfo struct {
 	// The size in bytes of the code pointed to.
 	CodeSize uint
 	// A pointer to shader code.
-	Code *byte
+	Code *uint8
 	// A pointer to a null-terminated UTF-8 string specifying the entry point function name for the shader.
 	Entrypoint *byte
 	// The format of the shader code.
@@ -1060,7 +1060,7 @@ type GPUBufferUsageFlags uint32
 // Since: SDL 3.2.0.
 //
 // See also: CreateGPUGraphicsPipeline
-type GPUColorComponentFlags byte
+type GPUColorComponentFlags uint8
 
 // Specifies the format of shader code.
 //

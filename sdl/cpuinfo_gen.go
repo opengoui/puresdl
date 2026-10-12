@@ -321,7 +321,7 @@ var fnGetSIMDAlignment func() uint
 //
 // Since: SDL 3.2.0.
 //
-// See also: Aligned_alloc, Aligned_free
+// See also: AlignedAlloc, AlignedFree
 func GetSIMDAlignment() uint {
 	return fnGetSIMDAlignment()
 }

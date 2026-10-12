@@ -83,8 +83,12 @@ var fnGetTouchDevices func(count *int32) *TouchID
 // Returns: a 0 terminated array of touch device IDs or NULL on failure; call GetError() for more information. This should be freed with Free() when it is no longer needed.
 //
 // Since: SDL 3.2.0.
-func GetTouchDevices(count *int32) *TouchID {
-	return fnGetTouchDevices(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetTouchDevices() []TouchID {
+	var n int32
+	p := fnGetTouchDevices(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetTouchDeviceName func(touchID TouchID) *byte
@@ -126,6 +130,10 @@ var fnGetTouchFingers func(touchID TouchID, count *int32) **Finger
 // Returns: a NULL terminated array of Finger pointers or NULL on failure; call GetError() for more information. This is a single allocation that should be freed with Free() when it is no longer needed.
 //
 // Since: SDL 3.2.0.
-func GetTouchFingers(touchID TouchID, count *int32) **Finger {
-	return fnGetTouchFingers(touchID, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetTouchFingers(touchID TouchID) []Finger {
+	var n int32
+	p := fnGetTouchFingers(touchID, &n)
+	return copyFreeDeref(p, int(n))
 }

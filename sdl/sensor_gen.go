@@ -112,8 +112,12 @@ var fnGetSensors func(count *int32) *SensorID
 // Returns: a 0 terminated array of sensor instance IDs or NULL on failure; call GetError() for more information. This should be freed with Free() when it is no longer needed.
 //
 // Since: SDL 3.2.0.
-func GetSensors(count *int32) *SensorID {
-	return fnGetSensors(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetSensors() []SensorID {
+	var n int32
+	p := fnGetSensors(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetSensorNameForID func(instance_id SensorID) *byte

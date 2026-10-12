@@ -151,8 +151,12 @@ var fnGetCameras func(count *int32) *CameraID
 // Since: SDL 3.2.0.
 //
 // See also: OpenCamera
-func GetCameras(count *int32) *CameraID {
-	return fnGetCameras(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetCameras() []CameraID {
+	var n int32
+	p := fnGetCameras(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetCameraSupportedFormats func(instance_id CameraID, count *int32) **CameraSpec
@@ -189,8 +193,12 @@ var fnGetCameraSupportedFormats func(instance_id CameraID, count *int32) **Camer
 // Since: SDL 3.2.0.
 //
 // See also: GetCameras, OpenCamera
-func GetCameraSupportedFormats(instance_id CameraID, count *int32) **CameraSpec {
-	return fnGetCameraSupportedFormats(instance_id, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetCameraSupportedFormats(instance_id CameraID) []CameraSpec {
+	var n int32
+	p := fnGetCameraSupportedFormats(instance_id, &n)
+	return copyFreeDeref(p, int(n))
 }
 
 var fnGetCameraName func(instance_id CameraID) *byte

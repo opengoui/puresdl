@@ -66,7 +66,7 @@ const (
 	SURFACE_LOCK_NEEDED = 2
 	// Surface is currently locked
 	SURFACE_LOCKED = 4
-	// Surface uses pixel memory allocated with Aligned_alloc()
+	// Surface uses pixel memory allocated with AlignedAlloc()
 	SURFACE_SIMD_ALIGNED                 = 8
 	PROP_SURFACE_SDR_WHITE_POINT_FLOAT   = "SDL.surface.SDR_white_point"
 	PROP_SURFACE_HDR_HEADROOM_FLOAT      = "SDL.surface.HDR_headroom"
@@ -376,8 +376,12 @@ var fnGetSurfaceImages func(surface *Surface, count *int32) **Surface
 // Since: SDL 3.2.0.
 //
 // See also: AddSurfaceAlternateImage, RemoveSurfaceAlternateImages, SurfaceHasAlternateImages
-func GetSurfaceImages(surface *Surface, count *int32) **Surface {
-	return fnGetSurfaceImages(surface, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetSurfaceImages(surface *Surface) []*Surface {
+	var n int32
+	p := fnGetSurfaceImages(surface, &n)
+	return copyFree(p, int(n))
 }
 
 var fnRemoveSurfaceAlternateImages func(surface *Surface)
@@ -860,7 +864,7 @@ func SetSurfaceColorMod(surface *Surface, r uint8, g uint8, b uint8) bool {
 	return fnSetSurfaceColorMod(surface, r, g, b)
 }
 
-var fnGetSurfaceColorMod func(surface *Surface, r *byte, g *byte, b *byte) bool
+var fnGetSurfaceColorMod func(surface *Surface, r *uint8, g *uint8, b *uint8) bool
 
 // Get the additional color value multiplied into blit operations.
 //
@@ -877,7 +881,7 @@ var fnGetSurfaceColorMod func(surface *Surface, r *byte, g *byte, b *byte) bool
 // Since: SDL 3.2.0.
 //
 // See also: GetSurfaceAlphaMod, SetSurfaceColorMod
-func GetSurfaceColorMod(surface *Surface, r *byte, g *byte, b *byte) bool {
+func GetSurfaceColorMod(surface *Surface, r *uint8, g *uint8, b *uint8) bool {
 	return fnGetSurfaceColorMod(surface, r, g, b)
 }
 
@@ -905,7 +909,7 @@ func SetSurfaceAlphaMod(surface *Surface, alpha uint8) bool {
 	return fnSetSurfaceAlphaMod(surface, alpha)
 }
 
-var fnGetSurfaceAlphaMod func(surface *Surface, alpha *byte) bool
+var fnGetSurfaceAlphaMod func(surface *Surface, alpha *uint8) bool
 
 // Get the additional alpha value used in blit operations.
 //
@@ -920,7 +924,7 @@ var fnGetSurfaceAlphaMod func(surface *Surface, alpha *byte) bool
 // Since: SDL 3.2.0.
 //
 // See also: GetSurfaceColorMod, SetSurfaceAlphaMod
-func GetSurfaceAlphaMod(surface *Surface, alpha *byte) bool {
+func GetSurfaceAlphaMod(surface *Surface, alpha *uint8) bool {
 	return fnGetSurfaceAlphaMod(surface, alpha)
 }
 
@@ -1673,7 +1677,7 @@ func MapSurfaceRGBA(surface *Surface, r uint8, g uint8, b uint8, a uint8) uint32
 	return fnMapSurfaceRGBA(surface, r, g, b, a)
 }
 
-var fnReadSurfacePixel func(surface *Surface, x int32, y int32, r *byte, g *byte, b *byte, a *byte) bool
+var fnReadSurfacePixel func(surface *Surface, x int32, y int32, r *uint8, g *uint8, b *uint8, a *uint8) bool
 
 // Retrieves a single pixel from a surface as RGBA in the sRGB colorspace.
 //
@@ -1697,7 +1701,7 @@ var fnReadSurfacePixel func(surface *Surface, x int32, y int32, r *byte, g *byte
 // Thread safety: This function can be called on different threads with different surfaces.
 //
 // Since: SDL 3.2.0.
-func ReadSurfacePixel(surface *Surface, x int32, y int32, r *byte, g *byte, b *byte, a *byte) bool {
+func ReadSurfacePixel(surface *Surface, x int32, y int32, r *uint8, g *uint8, b *uint8, a *uint8) bool {
 	return fnReadSurfacePixel(surface, x, y, r, g, b, a)
 }
 

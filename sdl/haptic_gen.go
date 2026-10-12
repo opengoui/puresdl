@@ -507,7 +507,7 @@ type HapticRamp struct {
 }
 
 // Type of coordinates used for haptic direction.
-type HapticDirectionType byte
+type HapticDirectionType uint8
 
 // ID for haptic effects.
 //
@@ -727,8 +727,12 @@ var fnGetHaptics func(count *int32) *HapticID
 // Since: SDL 3.2.0.
 //
 // See also: OpenHaptic
-func GetHaptics(count *int32) *HapticID {
-	return fnGetHaptics(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetHaptics() []HapticID {
+	var n int32
+	p := fnGetHaptics(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetHapticNameForID func(instance_id HapticID) *byte

@@ -71,7 +71,7 @@ type ClipboardEvent struct {
 // Since: SDL 3.2.0.
 type CommonEvent struct {
 	// Event type, shared with all events, Uint32 to cover user events which are not in the EventType enumeration
-	Type     uint32
+	Type     EventType
 	Reserved uint32
 	// In nanoseconds, populated using GetTicksNS()
 	Timestamp uint64
@@ -129,13 +129,13 @@ type Event struct {
 }
 
 // Event type, shared with all events, Uint32 to cover user events which are not in the EventType enumeration
-func (u *Event) Type() uint32 {
-	return *(*uint32)(unsafe.Pointer(u))
+func (u *Event) Type() EventType {
+	return *(*EventType)(unsafe.Pointer(u))
 }
 
 // SetType stores v in the type member.
-func (u *Event) SetType(v uint32) {
-	*(*uint32)(unsafe.Pointer(u)) = v
+func (u *Event) SetType(v EventType) {
+	*(*EventType)(unsafe.Pointer(u)) = v
 }
 
 // Common event data
@@ -1550,7 +1550,7 @@ func PumpEvents() {
 	fnPumpEvents()
 }
 
-var fnPeepEvents func(events *Event, numevents int32, action EventAction, minType uint32, maxType uint32) int32
+var fnPeepEvents func(events *Event, numevents int32, action EventAction, minType EventType, maxType EventType) int32
 
 // Check the event queue for messages and optionally return them.
 //
@@ -1585,11 +1585,11 @@ var fnPeepEvents func(events *Event, numevents int32, action EventAction, minTyp
 // Since: SDL 3.2.0.
 //
 // See also: PollEvent, PumpEvents, PushEvent
-func PeepEvents(events *Event, numevents int32, action EventAction, minType uint32, maxType uint32) int32 {
+func PeepEvents(events *Event, numevents int32, action EventAction, minType EventType, maxType EventType) int32 {
 	return fnPeepEvents(events, numevents, action, minType, maxType)
 }
 
-var fnHasEvent func(type_ uint32) bool
+var fnHasEvent func(type_ EventType) bool
 
 // Check for the existence of a certain event type in the event queue.
 //
@@ -1606,11 +1606,11 @@ var fnHasEvent func(type_ uint32) bool
 // Since: SDL 3.2.0.
 //
 // See also: HasEvents
-func HasEvent(type_ uint32) bool {
+func HasEvent(type_ EventType) bool {
 	return fnHasEvent(type_)
 }
 
-var fnHasEvents func(minType uint32, maxType uint32) bool
+var fnHasEvents func(minType EventType, maxType EventType) bool
 
 // Check for the existence of certain event types in the event queue.
 //
@@ -1627,11 +1627,11 @@ var fnHasEvents func(minType uint32, maxType uint32) bool
 // Since: SDL 3.2.0.
 //
 // See also: HasEvents
-func HasEvents(minType uint32, maxType uint32) bool {
+func HasEvents(minType EventType, maxType EventType) bool {
 	return fnHasEvents(minType, maxType)
 }
 
-var fnFlushEvent func(type_ uint32)
+var fnFlushEvent func(type_ EventType)
 
 // Clear events of a specific type from the event queue.
 //
@@ -1658,11 +1658,11 @@ var fnFlushEvent func(type_ uint32)
 // Since: SDL 3.2.0.
 //
 // See also: FlushEvents
-func FlushEvent(type_ uint32) {
+func FlushEvent(type_ EventType) {
 	fnFlushEvent(type_)
 }
 
-var fnFlushEvents func(minType uint32, maxType uint32)
+var fnFlushEvents func(minType EventType, maxType EventType)
 
 // Clear events of a range of types from the event queue.
 //
@@ -1686,7 +1686,7 @@ var fnFlushEvents func(minType uint32, maxType uint32)
 // Since: SDL 3.2.0.
 //
 // See also: FlushEvent
-func FlushEvents(minType uint32, maxType uint32) {
+func FlushEvents(minType EventType, maxType EventType) {
 	fnFlushEvents(minType, maxType)
 }
 
@@ -1968,7 +1968,7 @@ func FilterEvents(filter EventFilter, userdata unsafe.Pointer) {
 	fnFilterEvents(filter, userdata)
 }
 
-var fnSetEventEnabled func(type_ uint32, enabled bool)
+var fnSetEventEnabled func(type_ EventType, enabled bool)
 
 // Set the state of processing events by type.
 //
@@ -1981,11 +1981,11 @@ var fnSetEventEnabled func(type_ uint32, enabled bool)
 // Since: SDL 3.2.0.
 //
 // See also: EventEnabled
-func SetEventEnabled(type_ uint32, enabled bool) {
+func SetEventEnabled(type_ EventType, enabled bool) {
 	fnSetEventEnabled(type_, enabled)
 }
 
-var fnEventEnabled func(type_ uint32) bool
+var fnEventEnabled func(type_ EventType) bool
 
 // Query the state of processing events by type.
 //
@@ -1999,7 +1999,7 @@ var fnEventEnabled func(type_ uint32) bool
 // Since: SDL 3.2.0.
 //
 // See also: SetEventEnabled
-func EventEnabled(type_ uint32) bool {
+func EventEnabled(type_ EventType) bool {
 	return fnEventEnabled(type_)
 }
 

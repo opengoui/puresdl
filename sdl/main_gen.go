@@ -17,15 +17,15 @@ import (
 //
 // Since: SDL 3.2.0.
 //
-// It holds a C function pointer; create one with NewMain_func.
-type Main_func uintptr
+// It holds a C function pointer; create one with NewMainFunc.
+type MainFunc uintptr
 
-// NewMain_func wraps fn as a C callback of type Main_func.
+// NewMainFunc wraps fn as a C callback of type MainFunc.
 //
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
-func NewMain_func(fn func(argc int32, argv **byte) int32) Main_func {
-	return Main_func(purego.NewCallback(fn))
+func NewMainFunc(fn func(argc int32, argv **byte) int32) MainFunc {
+	return MainFunc(purego.NewCallback(fn))
 }
 
 var fnMain func(argc int32, argv **byte) int32
@@ -82,7 +82,7 @@ func SetMainReady() {
 	fnSetMainReady()
 }
 
-var fnRunApp func(argc int32, argv **byte, mainFunction Main_func, reserved unsafe.Pointer) int32
+var fnRunApp func(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Pointer) int32
 
 // Initializes and launches an SDL application, by doing platform-specific
 // initialization before calling your mainFunction and cleanups after it
@@ -107,7 +107,7 @@ var fnRunApp func(argc int32, argv **byte, mainFunction Main_func, reserved unsa
 // Thread safety: Generally this is called once, near startup, from the process's initial thread.
 //
 // Since: SDL 3.2.0.
-func RunApp(argc int32, argv **byte, mainFunction Main_func, reserved unsafe.Pointer) int32 {
+func RunApp(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Pointer) int32 {
 	return fnRunApp(argc, argv, mainFunction, reserved)
 }
 

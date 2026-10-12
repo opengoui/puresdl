@@ -342,8 +342,12 @@ var fnGetAudioPlaybackDevices func(count *int32) *AudioDeviceID
 // Since: SDL 3.2.0.
 //
 // See also: OpenAudioDevice, GetAudioRecordingDevices
-func GetAudioPlaybackDevices(count *int32) *AudioDeviceID {
-	return fnGetAudioPlaybackDevices(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetAudioPlaybackDevices() []AudioDeviceID {
+	var n int32
+	p := fnGetAudioPlaybackDevices(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetAudioRecordingDevices func(count *int32) *AudioDeviceID
@@ -371,8 +375,12 @@ var fnGetAudioRecordingDevices func(count *int32) *AudioDeviceID
 // Since: SDL 3.2.0.
 //
 // See also: OpenAudioDevice, GetAudioPlaybackDevices
-func GetAudioRecordingDevices(count *int32) *AudioDeviceID {
-	return fnGetAudioRecordingDevices(count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetAudioRecordingDevices() []AudioDeviceID {
+	var n int32
+	p := fnGetAudioRecordingDevices(&n)
+	return copyFree(p, int(n))
 }
 
 var fnGetAudioDeviceName func(devid AudioDeviceID) *byte
@@ -460,8 +468,12 @@ var fnGetAudioDeviceChannelMap func(devid AudioDeviceID, count *int32) *int32
 // Since: SDL 3.2.0.
 //
 // See also: SetAudioStreamInputChannelMap
-func GetAudioDeviceChannelMap(devid AudioDeviceID, count *int32) *int32 {
-	return fnGetAudioDeviceChannelMap(devid, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetAudioDeviceChannelMap(devid AudioDeviceID) []int32 {
+	var n int32
+	p := fnGetAudioDeviceChannelMap(devid, &n)
+	return copyFree(p, int(n))
 }
 
 var fnGetAudioDeviceProperties func(devid AudioDeviceID) PropertiesID
@@ -1162,8 +1174,12 @@ var fnGetAudioStreamInputChannelMap func(stream *AudioStream, count *int32) *int
 // Since: SDL 3.2.0.
 //
 // See also: SetAudioStreamInputChannelMap
-func GetAudioStreamInputChannelMap(stream *AudioStream, count *int32) *int32 {
-	return fnGetAudioStreamInputChannelMap(stream, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetAudioStreamInputChannelMap(stream *AudioStream) []int32 {
+	var n int32
+	p := fnGetAudioStreamInputChannelMap(stream, &n)
+	return copyFree(p, int(n))
 }
 
 var fnGetAudioStreamOutputChannelMap func(stream *AudioStream, count *int32) *int32
@@ -1187,8 +1203,12 @@ var fnGetAudioStreamOutputChannelMap func(stream *AudioStream, count *int32) *in
 // Since: SDL 3.2.0.
 //
 // See also: SetAudioStreamInputChannelMap
-func GetAudioStreamOutputChannelMap(stream *AudioStream, count *int32) *int32 {
-	return fnGetAudioStreamOutputChannelMap(stream, count)
+//
+// The SDL allocation is copied into the returned slice and released.
+func GetAudioStreamOutputChannelMap(stream *AudioStream) []int32 {
+	var n int32
+	p := fnGetAudioStreamOutputChannelMap(stream, &n)
+	return copyFree(p, int(n))
 }
 
 var fnSetAudioStreamInputChannelMap func(stream *AudioStream, chmap *int32, count int32) bool
@@ -1940,7 +1960,7 @@ func SetAudioPostmixCallback(devid AudioDeviceID, callback AudioPostmixCallback,
 	return fnSetAudioPostmixCallback(devid, callback, userdata)
 }
 
-var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **byte, audio_len *uint32) bool
+var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool
 
 // Load the audio data of a WAVE file into memory.
 //
@@ -2010,11 +2030,11 @@ var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **
 // Since: SDL 3.2.0.
 //
 // See also: Free, LoadWAV
-func LoadWAV_IO(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **byte, audio_len *uint32) bool {
+func LoadWAV_IO(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
 	return fnLoadWAV_IO(src, closeio, spec, audio_buf, audio_len)
 }
 
-var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **byte, audio_len *uint32) bool
+var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool
 
 // Loads a WAV from a file path.
 //
@@ -2043,11 +2063,11 @@ var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **byte, audio_len *uin
 // Since: SDL 3.2.0.
 //
 // See also: Free, LoadWAV_IO
-func LoadWAV(path string, spec *AudioSpec, audio_buf **byte, audio_len *uint32) bool {
+func LoadWAV(path string, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
 	return fnLoadWAV(cstr(path), spec, audio_buf, audio_len)
 }
 
-var fnMixAudio func(dst *byte, src *byte, format AudioFormat, len_ uint32, volume float32) bool
+var fnMixAudio func(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume float32) bool
 
 // Mix audio data in a specified format.
 //
@@ -2080,11 +2100,11 @@ var fnMixAudio func(dst *byte, src *byte, format AudioFormat, len_ uint32, volum
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
-func MixAudio(dst *byte, src string, format AudioFormat, len_ uint32, volume float32) bool {
-	return fnMixAudio(dst, cstr(src), format, len_, volume)
+func MixAudio(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume float32) bool {
+	return fnMixAudio(dst, src, format, len_, volume)
 }
 
-var fnConvertAudioSamples func(src_spec *AudioSpec, src_data *byte, src_len int32, dst_spec *AudioSpec, dst_data **byte, dst_len *int32) bool
+var fnConvertAudioSamples func(src_spec *AudioSpec, src_data *uint8, src_len int32, dst_spec *AudioSpec, dst_data **uint8, dst_len *int32) bool
 
 // Convert some audio data of one format to another format.
 //
@@ -2111,8 +2131,8 @@ var fnConvertAudioSamples func(src_spec *AudioSpec, src_data *byte, src_len int3
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
-func ConvertAudioSamples(src_spec *AudioSpec, src_data string, src_len int32, dst_spec *AudioSpec, dst_data **byte, dst_len *int32) bool {
-	return fnConvertAudioSamples(src_spec, cstr(src_data), src_len, dst_spec, dst_data, dst_len)
+func ConvertAudioSamples(src_spec *AudioSpec, src_data *uint8, src_len int32, dst_spec *AudioSpec, dst_data **uint8, dst_len *int32) bool {
+	return fnConvertAudioSamples(src_spec, src_data, src_len, dst_spec, dst_data, dst_len)
 }
 
 var fnGetAudioFormatName func(format AudioFormat) *byte

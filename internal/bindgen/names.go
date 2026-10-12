@@ -27,6 +27,24 @@ func goName(c string) string {
 	if n == "" {
 		n = c
 	}
+	if r := []rune(n)[0]; unicode.IsLower(r) && strings.Contains(n, "_") {
+		parts := strings.Split(n, "_")
+		for i, p := range parts {
+			if v, ok := initialisms[p]; ok {
+				parts[i] = v
+			} else {
+				parts[i] = upperFirst(p)
+			}
+		}
+		var b strings.Builder
+		for i, p := range parts {
+			if i > 0 && len(p) > 0 && unicode.IsDigit(rune(p[0])) {
+				b.WriteByte('_') // keep Murmur3_32 readable
+			}
+			b.WriteString(p)
+		}
+		return b.String()
+	}
 	return upperFirst(n)
 }
 

@@ -94,10 +94,11 @@ func (g *gen) emitConsts() {
 }
 
 type argPlan struct {
-	name string
-	pub  *jen.Statement
-	raw  *jen.Statement
-	expr jen.Code
+	hidden bool // not part of the public signature (slice result count)
+	name   string
+	pub    *jen.Statement
+	raw    *jen.Statement
+	expr   jen.Code
 }
 
 func (g *gen) emitFuncs() {
@@ -125,10 +126,22 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 		printf = true
 	}
+	var sr *sliceRes
+	if !handWritten[f.Name] {
+		sr = g.sliceResult(f)
+	}
 	var plans []argPlan
 	var notes []string
 	for i, p := range sig.Params {
 		name := paramName(p.Name, i)
+		if sr != nil && i == sr.idx {
+			plans = append(plans, argPlan{hidden: true, name: name, raw: jen.Op("*").Add(sr.cnt), expr: jen.Op("&").Id("n")})
+			continue
+		}
+		if ov, ok := paramTypeOverrides[goName(f.Name)+"."+p.Name]; ok {
+			plans = append(plans, argPlan{name: name, pub: jen.Id(ov), raw: jen.Id(ov), expr: jen.Id(name)})
+			continue
+		}
 		if printf && i == len(sig.Params)-1 {
 			plans = append(plans, argPlan{name: name, raw: jen.Op("*").Id("byte"),
 				expr: jen.Id("cprintf").Call(jen.Id("format"), jen.Id("args"))})
@@ -136,7 +149,7 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 		if isCString(p.Type) && p.Type.Resolve().Const {
 			fn := "cstr"
-			if nullableRe.MatchString(p.Doc) {
+			if nullable(p.Doc) {
 				fn = "cstrNull"
 				notes = append(notes, "An empty "+name+" is passed as NULL.")
 			}
@@ -152,7 +165,9 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	}
 	var rawRet, pubRet *jen.Statement
 	retString, retFree := false, false
-	if rr := sig.Ret.Resolve(); rr.Kind != ir.Void {
+	if sr != nil {
+		rawRet, pubRet = sr.raw, sr.pub
+	} else if rr := sig.Ret.Resolve(); rr.Kind != ir.Void {
 		if isCString(sig.Ret) {
 			rawRet, pubRet, retString = jen.Op("*").Id("byte"), jen.String(), true
 			retFree = !rr.Const && freedStringRe.MatchString(f.Doc)
@@ -173,6 +188,9 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	for i, p := range plans {
 		rawParams = append(rawParams, jen.Id(p.name).Add(p.raw))
 		args = append(args, p.expr)
+		if p.hidden {
+			continue
+		}
 		if printf && i == len(plans)-1 {
 			pubParams = append(pubParams, jen.Id("format").String(), jen.Id("args").Op("...").Any())
 			continue
@@ -186,10 +204,13 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	fb := g.file(f.File)
 	fb.funcs = append(fb.funcs, jen.Var().Id(fnVar).Add(rawFn))
 	g.binds = append(g.binds, [2]string{fnVar, f.Name})
+	if handWritten[f.Name] {
+		return ""
+	}
 
 	doc := g.docText(f.Doc)
 	if printf {
-		notes = append(notes, "The message is formatted with fmt.Sprintf before it reaches SDL.")
+		notes = append(notes, "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.")
 	}
 	if len(f.Targets) < 3 {
 		notes = append(notes, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
@@ -201,6 +222,12 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	call := jen.Id(fnVar).Call(args...)
 	var body []jen.Code
 	switch {
+	case sr != nil:
+		doc = append(doc, "", "The SDL allocation is copied into the returned slice and released.")
+		if sr.idx >= 0 {
+			body = []jen.Code{jen.Var().Id("n").Add(sr.cnt)}
+		}
+		body = append(body, sr.finish(call)...)
 	case rawRet == nil:
 		body = []jen.Code{call}
 	case retFree:
@@ -223,4 +250,98 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	fb.funcs = append(fb.funcs, w.Block(body...))
 	_ = fmt.Sprint
 	return ""
+}
+
+// sliceRes describes a function whose result is an SDL_free-able array with
+// an out-parameter holding its length.
+type sliceRes struct {
+	idx      int
+	cnt      *jen.Statement // type of the count variable
+	raw, pub *jen.Statement
+	finish   func(call *jen.Statement) []jen.Code
+}
+
+var countNames = map[string]bool{"count": true, "num_mime_types": true, "datasize": true, "size": true}
+
+// deepCopy lists the structs that SDL returns in an array of pointers whose
+// pointees live in the same allocation as the array.
+var deepCopy = map[string]bool{"SDL_CameraSpec": true, "SDL_DisplayMode": true, "SDL_GamepadBinding": true, "SDL_Finger": true}
+
+func (g *gen) sliceResult(f *ir.Function) *sliceRes {
+	rt := f.Sig.Ret.Resolve()
+	if rt.Kind != ir.Pointer || rt.Const || isCString(f.Sig.Ret) || !freedStringRe.MatchString(f.Doc) {
+		return nil
+	}
+	idx := -1
+	for i, p := range f.Sig.Params {
+		pr := p.Type.Resolve()
+		if pr.Kind == ir.Pointer && countNames[p.Name] && pr.Elem.Resolve().Kind == ir.Int {
+			idx = i
+		}
+	}
+	elem := rt.Elem.Resolve()
+	raw, err := g.typ(f.Sig.Ret)
+	if err != nil {
+		return nil
+	}
+	free := func(helper string, extra ...jen.Code) func(*jen.Statement) []jen.Code {
+		return func(call *jen.Statement) []jen.Code {
+			return []jen.Code{jen.Return(jen.Id(helper).Call(append([]jen.Code{call}, extra...)...))}
+		}
+	}
+	n := jen.Int().Call(jen.Id("n"))
+	_ = n
+	count := func() jen.Code { return jen.Int().Call(jen.Id("n")) }
+	if idx < 0 {
+		// NULL-terminated array of strings
+		if elem.Kind == ir.Pointer && isCString(rt.Elem) {
+			return &sliceRes{idx: -1, raw: raw, pub: jen.Index().String(), cnt: jen.Int(), finish: func(call *jen.Statement) []jen.Code {
+				return []jen.Code{jen.Return(jen.Id("copyFreeStrings0").Call(call))}
+			}}
+		}
+		return nil
+	}
+	cnt, err := g.typ(f.Sig.Params[idx].Type.Resolve().Elem)
+	if err != nil {
+		return nil
+	}
+	sr := &sliceRes{idx: idx, cnt: cnt, raw: raw}
+	switch {
+	case elem.Kind == ir.Void:
+		sr.pub = jen.Index().Byte()
+		sr.finish = func(call *jen.Statement) []jen.Code {
+			return []jen.Code{jen.Id("p").Op(":=").Add(call), jen.Return(jen.Id("copyFreeBytes").Call(jen.Id("p"), count()))}
+		}
+	case elem.Kind == ir.Pointer && isCString(rt.Elem):
+		sr.pub = jen.Index().String()
+		sr.finish = func(call *jen.Statement) []jen.Code {
+			return []jen.Code{jen.Id("p").Op(":=").Add(call), jen.Return(jen.Id("copyFreeStrings").Call(jen.Id("p"), count()))}
+		}
+	case elem.Kind == ir.Pointer:
+		inner := elem.Elem.Resolve()
+		et, err := g.typ(rt.Elem.Resolve().Elem)
+		if err != nil {
+			return nil
+		}
+		helper := "copyFree"
+		pubElem := jen.Op("*").Add(et)
+		if (inner.Kind == ir.Struct || inner.Kind == ir.Union) && deepCopy[inner.Rec.Name] {
+			helper, pubElem = "copyFreeDeref", et
+		}
+		sr.pub = jen.Index().Add(pubElem)
+		sr.finish = func(call *jen.Statement) []jen.Code {
+			return []jen.Code{jen.Id("p").Op(":=").Add(call), jen.Return(jen.Id(helper).Call(jen.Id("p"), count()))}
+		}
+	default:
+		et, err := g.typ(rt.Elem)
+		if err != nil {
+			return nil
+		}
+		sr.pub = jen.Index().Add(et)
+		sr.finish = func(call *jen.Statement) []jen.Code {
+			return []jen.Code{jen.Id("p").Op(":=").Add(call), jen.Return(jen.Id("copyFree").Call(jen.Id("p"), count()))}
+		}
+	}
+	_ = free
+	return sr
 }

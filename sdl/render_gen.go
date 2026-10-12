@@ -1210,7 +1210,7 @@ func SetTextureColorModFloat(texture *Texture, r float32, g float32, b float32) 
 	return fnSetTextureColorModFloat(texture, r, g, b)
 }
 
-var fnGetTextureColorMod func(texture *Texture, r *byte, g *byte, b *byte) bool
+var fnGetTextureColorMod func(texture *Texture, r *uint8, g *uint8, b *uint8) bool
 
 // Get the additional color value multiplied into render copy operations.
 //
@@ -1227,7 +1227,7 @@ var fnGetTextureColorMod func(texture *Texture, r *byte, g *byte, b *byte) bool
 // Since: SDL 3.2.0.
 //
 // See also: GetTextureAlphaMod, GetTextureColorModFloat, SetTextureColorMod
-func GetTextureColorMod(texture *Texture, r *byte, g *byte, b *byte) bool {
+func GetTextureColorMod(texture *Texture, r *uint8, g *uint8, b *uint8) bool {
 	return fnGetTextureColorMod(texture, r, g, b)
 }
 
@@ -1306,7 +1306,7 @@ func SetTextureAlphaModFloat(texture *Texture, alpha float32) bool {
 	return fnSetTextureAlphaModFloat(texture, alpha)
 }
 
-var fnGetTextureAlphaMod func(texture *Texture, alpha *byte) bool
+var fnGetTextureAlphaMod func(texture *Texture, alpha *uint8) bool
 
 // Get the additional alpha value multiplied into render copy operations.
 //
@@ -1321,7 +1321,7 @@ var fnGetTextureAlphaMod func(texture *Texture, alpha *byte) bool
 // Since: SDL 3.2.0.
 //
 // See also: GetTextureAlphaModFloat, GetTextureColorMod, SetTextureAlphaMod
-func GetTextureAlphaMod(texture *Texture, alpha *byte) bool {
+func GetTextureAlphaMod(texture *Texture, alpha *uint8) bool {
 	return fnGetTextureAlphaMod(texture, alpha)
 }
 
@@ -1461,7 +1461,7 @@ func UpdateTexture(texture *Texture, rect *Rect, pixels unsafe.Pointer, pitch in
 	return fnUpdateTexture(texture, rect, pixels, pitch)
 }
 
-var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *byte, Ypitch int32, Uplane *byte, Upitch int32, Vplane *byte, Vpitch int32) bool
+var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool
 
 // Update a rectangle within a planar YV12 or IYUV texture with new pixel
 // data.
@@ -1487,11 +1487,11 @@ var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *byte, Ypitch i
 // Since: SDL 3.2.0.
 //
 // See also: UpdateNVTexture, UpdateTexture
-func UpdateYUVTexture(texture *Texture, rect *Rect, Yplane string, Ypitch int32, Uplane string, Upitch int32, Vplane string, Vpitch int32) bool {
-	return fnUpdateYUVTexture(texture, rect, cstr(Yplane), Ypitch, cstr(Uplane), Upitch, cstr(Vplane), Vpitch)
+func UpdateYUVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool {
+	return fnUpdateYUVTexture(texture, rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch)
 }
 
-var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *byte, Ypitch int32, UVplane *byte, UVpitch int32) bool
+var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool
 
 // Update a rectangle within a planar NV12 or NV21 texture with new pixels.
 //
@@ -1514,8 +1514,8 @@ var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *byte, Ypitch in
 // Since: SDL 3.2.0.
 //
 // See also: UpdateTexture, UpdateYUVTexture
-func UpdateNVTexture(texture *Texture, rect *Rect, Yplane string, Ypitch int32, UVplane string, UVpitch int32) bool {
-	return fnUpdateNVTexture(texture, rect, cstr(Yplane), Ypitch, cstr(UVplane), UVpitch)
+func UpdateNVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool {
+	return fnUpdateNVTexture(texture, rect, Yplane, Ypitch, UVplane, UVpitch)
 }
 
 var fnLockTexture func(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *int32) bool
@@ -2215,7 +2215,7 @@ func SetRenderDrawColorFloat(renderer *Renderer, r float32, g float32, b float32
 	return fnSetRenderDrawColorFloat(renderer, r, g, b, a)
 }
 
-var fnGetRenderDrawColor func(renderer *Renderer, r *byte, g *byte, b *byte, a *byte) bool
+var fnGetRenderDrawColor func(renderer *Renderer, r *uint8, g *uint8, b *uint8, a *uint8) bool
 
 // Get the color used for drawing operations (Rect, Line and Clear).
 //
@@ -2233,7 +2233,7 @@ var fnGetRenderDrawColor func(renderer *Renderer, r *byte, g *byte, b *byte, a *
 // Since: SDL 3.2.0.
 //
 // See also: GetRenderDrawColorFloat, SetRenderDrawColor
-func GetRenderDrawColor(renderer *Renderer, r *byte, g *byte, b *byte, a *byte) bool {
+func GetRenderDrawColor(renderer *Renderer, r *uint8, g *uint8, b *uint8, a *uint8) bool {
 	return fnGetRenderDrawColor(renderer, r, g, b, a)
 }
 
@@ -3133,7 +3133,7 @@ var fnRenderDebugTextFormat func(renderer *Renderer, x float32, y float32, fmt_ 
 //
 // See also: RenderDebugText, DEBUG_TEXT_FONT_CHARACTER_SIZE
 //
-// The message is formatted with fmt.Sprintf before it reaches SDL.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
 func RenderDebugTextFormat(renderer *Renderer, x float32, y float32, format string, args ...any) bool {
 	return fnRenderDebugTextFormat(renderer, x, y, cprintf(format, args))
 }
