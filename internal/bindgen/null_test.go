@@ -62,6 +62,9 @@ func sdlInclude(t *testing.T) string {
 			return d
 		}
 	}
+	if os.Getenv("CI") != "" {
+		t.Fatal("SDL3 headers not found on CI; set SDL_INCLUDE to the pinned header checkout")
+	}
 	t.Skip("SDL3 headers not found; set SDL_INCLUDE")
 	return ""
 }

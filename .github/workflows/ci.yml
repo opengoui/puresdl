@@ -90,6 +90,14 @@ jobs:
           $dll = Get-ChildItem "$env:RUNNER_TEMP\sdl3" -Recurse -Filter SDL3.dll | Select-Object -First 1
           "SDL3_LIBRARY=$($dll.FullName)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
 
+      # The generator tests read the same pinned headers the checked-in
+      # bindings were generated from (they fail instead of skipping on CI).
+      - name: Fetch SDL headers
+        shell: bash
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/libsdl-org/SDL.git "$RUNNER_TEMP/SDL"
+          git -C "$RUNNER_TEMP/SDL" checkout "$SDL_HEADERS_REF"
+          echo "SDL_INCLUDE=$RUNNER_TEMP/SDL/include" >> "$GITHUB_ENV"
       - name: test
         run: go test ./... -count=1
       - name: example
