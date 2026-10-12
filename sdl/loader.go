@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"unsafe"
 )
@@ -130,4 +131,25 @@ func GoString(p *byte) string {
 		n++
 	}
 	return string(unsafe.Slice(p, n))
+}
+
+// cstr returns a NUL-terminated copy of s.
+func cstr(s string) *byte { return CString(s) }
+
+// cstrNull is like cstr but maps the empty string to NULL.
+func cstrNull(s string) *byte {
+	if s == "" {
+		return nil
+	}
+	return CString(s)
+}
+
+// cprintf formats a printf-style message and escapes it so that SDL's own
+// format processing prints it verbatim. No C varargs are involved.
+func cprintf(format string, args []any) *byte {
+	msg := format
+	if len(args) > 0 {
+		msg = fmt.Sprintf(format, args...)
+	}
+	return CString(strings.ReplaceAll(msg, "%", "%%"))
 }
