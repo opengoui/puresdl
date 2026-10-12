@@ -183,3 +183,16 @@ func TestMissingSymbolPanics(t *testing.T) {
 	}
 	t.Logf("first symbol absent from this build: %s", missing)
 }
+
+func TestGUIDABILayout(t *testing.T) {
+	if unsafe.Sizeof(guidABI{}) != unsafe.Sizeof(GUID{}) {
+		t.Fatalf("guidABI layout differs from GUID")
+	}
+	var g GUID
+	for i := range g.Data {
+		g.Data[i] = byte(i + 1)
+	}
+	if got := guidToABI(g).guid(); got != g {
+		t.Errorf("round trip = %v, want %v", got, g)
+	}
+}

@@ -181,10 +181,14 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		if err != nil {
 			return "parameter " + name + ": " + err.Error()
 		}
+		if isGUID(p.Type) {
+			plans = append(plans, argPlan{name: name, pub: t, raw: jen.Id("guidABI"), expr: jen.Id("guidToABI").Call(jen.Id(name))})
+			continue
+		}
 		plans = append(plans, argPlan{name: name, pub: t, raw: t, expr: jen.Id(name)})
 	}
 	var rawRet, pubRet *jen.Statement
-	retString, retFree := false, false
+	retString, retFree, guidRet := false, false, false
 	if sr != nil {
 		rawRet, pubRet = sr.raw, sr.pub
 	} else if rr := sig.Ret.Resolve(); rr.Kind != ir.Void {
@@ -197,6 +201,9 @@ func (g *gen) bindFunc(f *ir.Function) string {
 				return "result: " + err.Error()
 			}
 			rawRet, pubRet = t, t
+			if isGUID(sig.Ret) {
+				rawRet, guidRet = jen.Id("guidABI"), true
+			}
 		}
 	}
 	n := goName(f.Name)
@@ -269,6 +276,8 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 	case retString:
 		body = []jen.Code{jen.Return(jen.Id("GoString").Call(call))}
+	case guidRet:
+		body = []jen.Code{jen.Return(call.Dot("guid").Call())}
 	default:
 		body = []jen.Code{jen.Return(call)}
 	}
@@ -292,6 +301,11 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	_ = fmt.Sprint
 	return ""
 }
+
+// isGUID reports whether t is SDL_GUID. purego mis-classifies 16-byte structs
+// whose only field is an array on amd64, so GUIDs cross the C boundary as the
+// equivalent guidABI (two uint64 words) and are converted in the wrapper.
+func isGUID(t *ir.Type) bool { return t.Kind == ir.Named && t.Name == "SDL_GUID" }
 
 // sliceRes describes a function whose result is an SDL_free-able array with
 // an out-parameter holding its length.

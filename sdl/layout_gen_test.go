@@ -10,6 +10,9 @@ import (
 // TestGeneratedLayout compares every generated struct with the layout the C
 // front end computed from the headers.
 func TestGeneratedLayout(t *testing.T) {
+	if unsafe.Sizeof(uintptr(0)) != 8 {
+		t.Skip("layout expectations are for 64-bit targets")
+	}
 	checkLayout(t, "AssertData", unsafe.Sizeof(AssertData{}), unsafe.Alignof(AssertData{}), 48, 8)
 	checkOffset(t, "AssertData.AlwaysIgnore", unsafe.Offsetof(AssertData{}.AlwaysIgnore), 0)
 	checkOffset(t, "AssertData.TriggerCount", unsafe.Offsetof(AssertData{}.TriggerCount), 4)

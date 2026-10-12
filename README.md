@@ -73,8 +73,8 @@ puresdl 运行时需要 SDL3 动态库（本仓库按 3.4.x 动态库测试，�
 | 平台 | 安装 | 搜索顺序 |
 | --- | --- | --- |
 | macOS | `brew install sdl3` | `SDL3_LIBRARY`，`libSDL3.dylib`，`libSDL3.0.dylib`，`/opt/homebrew/lib`，`/usr/local/lib`，`/opt/local/lib`，`SDL3.framework` |
-| Linux | `apt install libsdl3-0`（发行版需提供 SDL3；否则自行从源码构建） | `SDL3_LIBRARY`，`libSDL3.so.0`，`libSDL3.so` |
-| Windows | 从 [SDL releases](https://github.com/libsdl-org/SDL/releases) 下载 `SDL3.dll`，放在可执行文件旁或 `PATH` 中 | `SDL3_LIBRARY`，`SDL3.dll` |
+| Linux | `apt install libsdl3-0`（发行版需提供 SDL3；否则自行从源码构建） | `SDL3_LIBRARY`，`libSDL3.so.0`，`libSDL3.so`（先走动态链接器，再试 `/usr/lib/<multiarch>`、`/usr/lib64`、`/usr/local/lib`、`/usr/lib`） |
+| Windows | 从 [SDL releases](https://github.com/libsdl-org/SDL/releases) 下载 `SDL3.dll`，放在可执行文件旁或 `PATH` 中 | `SDL3_LIBRARY`，可执行文件所在目录的 `SDL3.dll`，`SDL3.dll`（系统 DLL 搜索顺序） |
 
 也可以设置环境变量 `SDL3_LIBRARY=/path/to/libSDL3.dylib`，或在代码里调用 `sdl.Load(path)`。`sdl.LoadError()` 返回加载失败原因（成功为 nil），`sdl.Available("SDL_Init")` 查询某个符号是否存在于已加载的库中。
 
@@ -123,6 +123,13 @@ CGO_ENABLED=0 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy go test ./...
 
 找不到 libSDL3 时，`sdl` 包的运行时测试会被跳过。
 
+### 平台验证状态
+
+- darwin/arm64：本机完整测试。
+- linux/amd64、linux/arm64：在 Docker（Ubuntu 26.04，`libsdl3-0` 3.4.2，`SDL_VIDEODRIVER=dummy`，amd64 为 QEMU 模拟）中跑通 `sdl` 测试与 `examples/hello`。
+- windows/amd64、windows/arm64、darwin/amd64：只做交叉编译与 `go vet`（CI 在真机上运行测试，见 `.github/workflows/ci.yml`）。
+- 32 位目标（linux/386、linux/arm、windows/386）：包可以编译，但 purego 在 32 位上不支持按值传递结构体，所以 `Load` 直接返回 `sdl.ErrUnsupportedArch`，不会绑定任何函数。
+
 ## 已知限制
 
 完整清单见 [docs/skipped.txt](docs/skipped.txt)（当前共 138 项：135 个 libc 替代函数 + 3 个 `va_list` 函数）。
@@ -131,6 +138,8 @@ CGO_ENABLED=0 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy go test ./...
 - **`wchar_t`**：映射为手写的 `sdl.Wchar`（非 Windows 为 `int32`，Windows 为 `uint16`），辅助函数 `WcharString(*Wchar) string` 与 `WcharCString(string) []Wchar` 负责与 Go 字符串互转（含 UTF-16 代理对）。`const wchar_t*` 输入（`HIDOpen` 的 `serial_number`）由包装函数接受 `string`，空串传 NULL；输出缓冲区（`HIDGet*String`）和 `HIDDeviceInfo` 的字符串字段使用 `*Wchar`。
 - **libc 替代函数**：`SDL_stdinc.h` 中的字符串、数学、内存拷贝、字符分类等（`SDL_strlen`、`SDL_sin`、`SDL_memcpy`…，约 135 个）在 Go 里有标准库等价物，不绑定；保留的只有 `malloc/free` 系列、环境变量、随机数、CRC/murmur、iconv、断言相关等。
 - **仅限特定平台的函数**：一些函数只在部分平台的头文件里声明（仅 Windows 的 `SDL_RegisterApp`、`SDL_SetWindowsMessageHook`、`SDL_GetDXGIOutputInfo`，仅 Linux 的 `SDL_SetLinuxThreadPriority`、`SDL_IsUbuntuTouch` 等）。三个目标（darwin/arm64、linux/amd64、windows/amd64）取并集，其文档会注明 “Only declared by the SDL headers for …”；在其他平台调用会因符号缺失而 panic。
+- **32 位目标**：见上文“平台验证状态”，只能编译，不能使用。
+- **GUID 按值传递**：purego 在 amd64 上会错误分类“只含一个数组字段的 16 字节结构体”，所以 `SDL_GUID` 在 C 边界上用等价的 `guidABI`（两个 `uint64`）传递，对外 API 仍是 `sdl.GUID`。
 - **回调上限**：purego 每进程约 2000 个回调，且不能释放。Windows 上回调也不支持结构体参数。
 - **SDL 3.4 与 3.5**：头文件是 3.5.0，但常见发行版动态库是 3.4.x，约 30 个新函数在旧库里不存在（用 3.4.18 实测：1147 个绑定中 32 个缺失，其中 `SDL_main`、`SDL_IsUbuntuTouch` 这类只属于特定平台或构建的符号也算在内）。它们仍有 Go 签名，但调用时 panic 并提示 `sdl: SDL_Xxx is not available in the loaded SDL3 library`；用 `sdl.Available(...)` 提前检测，或用 `sdl.GetVersion()` 判断版本。
 - `SDL_main` 式的回调入口（`SDL_RunApp`、`SDL_EnterAppMainCallbacks`）虽然有绑定，但在 Go 程序里不适用，请自己写 `main`。

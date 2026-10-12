@@ -905,6 +905,9 @@ func TestCoreTimerNSAndRemove(t *testing.T) {
 	if !RemoveTimer(id) {
 		t.Error(GetError())
 	}
+	// A callback already in flight when RemoveTimer returns may still finish,
+	// so take the baseline after a settling delay.
+	time.Sleep(40 * time.Millisecond)
 	n := calls.Load()
 	time.Sleep(40 * time.Millisecond)
 	if n < 2 || calls.Load() != n {
@@ -926,6 +929,11 @@ func TestCoreThreads(t *testing.T) {
 	}
 	if GetThreadName(th) != "core-worker" {
 		t.Errorf("thread name = %q", GetThreadName(th))
+	}
+	// SDL publishes the thread ID from the new thread, so read it only after
+	// the worker has started.
+	for deadline := time.Now().Add(5 * time.Second); tid.Load() == 0 && time.Now().Before(deadline); {
+		time.Sleep(time.Millisecond)
 	}
 	id := GetThreadID(th)
 	var status int32

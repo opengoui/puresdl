@@ -1,9 +1,6 @@
 package sdl
 
-import (
-	"testing"
-	"unsafe"
-)
+import "testing"
 
 func checkLayout(t *testing.T, name string, gotSize, gotAlign uintptr, wantSize, wantAlign int) {
 	t.Helper()
@@ -16,11 +13,5 @@ func checkOffset(t *testing.T, name string, got uintptr, want int) {
 	t.Helper()
 	if int(got) != want {
 		t.Errorf("%s: offset = %d, C has %d", name, got, want)
-	}
-}
-
-func init() {
-	if unsafe.Sizeof(uintptr(0)) != 8 {
-		panic("sdl layout tests assume a 64-bit target")
 	}
 }

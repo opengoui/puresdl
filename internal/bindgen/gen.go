@@ -208,7 +208,12 @@ func (g *gen) layoutFile() *jen.File {
 	f := g.newFile()
 	f.ImportName("unsafe", "unsafe")
 	sort.Slice(g.layouts, func(i, j int) bool { return g.layouts[i].goName < g.layouts[j].goName })
-	var body []jen.Code
+	// The expected sizes come from a 64-bit C front end, so 32-bit targets skip.
+	body := []jen.Code{
+		jen.If(jen.Qual("unsafe", "Sizeof").Call(jen.Uintptr().Call(jen.Lit(0))).Op("!=").Lit(8)).Block(
+			jen.Id("t").Dot("Skip").Call(jen.Lit("layout expectations are for 64-bit targets")),
+		),
+	}
 	for _, l := range g.layouts {
 		typ := jen.Id(l.goName).Values()
 		body = append(body, jen.Id("checkLayout").Call(jen.Id("t"), jen.Lit(l.goName),

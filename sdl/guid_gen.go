@@ -21,7 +21,7 @@ type GUID struct {
 	Data [16]uint8
 }
 
-var fnGUIDToString func(guid GUID, pszGUID *byte, cbGUID int32)
+var fnGUIDToString func(guid guidABI, pszGUID *byte, cbGUID int32)
 
 // Get an ASCII string representation for a given GUID.
 //
@@ -36,10 +36,10 @@ var fnGUIDToString func(guid GUID, pszGUID *byte, cbGUID int32)
 //
 // See also: StringToGUID
 func GUIDToString(guid GUID, pszGUID *byte, cbGUID int32) {
-	fnGUIDToString(guid, pszGUID, cbGUID)
+	fnGUIDToString(guidToABI(guid), pszGUID, cbGUID)
 }
 
-var fnStringToGUID func(pchGUID *byte) GUID
+var fnStringToGUID func(pchGUID *byte) guidABI
 
 // Convert a GUID string into a GUID structure.
 //
@@ -58,5 +58,5 @@ var fnStringToGUID func(pchGUID *byte) GUID
 //
 // See also: GUIDToString
 func StringToGUID(pchGUID string) GUID {
-	return fnStringToGUID(cstr(pchGUID))
+	return fnStringToGUID(cstr(pchGUID)).guid()
 }

@@ -26,6 +26,10 @@ var (
 // been loaded yet.
 var ErrNotLoaded = errors.New("sdl: library not loaded")
 
+// ErrUnsupportedArch is reported by [LoadError] on 32-bit targets, where
+// purego cannot pass structs by value. The package still compiles there.
+var ErrUnsupportedArch = errors.New("sdl: 32-bit targets are not supported")
+
 func init() {
 	// A failure here is not fatal: it is recorded and reported by LoadError
 	// so that importing the package never panics on machines without SDL3.
@@ -41,6 +45,12 @@ func Load(path string) error {
 	defer loadMu.Unlock()
 	if loaded {
 		return nil
+	}
+	if unsafe.Sizeof(uintptr(0)) != 8 {
+		// purego cannot pass structs by value on 32-bit targets, which many
+		// SDL functions need, so binding would panic. Fail cleanly instead.
+		loadErr = ErrUnsupportedArch
+		return loadErr
 	}
 	candidates := libraryCandidates()
 	if path != "" {

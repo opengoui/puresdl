@@ -413,7 +413,7 @@ func GetGamepadMappings() []string {
 	return copyFreeStrings(p, int(n))
 }
 
-var fnGetGamepadMappingForGUID func(guid GUID) *byte
+var fnGetGamepadMappingForGUID func(guid guidABI) *byte
 
 // Get the gamepad mapping string for a given GUID.
 //
@@ -428,7 +428,7 @@ var fnGetGamepadMappingForGUID func(guid GUID) *byte
 //
 // See also: GetJoystickGUIDForID, GetJoystickGUID
 func GetGamepadMappingForGUID(guid GUID) string {
-	p := fnGetGamepadMappingForGUID(guid)
+	p := fnGetGamepadMappingForGUID(guidToABI(guid))
 	if p == nil {
 		return ""
 	}
@@ -601,7 +601,7 @@ func GetGamepadPlayerIndexForID(instance_id JoystickID) int32 {
 	return fnGetGamepadPlayerIndexForID(instance_id)
 }
 
-var fnGetGamepadGUIDForID func(instance_id JoystickID) GUID
+var fnGetGamepadGUIDForID func(instance_id JoystickID) guidABI
 
 // Get the implementation-dependent GUID of a gamepad.
 //
@@ -618,7 +618,7 @@ var fnGetGamepadGUIDForID func(instance_id JoystickID) GUID
 //
 // See also: GUIDToString, GetGamepads
 func GetGamepadGUIDForID(instance_id JoystickID) GUID {
-	return fnGetGamepadGUIDForID(instance_id)
+	return fnGetGamepadGUIDForID(instance_id).guid()
 }
 
 var fnGetGamepadVendorForID func(instance_id JoystickID) uint16

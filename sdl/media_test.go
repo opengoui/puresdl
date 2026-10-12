@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"math"
 	"runtime"
 	"sync/atomic"
 	"testing"
@@ -422,8 +423,12 @@ func TestMediaEmptyDeviceLists(t *testing.T) {
 	if l := GetHaptics(); len(l) != 0 {
 		t.Errorf("haptics = %v", l)
 	}
-	if l := GetTouchDevices(); len(l) != 0 {
-		t.Errorf("touch devices = %v", l)
+	// SDL lists its virtual mouse and pen touch devices (IDs -1 and -2)
+	// on some platforms; only real devices count.
+	for _, id := range GetTouchDevices() {
+		if id != TouchID(math.MaxUint64) && id != TouchID(math.MaxUint64-1) {
+			t.Errorf("unexpected touch device %d", id)
+		}
 	}
 	if HasJoystick() || HasGamepad() {
 		t.Error("unexpected joystick or gamepad")

@@ -319,7 +319,7 @@ func GetJoystickPlayerIndexForID(instance_id JoystickID) int32 {
 	return fnGetJoystickPlayerIndexForID(instance_id)
 }
 
-var fnGetJoystickGUIDForID func(instance_id JoystickID) GUID
+var fnGetJoystickGUIDForID func(instance_id JoystickID) guidABI
 
 // Get the implementation-dependent GUID of a joystick.
 //
@@ -336,7 +336,7 @@ var fnGetJoystickGUIDForID func(instance_id JoystickID) GUID
 //
 // See also: GetJoystickGUID, GUIDToString
 func GetJoystickGUIDForID(instance_id JoystickID) GUID {
-	return fnGetJoystickGUIDForID(instance_id)
+	return fnGetJoystickGUIDForID(instance_id).guid()
 }
 
 var fnGetJoystickVendorForID func(instance_id JoystickID) uint16
@@ -813,7 +813,7 @@ func SetJoystickPlayerIndex(joystick *Joystick, player_index int32) bool {
 	return fnSetJoystickPlayerIndex(joystick, player_index)
 }
 
-var fnGetJoystickGUID func(joystick *Joystick) GUID
+var fnGetJoystickGUID func(joystick *Joystick) guidABI
 
 // Get the implementation-dependent GUID for the joystick.
 //
@@ -830,7 +830,7 @@ var fnGetJoystickGUID func(joystick *Joystick) GUID
 //
 // See also: GetJoystickGUIDForID, GUIDToString
 func GetJoystickGUID(joystick *Joystick) GUID {
-	return fnGetJoystickGUID(joystick)
+	return fnGetJoystickGUID(joystick).guid()
 }
 
 var fnGetJoystickVendor func(joystick *Joystick) uint16
@@ -947,7 +947,7 @@ func GetJoystickType(joystick *Joystick) JoystickType {
 	return fnGetJoystickType(joystick)
 }
 
-var fnGetJoystickGUIDInfo func(guid GUID, vendor *uint16, product *uint16, version *uint16, crc16 *uint16)
+var fnGetJoystickGUIDInfo func(guid guidABI, vendor *uint16, product *uint16, version *uint16, crc16 *uint16)
 
 // Get the device information encoded in a GUID structure.
 //
@@ -964,7 +964,7 @@ var fnGetJoystickGUIDInfo func(guid GUID, vendor *uint16, product *uint16, versi
 //
 // See also: GetJoystickGUIDForID
 func GetJoystickGUIDInfo(guid GUID, vendor *uint16, product *uint16, version *uint16, crc16 *uint16) {
-	fnGetJoystickGUIDInfo(guid, vendor, product, version, crc16)
+	fnGetJoystickGUIDInfo(guidToABI(guid), vendor, product, version, crc16)
 }
 
 var fnJoystickConnected func(joystick *Joystick) bool
