@@ -259,7 +259,9 @@ func (c *converter) collectConsts(ast *cc.AST) {
 		default:
 			continue
 		}
-		if e.name == "SDL_LINE" || e.name == "SDL_FILE" || e.name == "SDL_FUNCTION" {
+		if e.name == "SDL_LINE" || e.name == "SDL_FILE" || e.name == "SDL_FUNCTION" || e.name == "SDL_ASSERT_FILE" {
+			// these expand to __FILE__/__LINE__/__func__ and would make the
+			// output depend on where the headers live
 			continue
 		}
 		src := c.src.get(e.pos.file)

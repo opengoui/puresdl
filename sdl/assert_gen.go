@@ -81,7 +81,6 @@ const (
 )
 const (
 	ASSERT_LEVEL              = 2
-	ASSERT_FILE               = "/Users/tbxark/Repos/opengoui/SDL/include/SDL3/SDL_assert.h"
 	NULL_WHILE_LOOP_CONDITION = 0
 )
 
