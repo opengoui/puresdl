@@ -1,6 +1,6 @@
 # puresdl
 
-[English](README.en.md) | [简体中文](README.md)
+[Main README](README.md)
 
 `puresdl` is a pure Go binding for SDL 3 (`github.com/opengoui/puresdl`, package `sdl`). It uses [purego](https://github.com/ebitengine/purego) to load SDL 3 at runtime, so it needs no cgo or C toolchain and can be cross-compiled with `CGO_ENABLED=0`.
 
