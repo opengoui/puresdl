@@ -1,0 +1,83 @@
+name: sdl-update
+
+# Weekly check for a new official SDL release. When there is one, regenerate
+# the bindings from its headers and open a pull request.
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CGO_ENABLED: "0"
+  GITHUB_TOKEN: ${{ github.token }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Update SDL_VERSION and regenerate
+        run: go run ./cmd/sdlsync -latest -write -generate
+
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - name: vet
+        run: go vet ./...
+      - name: test
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          export SDL_INCLUDE="$(go run ./cmd/sdlsync -print-include)"
+          go test ./... -count=1
+
+      - name: Summarise the change
+        id: summary
+        run: |
+          if git diff --quiet -- SDL_VERSION; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "SDL_VERSION is already up to date ($(cat SDL_VERSION))."
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          new="$(tr -d '[:space:]' < SDL_VERSION)"
+          old="$(git show HEAD:SDL_VERSION | tr -d '[:space:]')"
+          {
+            echo "body<<EOF_SUMMARY"
+            echo "Updates the pinned SDL release from \`$old\` to \`$new\` and regenerates the bindings with \`go run ./cmd/sdlsync -latest -write -generate\`."
+            echo
+            echo "gofmt, go vet and go test passed on this branch."
+            echo
+            echo '```'
+            git diff --stat | tail -n 25
+            echo '```'
+            echo
+            echo "Review \`docs/skipped.txt\` and the symbols removed from or added to \`sdl/bind_gen.go\`; hand-written code or \`internal/bindgen/policy.go\` may need follow-up commits."
+            echo "EOF_SUMMARY"
+          } >> "$GITHUB_OUTPUT"
+
+      # Pinned by major tag; update to a commit SHA if stricter supply-chain
+      # pinning is wanted.
+      - name: Open pull request
+        if: steps.summary.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: sdl-update
+          commit-message: "feat(sdl): update to the latest SDL release"
+          title: "feat(sdl): update to the latest SDL release"
+          body: ${{ steps.summary.outputs.body }}
+          add-paths: |
+            SDL_VERSION
+            sdl
+            docs/skipped.txt

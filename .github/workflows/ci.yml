@@ -10,13 +10,8 @@ permissions:
 
 env:
   CGO_ENABLED: "0"
-  # Runtime library the tests run against (the headers used for generation
-  # are newer; missing symbols are handled by sdl.Available).
-  SDL_RUNTIME_TAG: release-3.4.2
-  SDL_RUNTIME_VERSION: 3.4.2
-  # Commit of libsdl-org/SDL whose headers the checked-in bindings were
-  # generated from (they report SDL 3.5.0, which has no release tag yet).
-  SDL_HEADERS_REF: 30bbdedde042b2d4e78ec9e81d2d575a0e6a7321
+  # The SDL release the bindings are generated from is pinned in the
+  # SDL_VERSION file; cmd/sdlsync downloads its headers.
 
 jobs:
   lint:
@@ -55,6 +50,15 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # Run the SDL3 library of the pinned release so that sdl/abi_test.go
+      # compares the bindings with exactly the library they were generated for.
+      - name: Read pinned SDL release
+        shell: bash
+        run: |
+          tag="$(tr -d '[:space:]' < SDL_VERSION)"
+          echo "SDL_RUNTIME_TAG=$tag" >> "$GITHUB_ENV"
+          echo "SDL_RUNTIME_VERSION=${tag#release-}" >> "$GITHUB_ENV"
+
       - name: Install SDL3 (Linux, built from source)
         if: runner.os == 'Linux'
         uses: actions/cache@v4
@@ -90,14 +94,11 @@ jobs:
           $dll = Get-ChildItem "$env:RUNNER_TEMP\sdl3" -Recurse -Filter SDL3.dll | Select-Object -First 1
           "SDL3_LIBRARY=$($dll.FullName)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
 
-      # The generator tests read the same pinned headers the checked-in
-      # bindings were generated from (they fail instead of skipping on CI).
-      - name: Fetch SDL headers
+      # The generator tests read the headers of the pinned release (they
+      # fail instead of skipping on CI).
+      - name: Sync SDL headers
         shell: bash
-        run: |
-          git clone --filter=blob:none --no-checkout https://github.com/libsdl-org/SDL.git "$RUNNER_TEMP/SDL"
-          git -C "$RUNNER_TEMP/SDL" checkout "$SDL_HEADERS_REF"
-          echo "SDL_INCLUDE=$RUNNER_TEMP/SDL/include" >> "$GITHUB_ENV"
+        run: echo "SDL_INCLUDE=$(go run ./cmd/sdlsync -print-include)" >> "$GITHUB_ENV"
       - name: test
         run: go test ./... -count=1
       - name: example
@@ -111,12 +112,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Fetch SDL headers
-        run: |
-          git clone --filter=blob:none --no-checkout https://github.com/libsdl-org/SDL.git "$RUNNER_TEMP/SDL"
-          git -C "$RUNNER_TEMP/SDL" checkout "$SDL_HEADERS_REF"
-      - name: Regenerate
-        run: go run ./cmd/gensdl -include "$RUNNER_TEMP/SDL/include" -out sdl -skipped docs/skipped.txt
+      - name: Check generated code against the pinned SDL release
+        run: go run ./cmd/sdlsync -check
       - name: Fail on diff
         run: |
           git status --short
