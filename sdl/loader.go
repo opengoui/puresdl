@@ -19,7 +19,9 @@ var (
 	loadErr error
 	loaded  bool
 	handle  uintptr
-	missing = map[string]struct{}{}
+	// loadedPath is the candidate (path or bare name) that opened handle.
+	loadedPath string
+	missing    = map[string]struct{}{}
 )
 
 // ErrNotLoaded is returned by [LoadError] when the shared library has not
@@ -36,14 +38,28 @@ func init() {
 	_ = Load("")
 }
 
-// Load locates and binds the SDL3 shared library. An empty path searches
-// the SDL3_LIBRARY environment variable followed by the platform defaults.
-// It runs once automatically when the package is imported; call it again
-// with an explicit path only if the automatic load failed.
+// Load locates and binds the SDL3 shared library.
+//
+// An empty path searches the SDL3_LIBRARY environment variable followed by
+// the platform defaults; it runs once automatically when the package is
+// imported and is a no-op while a library is loaded.
+//
+// A non-empty path loads exactly that library. If a different library is
+// already loaded (for example a system copy found at import time), Load
+// switches to the new one: it opens path, rebinds every function and updates
+// [LoadedPath]. Loading the path that is already loaded is a no-op. If path
+// cannot be opened, Load returns the error and the previous library stays
+// loaded and usable. The previous library is never unloaded.
+//
+// Switching is not safe concurrently with SDL calls: do it before using SDL,
+// from one goroutine. Function values that callers captured earlier stay
+// valid because the wrappers call package-level variables that are rebound.
+// Objects created by the previous library (windows, callbacks) must not be
+// passed to the new one.
 func Load(path string) error {
 	loadMu.Lock()
 	defer loadMu.Unlock()
-	if loaded {
+	if loaded && (path == "" || path == loadedPath) {
 		return nil
 	}
 	if unsafe.Sizeof(uintptr(0)) != 8 {
@@ -58,21 +74,36 @@ func Load(path string) error {
 	} else if env := os.Getenv(LibraryEnv); env != "" {
 		candidates = append([]string{env}, candidates...)
 	}
-	h, err := openFirst(candidates)
+	h, from, err := openFirst(candidates)
 	if err != nil {
-		loadErr = err
-		return loadErr
+		if !loaded {
+			loadErr = err
+		}
+		return err
 	}
-	handle = h
+	handle, loadedPath = h, from
 	clear(missing)
 	bindAll()
 	loaded, loadErr = true, nil
 	return nil
 }
 
-// openFirst opens the first candidate that loads. The error joins every
-// failure.
-func openFirst(candidates []string) (uintptr, error) {
+// LoadedPath returns the path or library name that the currently loaded SDL3
+// library was opened with, or "" when none is loaded. For a library found
+// through the platform defaults this is the matching candidate, such as
+// "libSDL3.so.0", not necessarily an absolute path.
+func LoadedPath() string {
+	loadMu.Lock()
+	defer loadMu.Unlock()
+	if !loaded {
+		return ""
+	}
+	return loadedPath
+}
+
+// openFirst opens the first candidate that loads and returns it. The error
+// joins every failure.
+func openFirst(candidates []string) (uintptr, string, error) {
 	var errs []error
 	for _, c := range candidates {
 		h, err := openLibrary(c)
@@ -80,9 +111,9 @@ func openFirst(candidates []string) (uintptr, error) {
 			errs = append(errs, err)
 			continue
 		}
-		return h, nil
+		return h, c, nil
 	}
-	return 0, fmt.Errorf("sdl: cannot load SDL3: %w", errors.Join(errs...))
+	return 0, "", fmt.Errorf("sdl: cannot load SDL3: %w", errors.Join(errs...))
 }
 
 // LoadError reports why the shared library could not be loaded, or nil if

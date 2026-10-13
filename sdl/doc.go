@@ -10,6 +10,11 @@
 // installed SDL3 does not export panic with a descriptive message when
 // called; [Available] tests for a symbol.
 //
+// [Load] with a non-empty path also switches an already loaded library to
+// that path (see [Load] for the rules) and [LoadedPath] reports which library
+// is bound. The companion module github.com/opengoui/libsdl embeds SDL3
+// builds and uses this to load them from a directory of the caller's choice.
+//
 // # Conventions
 //
 // The SDL_ prefix is dropped: SDL_CreateWindow is [CreateWindow], SDL_Window

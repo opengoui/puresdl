@@ -78,6 +78,10 @@ puresdl 运行时需要 SDL3 动态库。绑定生成自 SDL 官方 release `rel
 
 也可以设置环境变量 `SDL3_LIBRARY=/path/to/libSDL3.dylib`，或在代码里调用 `sdl.Load(path)`。`sdl.LoadError()` 返回加载失败原因（成功为 nil），`sdl.Available("SDL_Init")` 查询某个符号是否存在于已加载的库中。
 
+**`sdl.Load(path)` 会切换库**：`import` 时已经自动加载了某个库（例如系统的 Homebrew 副本）后，用非空 `path` 调用 `Load` 会打开该路径、重新绑定全部函数并更新 `sdl.LoadedPath()`（返回当前库的路径，未加载时为 `""`）。路径相同则是空操作；空路径保持原语义（已加载则空操作）；路径打不开则返回错误，原来的库继续可用（不会被卸载）。切换不能与 SDL 调用并发，必须在使用 SDL 之前完成，旧库创建的对象不能交给新库；调用方此前保存的函数值仍然有效，因为包装函数调用的是被重新绑定的包级变量。
+
+不想要求用户预装 SDL3 时，可以使用姊妹模块 [libsdl](../libsdl)，它内嵌各平台的 SDL3 官方构建，并提供 `load.Load()`：把库释放到指定目录（按 SHA-256 校验复用）或临时目录，再调用 `sdl.Load` 加载。
+
 ## 命名与类型约定
 
 完整说明见 [`sdl/doc.go`](sdl/doc.go)（`go doc ./sdl`）。
