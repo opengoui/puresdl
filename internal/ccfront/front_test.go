@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	"github.com/opengoui/puresdl/internal/ir"
+	"github.com/opengoui/puresdl/internal/sdlsync"
 )
 
 // includeDir locates the SDL3 headers; tests skip when they are absent.
 func includeDir(t *testing.T) string {
 	t.Helper()
-	for _, d := range []string{os.Getenv("SDL_INCLUDE"), "../../../SDL/include", "/opt/homebrew/include"} {
+	for _, d := range []string{os.Getenv("SDL_INCLUDE"), pinnedInclude()} {
 		if d == "" {
 			continue
 		}
@@ -19,7 +20,7 @@ func includeDir(t *testing.T) string {
 			return d
 		}
 	}
-	t.Skip("SDL3 headers not found; set SDL_INCLUDE")
+	t.Skip("SDL3 headers not found; run `go run ./cmd/sdlsync` or set SDL_INCLUDE")
 	return ""
 }
 
@@ -106,4 +107,14 @@ func TestConstAfter(t *testing.T) {
 			t.Errorf("%s follows typedef %q, want %q", name, got, want)
 		}
 	}
+}
+
+// pinnedInclude returns the cached headers of the release in SDL_VERSION, or
+// "" when they have not been synced.
+func pinnedInclude() string {
+	d, err := sdlsync.PinnedInclude("../..")
+	if err != nil {
+		return ""
+	}
+	return d
 }

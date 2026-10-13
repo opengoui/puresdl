@@ -2,8 +2,9 @@ package sdl
 
 // The expected values in this file were not computed by this package. They
 // were produced by compiling and running small C programs with the system
-// clang against the SDL 3.5.0 headers (the same headers the bindings are
-// generated from); the macros and static inline functions need no link step:
+// clang against the headers of the release pinned in SDL_VERSION (3.4.18, the
+// same headers the bindings are generated from); the macros and static inline
+// functions need no link step:
 //
 //	clang -I $SDL/include -Wno-everything -o gen gen.c   (only SDL_fabsf, a real
 //	                                                      export, is stubbed)
@@ -13,8 +14,10 @@ package sdl
 // Byte-order macros were evaluated on little-endian arm64.
 
 import (
+	"fmt"
 	"math"
 	"math/bits"
+	"os"
 	"sync/atomic"
 	"testing"
 	"unsafe"
@@ -288,21 +291,30 @@ func TestMacroVersion(t *testing.T) {
 			t.Errorf("VERSIONNUM_MICRO(%d) = %d, want %d", tc.v, got, tc.micro)
 		}
 	}
-	// SDL_VERSION is 3005000 in the headers used.
-	if VERSION != 3005000 {
-		t.Fatalf("VERSION = %d; the expectations below assume 3005000", VERSION)
+	// SDL_VERSION is 3004018 in the release 3.4.18 headers. After bumping
+	// SDL_VERSION, recompute the table below with clang and update this value.
+	if VERSION != 3004018 {
+		t.Fatalf("VERSION = %d; the expectations below assume 3004018", VERSION)
+	}
+	if b, err := os.ReadFile("../SDL_VERSION"); err != nil {
+		t.Fatal(err)
+	} else if want := fmt.Sprintf("release-%d.%d.%d\n", VERSIONNUM_MAJOR(VERSION), VERSIONNUM_MINOR(VERSION), VERSIONNUM_MICRO(VERSION)); string(b) != want {
+		t.Errorf("SDL_VERSION file = %q, generated bindings are for %q", b, want)
 	}
 	for _, tc := range []struct {
 		x, y, z int
 		want    bool
 	}{
-		{3, 5, 0, true},
+		{3, 5, 0, false},
 		{3, 5, 1, false},
-		{3, 4, 99, true},
+		{3, 4, 99, false},
 		{4, 0, 0, false},
 		{3, 2, 0, true},
 		{2, 99, 99, true},
 		{3, 6, 0, false},
+		{3, 4, 18, true},
+		{3, 4, 19, false},
+		{3, 4, 17, true},
 	} {
 		if got := VERSION_ATLEAST(tc.x, tc.y, tc.z); got != tc.want {
 			t.Errorf("VERSION_ATLEAST(%d,%d,%d) = %v, want %v", tc.x, tc.y, tc.z, got, tc.want)

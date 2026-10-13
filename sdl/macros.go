@@ -2,7 +2,7 @@ package sdl
 
 // This file holds hand-written Go versions of the SDL function-like macros
 // and static inline functions, which cannot be bound through the shared
-// library. Each one mirrors the definition in the SDL 3.5.0 headers.
+// library. Each one mirrors the definition in the SDL headers (see SDL_VERSION).
 
 import (
 	"math"
@@ -86,7 +86,7 @@ func BYTESPERPIXEL(format PixelFormat) uint32 {
 	if ISPIXELFORMAT_FOURCC(format) {
 		switch format {
 		case PIXELFORMAT_YUY2, PIXELFORMAT_UYVY, PIXELFORMAT_YVYU,
-			PIXELFORMAT_P010, PIXELFORMAT_I0FL, PIXELFORMAT_I4FL:
+			PIXELFORMAT_P010:
 			return 2
 		}
 		return 1

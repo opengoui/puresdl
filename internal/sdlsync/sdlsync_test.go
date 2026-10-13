@@ -13,8 +13,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
-
-	"github.com/opengoui/puresdl/internal/gensdl"
 )
 
 const fakeCommit = "829a65d76aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -510,8 +508,8 @@ func TestMainCLI(t *testing.T) {
 
 // stubGenerate stands in for the real pipeline and writes deterministic
 // files derived from the tag.
-func stubGenerate(content func(gensdl.Config) map[string]string) func(gensdl.Config) error {
-	return func(c gensdl.Config) error {
+func stubGenerate(content func(GenConfig) map[string]string) func(GenConfig) error {
+	return func(c GenConfig) error {
 		old, _ := filepath.Glob(filepath.Join(c.Out, "*_gen*.go"))
 		for _, o := range old {
 			os.Remove(o)
@@ -539,12 +537,12 @@ func TestGenerateAndCheck(t *testing.T) {
 	os.WriteFile(filepath.Join(root, "sdl", "hand.go"), []byte("package sdl\n"), 0o644)
 
 	body := "A"
-	var seen gensdl.Config
+	var seen GenConfig
 	old := Generate
 	t.Cleanup(func() { Generate = old })
-	Generate = func(c gensdl.Config) error {
+	Generate = func(c GenConfig) error {
 		seen = c
-		return stubGenerate(func(c gensdl.Config) map[string]string {
+		return stubGenerate(func(c GenConfig) map[string]string {
 			return map[string]string{
 				"a_gen.go":           "package sdl // " + body + " " + c.Tag + "\n",
 				"layout_gen_test.go": "package sdl\n",

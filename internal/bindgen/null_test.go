@@ -8,6 +8,7 @@ import (
 
 	"github.com/opengoui/puresdl/internal/ccfront"
 	"github.com/opengoui/puresdl/internal/ir"
+	"github.com/opengoui/puresdl/internal/sdlsync"
 )
 
 func cstrType(konst bool) *ir.Type {
@@ -54,7 +55,7 @@ func TestCheckNullPolicySynthetic(t *testing.T) {
 
 func sdlInclude(t *testing.T) string {
 	t.Helper()
-	for _, d := range []string{os.Getenv("SDL_INCLUDE"), "../../../SDL/include", "/opt/homebrew/include"} {
+	for _, d := range []string{os.Getenv("SDL_INCLUDE"), pinnedInclude()} {
 		if d == "" {
 			continue
 		}
@@ -63,9 +64,9 @@ func sdlInclude(t *testing.T) string {
 		}
 	}
 	if os.Getenv("CI") != "" {
-		t.Fatal("SDL3 headers not found on CI; set SDL_INCLUDE to the pinned header checkout")
+		t.Fatal("SDL3 headers not found on CI; run `go run ./cmd/sdlsync` or set SDL_INCLUDE")
 	}
-	t.Skip("SDL3 headers not found; set SDL_INCLUDE")
+	t.Skip("SDL3 headers not found; run `go run ./cmd/sdlsync` or set SDL_INCLUDE")
 	return ""
 }
 
@@ -112,4 +113,14 @@ func TestNullPolicyCoversHeaders(t *testing.T) {
 	if strings.Contains(read("dialog_gen.go"), "default_location *string") {
 		t.Error("interchangeable parameters must stay plain strings")
 	}
+}
+
+// pinnedInclude returns the cached headers of the release in SDL_VERSION, or
+// "" when they have not been synced.
+func pinnedInclude() string {
+	d, err := sdlsync.PinnedInclude("../..")
+	if err != nil {
+		return ""
+	}
+	return d
 }

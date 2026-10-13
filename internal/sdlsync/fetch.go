@@ -283,3 +283,22 @@ func validate(dir string, tag Tag) (*Meta, error) {
 	}
 	return &m, nil
 }
+
+// PinnedInclude returns the include directory of the release pinned in
+// <root>/SDL_VERSION from the default cache, without touching the network. It
+// is meant for tests that need the headers.
+func PinnedInclude(root string) (string, error) {
+	tag, err := ReadVersionFile(filepath.Join(root, DefaultVersionFile), false)
+	if err != nil {
+		return "", err
+	}
+	cache, err := DefaultCacheDir()
+	if err != nil {
+		return "", err
+	}
+	res, err := (&Syncer{CacheDir: cache, Offline: true}).Sync(context.Background(), tag)
+	if err != nil {
+		return "", fmt.Errorf("%w (run `go run ./cmd/sdlsync` to fill the cache)", err)
+	}
+	return res.Include, nil
+}

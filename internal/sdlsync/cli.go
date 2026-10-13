@@ -10,13 +10,20 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/opengoui/puresdl/internal/gensdl"
 )
 
-// Generate is the generation pipeline run by -generate and -check; tests
-// replace it.
-var Generate = gensdl.Run
+// GenConfig describes one run of the generation pipeline; it mirrors
+// gensdl.Config so that this package does not depend on the generator (the
+// generator's tests depend on this package for the header cache).
+type GenConfig struct {
+	Include, Out, HandDir, Skipped string
+	Tag, Revision                  string
+	Stdout, Stderr                 io.Writer
+}
+
+// Generate is the pipeline run by -generate and -check. cmd/sdlsync sets it
+// to gensdl.Run; tests replace it.
+var Generate func(GenConfig) error
 
 // Main implements cmd/sdlsync. Progress goes to stderr; stdout carries only
 // the output of -list and -print-include so that it can be used from shell
@@ -134,7 +141,10 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout,
 
 	sdlDir := filepath.Join(*root, "sdl")
 	skipped := filepath.Join(*root, "docs", "skipped.txt")
-	cfg := gensdl.Config{Include: res.Include, HandDir: sdlDir, Tag: tag.Name, Revision: res.Revision, Stdout: stderr, Stderr: stderr}
+	cfg := GenConfig{Include: res.Include, HandDir: sdlDir, Tag: tag.Name, Revision: res.Revision, Stdout: stderr, Stderr: stderr}
+	if (*gen || *check) && Generate == nil {
+		return errors.New("sdlsync: no generator configured")
+	}
 	switch {
 	case *gen:
 		cfg.Out, cfg.Skipped = sdlDir, skipped

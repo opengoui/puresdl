@@ -415,14 +415,6 @@ func TestCoreProperties(t *testing.T) {
 	if got := GetNumberProperty(p, "zz", 99); got != 99 {
 		t.Errorf("number default = %d", got)
 	}
-	if Available("SDL_GetNumProperties") {
-		if got := GetNumProperties(p); got != 5 {
-			t.Errorf("GetNumProperties = %d", got)
-		}
-	} else {
-		t.Log("SDL_GetNumProperties absent from this SDL3; skipped")
-	}
-
 	var names []string
 	enum := NewEnumeratePropertiesCallback(func(userdata unsafe.Pointer, props PropertiesID, name *byte) {
 		names = append(names, GoString(name))
@@ -1402,8 +1394,6 @@ func TestCoreSystemInfo(t *testing.T) {
 			t.Errorf("%s violated", imp.name)
 		}
 	}
-	coreSkipUnless(t, "SDL_HasSVE2")
-	_ = HasSVE2()
 }
 
 func TestCoreLocalePowerMisc(t *testing.T) {
