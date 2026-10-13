@@ -27,6 +27,8 @@ type AsyncIOOutcome struct {
 	// the result of the work (success, failure, cancellation).
 	Result AsyncIOResult
 	// buffer where data was read/written.
+	//
+	// For ReadAsyncIO and WriteAsyncIO this is the caller's own ptr; for LoadFileAsync it is SDL-allocated and must be released with Free.
 	Buffer unsafe.Pointer
 	// offset in the AsyncIO where data was read/written.
 	Offset uint64
@@ -35,7 +37,21 @@ type AsyncIOOutcome struct {
 	// actual number of bytes that were read/written.
 	BytesTransferred uint64
 	// pointer provided by the app when starting the task
+	//
+	// It is the userdata given when the task was started. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 	Userdata unsafe.Pointer
+}
+
+// Bytes returns Buffer as a slice of BytesTransferred elements without copying. It
+// returns nil for a nil receiver, a nil Buffer pointer or a non-positive BytesTransferred.
+//
+// The slice aliases memory owned by SDL: do not retain it after its backing buffer is released.
+// For a LoadFileAsync result that is when Free is called on Buffer; for ReadAsyncIO or WriteAsyncIO it is when the caller's own buffer is released.
+func (p *AsyncIOOutcome) Bytes() []byte {
+	if p == nil || p.Buffer == nil || p.BytesTransferred <= 0 {
+		return nil
+	}
+	return unsafe.Slice((*byte)(p.Buffer), int(p.BytesTransferred))
 }
 
 // A queue of completed asynchronous I/O tasks.
@@ -175,7 +191,7 @@ var fnReadAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size
 //
 // See also: WriteAsyncIO, CreateAsyncIOQueue
 //
-// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: ptr must stay alive and unmoved until the task completes, and SDL may access it at any time until then; pass memory that Go keeps reachable and does not move (not a stack variable) and do not release it before the outcome is reported. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 func ReadAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnReadAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
@@ -215,7 +231,7 @@ var fnWriteAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, siz
 //
 // See also: ReadAsyncIO, CreateAsyncIOQueue
 //
-// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: ptr must stay alive and unmoved until the task completes, and SDL may access it at any time until then; pass memory that Go keeps reachable and does not move (not a stack variable) and do not release it before the outcome is reported. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 func WriteAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnWriteAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
@@ -267,7 +283,7 @@ var fnCloseAsyncIO func(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userd
 //
 // Since: SDL 3.2.0.
 //
-// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 func CloseAsyncIO(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnCloseAsyncIO(asyncio, flush, queue, userdata)
 }
@@ -456,7 +472,7 @@ var fnLoadFileAsync func(file *byte, queue *AsyncIOQueue, userdata unsafe.Pointe
 //
 // See also: LoadFile_IO
 //
-// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 func LoadFileAsync(file string, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
 	return fnLoadFileAsync(cstr(file), queue, userdata)
 }

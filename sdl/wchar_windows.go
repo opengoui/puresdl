@@ -8,6 +8,8 @@ import "unicode/utf16"
 // Windows, and a 32-bit UTF-32 code unit on every other platform.
 type Wchar = uint16
 
+// wcharDecode converts NUL-free UTF-16 units to a string.
 func wcharDecode(u []Wchar) string { return string(utf16.Decode(u)) }
 
+// wcharEncode converts s to UTF-16 units without a terminator.
 func wcharEncode(s string) []Wchar { return utf16.Encode([]rune(s)) }

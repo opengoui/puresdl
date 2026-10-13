@@ -25,7 +25,19 @@ func TestCopyFreeEmptyIsNonNil(t *testing.T) {
 	if s := copyFreeBytes(Malloc(8), 0); s == nil || len(s) != 0 {
 		t.Errorf("copyFreeBytes of an empty array = %#v, want empty non-nil", s)
 	}
-	if copyFree[int32](nil, 0) != nil || copyFreeBytes(nil, 0) != nil {
+	if s := copyFreeDeref((**DisplayMode)(Malloc(8)), 0); s == nil || len(s) != 0 {
+		t.Errorf("copyFreeDeref of an empty array = %#v, want empty non-nil", s)
+	}
+	if s := copyFreeStrings((**byte)(Malloc(8)), 0); s == nil || len(s) != 0 {
+		t.Errorf("copyFreeStrings of an empty array = %#v, want empty non-nil", s)
+	}
+	term := (**byte)(Malloc(8))
+	*term = nil
+	if s := copyFreeStrings0(term); s == nil || len(s) != 0 {
+		t.Errorf("copyFreeStrings0 of an empty array = %#v, want empty non-nil", s)
+	}
+	if copyFree[int32](nil, 0) != nil || copyFreeBytes(nil, 0) != nil ||
+		copyFreeDeref[DisplayMode](nil, 0) != nil || copyFreeStrings(nil, 0) != nil || copyFreeStrings0(nil) != nil {
 		t.Error("NULL must stay nil")
 	}
 }

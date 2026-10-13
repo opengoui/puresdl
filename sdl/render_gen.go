@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // A custom GPU render state.
 //
@@ -1326,8 +1329,34 @@ var fnUpdateTexture func(texture *Texture, rect *Rect, pixels unsafe.Pointer, pi
 // Since: SDL 3.2.0.
 //
 // See also: LockTexture, UnlockTexture, UpdateNVTexture, UpdateYUVTexture
+//
+// The pointers are read for the whole rectangle at the given pitches and are not bounds checked; UpdateTextureBytes takes byte slices and checks them.
 func UpdateTexture(texture *Texture, rect *Rect, pixels unsafe.Pointer, pitch int32) bool {
 	return fnUpdateTexture(texture, rect, pixels, pitch)
+}
+
+// UpdateTextureBytes is the []byte form of UpdateTexture: each pixel plane is a byte slice that holds the whole rectangle at the given pitch.
+//
+// For a planar texture format (YV12, IYUV, NV12, NV21, P010) SDL also reads the chroma planes from the same buffer, after the h rows of pitch bytes of the luma plane, so the slice must hold them as well: pitch*h plus 2*((h+1)/2)*((pitch+1)/2) bytes for YV12 and IYUV, or ((h+1)/2)*pitch bytes for the NV formats.
+//
+// It sets the SDL error and returns false, without calling SDL, when the texture is nil, a pitch is not positive, rect has a negative size, or a slice is shorter than pitch*(h-1)+w*bytesPerPixel bytes, where w and h are the size of rect (the whole texture when rect is nil).
+// An empty or nil slice is a no-op that returns true without calling SDL.
+//
+// See also: UpdateTexture
+func UpdateTextureBytes(texture *Texture, rect *Rect, pixels []byte, pitch int32) bool {
+	if len(pixels) == 0 {
+		return true
+	}
+	w, h, ok := textureUpdateRegion("UpdateTextureBytes", texture, rect)
+	if !ok {
+		return false
+	}
+	if !textureCheckPlane("UpdateTextureBytes", "pixels", len(pixels), pitch, w, h, int64(BYTESPERPIXEL(texture.Format)), texturePlanarTail(texture.Format, h, int64(pitch))) {
+		return false
+	}
+	ok = UpdateTexture(texture, rect, unsafe.Pointer(&pixels[0]), pitch)
+	runtime.KeepAlive(pixels)
+	return ok
 }
 
 var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool
@@ -1356,8 +1385,44 @@ var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch 
 // Since: SDL 3.2.0.
 //
 // See also: UpdateNVTexture, UpdateTexture
+//
+// The pointers are read for the whole rectangle at the given pitches and are not bounds checked; UpdateYUVTextureBytes takes byte slices and checks them.
 func UpdateYUVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool {
 	return fnUpdateYUVTexture(texture, rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch)
+}
+
+// UpdateYUVTextureBytes is the []byte form of UpdateYUVTexture: each pixel plane is a byte slice that holds the whole rectangle at the given pitch.
+//
+// It sets the SDL error and returns false, without calling SDL, when the texture is nil, a pitch is not positive, rect has a negative size, or a slice is shorter than pitch*(rows-1)+rowBytes bytes for its rows, where the luma plane covers the w by h size of rect (the whole texture when rect is nil) and the chroma planes cover half of it, rounded up.
+// It also fails when the texture format is not one that UpdateYUVTexture accepts.
+// If every slice is empty it is a no-op that returns true without calling SDL; a single empty slice is only accepted for an empty rectangle.
+//
+// See also: UpdateYUVTexture
+func UpdateYUVTextureBytes(texture *Texture, rect *Rect, Yplane []byte, Ypitch int32, Uplane []byte, Upitch int32, Vplane []byte, Vpitch int32) bool {
+	if len(Yplane) == 0 && len(Uplane) == 0 && len(Vplane) == 0 {
+		return true
+	}
+	if !textureHasFormat("UpdateYUVTextureBytes", texture, PIXELFORMAT_YV12, PIXELFORMAT_IYUV) {
+		return false
+	}
+	w, h, ok := textureUpdateRegion("UpdateYUVTextureBytes", texture, rect)
+	if !ok {
+		return false
+	}
+	if !textureCheckPlane("UpdateYUVTextureBytes", "Yplane", len(Yplane), Ypitch, w, h, 1, 0) {
+		return false
+	}
+	if !textureCheckPlane("UpdateYUVTextureBytes", "Uplane", len(Uplane), Upitch, (w+1)/2, (h+1)/2, 1, 0) {
+		return false
+	}
+	if !textureCheckPlane("UpdateYUVTextureBytes", "Vplane", len(Vplane), Vpitch, (w+1)/2, (h+1)/2, 1, 0) {
+		return false
+	}
+	ok = UpdateYUVTexture(texture, rect, bytesPtr(Yplane), Ypitch, bytesPtr(Uplane), Upitch, bytesPtr(Vplane), Vpitch)
+	runtime.KeepAlive(Yplane)
+	runtime.KeepAlive(Uplane)
+	runtime.KeepAlive(Vplane)
+	return ok
 }
 
 var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool
@@ -1383,8 +1448,40 @@ var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch i
 // Since: SDL 3.2.0.
 //
 // See also: UpdateTexture, UpdateYUVTexture
+//
+// The pointers are read for the whole rectangle at the given pitches and are not bounds checked; UpdateNVTextureBytes takes byte slices and checks them.
 func UpdateNVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool {
 	return fnUpdateNVTexture(texture, rect, Yplane, Ypitch, UVplane, UVpitch)
+}
+
+// UpdateNVTextureBytes is the []byte form of UpdateNVTexture: each pixel plane is a byte slice that holds the whole rectangle at the given pitch.
+//
+// It sets the SDL error and returns false, without calling SDL, when the texture is nil, a pitch is not positive, rect has a negative size, or a slice is shorter than pitch*(rows-1)+rowBytes bytes for its rows, where the luma plane covers the w by h size of rect (the whole texture when rect is nil) and the chroma planes cover half of it, rounded up.
+// It also fails when the texture format is not one that UpdateNVTexture accepts.
+// If every slice is empty it is a no-op that returns true without calling SDL; a single empty slice is only accepted for an empty rectangle.
+//
+// See also: UpdateNVTexture
+func UpdateNVTextureBytes(texture *Texture, rect *Rect, Yplane []byte, Ypitch int32, UVplane []byte, UVpitch int32) bool {
+	if len(Yplane) == 0 && len(UVplane) == 0 {
+		return true
+	}
+	if !textureHasFormat("UpdateNVTextureBytes", texture, PIXELFORMAT_NV12, PIXELFORMAT_NV21, PIXELFORMAT_P010) {
+		return false
+	}
+	w, h, ok := textureUpdateRegion("UpdateNVTextureBytes", texture, rect)
+	if !ok {
+		return false
+	}
+	if !textureCheckPlane("UpdateNVTextureBytes", "Yplane", len(Yplane), Ypitch, w, h, int64(BYTESPERPIXEL(texture.Format)), 0) {
+		return false
+	}
+	if !textureCheckPlane("UpdateNVTextureBytes", "UVplane", len(UVplane), UVpitch, 2*((w+1)/2), (h+1)/2, int64(BYTESPERPIXEL(texture.Format)), 0) {
+		return false
+	}
+	ok = UpdateNVTexture(texture, rect, bytesPtr(Yplane), Ypitch, bytesPtr(UVplane), UVpitch)
+	runtime.KeepAlive(Yplane)
+	runtime.KeepAlive(UVplane)
+	return ok
 }
 
 var fnLockTexture func(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *int32) bool
@@ -2181,8 +2278,27 @@ var fnRenderPoints func(renderer *Renderer, points *FPoint, count int32) bool
 // Since: SDL 3.2.0.
 //
 // See also: RenderPoint
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; RenderPointsSlice takes a slice instead.
 func RenderPoints(renderer *Renderer, points *FPoint, count int32) bool {
 	return fnRenderPoints(renderer, points, count)
+}
+
+// RenderPointsSlice is the slice form of RenderPoints: it takes points as a Go slice and derives the count argument from its length.
+//
+// An empty or nil points slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: RenderPoints
+func RenderPointsSlice(renderer *Renderer, points []FPoint) bool {
+	if len(points) == 0 {
+		return true
+	}
+	if !fitsInt32(len(points), "RenderPointsSlice") {
+		return false
+	}
+	ret := fnRenderPoints(renderer, &points[0], int32(len(points)))
+	runtime.KeepAlive(points)
+	return ret
 }
 
 var fnRenderLine func(renderer *Renderer, x1 float32, y1 float32, x2 float32, y2 float32) bool
@@ -2224,8 +2340,27 @@ var fnRenderLines func(renderer *Renderer, points *FPoint, count int32) bool
 // Since: SDL 3.2.0.
 //
 // See also: RenderLine
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; RenderLinesSlice takes a slice instead.
 func RenderLines(renderer *Renderer, points *FPoint, count int32) bool {
 	return fnRenderLines(renderer, points, count)
+}
+
+// RenderLinesSlice is the slice form of RenderLines: it takes points as a Go slice and derives the count argument from its length.
+//
+// An empty or nil points slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: RenderLines
+func RenderLinesSlice(renderer *Renderer, points []FPoint) bool {
+	if len(points) == 0 {
+		return true
+	}
+	if !fitsInt32(len(points), "RenderLinesSlice") {
+		return false
+	}
+	ret := fnRenderLines(renderer, &points[0], int32(len(points)))
+	runtime.KeepAlive(points)
+	return ret
 }
 
 var fnRenderRect func(renderer *Renderer, rect *FRect) bool
@@ -2264,8 +2399,27 @@ var fnRenderRects func(renderer *Renderer, rects *FRect, count int32) bool
 // Since: SDL 3.2.0.
 //
 // See also: RenderRect
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; RenderRectsSlice takes a slice instead.
 func RenderRects(renderer *Renderer, rects *FRect, count int32) bool {
 	return fnRenderRects(renderer, rects, count)
+}
+
+// RenderRectsSlice is the slice form of RenderRects: it takes rects as a Go slice and derives the count argument from its length.
+//
+// An empty or nil rects slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: RenderRects
+func RenderRectsSlice(renderer *Renderer, rects []FRect) bool {
+	if len(rects) == 0 {
+		return true
+	}
+	if !fitsInt32(len(rects), "RenderRectsSlice") {
+		return false
+	}
+	ret := fnRenderRects(renderer, &rects[0], int32(len(rects)))
+	runtime.KeepAlive(rects)
+	return ret
 }
 
 var fnRenderFillRect func(renderer *Renderer, rect *FRect) bool
@@ -2305,8 +2459,27 @@ var fnRenderFillRects func(renderer *Renderer, rects *FRect, count int32) bool
 // Since: SDL 3.2.0.
 //
 // See also: RenderFillRect
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; RenderFillRectsSlice takes a slice instead.
 func RenderFillRects(renderer *Renderer, rects *FRect, count int32) bool {
 	return fnRenderFillRects(renderer, rects, count)
+}
+
+// RenderFillRectsSlice is the slice form of RenderFillRects: it takes rects as a Go slice and derives the count argument from its length.
+//
+// An empty or nil rects slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: RenderFillRects
+func RenderFillRectsSlice(renderer *Renderer, rects []FRect) bool {
+	if len(rects) == 0 {
+		return true
+	}
+	if !fitsInt32(len(rects), "RenderFillRectsSlice") {
+		return false
+	}
+	ret := fnRenderFillRects(renderer, &rects[0], int32(len(rects)))
+	runtime.KeepAlive(rects)
+	return ret
 }
 
 var fnRenderTexture func(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect) bool
@@ -2494,8 +2667,37 @@ var fnRenderGeometry func(renderer *Renderer, texture *Texture, vertices *Vertex
 // Since: SDL 3.2.0.
 //
 // See also: RenderGeometryRaw, SetRenderTextureAddressMode
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; RenderGeometrySlice takes a slice instead.
 func RenderGeometry(renderer *Renderer, texture *Texture, vertices *Vertex, num_vertices int32, indices *int32, num_indices int32) bool {
 	return fnRenderGeometry(renderer, texture, vertices, num_vertices, indices, num_indices)
+}
+
+// RenderGeometrySlice is the slice form of RenderGeometry: it takes vertices as a Go slice and derives the num_vertices argument from its length.
+//
+// An empty or nil indices slice is passed as NULL with a zero num_indices, which SDL documents as the optional case.
+//
+// An empty or nil vertices slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: RenderGeometry
+func RenderGeometrySlice(renderer *Renderer, texture *Texture, vertices []Vertex, indices []int32) bool {
+	if len(vertices) == 0 {
+		return true
+	}
+	if !fitsInt32(len(vertices), "RenderGeometrySlice") {
+		return false
+	}
+	var indicesPtr *int32
+	if len(indices) > 0 {
+		if !fitsInt32(len(indices), "RenderGeometrySlice") {
+			return false
+		}
+		indicesPtr = &indices[0]
+	}
+	ret := fnRenderGeometry(renderer, texture, &vertices[0], int32(len(vertices)), indicesPtr, int32(len(indices)))
+	runtime.KeepAlive(vertices)
+	runtime.KeepAlive(indices)
+	return ret
 }
 
 var fnRenderGeometryRaw func(renderer *Renderer, texture *Texture, xy *float32, xy_stride int32, color *FColor, color_stride int32, uv *float32, uv_stride int32, num_vertices int32, indices unsafe.Pointer, num_indices int32, size_indices int32) bool
@@ -2904,7 +3106,7 @@ var fnRenderDebugTextFormat func(renderer *Renderer, x float32, y float32, fmt_ 
 //
 // See also: RenderDebugText, DEBUG_TEXT_FONT_CHARACTER_SIZE
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func RenderDebugTextFormat(renderer *Renderer, x float32, y float32, format string, args ...any) bool {
 	return fnRenderDebugTextFormat(renderer, x, y, cprintf(format, args))
 }

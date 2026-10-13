@@ -103,3 +103,19 @@ func TestPtr(t *testing.T) {
 		t.Error("Ptr must return a pointer to a fresh copy")
 	}
 }
+
+func TestAppMetadataPropertyHelpers(t *testing.T) {
+	const name = PROP_APP_METADATA_URL_STRING
+	if !SetAppMetadataPropertyValue(name, "https://example.com") {
+		t.Fatal(GetError())
+	}
+	if got := GetAppMetadataProperty(name); got != "https://example.com" {
+		t.Errorf("after set, property = %q", got)
+	}
+	if !ClearAppMetadataProperty(name) {
+		t.Fatal(GetError())
+	}
+	if got := GetAppMetadataProperty(name); got != "" {
+		t.Errorf("after clear, property = %q, want empty", got)
+	}
+}

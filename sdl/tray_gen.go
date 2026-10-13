@@ -39,7 +39,11 @@ type TrayMenu struct{}
 // See also: SetTrayEntryCallback
 //
 // It holds a C function pointer; create one with NewTrayCallback.
+// The zero value means NULL (no callback); use NoTrayCallback where an optional callback is not wanted.
 type TrayCallback uintptr
+
+// NoTrayCallback is the NULL TrayCallback, for optional callback parameters.
+const NoTrayCallback TrayCallback = 0
 
 // NewTrayCallback wraps fn as a C callback of type TrayCallback.
 //

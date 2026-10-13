@@ -241,7 +241,7 @@ var fnReadProcess func(process *Process, datasize *uint, exitcode *int32) unsafe
 //
 // See also: CreateProcess, CreateProcessWithProperties, DestroyProcess
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func ReadProcess(process *Process, exitcode *int32) []byte {
 	var n uint
 	p := fnReadProcess(process, &n, exitcode)

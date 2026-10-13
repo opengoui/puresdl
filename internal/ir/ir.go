@@ -10,6 +10,7 @@ import "math/big"
 // Kind classifies a Type.
 type Kind int
 
+// Kind values. The trailing comments name the Type fields each kind uses.
 const (
 	Invalid Kind = iota
 	Void
@@ -42,7 +43,7 @@ type Type struct {
 	Enum  *EnumDecl
 	Name  string // Named: the typedef name
 	Under *Type  // Named: the aliased type
-	// Char is set for the C char family of Int types.
+	// Char is set only for plain C char (not signed char or unsigned char).
 	Char bool
 }
 
@@ -118,7 +119,8 @@ type Typedef struct {
 	// Std is set for typedefs that come from the libc stubs (uint8_t...)
 	// instead of the SDL headers.
 	Std bool
-	// Offset is the byte offset of the typedef name in File (0 for Std).
+	// Offset is the byte offset of the typedef name in File (for Std
+	// typedefs, in the libc stub header).
 	Offset int
 }
 
@@ -135,6 +137,7 @@ type Function struct {
 // ConstKind selects the representation of a Const.
 type ConstKind int
 
+// ConstKind values, naming the Const field that holds the value.
 const (
 	ConstInt ConstKind = iota
 	ConstFloat
@@ -150,7 +153,8 @@ type Const struct {
 	Str   string
 	Doc   string
 	File  string
-	// Offset is the byte offset of the #define in File.
+	// Offset is the byte offset of the macro in File, as reported by the
+	// parser; it lies on the macro's #define line.
 	Offset int
 	// After names the typedef whose declaration is immediately followed
 	// by this macro's contiguous #define block: nothing but directives,

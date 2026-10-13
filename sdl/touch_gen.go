@@ -84,7 +84,7 @@ var fnGetTouchDevices func(count *int32) *TouchID
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetTouchDevices() []TouchID {
 	var n int32
 	p := fnGetTouchDevices(&n)
@@ -131,7 +131,7 @@ var fnGetTouchFingers func(touchID TouchID, count *int32) **Finger
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetTouchFingers(touchID TouchID) []Finger {
 	var n int32
 	p := fnGetTouchFingers(touchID, &n)

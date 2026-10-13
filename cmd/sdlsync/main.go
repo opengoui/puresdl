@@ -17,6 +17,8 @@ import (
 	"github.com/opengoui/puresdl/internal/sdlsync"
 )
 
+// main wires gensdl into sdlsync, runs it with Ctrl-C cancellation and exits
+// with the code Main returns.
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

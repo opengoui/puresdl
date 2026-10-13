@@ -4,6 +4,7 @@ package sdl
 
 import (
 	"github.com/ebitengine/purego"
+	"runtime"
 	"unsafe"
 )
 
@@ -35,7 +36,11 @@ type IconvDataT struct{}
 // See also: Bsearch, Qsort
 //
 // It holds a C function pointer; create one with NewCompareCallback.
+// The zero value means NULL (no callback); use NoCompareCallback where an optional callback is not wanted.
 type CompareCallback uintptr
+
+// NoCompareCallback is the NULL CompareCallback, for optional callback parameters.
+const NoCompareCallback CompareCallback = 0
 
 // NewCompareCallback wraps fn as a C callback of type CompareCallback.
 //
@@ -59,7 +64,11 @@ func NewCompareCallback(fn func(a unsafe.Pointer, b unsafe.Pointer) int32) Compa
 // See also: QsortR, BsearchR
 //
 // It holds a C function pointer; create one with NewCompareCallback_r.
+// The zero value means NULL (no callback); use NoCompareCallback_r where an optional callback is not wanted.
 type CompareCallback_r uintptr
+
+// NoCompareCallback_r is the NULL CompareCallback_r, for optional callback parameters.
+const NoCompareCallback_r CompareCallback_r = 0
 
 // NewCompareCallback_r wraps fn as a C callback of type CompareCallback_r.
 //
@@ -70,7 +79,11 @@ func NewCompareCallback_r(fn func(userdata unsafe.Pointer, a unsafe.Pointer, b u
 }
 
 // It holds a C function pointer; create one with NewFunctionPointer.
+// The zero value means NULL (no callback); use NoFunctionPointer where an optional callback is not wanted.
 type FunctionPointer uintptr
+
+// NoFunctionPointer is the NULL FunctionPointer, for optional callback parameters.
+const NoFunctionPointer FunctionPointer = 0
 
 // NewFunctionPointer wraps fn as a C callback of type FunctionPointer.
 //
@@ -110,7 +123,11 @@ type Time int64
 // See also: Calloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
 // It holds a C function pointer; create one with NewCallocFunc.
+// The zero value means NULL (no callback); use NoCallocFunc where an optional callback is not wanted.
 type CallocFunc uintptr
+
+// NoCallocFunc is the NULL CallocFunc, for optional callback parameters.
+const NoCallocFunc CallocFunc = 0
 
 // NewCallocFunc wraps fn as a C callback of type CallocFunc.
 //
@@ -134,7 +151,11 @@ func NewCallocFunc(fn func(nmemb uint, size uint) unsafe.Pointer) CallocFunc {
 // See also: Free, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
 // It holds a C function pointer; create one with NewFreeFunc.
+// The zero value means NULL (no callback); use NoFreeFunc where an optional callback is not wanted.
 type FreeFunc uintptr
+
+// NoFreeFunc is the NULL FreeFunc, for optional callback parameters.
+const NoFreeFunc FreeFunc = 0
 
 // NewFreeFunc wraps fn as a C callback of type FreeFunc.
 //
@@ -167,7 +188,11 @@ type IconvT unsafe.Pointer
 // See also: Malloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
 // It holds a C function pointer; create one with NewMallocFunc.
+// The zero value means NULL (no callback); use NoMallocFunc where an optional callback is not wanted.
 type MallocFunc uintptr
+
+// NoMallocFunc is the NULL MallocFunc, for optional callback parameters.
+const NoMallocFunc MallocFunc = 0
 
 // NewMallocFunc wraps fn as a C callback of type MallocFunc.
 //
@@ -194,7 +219,11 @@ func NewMallocFunc(fn func(size uint) unsafe.Pointer) MallocFunc {
 // See also: Realloc, GetOriginalMemoryFunctions, GetMemoryFunctions, SetMemoryFunctions
 //
 // It holds a C function pointer; create one with NewReallocFunc.
+// The zero value means NULL (no callback); use NoReallocFunc where an optional callback is not wanted.
 type ReallocFunc uintptr
+
+// NoReallocFunc is the NULL ReallocFunc, for optional callback parameters.
+const NoReallocFunc ReallocFunc = 0
 
 // NewReallocFunc wraps fn as a C callback of type ReallocFunc.
 //
@@ -614,7 +643,7 @@ var fnGetEnvironmentVariables func(env *Environment) **byte
 //
 // See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariables, SetEnvironmentVariable, UnsetEnvironmentVariable
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetEnvironmentVariables(env *Environment) []string {
 	return copyFreeStrings0(fnGetEnvironmentVariables(env))
 }
@@ -838,8 +867,39 @@ var fnCrc16 func(crc uint16, data unsafe.Pointer, len_ uint) uint16
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// Crc16Bytes takes a []byte instead of a pointer and length.
 func Crc16(crc uint16, data unsafe.Pointer, len_ uint) uint16 {
 	return fnCrc16(crc, data, len_)
+}
+
+// Crc16Bytes is the []byte form of Crc16: it takes b instead of the data pointer and derives the len argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Crc16
+func Crc16Bytes(crc uint16, b []byte) uint16 {
+	if len(b) == 0 {
+		return 0
+	}
+	ret := fnCrc16(crc, unsafe.Pointer(&b[0]), uint(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// Crc16Slice is the typed-slice form of Crc16: it takes b instead of the data pointer and derives the len argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Crc16
+func Crc16Slice[T Number](crc uint16, b []T) uint16 {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	ret := fnCrc16(crc, unsafe.Pointer(&b[0]), uint(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnCrc32 func(crc uint32, data unsafe.Pointer, len_ uint) uint32
@@ -863,8 +923,39 @@ var fnCrc32 func(crc uint32, data unsafe.Pointer, len_ uint) uint32
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// Crc32Bytes takes a []byte instead of a pointer and length.
 func Crc32(crc uint32, data unsafe.Pointer, len_ uint) uint32 {
 	return fnCrc32(crc, data, len_)
+}
+
+// Crc32Bytes is the []byte form of Crc32: it takes b instead of the data pointer and derives the len argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Crc32
+func Crc32Bytes(crc uint32, b []byte) uint32 {
+	if len(b) == 0 {
+		return 0
+	}
+	ret := fnCrc32(crc, unsafe.Pointer(&b[0]), uint(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// Crc32Slice is the typed-slice form of Crc32: it takes b instead of the data pointer and derives the len argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Crc32
+func Crc32Slice[T Number](crc uint32, b []T) uint32 {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	ret := fnCrc32(crc, unsafe.Pointer(&b[0]), uint(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnMurmur3_32 func(data unsafe.Pointer, len_ uint, seed uint32) uint32
@@ -893,8 +984,39 @@ var fnMurmur3_32 func(data unsafe.Pointer, len_ uint, seed uint32) uint32
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// Murmur3_32Bytes takes a []byte instead of a pointer and length.
 func Murmur3_32(data unsafe.Pointer, len_ uint, seed uint32) uint32 {
 	return fnMurmur3_32(data, len_, seed)
+}
+
+// Murmur3_32Bytes is the []byte form of Murmur3_32: it takes b instead of the data pointer and derives the len argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Murmur3_32
+func Murmur3_32Bytes(b []byte, seed uint32) uint32 {
+	if len(b) == 0 {
+		return 0
+	}
+	ret := fnMurmur3_32(unsafe.Pointer(&b[0]), uint(len(b)), seed)
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// Murmur3_32Slice is the typed-slice form of Murmur3_32: it takes b instead of the data pointer and derives the len argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: Murmur3_32
+func Murmur3_32Slice[T Number](b []T, seed uint32) uint32 {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	ret := fnMurmur3_32(unsafe.Pointer(&b[0]), uint(n), seed)
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnSrand func(seed uint64)

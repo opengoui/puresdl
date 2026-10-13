@@ -48,12 +48,13 @@ func copyFreeStrings(p **byte, n int) []string {
 	return s
 }
 
-// copyFreeStrings0 is copyFreeStrings for a NULL-terminated array.
+// copyFreeStrings0 is copyFreeStrings for a NULL-terminated array. An array
+// holding only the terminator yields an empty non-nil slice.
 func copyFreeStrings0(p **byte) []string {
 	if p == nil {
 		return nil
 	}
-	s := GoStrings(p)
+	s := append([]string{}, GoStrings(p)...)
 	Free(unsafe.Pointer(p))
 	return s
 }

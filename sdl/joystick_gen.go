@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // The joystick structure used to identify an SDL joystick.
 //
@@ -235,7 +238,7 @@ var fnGetJoysticks func(count *int32) *JoystickID
 //
 // See also: HasJoystick, OpenJoystick
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetJoysticks() []JoystickID {
 	var n int32
 	p := fnGetJoysticks(&n)
@@ -687,8 +690,27 @@ var fnSendJoystickVirtualSensorData func(joystick *Joystick, type_ SensorType, s
 // Since: SDL 3.2.0.
 //
 // See also: SetJoystickVirtualAxis, SetJoystickVirtualButton, SetJoystickVirtualBall, SetJoystickVirtualHat, SetJoystickVirtualTouchpad
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; SendJoystickVirtualSensorDataSlice takes a slice instead.
 func SendJoystickVirtualSensorData(joystick *Joystick, type_ SensorType, sensor_timestamp uint64, data *float32, num_values int32) bool {
 	return fnSendJoystickVirtualSensorData(joystick, type_, sensor_timestamp, data, num_values)
+}
+
+// SendJoystickVirtualSensorDataSlice is the slice form of SendJoystickVirtualSensorData: it takes data as a Go slice and derives the num_values argument from its length.
+//
+// An empty or nil data slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: SendJoystickVirtualSensorData
+func SendJoystickVirtualSensorDataSlice(joystick *Joystick, type_ SensorType, sensor_timestamp uint64, data []float32) bool {
+	if len(data) == 0 {
+		return true
+	}
+	if !fitsInt32(len(data), "SendJoystickVirtualSensorDataSlice") {
+		return false
+	}
+	ret := fnSendJoystickVirtualSensorData(joystick, type_, sensor_timestamp, &data[0], int32(len(data)))
+	runtime.KeepAlive(data)
+	return ret
 }
 
 var fnGetJoystickProperties func(joystick *Joystick) PropertiesID
@@ -1329,8 +1351,45 @@ var fnSendJoystickEffect func(joystick *Joystick, data unsafe.Pointer, size int3
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// SendJoystickEffectBytes takes a []byte instead of a pointer and length.
 func SendJoystickEffect(joystick *Joystick, data unsafe.Pointer, size int32) bool {
 	return fnSendJoystickEffect(joystick, data, size)
+}
+
+// SendJoystickEffectBytes is the []byte form of SendJoystickEffect: it takes b instead of the data pointer and derives the size argument from its length.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: SendJoystickEffect
+func SendJoystickEffectBytes(joystick *Joystick, b []byte) bool {
+	if len(b) == 0 {
+		return true
+	}
+	if !fitsInt32(len(b), "SendJoystickEffectBytes") {
+		return false
+	}
+	ret := fnSendJoystickEffect(joystick, unsafe.Pointer(&b[0]), int32(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// SendJoystickEffectSlice is the typed-slice form of SendJoystickEffect: it takes b instead of the data pointer and derives the size argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: SendJoystickEffect
+func SendJoystickEffectSlice[T Number](joystick *Joystick, b []T) bool {
+	if len(b) == 0 {
+		return true
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	if !fitsInt32(n, "SendJoystickEffectSlice") {
+		return false
+	}
+	ret := fnSendJoystickEffect(joystick, unsafe.Pointer(&b[0]), int32(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnCloseJoystick func(joystick *Joystick)

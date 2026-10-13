@@ -13,6 +13,7 @@ import (
 	"github.com/opengoui/puresdl/internal/gensdl"
 )
 
+// main parses the flags, validates the include directory and runs the generator.
 func main() {
 	include := flag.String("include", os.Getenv("SDL_INCLUDE"), "directory that contains SDL3/SDL.h (default $SDL_INCLUDE)")
 	out := flag.String("out", "sdl", "output directory of the Go package")

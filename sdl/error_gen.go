@@ -27,7 +27,7 @@ var fnSetError func(fmt_ *byte) bool
 //
 // See also: ClearError, GetError, SetErrorV
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func SetError(format string, args ...any) bool {
 	return fnSetError(cprintf(format, args))
 }

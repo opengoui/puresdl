@@ -30,7 +30,11 @@ type Thread struct{}
 // See also: SetTLS
 //
 // It holds a C function pointer; create one with NewTLSDestructorCallback.
+// The zero value means NULL (no callback); use NoTLSDestructorCallback where an optional callback is not wanted.
 type TLSDestructorCallback uintptr
+
+// NoTLSDestructorCallback is the NULL TLSDestructorCallback, for optional callback parameters.
+const NoTLSDestructorCallback TLSDestructorCallback = 0
 
 // NewTLSDestructorCallback wraps fn as a C callback of type TLSDestructorCallback.
 //
@@ -60,7 +64,11 @@ type TLSID = AtomicInt
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewThreadFunction.
+// The zero value means NULL (no callback); use NoThreadFunction where an optional callback is not wanted.
 type ThreadFunction uintptr
+
+// NoThreadFunction is the NULL ThreadFunction, for optional callback parameters.
+const NoThreadFunction ThreadFunction = 0
 
 // NewThreadFunction wraps fn as a C callback of type ThreadFunction.
 //

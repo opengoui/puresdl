@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // The structure used to identify an SDL gamepad
 //
@@ -387,7 +390,7 @@ var fnGetGamepadMappings func(count *int32) **byte
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetGamepadMappings() []string {
 	var n int32
 	p := fnGetGamepadMappings(&n)
@@ -497,7 +500,7 @@ var fnGetGamepads func(count *int32) *JoystickID
 //
 // See also: HasGamepad, OpenGamepad
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetGamepads() []JoystickID {
 	var n int32
 	p := fnGetGamepads(&n)
@@ -1188,7 +1191,7 @@ var fnGetGamepadBindings func(gamepad *Gamepad, count *int32) **GamepadBinding
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetGamepadBindings(gamepad *Gamepad) []GamepadBinding {
 	var n int32
 	p := fnGetGamepadBindings(gamepad, &n)
@@ -1723,8 +1726,45 @@ var fnSendGamepadEffect func(gamepad *Gamepad, data unsafe.Pointer, size int32) 
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// SendGamepadEffectBytes takes a []byte instead of a pointer and length.
 func SendGamepadEffect(gamepad *Gamepad, data unsafe.Pointer, size int32) bool {
 	return fnSendGamepadEffect(gamepad, data, size)
+}
+
+// SendGamepadEffectBytes is the []byte form of SendGamepadEffect: it takes b instead of the data pointer and derives the size argument from its length.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: SendGamepadEffect
+func SendGamepadEffectBytes(gamepad *Gamepad, b []byte) bool {
+	if len(b) == 0 {
+		return true
+	}
+	if !fitsInt32(len(b), "SendGamepadEffectBytes") {
+		return false
+	}
+	ret := fnSendGamepadEffect(gamepad, unsafe.Pointer(&b[0]), int32(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// SendGamepadEffectSlice is the typed-slice form of SendGamepadEffect: it takes b instead of the data pointer and derives the size argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: SendGamepadEffect
+func SendGamepadEffectSlice[T Number](gamepad *Gamepad, b []T) bool {
+	if len(b) == 0 {
+		return true
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	if !fitsInt32(n, "SendGamepadEffectSlice") {
+		return false
+	}
+	ret := fnSendGamepadEffect(gamepad, unsafe.Pointer(&b[0]), int32(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnCloseGamepad func(gamepad *Gamepad)

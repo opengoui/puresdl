@@ -21,6 +21,7 @@ const (
 	// UserAgent is sent with every request (GitHub rejects requests without one).
 	UserAgent = "puresdl-sdlsync (+https://github.com/opengoui/puresdl)"
 
+	// repoPath is the API path of the SDL repository.
 	repoPath = "/repos/libsdl-org/SDL"
 )
 
@@ -35,6 +36,7 @@ type Client struct {
 	AllowTokenAnyHost bool
 }
 
+// apiURL returns the API base URL without a trailing slash, applying the default.
 func (c *Client) apiURL() string {
 	if c.APIURL != "" {
 		return strings.TrimRight(c.APIURL, "/")
@@ -42,9 +44,9 @@ func (c *Client) apiURL() string {
 	return DefaultAPIURL
 }
 
-// tokenAllowed reports whether the token may be sent to the API URL: only
-// https, or plain http to a loopback host. Any other host (including a custom
-// https one) gets the request without credentials unless AllowTokenAnyHost.
+// tokenAllowed reports whether the token may be sent to the API URL: https to
+// api.github.com (or to any host when AllowTokenAnyHost is set), or plain http
+// to a loopback host. Any other URL gets the request without credentials.
 func (c *Client) tokenAllowed() bool {
 	u, err := url.Parse(c.apiURL())
 	if err != nil {
@@ -60,6 +62,8 @@ func (c *Client) tokenAllowed() bool {
 	return false
 }
 
+// downloadURL returns the tarball directory URL without a trailing slash,
+// applying the default.
 func (c *Client) downloadURL() string {
 	if c.DownloadURL != "" {
 		return strings.TrimRight(c.DownloadURL, "/")
@@ -67,6 +71,7 @@ func (c *Client) downloadURL() string {
 	return DefaultDownloadURL
 }
 
+// httpClient returns the configured HTTP client or a default with a timeout.
 func (c *Client) httpClient() *http.Client {
 	if c.HTTP != nil {
 		return c.HTTP
@@ -74,12 +79,16 @@ func (c *Client) httpClient() *http.Client {
 	return &http.Client{Timeout: 2 * time.Minute}
 }
 
+// release is the subset of a GitHub release object that sdlsync reads.
 type release struct {
 	TagName    string `json:"tag_name"`
 	Prerelease bool   `json:"prerelease"`
 	Draft      bool   `json:"draft"`
 }
 
+// getJSON GETs path from the API and decodes the JSON response into v. The
+// token is attached only when tokenAllowed; non-200 responses become errors via
+// apiError and the body is capped at 4 MiB.
 func (c *Client) getJSON(ctx context.Context, path string, v any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.apiURL()+path, nil)
 	if err != nil {
@@ -105,6 +114,8 @@ func (c *Client) getJSON(ctx context.Context, path string, v any) error {
 	return nil
 }
 
+// apiError converts a non-200 API response into an error, recognizing rate
+// limiting (and hinting at a token when haveToken is false).
 func apiError(resp *http.Response, body []byte, haveToken bool) error {
 	limited := resp.StatusCode == http.StatusTooManyRequests ||
 		(resp.StatusCode == http.StatusForbidden && (resp.Header.Get("X-RateLimit-Remaining") == "0" || strings.Contains(strings.ToLower(string(body)), "rate limit")))

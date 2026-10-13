@@ -726,7 +726,7 @@ var fnGetHaptics func(count *int32) *HapticID
 //
 // See also: OpenHaptic
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetHaptics() []HapticID {
 	var n int32
 	p := fnGetHaptics(&n)

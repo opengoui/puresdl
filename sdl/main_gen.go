@@ -18,7 +18,11 @@ import (
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewMainFunc.
+// The zero value means NULL (no callback); use NoMainFunc where an optional callback is not wanted.
 type MainFunc uintptr
+
+// NoMainFunc is the NULL MainFunc, for optional callback parameters.
+const NoMainFunc MainFunc = 0
 
 // NewMainFunc wraps fn as a C callback of type MainFunc.
 //

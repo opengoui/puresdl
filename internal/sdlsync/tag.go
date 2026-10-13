@@ -16,6 +16,8 @@ import (
 // pinned release tag.
 const DefaultVersionFile = "SDL_VERSION"
 
+// tagRE matches release tag names such as "release-3.4.18", "v3.4.18" or
+// "3.5.0-rc1"; the groups are kind prefix, major, minor, micro and suffix.
 var tagRE = regexp.MustCompile(`^(?:(release|prerelease|preview)-)?v?(\d{1,9})\.(\d{1,9})\.(\d{1,9})(?:-([0-9A-Za-z]+(?:[.\-][0-9A-Za-z]+)*))?$`)
 
 // Tag is a parsed release tag.

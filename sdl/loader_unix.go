@@ -8,6 +8,9 @@ import (
 	"github.com/ebitengine/purego"
 )
 
+// libraryCandidates returns the library names and paths tried, in order, when
+// no explicit path is given: bare names first so the dynamic linker's search
+// rules apply, then well-known install locations.
 func libraryCandidates() []string {
 	switch runtime.GOOS {
 	case "darwin":
@@ -48,12 +51,15 @@ func linuxLibDirs() []string {
 	return append(dirs, "/usr/local/lib", "/usr/local/lib64", "/usr/lib")
 }
 
+// openLibrary dlopens path with RTLD_NOW|RTLD_GLOBAL and returns the handle.
 func openLibrary(path string) (uintptr, error) {
 	return purego.Dlopen(path, purego.RTLD_NOW|purego.RTLD_GLOBAL)
 }
 
+// lookup returns the address of the symbol name in the library h.
 func lookup(h uintptr, name string) (uintptr, error) {
 	return purego.Dlsym(h, name)
 }
 
+// bindFunc binds the C function at addr to the Go function variable fptr.
 func bindFunc(fptr any, addr uintptr) { purego.RegisterFunc(fptr, addr) }

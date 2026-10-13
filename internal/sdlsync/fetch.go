@@ -18,6 +18,10 @@ import (
 	"strings"
 )
 
+// Limits that bound a download and its extraction, so a hostile or corrupt
+// tarball cannot exhaust disk or memory. The minHeaders sanity floor rejects
+// truncated releases; includeDir and metaName name the extracted subtree and
+// the metadata file stored next to it.
 const (
 	maxFileSize     = 4 << 20  // largest single header accepted
 	maxTotalSize    = 32 << 20 // all extracted headers together
@@ -140,6 +144,10 @@ func (s *Syncer) Sync(ctx context.Context, tag Tag) (*Synced, error) {
 	return &Synced{Meta: *meta, Include: filepath.Join(dir, "include"), Downloaded: true}, nil
 }
 
+// download fetches the tarball for tag and extracts its SDL3 headers into dst,
+// enforcing the size limits above. It returns the metadata describing the
+// extracted tree, including the tag and the SHA-256 of the compressed archive.
+// dst is not cleaned up on error.
 func (s *Syncer) download(ctx context.Context, tag Tag, dst string) (*Meta, error) {
 	url := s.Client.downloadURL() + "/" + tag.Name + ".tar.gz"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -255,6 +263,7 @@ type capReader struct {
 	n int64
 }
 
+// Read implements [io.Reader], failing once the byte budget is exhausted.
 func (c *capReader) Read(p []byte) (int, error) {
 	if c.n <= 0 {
 		return 0, errors.New("tarball expands beyond the decompressed size limit")
@@ -288,6 +297,8 @@ func treeDigest(dir string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
+// defineRE matches the SDL_{MAJOR,MINOR,MICRO}_VERSION defines and revisionRE
+// the SDL_REVISION define in SDL_version.h and SDL_revision.h.
 var (
 	defineRE   = regexp.MustCompile(`(?m)^#define\s+SDL_(MAJOR|MINOR|MICRO)_VERSION\s+(\d+)\s*$`)
 	revisionRE = regexp.MustCompile(`(?m)^#define\s+SDL_REVISION\s+"(SDL-[^"]+)"\s*$`)

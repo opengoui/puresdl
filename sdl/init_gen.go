@@ -22,7 +22,11 @@ import (
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewAppEvent_func.
+// The zero value means NULL (no callback); use NoAppEvent_func where an optional callback is not wanted.
 type AppEvent_func uintptr
+
+// NoAppEvent_func is the NULL AppEvent_func, for optional callback parameters.
+const NoAppEvent_func AppEvent_func = 0
 
 // NewAppEvent_func wraps fn as a C callback of type AppEvent_func.
 //
@@ -48,7 +52,11 @@ func NewAppEvent_func(fn func(appstate unsafe.Pointer, event *Event) AppResult) 
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewAppInit_func.
+// The zero value means NULL (no callback); use NoAppInit_func where an optional callback is not wanted.
 type AppInit_func uintptr
+
+// NoAppInit_func is the NULL AppInit_func, for optional callback parameters.
+const NoAppInit_func AppInit_func = 0
 
 // NewAppInit_func wraps fn as a C callback of type AppInit_func.
 //
@@ -72,7 +80,11 @@ func NewAppInit_func(fn func(appstate *unsafe.Pointer, argc int32, argv **byte) 
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewAppIterate_func.
+// The zero value means NULL (no callback); use NoAppIterate_func where an optional callback is not wanted.
 type AppIterate_func uintptr
+
+// NoAppIterate_func is the NULL AppIterate_func, for optional callback parameters.
+const NoAppIterate_func AppIterate_func = 0
 
 // NewAppIterate_func wraps fn as a C callback of type AppIterate_func.
 //
@@ -95,7 +107,11 @@ func NewAppIterate_func(fn func(appstate unsafe.Pointer) AppResult) AppIterate_f
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewAppQuit_func.
+// The zero value means NULL (no callback); use NoAppQuit_func where an optional callback is not wanted.
 type AppQuit_func uintptr
+
+// NoAppQuit_func is the NULL AppQuit_func, for optional callback parameters.
+const NoAppQuit_func AppQuit_func = 0
 
 // NewAppQuit_func wraps fn as a C callback of type AppQuit_func.
 //
@@ -125,7 +141,11 @@ type InitFlags uint32
 // See also: RunOnMainThread
 //
 // It holds a C function pointer; create one with NewMainThreadCallback.
+// The zero value means NULL (no callback); use NoMainThreadCallback where an optional callback is not wanted.
 type MainThreadCallback uintptr
+
+// NoMainThreadCallback is the NULL MainThreadCallback, for optional callback parameters.
+const NoMainThreadCallback MainThreadCallback = 0
 
 // NewMainThreadCallback wraps fn as a C callback of type MainThreadCallback.
 //
@@ -478,6 +498,17 @@ var fnSetAppMetadataProperty func(name *byte, value *byte) bool
 // A nil value is passed as NULL, which removes the property; an empty string is passed as an empty C string.
 func SetAppMetadataProperty(name string, value *string) bool {
 	return fnSetAppMetadataProperty(cstr(name), cstrPtr(value))
+}
+
+// SetAppMetadataPropertyValue is SetAppMetadataProperty with the value parameter as a plain string instead of a *string.
+// Use ClearAppMetadataProperty to pass NULL.
+func SetAppMetadataPropertyValue(name string, value string) bool {
+	return SetAppMetadataProperty(name, &value)
+}
+
+// ClearAppMetadataProperty is SetAppMetadataProperty with a nil value, which removes the property.
+func ClearAppMetadataProperty(name string) bool {
+	return SetAppMetadataProperty(name, nil)
 }
 
 var fnGetAppMetadataProperty func(name *byte) *byte

@@ -3,6 +3,7 @@ package sdl
 import (
 	"strings"
 	"sync"
+	"unicode/utf8"
 	"unsafe"
 )
 
@@ -12,6 +13,7 @@ import (
 func Ptr[T any](v T) *T { return &v }
 
 // LocaleInfo is a preferred locale: a language and an optional country.
+// Country is empty when the locale is generic (SDL NULL).
 type LocaleInfo struct {
 	Language string
 	Country  string
@@ -42,6 +44,8 @@ func GetPreferredLocales() []LocaleInfo {
 	return out
 }
 
+// scancodeNames holds the SDL-allocated name strings installed by
+// [SetScancodeName], keyed by scancode, guarded by scancodeNamesMu.
 var (
 	scancodeNamesMu sync.Mutex
 	scancodeNames   = map[Scancode]*byte{}
@@ -132,4 +136,81 @@ func IconvString(tocode string, fromcode string, inbuf []byte) []byte {
 		n += w
 	}
 	return append([]byte{}, unsafe.Slice(p, n)...)
+}
+
+// userdataHandles maps a token address (a 1-byte SDL allocation) to its value.
+var userdataHandles sync.Map // uintptr -> any
+
+// NewUserdataHandle stores v and returns an opaque non-nil token that can be
+// passed as the userdata argument of ReadAsyncIO, WriteAsyncIO, CloseAsyncIO,
+// VirtualJoystickDesc.Userdata and similar. SDL keeps userdata past the call,
+// so passing a pointer to Go-managed memory is unsafe.
+//
+// The token is a unique address in the C heap (a 1-byte SDL allocation). It is
+// never dereferenced, and being a real non-Go address it is safe to hold in Go
+// stack frames and struct fields. Retrieve v with UserdataHandleValue and
+// release the token with FreeUserdataHandle once SDL no longer reports it.
+// It requires libSDL3 to be loaded and panics if the allocation fails.
+func NewUserdataHandle(v any) unsafe.Pointer {
+	m := Malloc(1)
+	if m == nil {
+		panic("sdl: NewUserdataHandle: SDL_malloc failed")
+	}
+	userdataHandles.Store(uintptr(m), v)
+	return m
+}
+
+// UserdataHandleValue returns the value stored for a token from
+// NewUserdataHandle, or nil when the token is unknown or already freed.
+func UserdataHandleValue(p unsafe.Pointer) any {
+	v, _ := userdataHandles.Load(uintptr(p))
+	return v
+}
+
+// FreeUserdataHandle releases a token from NewUserdataHandle and its C
+// allocation. Freeing an unknown or already freed token is a no-op.
+func FreeUserdataHandle(p unsafe.Pointer) {
+	if _, ok := userdataHandles.LoadAndDelete(uintptr(p)); ok {
+		Free(p)
+	}
+}
+
+// StepUTF8 decodes the first UTF-8 sequence of s and returns the code point
+// and the number of bytes consumed. An invalid sequence yields
+// INVALID_UNICODE_CODEPOINT and advances by one byte; an empty string yields
+// (0, 0). It is a pure-Go counterpart of SDL_StepUTF8.
+func StepUTF8(s string) (r rune, size int) {
+	if s == "" {
+		return 0, 0
+	}
+	r, size = utf8.DecodeRuneInString(s)
+	if r == utf8.RuneError && size <= 1 {
+		return INVALID_UNICODE_CODEPOINT, 1
+	}
+	return r, size
+}
+
+// StepBackUTF8 decodes the last UTF-8 sequence of s and returns the code point
+// and the number of bytes it occupies, so s[:len(s)-size] is the remainder. An
+// invalid trailing sequence yields INVALID_UNICODE_CODEPOINT with size 1; an
+// empty string yields (0, 0). It is a pure-Go counterpart of SDL_StepBackUTF8.
+func StepBackUTF8(s string) (r rune, size int) {
+	if s == "" {
+		return 0, 0
+	}
+	r, size = utf8.DecodeLastRuneInString(s)
+	if r == utf8.RuneError && size <= 1 {
+		return INVALID_UNICODE_CODEPOINT, 1
+	}
+	return r, size
+}
+
+// UCS4ToUTF8 returns the UTF-8 encoding of the code point r. A negative value,
+// a surrogate or a value above U+10FFFF encodes INVALID_UNICODE_CODEPOINT. It
+// is a pure-Go counterpart of SDL_UCS4ToUTF8.
+func UCS4ToUTF8(r rune) string {
+	if !utf8.ValidRune(r) {
+		r = INVALID_UNICODE_CODEPOINT
+	}
+	return string(r)
 }

@@ -38,6 +38,8 @@ type Result struct {
 	TypedConsts int
 }
 
+// gen holds the state of one generation run: the input API, the Go names
+// assigned so far and the output buffers per header.
 type gen struct {
 	api      *ir.API
 	opt      Options
@@ -64,10 +66,13 @@ type gen struct {
 	skippedNames map[string]bool
 }
 
+// fileBuf accumulates the generated declarations of one output file.
 type fileBuf struct {
 	types, consts, funcs []jen.Code
 }
 
+// layoutEntry is the C size, alignment and field offsets that the layout test
+// checks for one generated struct.
 type layoutEntry struct {
 	goName      string
 	size, align int64
@@ -75,11 +80,13 @@ type layoutEntry struct {
 	fields      []layoutField
 }
 
+// layoutField is the C offset of one field of a layoutEntry.
 type layoutField struct {
 	goName string
 	offset int64
 }
 
+// file returns the buffer for the output file of header, creating it on first use.
 func (g *gen) file(header string) *fileBuf {
 	f := fileName(header)
 	if b, ok := g.files[f]; ok {
@@ -90,6 +97,7 @@ func (g *gen) file(header string) *fileBuf {
 	return b
 }
 
+// skip records that the C declaration what was not bound, with the reason.
 func (g *gen) skip(what, why string) {
 	g.skipped = append(g.skipped, fmt.Sprintf("%s: %s", what, why))
 	if g.skippedNames == nil {
@@ -101,6 +109,7 @@ func (g *gen) skip(what, why string) {
 	}
 }
 
+// errorf records a generation error; Generate reports them all at the end.
 func (g *gen) errorf(format string, a ...any) {
 	g.errs = append(g.errs, fmt.Sprintf(format, a...))
 }
@@ -184,6 +193,7 @@ func Generate(api *ir.API, opt Options) (*Result, error) {
 	return res, nil
 }
 
+// newFile returns an empty output file with the generated-code header and purego import name.
 func (g *gen) newFile() *jen.File {
 	f := jen.NewFile(g.pkg)
 	f.HeaderComment(g.headerComment())
@@ -191,6 +201,7 @@ func (g *gen) newFile() *jen.File {
 	return f
 }
 
+// bindFile builds the file that registers every bound C symbol with purego.
 func (g *gen) bindFile() *jen.File {
 	f := g.newFile()
 	sort.Slice(g.binds, func(i, j int) bool { return g.binds[i][1] < g.binds[j][1] })
@@ -200,6 +211,29 @@ func (g *gen) bindFile() *jen.File {
 	}
 	f.Comment("bindAll binds every wrapped C function. It runs after the library is loaded.")
 	f.Func().Id("bindAll").Params().Block(body...)
+	f.Comment("fitsInt32 reports whether n can be passed to SDL as an int32 count. When it")
+	f.Comment("cannot, it sets the SDL error to a message naming fn and returns false.")
+	f.Func().Id("fitsInt32").Params(jen.Id("n").Int(), jen.Id("fn").String()).Bool().Block(
+		jen.If(jen.Id("n").Op(">").Qual("math", "MaxInt32")).Block(
+			jen.Id("SetError").Call(jen.Lit("%s: length %d exceeds the int32 limit"), jen.Id("fn"), jen.Id("n")),
+			jen.Return(jen.False()),
+		),
+		jen.Return(jen.True()),
+	)
+	f.Comment("Number is the set of fixed-size numeric element types accepted by the generic")
+	f.Comment("slice forms of the (pointer, byte length) functions. None of them contains a")
+	f.Comment("pointer, so SDL can safely read or fill the backing array.")
+	f.Type().Id("Number").Interface(jen.Op("~").Int8().Op("|").Op("~").Uint8().Op("|").Op("~").Int16().Op("|").Op("~").Uint16().Op("|").Op("~").Int32().Op("|").Op("~").Uint32().Op("|").Op("~").Int64().Op("|").Op("~").Uint64().Op("|").Op("~").Float32().Op("|").Op("~").Float64())
+	f.Comment("planarPtrs returns the address of the first byte of each plane, with nil for")
+	f.Comment("an empty plane. The caller must keep planes alive across the C call.")
+	f.Func().Id("planarPtrs").Params(jen.Id("planes").Index().Index().Byte()).Index().Qual("unsafe", "Pointer").Block(
+		jen.Id("ptrs").Op(":=").Make(jen.Index().Qual("unsafe", "Pointer"), jen.Len(jen.Id("planes"))),
+		jen.For(jen.Id("i").Op(",").Id("p").Op(":=").Range().Id("planes")).Block(
+			jen.If(jen.Len(jen.Id("p")).Op(">").Lit(0)).Block(
+				jen.Id("ptrs").Index(jen.Id("i")).Op("=").Qual("unsafe", "Pointer").Call(jen.Op("&").Id("p").Index(jen.Lit(0))))),
+		jen.Return(jen.Id("ptrs")),
+	)
+	textureHelpers(f)
 	var names []jen.Code
 	for _, b := range g.binds {
 		names = append(names, jen.Lit(b[1]))
@@ -209,6 +243,8 @@ func (g *gen) bindFile() *jen.File {
 	return f
 }
 
+// layoutFile builds the generated test that compares struct sizes, alignments
+// and field offsets with the C layout.
 func (g *gen) layoutFile() *jen.File {
 	f := g.newFile()
 	f.ImportName("unsafe", "unsafe")
@@ -243,6 +279,7 @@ func start(lines []string) *jen.Statement {
 	return s
 }
 
+// headerComment returns the "Code generated ... DO NOT EDIT." line naming the SDL headers' version.
 func (g *gen) headerComment() string {
 	src := g.api.Version + " headers"
 	switch {

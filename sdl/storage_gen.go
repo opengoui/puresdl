@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // An abstract interface for filesystem access.
 //
@@ -212,8 +215,46 @@ var fnReadStorageFile func(storage *Storage, path *byte, destination unsafe.Poin
 // Since: SDL 3.2.0.
 //
 // See also: GetStorageFileSize, StorageReady, WriteStorageFile
+//
+// ReadStorageFileBytes takes a []byte instead of a pointer and length.
 func ReadStorageFile(storage *Storage, path string, destination unsafe.Pointer, length uint64) bool {
 	return fnReadStorageFile(storage, cstr(path), destination, length)
+}
+
+// ReadStorageFileBytes is the []byte form of ReadStorageFile: it takes b instead of the destination pointer and derives the length argument from its length.
+//
+// An empty or nil slice is passed to SDL as a NULL pointer with a zero length.
+//
+// SDL fills b in place.
+//
+// See also: ReadStorageFile
+func ReadStorageFileBytes(storage *Storage, path string, b []byte) bool {
+	n := len(b)
+	var ptr unsafe.Pointer
+	if n > 0 {
+		ptr = unsafe.Pointer(&b[0])
+	}
+	ret := fnReadStorageFile(storage, cstr(path), ptr, uint64(n))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// ReadStorageFileSlice is the typed-slice form of ReadStorageFile: it takes b instead of the destination pointer and derives the length argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is passed to SDL as a NULL pointer with a zero length.
+//
+// SDL fills b in place.
+//
+// See also: ReadStorageFile
+func ReadStorageFileSlice[T Number](storage *Storage, path string, b []T) bool {
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	var ptr unsafe.Pointer
+	if n > 0 {
+		ptr = unsafe.Pointer(&b[0])
+	}
+	ret := fnReadStorageFile(storage, cstr(path), ptr, uint64(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnWriteStorageFile func(storage *Storage, path *byte, source unsafe.Pointer, length uint64) bool
@@ -231,8 +272,42 @@ var fnWriteStorageFile func(storage *Storage, path *byte, source unsafe.Pointer,
 // Since: SDL 3.2.0.
 //
 // See also: GetStorageSpaceRemaining, ReadStorageFile, StorageReady
+//
+// WriteStorageFileBytes takes a []byte instead of a pointer and length.
 func WriteStorageFile(storage *Storage, path string, source unsafe.Pointer, length uint64) bool {
 	return fnWriteStorageFile(storage, cstr(path), source, length)
+}
+
+// WriteStorageFileBytes is the []byte form of WriteStorageFile: it takes b instead of the source pointer and derives the length argument from its length.
+//
+// An empty or nil slice is passed to SDL as a NULL pointer with a zero length.
+//
+// See also: WriteStorageFile
+func WriteStorageFileBytes(storage *Storage, path string, b []byte) bool {
+	n := len(b)
+	var ptr unsafe.Pointer
+	if n > 0 {
+		ptr = unsafe.Pointer(&b[0])
+	}
+	ret := fnWriteStorageFile(storage, cstr(path), ptr, uint64(n))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// WriteStorageFileSlice is the typed-slice form of WriteStorageFile: it takes b instead of the source pointer and derives the length argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is passed to SDL as a NULL pointer with a zero length.
+//
+// See also: WriteStorageFile
+func WriteStorageFileSlice[T Number](storage *Storage, path string, b []T) bool {
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	var ptr unsafe.Pointer
+	if n > 0 {
+		ptr = unsafe.Pointer(&b[0])
+	}
+	ret := fnWriteStorageFile(storage, cstr(path), ptr, uint64(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnCreateStorageDirectory func(storage *Storage, path *byte) bool
@@ -410,7 +485,7 @@ var fnGlobStorageDirectory func(storage *Storage, path *byte, pattern *byte, fla
 // An empty path is passed as NULL.
 // An empty pattern is passed as NULL.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GlobStorageDirectory(storage *Storage, path string, pattern string, flags GlobFlags) []string {
 	var n int32
 	p := fnGlobStorageDirectory(storage, cstrNull(path), cstrNull(pattern), flags, &n)

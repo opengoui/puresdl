@@ -69,7 +69,11 @@ type MouseID uint32
 // See also: SetRelativeMouseTransform
 //
 // It holds a C function pointer; create one with NewMouseMotionTransformCallback.
+// The zero value means NULL (no callback); use NoMouseMotionTransformCallback where an optional callback is not wanted.
 type MouseMotionTransformCallback uintptr
+
+// NoMouseMotionTransformCallback is the NULL MouseMotionTransformCallback, for optional callback parameters.
+const NoMouseMotionTransformCallback MouseMotionTransformCallback = 0
 
 // NewMouseMotionTransformCallback wraps fn as a C callback of type MouseMotionTransformCallback.
 //
@@ -186,7 +190,7 @@ var fnGetMice func(count *int32) *MouseID
 //
 // See also: GetMouseNameForID, HasMouse
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetMice() []MouseID {
 	var n int32
 	p := fnGetMice(&n)

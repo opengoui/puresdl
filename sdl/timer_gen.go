@@ -29,7 +29,11 @@ import (
 // See also: AddTimerNS
 //
 // It holds a C function pointer; create one with NewNSTimerCallback.
+// The zero value means NULL (no callback); use NoNSTimerCallback where an optional callback is not wanted.
 type NSTimerCallback uintptr
+
+// NoNSTimerCallback is the NULL NSTimerCallback, for optional callback parameters.
+const NoNSTimerCallback NSTimerCallback = 0
 
 // NewNSTimerCallback wraps fn as a C callback of type NSTimerCallback.
 //
@@ -61,7 +65,11 @@ func NewNSTimerCallback(fn func(userdata unsafe.Pointer, timerID TimerID, interv
 // See also: AddTimer
 //
 // It holds a C function pointer; create one with NewTimerCallback.
+// The zero value means NULL (no callback); use NoTimerCallback where an optional callback is not wanted.
 type TimerCallback uintptr
+
+// NoTimerCallback is the NULL TimerCallback, for optional callback parameters.
+const NoTimerCallback TimerCallback = 0
 
 // NewTimerCallback wraps fn as a C callback of type TimerCallback.
 //

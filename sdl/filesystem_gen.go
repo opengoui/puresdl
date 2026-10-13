@@ -51,7 +51,11 @@ type PathInfo struct {
 // See also: EnumerateDirectory
 //
 // It holds a C function pointer; create one with NewEnumerateDirectoryCallback.
+// The zero value means NULL (no callback); use NoEnumerateDirectoryCallback where an optional callback is not wanted.
 type EnumerateDirectoryCallback uintptr
+
+// NoEnumerateDirectoryCallback is the NULL EnumerateDirectoryCallback, for optional callback parameters.
+const NoEnumerateDirectoryCallback EnumerateDirectoryCallback = 0
 
 // NewEnumerateDirectoryCallback wraps fn as a C callback of type EnumerateDirectoryCallback.
 //
@@ -501,7 +505,7 @@ var fnGlobDirectory func(path *byte, pattern *byte, flags GlobFlags, count *int3
 //
 // An empty pattern is passed as NULL.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GlobDirectory(path string, pattern string, flags GlobFlags) []string {
 	var n int32
 	p := fnGlobDirectory(cstr(path), cstrNull(pattern), flags, &n)

@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 type Surface struct {
 	// The flags of the surface, read-only
@@ -21,6 +24,19 @@ type Surface struct {
 	Refcount int32
 	// Reserved for internal use
 	Reserved unsafe.Pointer
+}
+
+// PixelBytes returns Pixels as a slice of H*Pitch bytes without copying. It
+// returns nil for a nil receiver, a nil Pixels pointer or a non-positive H or Pitch.
+//
+// The slice aliases memory owned by SDL: do not retain it after the surface is destroyed or resized.
+// The slice covers Pitch*H bytes, including row padding.
+// A surface that needs locking (MUSTLOCK) must be locked with LockSurface while it is used.
+func (p *Surface) PixelBytes() []byte {
+	if p == nil || p.Pixels == nil || p.H <= 0 || p.Pitch <= 0 {
+		return nil
+	}
+	return unsafe.Slice((*byte)(p.Pixels), int(p.H)*int(p.Pitch))
 }
 
 // The flags on an Surface.
@@ -377,7 +393,7 @@ var fnGetSurfaceImages func(surface *Surface, count *int32) **Surface
 //
 // See also: AddSurfaceAlternateImage, RemoveSurfaceAlternateImages, SurfaceHasAlternateImages
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetSurfaceImages(surface *Surface) []*Surface {
 	var n int32
 	p := fnGetSurfaceImages(surface, &n)
@@ -1301,8 +1317,27 @@ var fnFillSurfaceRects func(dst *Surface, rects *Rect, count int32, color uint32
 // Since: SDL 3.2.0.
 //
 // See also: FillSurfaceRect
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; FillSurfaceRectsSlice takes a slice instead.
 func FillSurfaceRects(dst *Surface, rects *Rect, count int32, color uint32) bool {
 	return fnFillSurfaceRects(dst, rects, count, color)
+}
+
+// FillSurfaceRectsSlice is the slice form of FillSurfaceRects: it takes rects as a Go slice and derives the count argument from its length.
+//
+// An empty or nil rects slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: FillSurfaceRects
+func FillSurfaceRectsSlice(dst *Surface, rects []Rect, color uint32) bool {
+	if len(rects) == 0 {
+		return true
+	}
+	if !fitsInt32(len(rects), "FillSurfaceRectsSlice") {
+		return false
+	}
+	ret := fnFillSurfaceRects(dst, &rects[0], int32(len(rects)), color)
+	runtime.KeepAlive(rects)
+	return ret
 }
 
 var fnBlitSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool

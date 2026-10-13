@@ -11,6 +11,8 @@ import (
 // sources caches header contents for doc comment recovery.
 type sources map[string][]byte
 
+// get returns the contents of path, reading and caching it on first use. An
+// unreadable file yields nil.
 func (s sources) get(path string) []byte {
 	if b, ok := s[path]; ok {
 		return b
@@ -20,8 +22,9 @@ func (s sources) get(path string) []byte {
 	return b
 }
 
-// cleanComment strips the comment markers from a doxygen block and the
-// leading asterisks of each line.
+// cleanComment strips the leading asterisk (and one following space) from
+// each line of a doxygen block body whose opening and closing markers were
+// already removed, and trims surrounding blank lines.
 func cleanComment(body string) string {
 	lines := strings.Split(body, "\n")
 	for i, l := range lines {

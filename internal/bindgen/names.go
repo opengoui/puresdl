@@ -5,6 +5,7 @@ import (
 	"unicode"
 )
 
+// goKeywords are the Go keywords, which cannot be used as parameter names.
 var goKeywords = map[string]bool{
 	"break": true, "case": true, "chan": true, "const": true, "continue": true, "default": true,
 	"defer": true, "else": true, "fallthrough": true, "for": true, "func": true, "go": true,
@@ -48,6 +49,7 @@ func goName(c string) string {
 	return upperFirst(n)
 }
 
+// upperFirst returns s with its first rune upper-cased.
 func upperFirst(s string) string {
 	if s == "" {
 		return s
@@ -85,6 +87,7 @@ func paramName(c string, i int) string {
 	return c
 }
 
+// itoa formats a non-negative i in decimal without importing strconv.
 func itoa(i int) string {
 	if i == 0 {
 		return "0"

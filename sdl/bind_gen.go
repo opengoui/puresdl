@@ -2,6 +2,11 @@
 
 package sdl
 
+import (
+	"math"
+	"unsafe"
+)
+
 // bindAll binds every wrapped C function. It runs after the library is loaded.
 func bindAll() {
 	register(&fnAcquireCameraFrame, "SDL_AcquireCameraFrame")
@@ -1119,6 +1124,112 @@ func bindAll() {
 	register(&fnSetenvUnsafe, "SDL_setenv_unsafe")
 	register(&fnSrand, "SDL_srand")
 	register(&fnUnsetenvUnsafe, "SDL_unsetenv_unsafe")
+}
+
+// fitsInt32 reports whether n can be passed to SDL as an int32 count. When it
+// cannot, it sets the SDL error to a message naming fn and returns false.
+func fitsInt32(n int, fn string) bool {
+	if n > math.MaxInt32 {
+		SetError("%s: length %d exceeds the int32 limit", fn, n)
+		return false
+	}
+	return true
+}
+
+// Number is the set of fixed-size numeric element types accepted by the generic
+// slice forms of the (pointer, byte length) functions. None of them contains a
+// pointer, so SDL can safely read or fill the backing array.
+type Number interface {
+	~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~int64 | ~uint64 | ~float32 | ~float64
+}
+
+// planarPtrs returns the address of the first byte of each plane, with nil for
+// an empty plane. The caller must keep planes alive across the C call.
+func planarPtrs(planes [][]byte) []unsafe.Pointer {
+	ptrs := make([]unsafe.Pointer, len(planes))
+	for i, p := range planes {
+		if len(p) > 0 {
+			ptrs[i] = unsafe.Pointer(&p[0])
+		}
+	}
+	return ptrs
+}
+
+// textureHasFormat reports whether the texture has one of formats. Otherwise it
+// sets the SDL error to a message naming fn and returns false.
+func textureHasFormat(fn string, texture *Texture, formats ...PixelFormat) bool {
+	if texture == nil {
+		return SetError("%s: texture is nil", fn)
+	}
+	for _, f := range formats {
+		if texture.Format == f {
+			return true
+		}
+	}
+	return SetError("%s: unsupported texture format %#x", fn, texture.Format)
+}
+
+// textureUpdateRegion returns the size of the rectangle an update covers: rect,
+// or the whole texture when rect is nil. It sets the SDL error to a message
+// naming fn and returns false when the texture is nil or the size is negative.
+func textureUpdateRegion(fn string, texture *Texture, rect *Rect) (w int64, h int64, ok bool) {
+	if texture == nil {
+		SetError("%s: texture is nil", fn)
+		return 0, 0, false
+	}
+	w, h = int64(texture.W), int64(texture.H)
+	if rect != nil {
+		w, h = int64(rect.W), int64(rect.H)
+	}
+	if w < 0 || h < 0 {
+		SetError("%s: negative rect size %dx%d", fn, w, h)
+		return 0, 0, false
+	}
+	return w, h, true
+}
+
+// texturePlanarTail returns the number of bytes SDL_UpdateTexture reads after the
+// h rows of a single-plane buffer when format is planar: the chroma planes of YV12 and
+// IYUV, or the interleaved UV plane of NV12, NV21 and P010. It is zero for every other
+// format.
+func texturePlanarTail(format PixelFormat, h, pitch int64) int64 {
+	switch format {
+	case PIXELFORMAT_YV12, PIXELFORMAT_IYUV:
+		return 2 * ((h + 1) / 2) * ((pitch + 1) / 2)
+	case PIXELFORMAT_NV12, PIXELFORMAT_NV21, PIXELFORMAT_P010:
+		return ((h + 1) / 2) * pitch
+	}
+	return 0
+}
+
+// textureCheckPlane checks one pixel plane of a texture update: the pitch must be
+// positive and the n bytes must hold h rows of w samples of bpp bytes at that pitch
+// (the last row needs only w*bpp bytes), plus tail bytes of further planes that follow
+// the h full rows. An empty rectangle needs no bytes.
+// Otherwise it sets the SDL error to a message naming fn and plane and returns false.
+func textureCheckPlane(fn, plane string, n int, pitch int32, w, h, bpp, tail int64) bool {
+	if pitch <= 0 {
+		return SetError("%s: %s pitch %d must be positive", fn, plane, pitch)
+	}
+	if w == 0 || h == 0 {
+		return true
+	}
+	need := int64(pitch)*(h-1) + w*bpp
+	if tail > 0 {
+		need = int64(pitch)*h + tail
+	}
+	if int64(n) < need {
+		return SetError("%s: %s has %d bytes, need %d", fn, plane, n, need)
+	}
+	return true
+}
+
+// bytesPtr returns the address of the first byte of b, or nil when b is empty.
+func bytesPtr(b []byte) *uint8 {
+	if len(b) == 0 {
+		return nil
+	}
+	return &b[0]
 }
 
 // allBindings lists the C symbols that bindAll registers.

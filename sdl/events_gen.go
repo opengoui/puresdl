@@ -110,6 +110,30 @@ type DropEvent struct {
 	Data *byte
 }
 
+// SourceString returns a copy of the NUL-terminated Source string, or "" for a nil receiver
+// or a NULL pointer.
+//
+// SDL owns the Source memory and it is valid only while the event is being handled;
+// the returned string is an independent Go copy and stays valid.
+func (p *DropEvent) SourceString() string {
+	if p == nil {
+		return ""
+	}
+	return GoString(p.Source)
+}
+
+// DataString returns a copy of the NUL-terminated Data string, or "" for a nil receiver
+// or a NULL pointer.
+//
+// SDL owns the Data memory and it is valid only while the event is being handled;
+// the returned string is an independent Go copy and stays valid.
+func (p *DropEvent) DataString() string {
+	if p == nil {
+		return ""
+	}
+	return GoString(p.Data)
+}
+
 // The structure for all events in SDL.
 //
 // The Event structure is the core of all event handling in SDL. Event
@@ -1020,6 +1044,18 @@ type TextEditingEvent struct {
 	Length int32
 }
 
+// TextString returns a copy of the NUL-terminated Text string, or "" for a nil receiver
+// or a NULL pointer.
+//
+// SDL owns the Text memory and it is valid only while the event is being handled;
+// the returned string is an independent Go copy and stays valid.
+func (p *TextEditingEvent) TextString() string {
+	if p == nil {
+		return ""
+	}
+	return GoString(p.Text)
+}
+
 // Keyboard text input event structure (event.text.*)
 //
 // This event will never be delivered unless text input is enabled by calling
@@ -1038,6 +1074,18 @@ type TextInputEvent struct {
 	WindowID WindowID
 	// The input text, UTF-8 encoded
 	Text *byte
+}
+
+// TextString returns a copy of the NUL-terminated Text string, or "" for a nil receiver
+// or a NULL pointer.
+//
+// SDL owns the Text memory and it is valid only while the event is being handled;
+// the returned string is an independent Go copy and stays valid.
+func (p *TextInputEvent) TextString() string {
+	if p == nil {
+		return ""
+	}
+	return GoString(p.Text)
 }
 
 // Touch finger event structure (event.tfinger.*)
@@ -1137,7 +1185,11 @@ type WindowEvent struct {
 // See also: SetEventFilter, AddEventWatch
 //
 // It holds a C function pointer; create one with NewEventFilter.
+// The zero value means NULL (no callback); use NoEventFilter where an optional callback is not wanted.
 type EventFilter uintptr
+
+// NoEventFilter is the NULL EventFilter, for optional callback parameters.
+const NoEventFilter EventFilter = 0
 
 // NewEventFilter wraps fn as a C callback of type EventFilter.
 //

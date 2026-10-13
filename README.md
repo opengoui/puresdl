@@ -1,5 +1,7 @@
 # puresdl
 
+[English](README.en.md) | 简体中文
+
 puresdl 是 SDL 3 的纯 Go 绑定（Go module `github.com/opengoui/puresdl`，包名 `sdl`）。
 
 - **无 cgo、无 C 工具链**：基于 [ebitengine/purego](https://github.com/ebitengine/purego) 在运行时 `dlopen` libSDL3，`CGO_ENABLED=0` 即可构建，可直接交叉编译 darwin / linux / windows。
@@ -37,7 +39,7 @@ func main() {
 
 	var window *sdl.Window
 	var renderer *sdl.Renderer
-	if !sdl.CreateWindowAndRenderer("hello", 640, 480, sdl.WINDOW_RESIZABLE, &window, &renderer) {
+	if !sdl.CreateWindowAndRenderer("hello", 640, 480, sdl.WINDOW_RESIZABLE|sdl.WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer) {
 		panic(sdl.GetError())
 	}
 	defer sdl.DestroyWindow(window)
@@ -59,12 +61,14 @@ func main() {
 }
 ```
 
-仓库自带一个更完整的示例 [`examples/hello`](examples/hello/main.go)：颜色随时间渐变，按 Esc 或关闭窗口退出，并支持 `-frames N`（运行 N 帧后退出），因此可以无头运行：
+仓库的 [`examples/`](examples/README.md) 目录镜像 SDL 官方 `examples/`，每个示例都是对应 C 程序的 Go 移植，例如 [`examples/renderer/01-clear`](examples/renderer/01-clear/main.go)：颜色随时间渐变，按 Esc 或关闭窗口退出，并支持 `-frames N`（运行 N 帧后退出），因此可以无头运行：
 
 ```bash
-go run ./examples/hello                                   # 打开窗口
-SDL_VIDEODRIVER=dummy go run ./examples/hello -frames 30  # 无头：不开窗口，30 帧后退出
+go run ./examples/renderer/01-clear                                   # 打开窗口
+SDL_VIDEODRIVER=dummy go run ./examples/renderer/01-clear -frames 30  # 无头：不开窗口，30 帧后退出
 ```
+
+示例的自动化交互测试与手动检查清单见 [`examples/TESTING.md`](examples/TESTING.md)。
 
 ## 安装 SDL3
 
@@ -163,7 +167,7 @@ CGO_ENABLED=0 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy go test ./...
 ### 平台验证状态
 
 - darwin/arm64：本机完整测试。
-- linux/amd64、linux/arm64：在 Docker（Ubuntu 26.04，`libsdl3-0` 3.4.2，`SDL_VIDEODRIVER=dummy`，amd64 为 QEMU 模拟）中跑通 `sdl` 测试与 `examples/hello`。
+- linux/amd64、linux/arm64：在 Docker（Ubuntu 26.04，`libsdl3-0` 3.4.2，`SDL_VIDEODRIVER=dummy`，amd64 为 QEMU 模拟）中跑通 `sdl` 测试与 `examples/renderer/01-clear`。
 - windows/amd64、windows/arm64、darwin/amd64：只做交叉编译与 `go vet`（CI 在真机上运行测试，见 `.github/workflows/ci.yml`）。
 - 32 位目标（linux/386、linux/arm、windows/386）：包可以编译，但 purego 在 32 位上不支持按值传递结构体，所以 `Load` 直接返回 `sdl.ErrUnsupportedArch`，不会绑定任何函数。
 
@@ -196,7 +200,7 @@ puresdl/
 │   ├── ir/                与目标无关的 C API 中间表示
 │   └── bindgen/           ir -> Go 源码（jennifer）
 ├── sdl/                   生成的绑定包 + 手写的 loader*.go、doc.go、测试
-├── examples/hello/        最小可运行示例
+├── examples/              镜像 SDL/examples 的 Go 示例（见 examples/README.md）
 └── docs/
     ├── architecture.md    生成器架构
     ├── puregotk-analysis.md  对 puregotk（GIR 生成器）的分析与对比

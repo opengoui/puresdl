@@ -4,6 +4,7 @@ package sdl
 
 import (
 	"github.com/ebitengine/purego"
+	"runtime"
 	"unsafe"
 )
 
@@ -93,7 +94,11 @@ type EGLAttrib int64
 // See also: EGL_SetAttributeCallbacks
 //
 // It holds a C function pointer; create one with NewEGLAttribArrayCallback.
+// The zero value means NULL (no callback); use NoEGLAttribArrayCallback where an optional callback is not wanted.
 type EGLAttribArrayCallback uintptr
+
+// NoEGLAttribArrayCallback is the NULL EGLAttribArrayCallback, for optional callback parameters.
+const NoEGLAttribArrayCallback EGLAttribArrayCallback = 0
 
 // NewEGLAttribArrayCallback wraps fn as a C callback of type EGLAttribArrayCallback.
 //
@@ -144,7 +149,11 @@ type EGLDisplay unsafe.Pointer
 // See also: EGL_SetAttributeCallbacks
 //
 // It holds a C function pointer; create one with NewEGLIntArrayCallback.
+// The zero value means NULL (no callback); use NoEGLIntArrayCallback where an optional callback is not wanted.
 type EGLIntArrayCallback uintptr
+
+// NoEGLIntArrayCallback is the NULL EGLIntArrayCallback, for optional callback parameters.
+const NoEGLIntArrayCallback EGLIntArrayCallback = 0
 
 // NewEGLIntArrayCallback wraps fn as a C callback of type EGLIntArrayCallback.
 //
@@ -204,7 +213,11 @@ type GLProfile uint32
 // See also: SetWindowHitTest
 //
 // It holds a C function pointer; create one with NewHitTest.
+// The zero value means NULL (no callback); use NoHitTest where an optional callback is not wanted.
 type HitTest uintptr
+
+// NoHitTest is the NULL HitTest, for optional callback parameters.
+const NoHitTest HitTest = 0
 
 // NewHitTest wraps fn as a C callback of type HitTest.
 //
@@ -687,7 +700,7 @@ var fnGetDisplays func(count *int32) *DisplayID
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetDisplays() []DisplayID {
 	var n int32
 	p := fnGetDisplays(&n)
@@ -908,7 +921,7 @@ var fnGetFullscreenDisplayModes func(displayID DisplayID, count *int32) **Displa
 //
 // See also: GetDisplays
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetFullscreenDisplayModes(displayID DisplayID) []DisplayMode {
 	var n int32
 	p := fnGetFullscreenDisplayModes(displayID, &n)
@@ -1159,7 +1172,7 @@ var fnGetWindowICCProfile func(window *Window, size *uint) unsafe.Pointer
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetWindowICCProfile(window *Window) []byte {
 	var n uint
 	p := fnGetWindowICCProfile(window, &n)
@@ -1195,7 +1208,7 @@ var fnGetWindows func(count *int32) **Window
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetWindows() []*Window {
 	var n int32
 	p := fnGetWindows(&n)
@@ -2606,8 +2619,27 @@ var fnUpdateWindowSurfaceRects func(window *Window, rects *Rect, numrects int32)
 // Since: SDL 3.2.0.
 //
 // See also: GetWindowSurface, UpdateWindowSurface
+//
+// Passing &s[0] of an empty slice panics and the count must match the slice length; UpdateWindowSurfaceRectsSlice takes a slice instead.
 func UpdateWindowSurfaceRects(window *Window, rects *Rect, numrects int32) bool {
 	return fnUpdateWindowSurfaceRects(window, rects, numrects)
+}
+
+// UpdateWindowSurfaceRectsSlice is the slice form of UpdateWindowSurfaceRects: it takes rects as a Go slice and derives the numrects argument from its length.
+//
+// An empty or nil rects slice is a no-op that returns true without calling SDL. A slice with more than MaxInt32 elements sets the SDL error and returns false.
+//
+// See also: UpdateWindowSurfaceRects
+func UpdateWindowSurfaceRectsSlice(window *Window, rects []Rect) bool {
+	if len(rects) == 0 {
+		return true
+	}
+	if !fitsInt32(len(rects), "UpdateWindowSurfaceRectsSlice") {
+		return false
+	}
+	ret := fnUpdateWindowSurfaceRects(window, &rects[0], int32(len(rects)))
+	runtime.KeepAlive(rects)
+	return ret
 }
 
 var fnDestroyWindowSurface func(window *Window) bool

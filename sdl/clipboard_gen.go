@@ -18,7 +18,11 @@ import (
 // See also: SetClipboardData
 //
 // It holds a C function pointer; create one with NewClipboardCleanupCallback.
+// The zero value means NULL (no callback); use NoClipboardCleanupCallback where an optional callback is not wanted.
 type ClipboardCleanupCallback uintptr
+
+// NoClipboardCleanupCallback is the NULL ClipboardCleanupCallback, for optional callback parameters.
+const NoClipboardCleanupCallback ClipboardCleanupCallback = 0
 
 // NewClipboardCleanupCallback wraps fn as a C callback of type ClipboardCleanupCallback.
 //
@@ -47,7 +51,11 @@ func NewClipboardCleanupCallback(fn func(userdata unsafe.Pointer)) ClipboardClea
 // See also: SetClipboardData
 //
 // It holds a C function pointer; create one with NewClipboardDataCallback.
+// The zero value means NULL (no callback); use NoClipboardDataCallback where an optional callback is not wanted.
 type ClipboardDataCallback uintptr
+
+// NoClipboardDataCallback is the NULL ClipboardDataCallback, for optional callback parameters.
+const NoClipboardDataCallback ClipboardDataCallback = 0
 
 // NewClipboardDataCallback wraps fn as a C callback of type ClipboardDataCallback.
 //
@@ -239,7 +247,7 @@ var fnGetClipboardData func(mime_type *byte, size *uint) unsafe.Pointer
 //
 // See also: HasClipboardData, SetClipboardData
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetClipboardData(mime_type string) []byte {
 	var n uint
 	p := fnGetClipboardData(cstr(mime_type), &n)
@@ -279,7 +287,7 @@ var fnGetClipboardMimeTypes func(num_mime_types *uint) **byte
 //
 // See also: SetClipboardData
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetClipboardMimeTypes() []string {
 	var n uint
 	p := fnGetClipboardMimeTypes(&n)

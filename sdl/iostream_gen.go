@@ -2,7 +2,10 @@
 
 package sdl
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // The read/write operation structure.
 //
@@ -123,6 +126,29 @@ const (
 	PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER   = "SDL.iostream.dynamic.memory"
 	PROP_IOSTREAM_DYNAMIC_CHUNKSIZE_NUMBER = "SDL.iostream.dynamic.chunksize"
 )
+
+// IOFromBytes returns a readable, writable and seekable IOStream (the dynamic memory kind from IOFromDynamicMem) positioned at 0 over a copy of b.
+//
+// Writes go to that copy, never to b. The copy is owned by SDL and released by CloseIO, so b may be reused or collected right away and nothing has to be kept alive.
+// It returns nil for an empty slice or when SDL fails (see GetError).
+//
+// See also: IOFromMem, IOFromDynamicMem
+func IOFromBytes(b []byte) *IOStream {
+	if len(b) == 0 {
+		return nil
+	}
+	s := IOFromDynamicMem()
+	if s == nil {
+		return nil
+	}
+	n := uint(len(b))
+	if WriteIO(s, unsafe.Pointer(&b[0]), n) != n || SeekIO(s, 0, IO_SEEK_SET) != 0 {
+		CloseIO(s)
+		return nil
+	}
+	runtime.KeepAlive(b)
+	return s
+}
 
 var fnIOFromFile func(file *byte, mode *byte) *IOStream
 
@@ -530,8 +556,43 @@ var fnReadIO func(context *IOStream, ptr unsafe.Pointer, size uint) uint
 // Since: SDL 3.2.0.
 //
 // See also: WriteIO, GetIOStatus
+//
+// ReadIOBytes takes a []byte instead of a pointer and length.
 func ReadIO(context *IOStream, ptr unsafe.Pointer, size uint) uint {
 	return fnReadIO(context, ptr, size)
+}
+
+// ReadIOBytes is the []byte form of ReadIO: it takes b instead of the ptr pointer and derives the size argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// SDL fills b in place; the result is the number of bytes it wrote or read, as for ReadIO.
+//
+// See also: ReadIO
+func ReadIOBytes(context *IOStream, b []byte) uint {
+	if len(b) == 0 {
+		return 0
+	}
+	ret := fnReadIO(context, unsafe.Pointer(&b[0]), uint(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// ReadIOSlice is the typed-slice form of ReadIO: it takes b instead of the ptr pointer and derives the size argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// SDL fills b in place; the result is the number of bytes it wrote or read, as for ReadIO.
+//
+// See also: ReadIO
+func ReadIOSlice[T Number](context *IOStream, b []T) uint {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	ret := fnReadIO(context, unsafe.Pointer(&b[0]), uint(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnWriteIO func(context *IOStream, ptr unsafe.Pointer, size uint) uint
@@ -565,8 +626,39 @@ var fnWriteIO func(context *IOStream, ptr unsafe.Pointer, size uint) uint
 // Since: SDL 3.2.0.
 //
 // See also: IOprintf, ReadIO, SeekIO, FlushIO, GetIOStatus
+//
+// WriteIOBytes takes a []byte instead of a pointer and length.
 func WriteIO(context *IOStream, ptr unsafe.Pointer, size uint) uint {
 	return fnWriteIO(context, ptr, size)
+}
+
+// WriteIOBytes is the []byte form of WriteIO: it takes b instead of the ptr pointer and derives the size argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: WriteIO
+func WriteIOBytes(context *IOStream, b []byte) uint {
+	if len(b) == 0 {
+		return 0
+	}
+	ret := fnWriteIO(context, unsafe.Pointer(&b[0]), uint(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// WriteIOSlice is the typed-slice form of WriteIO: it takes b instead of the ptr pointer and derives the size argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL.
+//
+// See also: WriteIO
+func WriteIOSlice[T Number](context *IOStream, b []T) uint {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	ret := fnWriteIO(context, unsafe.Pointer(&b[0]), uint(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnIOprintf func(context *IOStream, fmt_ *byte) uint
@@ -588,7 +680,7 @@ var fnIOprintf func(context *IOStream, fmt_ *byte) uint
 //
 // See also: IOvprintf, WriteIO
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func IOprintf(context *IOStream, format string, args ...any) uint {
 	return fnIOprintf(context, cprintf(format, args))
 }
@@ -638,7 +730,7 @@ var fnLoadFile_IO func(src *IOStream, datasize *uint, closeio bool) unsafe.Point
 //
 // See also: LoadFile, SaveFile_IO
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func LoadFile_IO(src *IOStream, closeio bool) []byte {
 	var n uint
 	p := fnLoadFile_IO(src, &n, closeio)
@@ -667,7 +759,7 @@ var fnLoadFile func(file *byte, datasize *uint) unsafe.Pointer
 //
 // See also: LoadFile_IO, SaveFile
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func LoadFile(file string) []byte {
 	var n uint
 	p := fnLoadFile(cstr(file), &n)

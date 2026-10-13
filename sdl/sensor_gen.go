@@ -113,7 +113,7 @@ var fnGetSensors func(count *int32) *SensorID
 //
 // Since: SDL 3.2.0.
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetSensors() []SensorID {
 	var n int32
 	p := fnGetSensors(&n)

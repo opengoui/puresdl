@@ -10,6 +10,7 @@ import (
 	"github.com/opengoui/puresdl/internal/ir"
 )
 
+// base returns the final element of a header path.
 func base(path string) string { return filepath.Base(path) }
 
 // index assigns Go names to every type the package declares.
@@ -100,8 +101,10 @@ func (g *gen) index() {
 	}
 }
 
+// hasPrefix reports whether s begins with p.
 func hasPrefix(s, p string) bool { return len(s) >= len(p) && s[:len(p)] == p }
 
+// sortedRecords returns the indexed records ordered by Go name so output is deterministic.
 func (g *gen) sortedRecords() []*ir.Record {
 	var rs []*ir.Record
 	for r := range g.recName {
@@ -127,6 +130,7 @@ func (g *gen) recFile(r *ir.Record) string {
 	return ""
 }
 
+// emitTypes generates every indexed typedef and record into the buffer of the header that declares it.
 func (g *gen) emitTypes() {
 	// parents give anonymous records their header
 	parentFile := map[*ir.Record]string{}
@@ -169,6 +173,8 @@ func (g *gen) emitTypes() {
 	}
 }
 
+// emitTypedef generates the Go declaration for td into fb. Typedefs that
+// merely name a record or enum already emitted under the same Go name produce nothing.
 func (g *gen) emitTypedef(td *ir.Typedef, fb *fileBuf) {
 	n := g.tdGo[td.Name]
 	doc := g.docText(td.Doc)
@@ -210,8 +216,13 @@ func (g *gen) emitTypedef(td *ir.Typedef, fb *fileBuf) {
 // emitCallback declares a C function pointer type and a constructor that
 // wraps a Go function with purego.NewCallback.
 func (g *gen) emitCallback(td *ir.Typedef, n string, doc []string, sig *ir.Sig, fb *fileBuf) {
-	doc = append(doc, "", "It holds a C function pointer; create one with New"+n+".")
+	doc = append(doc, "", "It holds a C function pointer; create one with New"+n+".",
+		"The zero value means NULL (no callback); use No"+n+" where an optional callback is not wanted.")
 	fb.types = append(fb.types, start(doc).Type().Id(n).Id("uintptr"))
+	if g.claim("No"+n, td.Name+" (NULL constant)") {
+		ndoc := []string{"No" + n + " is the NULL " + n + ", for optional callback parameters."}
+		fb.types = append(fb.types, start(ndoc).Const().Id("No"+n).Id(n).Op("=").Lit(0))
+	}
 	var params []jen.Code
 	for i, p := range sig.Params {
 		t, err := g.typ(p.Type)
@@ -241,6 +252,8 @@ func (g *gen) emitCallback(td *ir.Typedef, n string, doc []string, sig *ir.Sig, 
 	))
 }
 
+// storageType returns an element type and count for opaque storage of size
+// bytes, using the widest unsigned integer that the alignment allows.
 func storageType(size int64, align int) (jen.Code, int64) {
 	var unit int64 = int64(align)
 	if unit > 8 || unit < 1 {
@@ -250,6 +263,8 @@ func storageType(size int64, align int) (jen.Code, int64) {
 	return jen.Id(name), size / unit
 }
 
+// emitRecord generates the struct (or union) n for r into fb and records its
+// expected layout. Incomplete records become opaque handles.
 func (g *gen) emitRecord(r *ir.Record, n string, fb *fileBuf) {
 	doc := g.docText(r.Doc)
 	if r.Incomplete {
@@ -277,11 +292,16 @@ func (g *gen) emitRecord(r *ir.Record, n string, fb *fileBuf) {
 			name += "_"
 		}
 		used[name] = true
-		fields = append(fields, start(g.docText(f.Doc)).Id(name).Add(t))
+		fd := g.docText(f.Doc)
+		if note := outcomeFieldNotes[f.Name]; note != "" && r.Name == "SDL_AsyncIOOutcome" {
+			fd = append(fd, "", note)
+		}
+		fields = append(fields, start(fd).Id(name).Add(t))
 		lf = append(lf, layoutField{name, f.Offset})
 	}
 	fb.types = append(fb.types, start(doc).Type().Id(n).Struct(fields...))
 	g.layouts = append(g.layouts, layoutEntry{goName: n, size: r.Size, align: int64(r.Align), fields: lf})
+	g.emitPtrAccessors(r, n, fb)
 }
 
 // degradedField is the Go type of a field whose C type has no mapping. A

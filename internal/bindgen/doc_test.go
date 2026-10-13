@@ -1,6 +1,9 @@
 package bindgen
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -222,5 +225,49 @@ func TestGeneratedDocsAreClean(t *testing.T) {
 				t.Errorf("%s:%d: double blank comment line", filepath.Base(f), i+1)
 			}
 		}
+	}
+}
+
+// docLines returns the doc comment text of the named function in src, parsed
+// as Go, so the test does not depend on how the comment is laid out.
+func docLines(t *testing.T, src, name string) string {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), "gen.go", src, parser.ParseComments)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range file.Decls {
+		if fd, ok := d.(*ast.FuncDecl); ok && fd.Name.Name == name {
+			if fd.Doc == nil {
+				t.Fatalf("%s has no doc comment", name)
+			}
+			return fd.Doc.Text()
+		}
+	}
+	t.Fatalf("function %s not generated", name)
+	return ""
+}
+
+func TestSliceAndPrintfDocNotes(t *testing.T) {
+	i32 := &ir.Type{Kind: ir.Int, Size: 4, Signed: true}
+	cchar := &ir.Type{Kind: ir.Int, Size: 1, Signed: true, Char: true, Const: true}
+	cfmt := ptrTo(cchar)
+	cfmt.Const = true
+	fmtParam := ir.Param{Name: "fmt", Type: cfmt}
+	src := synthFile(t,
+		&ir.Function{Name: "SDL_GetInts", Doc: "The caller should free the array with SDL_free().",
+			Sig: &ir.Sig{Ret: ptrTo(i32), Params: []ir.Param{{Name: "count", Type: ptrTo(i32)}}}},
+		&ir.Function{Name: "SDL_LogThing", Doc: "Log a thing.",
+			Sig: &ir.Sig{Ret: &ir.Type{Kind: ir.Void}, Params: []ir.Param{fmtParam}, Variadic: true}},
+	)
+	got := docLines(t, src, "GetInts")
+	want := "A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items."
+	if !strings.Contains(strings.Join(strings.Fields(got), " "), want) {
+		t.Errorf("slice doc lacks the nil/empty line:\n%s", got)
+	}
+	got = docLines(t, src, "LogThing")
+	want = "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u."
+	if !strings.Contains(strings.Join(strings.Fields(got), " "), want) {
+		t.Errorf("printf doc lacks the verb line:\n%s", got)
 	}
 }

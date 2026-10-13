@@ -152,7 +152,7 @@ var fnGetCameras func(count *int32) *CameraID
 //
 // See also: OpenCamera
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetCameras() []CameraID {
 	var n int32
 	p := fnGetCameras(&n)
@@ -194,7 +194,7 @@ var fnGetCameraSupportedFormats func(instance_id CameraID, count *int32) **Camer
 //
 // See also: GetCameras, OpenCamera
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetCameraSupportedFormats(instance_id CameraID) []CameraSpec {
 	var n int32
 	p := fnGetCameraSupportedFormats(instance_id, &n)

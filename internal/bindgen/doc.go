@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// sdlIdent matches SDL identifiers in doc prose.
 var sdlIdent = regexp.MustCompile(`\bSDL[A-Za-z0-9_]*\b`)
 
 // docAllow is the small list of SDL_ identifiers that docs may mention although they are
@@ -39,14 +40,23 @@ var docAllow = map[string]bool{
 }
 
 var (
-	reEntity   = regexp.MustCompile(`&(?:lt|gt|amp|quot|apos|nbsp|#[0-9]+|#x[0-9a-fA-F]+);`)
-	reURLLink  = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)\s]+)\)`)
+	// reEntity matches HTML entities in doxygen prose.
+	reEntity = regexp.MustCompile(`&(?:lt|gt|amp|quot|apos|nbsp|#[0-9]+|#x[0-9a-fA-F]+);`)
+	// reURLLink matches markdown links to http(s) URLs.
+	reURLLink = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)\s]+)\)`)
+	// reWikiLink matches markdown links with a relative or wiki target.
 	reWikiLink = regexp.MustCompile(`\[([^\]]+)\]\([^)\s]*\)`)
-	reBold     = regexp.MustCompile(`(?s)\*{2,3}([^\s*](?:.*?[^\s*])?)\*{2,3}`)
-	reCodeTag  = regexp.MustCompile("[\\\\@](?:p|c|a)\\s+([A-Za-z_][A-Za-z0-9_]*(?:(?:->|\\.|::)[A-Za-z_][A-Za-z0-9_]*)*(?:\\(\\))?)")
-	reTextTag  = regexp.MustCompile(`[\\@](?:b|e|em|ref|p|c|a)\s+`)
+	// reBold matches markdown bold or bold-italic spans.
+	reBold = regexp.MustCompile(`(?s)\*{2,3}([^\s*](?:.*?[^\s*])?)\*{2,3}`)
+	// reCodeTag matches doxygen \p, \c and \a references to a code identifier.
+	reCodeTag = regexp.MustCompile("[\\\\@](?:p|c|a)\\s+([A-Za-z_][A-Za-z0-9_]*(?:(?:->|\\.|::)[A-Za-z_][A-Za-z0-9_]*)*(?:\\(\\))?)")
+	// reTextTag matches doxygen inline style tags that are dropped from the text.
+	reTextTag = regexp.MustCompile(`[\\@](?:b|e|em|ref|p|c|a)\s+`)
+	// reInlineSA matches a \sa tag in the middle of a line.
 	reInlineSA = regexp.MustCompile(`[ \t][\\@]sa\s+`)
-	reCmd      = regexp.MustCompile(`^[\\@]([A-Za-z]+)(?:\[[^\]]*\])?\s*(.*)$`)
+	// reCmd matches a line that starts with a doxygen command.
+	reCmd = regexp.MustCompile(`^[\\@]([A-Za-z]+)(?:\[[^\]]*\])?\s*(.*)$`)
+	// reListMark matches a markdown list marker at the start of a line.
 	reListMark = regexp.MustCompile(`^(?:[-*]|[0-9]+[.)])\s+`)
 )
 
@@ -224,6 +234,7 @@ func (g *gen) docText(doc string) []string {
 	return out
 }
 
+// kindOr returns the block kind, or def when b is nil.
 func (b *docBlock) kindOr(def string) string {
 	if b == nil {
 		return def
@@ -348,6 +359,7 @@ func collapseBlank(l []string) []string {
 	return trimBlank(out)
 }
 
+// sinceText reduces an "available since" sentence to the text after it.
 func sinceText(s string) string {
 	if i := strings.Index(s, "available since "); i >= 0 {
 		return strings.TrimSuffix(s[i+len("available since "):], ".") + "."
@@ -355,6 +367,7 @@ func sinceText(s string) string {
 	return s
 }
 
+// trimBlank removes leading and trailing empty lines.
 func trimBlank(l []string) []string {
 	for len(l) > 0 && l[0] == "" {
 		l = l[1:]

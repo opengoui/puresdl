@@ -41,9 +41,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      SDL_VIDEODRIVER: dummy
-      SDL_AUDIODRIVER: dummy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -99,10 +96,19 @@ jobs:
       - name: Sync SDL headers
         shell: bash
         run: echo "SDL_INCLUDE=$(go run ./cmd/sdlsync -print-include)" >> "$GITHUB_ENV"
+      # The tests select the dummy video/audio/camera drivers and the software
+      # renderer themselves (internal/sdltest) and skip when libSDL3 cannot be
+      # loaded, so no SDL_* variables are needed here.
       - name: test
         run: go test ./... -count=1
+      - name: test (shuffled, repeated)
+        run: go test ./examples/... -count=3 -shuffle=on
+      # A plain `go run` is not a test: select the dummy drivers explicitly.
       - name: example
-        run: go run ./examples/hello -frames 3
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: go run ./examples/renderer/01-clear -frames 3
 
   generated:
     name: generated code is up to date

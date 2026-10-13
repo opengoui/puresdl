@@ -3,7 +3,10 @@
 package sdl
 
 import (
+	"errors"
+	"fmt"
 	"github.com/ebitengine/purego"
+	"runtime"
 	"unsafe"
 )
 
@@ -86,7 +89,11 @@ type AudioDeviceID uint32
 // See also: SetAudioPostmixCallback
 //
 // It holds a C function pointer; create one with NewAudioPostmixCallback.
+// The zero value means NULL (no callback); use NoAudioPostmixCallback where an optional callback is not wanted.
 type AudioPostmixCallback uintptr
+
+// NoAudioPostmixCallback is the NULL AudioPostmixCallback, for optional callback parameters.
+const NoAudioPostmixCallback AudioPostmixCallback = 0
 
 // NewAudioPostmixCallback wraps fn as a C callback of type AudioPostmixCallback.
 //
@@ -131,7 +138,11 @@ func NewAudioPostmixCallback(fn func(userdata unsafe.Pointer, spec *AudioSpec, b
 // See also: SetAudioStreamGetCallback, SetAudioStreamPutCallback
 //
 // It holds a C function pointer; create one with NewAudioStreamCallback.
+// The zero value means NULL (no callback); use NoAudioStreamCallback where an optional callback is not wanted.
 type AudioStreamCallback uintptr
+
+// NoAudioStreamCallback is the NULL AudioStreamCallback, for optional callback parameters.
+const NoAudioStreamCallback AudioStreamCallback = 0
 
 // NewAudioStreamCallback wraps fn as a C callback of type AudioStreamCallback.
 //
@@ -163,7 +174,11 @@ func NewAudioStreamCallback(fn func(userdata unsafe.Pointer, stream *AudioStream
 // See also: SetAudioStreamGetCallback, SetAudioStreamPutCallback
 //
 // It holds a C function pointer; create one with NewAudioStreamDataCompleteCallback.
+// The zero value means NULL (no callback); use NoAudioStreamDataCompleteCallback where an optional callback is not wanted.
 type AudioStreamDataCompleteCallback uintptr
+
+// NoAudioStreamDataCompleteCallback is the NULL AudioStreamDataCompleteCallback, for optional callback parameters.
+const NoAudioStreamDataCompleteCallback AudioStreamDataCompleteCallback = 0
 
 // NewAudioStreamDataCompleteCallback wraps fn as a C callback of type AudioStreamDataCompleteCallback.
 //
@@ -342,7 +357,7 @@ var fnGetAudioPlaybackDevices func(count *int32) *AudioDeviceID
 //
 // See also: OpenAudioDevice, GetAudioRecordingDevices
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetAudioPlaybackDevices() []AudioDeviceID {
 	var n int32
 	p := fnGetAudioPlaybackDevices(&n)
@@ -375,7 +390,7 @@ var fnGetAudioRecordingDevices func(count *int32) *AudioDeviceID
 //
 // See also: OpenAudioDevice, GetAudioPlaybackDevices
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetAudioRecordingDevices() []AudioDeviceID {
 	var n int32
 	p := fnGetAudioRecordingDevices(&n)
@@ -468,7 +483,7 @@ var fnGetAudioDeviceChannelMap func(devid AudioDeviceID, count *int32) *int32
 //
 // See also: SetAudioStreamInputChannelMap
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetAudioDeviceChannelMap(devid AudioDeviceID) []int32 {
 	var n int32
 	p := fnGetAudioDeviceChannelMap(devid, &n)
@@ -1129,7 +1144,7 @@ var fnGetAudioStreamInputChannelMap func(stream *AudioStream, count *int32) *int
 //
 // See also: SetAudioStreamInputChannelMap
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetAudioStreamInputChannelMap(stream *AudioStream) []int32 {
 	var n int32
 	p := fnGetAudioStreamInputChannelMap(stream, &n)
@@ -1158,7 +1173,7 @@ var fnGetAudioStreamOutputChannelMap func(stream *AudioStream, count *int32) *in
 //
 // See also: SetAudioStreamInputChannelMap
 //
-// The SDL allocation is copied into the returned slice and released.
+// The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetAudioStreamOutputChannelMap(stream *AudioStream) []int32 {
 	var n int32
 	p := fnGetAudioStreamOutputChannelMap(stream, &n)
@@ -1307,8 +1322,45 @@ var fnPutAudioStreamData func(stream *AudioStream, buf unsafe.Pointer, len_ int3
 // Since: SDL 3.2.0.
 //
 // See also: ClearAudioStream, FlushAudioStream, GetAudioStreamData, GetAudioStreamQueued
+//
+// PutAudioStreamBytes takes a []byte instead of a pointer and length.
 func PutAudioStreamData(stream *AudioStream, buf unsafe.Pointer, len_ int32) bool {
 	return fnPutAudioStreamData(stream, buf, len_)
+}
+
+// PutAudioStreamBytes is the []byte form of PutAudioStreamData: it takes b instead of the buf pointer and derives the len argument from its length.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: PutAudioStreamData
+func PutAudioStreamBytes(stream *AudioStream, b []byte) bool {
+	if len(b) == 0 {
+		return true
+	}
+	if !fitsInt32(len(b), "PutAudioStreamBytes") {
+		return false
+	}
+	ret := fnPutAudioStreamData(stream, unsafe.Pointer(&b[0]), int32(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// PutAudioStreamSlice is the typed-slice form of PutAudioStreamData: it takes b instead of the buf pointer and derives the len argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns true without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns false.
+//
+// See also: PutAudioStreamData
+func PutAudioStreamSlice[T Number](stream *AudioStream, b []T) bool {
+	if len(b) == 0 {
+		return true
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	if !fitsInt32(n, "PutAudioStreamSlice") {
+		return false
+	}
+	ret := fnPutAudioStreamData(stream, unsafe.Pointer(&b[0]), int32(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnPutAudioStreamDataNoCopy func(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool
@@ -1351,7 +1403,7 @@ var fnPutAudioStreamDataNoCopy func(stream *AudioStream, buf unsafe.Pointer, len
 //
 // See also: ClearAudioStream, FlushAudioStream, GetAudioStreamData, GetAudioStreamQueued
 //
-// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func PutAudioStreamDataNoCopy(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool {
 	return fnPutAudioStreamDataNoCopy(stream, buf, len_, callback, userdata)
 }
@@ -1401,8 +1453,45 @@ var fnPutAudioStreamPlanarData func(stream *AudioStream, channel_buffers *unsafe
 // Since: SDL 3.4.0.
 //
 // See also: ClearAudioStream, FlushAudioStream, GetAudioStreamData, GetAudioStreamQueued
+//
+// The plane pointers and the count must agree and every non-NULL plane must hold the samples SDL reads; PutAudioStreamPlanarDataSlices takes byte slices and checks them.
 func PutAudioStreamPlanarData(stream *AudioStream, channel_buffers *unsafe.Pointer, num_channels int32, num_samples int32) bool {
 	return fnPutAudioStreamPlanarData(stream, channel_buffers, num_channels, num_samples)
+}
+
+// PutAudioStreamPlanarDataSlices queues planar audio like PutAudioStreamPlanarData, with one byte slice per channel, each holding numSamples samples of the stream's source format (AUDIO_BYTESIZE of the format from GetAudioStreamFormat bytes each).
+//
+// It returns false with an SDL error, without calling SDL's put function, when numSamples is negative, the stream format cannot be read, or any non-empty plane is shorter than numSamples samples, so SDL never reads past a plane. A nil or empty plane is passed as NULL and SDL writes silence for that channel. With no planes it is a no-op that returns true.
+//
+// See also: PutAudioStreamPlanarData
+func PutAudioStreamPlanarDataSlices(stream *AudioStream, planes [][]byte, numSamples int32) bool {
+	if len(planes) == 0 {
+		return true
+	}
+	if numSamples < 0 {
+		return SetError("PutAudioStreamPlanarDataSlices: negative sample count %d", numSamples)
+	}
+	if !fitsInt32(len(planes), "PutAudioStreamPlanarDataSlices") {
+		return false
+	}
+	var src, dst AudioSpec
+	if !GetAudioStreamFormat(stream, &src, &dst) {
+		return false
+	}
+	need := int64(numSamples) * int64(AUDIO_BYTESIZE(src.Format))
+	for i, p := range planes {
+		if len(p) == 0 {
+			continue
+		}
+		if int64(len(p)) < need {
+			return SetError("PutAudioStreamPlanarDataSlices: plane %d has %d bytes, need %d", i, len(p), need)
+		}
+	}
+	ptrs := planarPtrs(planes)
+	ok := PutAudioStreamPlanarData(stream, &ptrs[0], int32(len(planes)), numSamples)
+	runtime.KeepAlive(planes)
+	runtime.KeepAlive(ptrs)
+	return ok
 }
 
 var fnGetAudioStreamData func(stream *AudioStream, buf unsafe.Pointer, len_ int32) int32
@@ -1430,8 +1519,49 @@ var fnGetAudioStreamData func(stream *AudioStream, buf unsafe.Pointer, len_ int3
 // Since: SDL 3.2.0.
 //
 // See also: ClearAudioStream, GetAudioStreamAvailable, PutAudioStreamData
+//
+// GetAudioStreamBytes takes a []byte instead of a pointer and length.
 func GetAudioStreamData(stream *AudioStream, buf unsafe.Pointer, len_ int32) int32 {
 	return fnGetAudioStreamData(stream, buf, len_)
+}
+
+// GetAudioStreamBytes is the []byte form of GetAudioStreamData: it takes b instead of the buf pointer and derives the len argument from its length.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns zero.
+//
+// SDL fills b in place; the result is the number of bytes it wrote or read, as for GetAudioStreamData.
+//
+// See also: GetAudioStreamData
+func GetAudioStreamBytes(stream *AudioStream, b []byte) int32 {
+	if len(b) == 0 {
+		return 0
+	}
+	if !fitsInt32(len(b), "GetAudioStreamBytes") {
+		return 0
+	}
+	ret := fnGetAudioStreamData(stream, unsafe.Pointer(&b[0]), int32(len(b)))
+	runtime.KeepAlive(b)
+	return ret
+}
+
+// GetAudioStreamSlice is the typed-slice form of GetAudioStreamData: it takes b instead of the buf pointer and derives the len argument from its length. The length is the size of the slice in bytes, so T must be a fixed-size numeric type (see Number) and its in-memory layout is what SDL sees.
+//
+// An empty or nil slice is a no-op that returns zero without calling SDL. A slice longer than MaxInt32 bytes sets the SDL error and returns zero.
+//
+// SDL fills b in place; the result is the number of bytes it wrote or read, as for GetAudioStreamData.
+//
+// See also: GetAudioStreamData
+func GetAudioStreamSlice[T Number](stream *AudioStream, b []T) int32 {
+	if len(b) == 0 {
+		return 0
+	}
+	n := len(b) * int(unsafe.Sizeof(*new(T)))
+	if !fitsInt32(n, "GetAudioStreamSlice") {
+		return 0
+	}
+	ret := fnGetAudioStreamData(stream, unsafe.Pointer(&b[0]), int32(n))
+	runtime.KeepAlive(b)
+	return ret
 }
 
 var fnGetAudioStreamAvailable func(stream *AudioStream) int32
@@ -1983,8 +2113,39 @@ var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **
 // Since: SDL 3.2.0.
 //
 // See also: Free, LoadWAV
+//
+// LoadWAVBytes loads from a []byte, copies the buffer and releases it; the buffer returned here is SDL-allocated and must be released with Free.
 func LoadWAV_IO(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
 	return fnLoadWAV_IO(src, closeio, spec, audio_buf, audio_len)
+}
+
+var errLoadWAVEmpty = errors.New("sdl: LoadWAVBytes: empty data")
+
+// LoadWAVBytes is the []byte form of LoadWAV_IO: it loads from data, a copy of the file contents, instead of an IOStream.
+//
+// The returned audio is a Go copy; the SDL-allocated buffer is released with Free before returning. Empty data returns the fixed error errLoadWAVEmpty. The stream is closed by LoadWAV_IO.
+//
+// See also: LoadWAV_IO, IOFromBytes
+func LoadWAVBytes(data []byte) (AudioSpec, []byte, error) {
+	var spec AudioSpec
+	if len(data) == 0 {
+		return spec, nil, errLoadWAVEmpty
+	}
+	src := IOFromBytes(data)
+	if src == nil {
+		return AudioSpec{}, nil, fmt.Errorf("sdl: LoadWAVBytes: cannot open data: %s", GetError())
+	}
+	var audio_buf *uint8
+	var audio_len uint32
+	if !LoadWAV_IO(src, true, &spec, &audio_buf, &audio_len) {
+		return AudioSpec{}, nil, fmt.Errorf("sdl: LoadWAVBytes: %s", GetError())
+	}
+	out := make([]byte, audio_len)
+	if audio_len > 0 {
+		copy(out, unsafe.Slice(audio_buf, audio_len))
+	}
+	Free(unsafe.Pointer(audio_buf))
+	return spec, out, nil
 }
 
 var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool
@@ -2015,6 +2176,8 @@ var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *ui
 // Since: SDL 3.2.0.
 //
 // See also: Free, LoadWAV_IO
+//
+// The buffer returned through the pointer parameters is SDL-allocated and must be released with Free.
 func LoadWAV(path string, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
 	return fnLoadWAV(cstr(path), spec, audio_buf, audio_len)
 }
@@ -2083,6 +2246,8 @@ var fnConvertAudioSamples func(src_spec *AudioSpec, src_data *uint8, src_len int
 // Thread safety: It is safe to call this function from any thread.
 //
 // Since: SDL 3.2.0.
+//
+// The buffer returned through the pointer parameters is SDL-allocated and must be released with Free.
 func ConvertAudioSamples(src_spec *AudioSpec, src_data *uint8, src_len int32, dst_spec *AudioSpec, dst_data **uint8, dst_len *int32) bool {
 	return fnConvertAudioSamples(src_spec, src_data, src_len, dst_spec, dst_data, dst_len)
 }

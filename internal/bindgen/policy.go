@@ -24,6 +24,7 @@ var keptStdinc = regexp.MustCompile(`^SDL_(` +
 // skipTypes are helper declarations of the headers that are not API.
 var skipTypes = map[string]bool{"SDL_alignment_test": true, "SDL_DUMMY_ENUM": true}
 
+// nullRe matches the word NULL in a parameter description.
 var nullRe = regexp.MustCompile(`\bNULL\b`)
 
 // nullable reports whether a \param description allows NULL, ignoring
@@ -38,6 +39,32 @@ func nullable(doc string) bool {
 		return true
 	}
 	return false
+}
+
+// nullClearRe matches phrases saying that passing NULL clears or removes a value.
+var nullClearRe = regexp.MustCompile(`(?i)\bNULL\s+to\s+(clear|remove|unset|delete)\b`)
+
+// ClearByNullParams returns the "C function.parameter" keys of const char *
+// parameters whose documentation says NULL clears, removes, unsets or deletes
+// something but that are not generated as distinct *string parameters. For
+// those, an empty string and NULL cannot be told apart by the caller, so each
+// result must be reviewed.
+func ClearByNullParams(api *ir.API) []string {
+	var out []string
+	for _, f := range api.Funcs {
+		for _, p := range f.Sig.Params {
+			if !isCString(p.Type) || !p.Type.Resolve().Const || !nullClearRe.MatchString(p.Doc) {
+				continue
+			}
+			k := f.Name + "." + p.Name
+			if np, ok := nullParams[k]; ok && np.distinct {
+				continue
+			}
+			out = append(out, k)
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
 // freedStringRe recognises documentation that tells the caller to release a
@@ -151,6 +178,12 @@ type nullParam struct {
 	// effect completes "A nil <param> ..." in the generated doc comment of a
 	// distinct parameter.
 	effect string
+	// valueForm makes the generator also emit <Name>Value, which takes the
+	// parameter as a plain string instead of a *string.
+	valueForm bool
+	// clearForm, when set together with valueForm, names an extra helper that
+	// drops the parameter and passes nil.
+	clearForm string
 }
 
 // nullParams classifies every nullable const char * parameter, keyed by
@@ -158,14 +191,14 @@ type nullParam struct {
 // parameter missing here, so an SDL upgrade that adds one is reviewed.
 var nullParams = map[string]nullParam{
 	// NULL deletes the property; "" stores an empty string.
-	"SDL_SetStringProperty.value":      {true, "the new value of the property, or NULL to delete the property.", "deletes the property"},
-	"SDL_SetAppMetadataProperty.value": {true, "the value of the property, or NULL to remove that property.", "removes the property"},
-	"SDL_SetGamepadMapping.mapping":    {true, "the mapping to use for this device, or NULL to clear the mapping.", "clears the mapping"},
+	"SDL_SetStringProperty.value":      {distinct: true, doc: "the new value of the property, or NULL to delete the property.", effect: "deletes the property"},
+	"SDL_SetAppMetadataProperty.value": {distinct: true, doc: "the value of the property, or NULL to remove that property.", effect: "removes the property", valueForm: true, clearForm: "ClearAppMetadataProperty"},
+	"SDL_SetGamepadMapping.mapping":    {distinct: true, doc: "the mapping to use for this device, or NULL to clear the mapping.", effect: "clears the mapping"},
 	// NULL makes a separator; "" is an entry with an empty label.
 	// NULL selects the default title root (SDL_OpenTitleStorage(NULL, 0)); ""
 	// is an empty override. The header documents neither, see undocumentedNull.
-	"SDL_OpenTitleStorage.override": {true, "a path to override the backend's default title root.", "selects the default title root"},
-	"SDL_InsertTrayEntryAt.label":   {true, "the text to be displayed on the entry, in UTF-8 encoding, or NULL for a separator.", "inserts a separator"},
+	"SDL_OpenTitleStorage.override": {distinct: true, doc: "a path to override the backend's default title root.", effect: "selects the default title root"},
+	"SDL_InsertTrayEntryAt.label":   {distinct: true, doc: "the text to be displayed on the entry, in UTF-8 encoding, or NULL for a separator.", effect: "inserts a separator"},
 
 	// The remaining parameters select a default; "" and NULL are interchangeable.
 	"SDL_GL_LoadLibrary.path":                   {doc: "the platform dependent OpenGL library name, or NULL to open the default OpenGL library."},
@@ -321,4 +354,19 @@ func CheckNullPolicy(api *ir.API) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// asyncUserdataRe matches the asynchronous I/O functions whose userdata is
+// reported back in AsyncIOOutcome.Userdata.
+var asyncUserdataRe = regexp.MustCompile(`^SDL_(?:Read|Write|Close|LoadFile)Async|AsyncIO`)
+
+// asyncUserdataSentence points at the handle helpers that make an arbitrary Go
+// value safe to pass as userdata.
+const asyncUserdataSentence = "To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue."
+
+// outcomeFieldNotes are the extra doc lines of fields of SDL_AsyncIOOutcome,
+// whose pointers are the ones given to the task functions.
+var outcomeFieldNotes = map[string]string{
+	"buffer":   "For ReadAsyncIO and WriteAsyncIO this is the caller's own ptr; for LoadFileAsync it is SDL-allocated and must be released with Free.",
+	"userdata": "It is the userdata given when the task was started. " + asyncUserdataSentence,
 }

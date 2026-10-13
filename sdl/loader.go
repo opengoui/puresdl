@@ -14,6 +14,7 @@ import (
 // library path searched by [Load].
 const LibraryEnv = "SDL3_LIBRARY"
 
+// Loader state. All of it is guarded by loadMu.
 var (
 	loadMu  sync.Mutex
 	loadErr error
@@ -32,6 +33,7 @@ var ErrNotLoaded = errors.New("sdl: library not loaded")
 // purego cannot pass structs by value. The package still compiles there.
 var ErrUnsupportedArch = errors.New("sdl: 32-bit targets are not supported")
 
+// init attempts the automatic load described in [Load] at import time.
 func init() {
 	// A failure here is not fatal: it is recorded and reported by LoadError
 	// so that importing the package never panics on machines without SDL3.

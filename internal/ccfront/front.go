@@ -45,18 +45,20 @@ type Options struct {
 	Targets    []Target
 }
 
-// excluded headers are not part of the libSDL3 ABI or are compatibility or
-// third-party material.
+// excluded names the headers that are not part of the libSDL3 ABI or are
+// compatibility or third-party material.
 var excluded = map[string]bool{
 	"SDL_oldnames.h": true, "SDL_egl.h": true, "SDL_intrin.h": true, "SDL_main_impl.h": true,
 	"SDL_dlopennote.h": true, "SDL_begin_code.h": true, "SDL_close_code.h": true, "SDL_revision.h": true,
 	"SDL_copying.h": true, "SDL_platform_defines.h": true,
 }
 
+// headerExcluded reports whether the header with base name base is skipped.
 func headerExcluded(base string) bool {
 	return excluded[base] || strings.HasPrefix(base, "SDL_opengl") || strings.HasPrefix(base, "SDL_test")
 }
 
+// umbrella is the translation unit that pulls in every public SDL3 header.
 const umbrella = "#include <SDL3/SDL.h>\n#include <SDL3/SDL_main.h>\n#include <SDL3/SDL_vulkan.h>\n"
 
 // Load parses the headers for every target and returns the merged API and
@@ -91,6 +93,8 @@ func Load(o Options) (*ir.API, []string, error) {
 	return c.api, c.warnings, nil
 }
 
+// extract writes the embedded data tree (predefined macros, stub headers)
+// under dst.
 func extract(dst string) error {
 	return fs.WalkDir(dataFS, "data", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -108,6 +112,8 @@ func extract(dst string) error {
 	})
 }
 
+// translate parses the umbrella header for target t. includeDir holds the
+// SDL3 headers and dataDir the tree written by extract.
 func translate(includeDir, dataDir string, t Target) (*cc.AST, error) {
 	abi, err := cc.NewABI(t.GOOS, t.GOARCH)
 	if err != nil {
@@ -137,6 +143,7 @@ func translate(includeDir, dataDir string, t Target) (*cc.AST, error) {
 	})
 }
 
+// walkDecls calls fn for each top-level declaration in ast, in source order.
 func walkDecls(ast *cc.AST, fn func(*cc.Declaration)) {
 	for tu := ast.TranslationUnit; tu != nil; tu = tu.TranslationUnit {
 		if ed := tu.ExternalDeclaration; ed != nil && ed.Declaration != nil {
@@ -145,6 +152,7 @@ func walkDecls(ast *cc.AST, fn func(*cc.Declaration)) {
 	}
 }
 
+// declarators returns the declarators introduced by d.
 func declarators(d *cc.Declaration) (r []*cc.Declarator) {
 	for l := d.InitDeclaratorList; l != nil; l = l.InitDeclaratorList {
 		if l.InitDeclarator != nil && l.InitDeclarator.Declarator != nil {
@@ -154,6 +162,8 @@ func declarators(d *cc.Declaration) (r []*cc.Declarator) {
 	return
 }
 
+// wanted reports whether declarations in the file at pos belong to the API:
+// they must come from a non-excluded SDL header.
 func (c *converter) wanted(pos string) bool {
 	return c.inSDL(pos) && !headerExcluded(filepath.Base(pos))
 }
@@ -176,6 +186,9 @@ func (c *converter) collectDocs(ast *cc.AST) {
 	})
 }
 
+// collectFuncs adds the externally linked functions declared in ast to the
+// API. funcs indexes functions by name across targets, so a function seen on
+// several targets is recorded once with each target in Targets.
 func (c *converter) collectFuncs(ast *cc.AST, t Target, funcs map[string]*ir.Function) {
 	tn := t.GOOS + "/" + t.GOARCH
 	walkDecls(ast, func(d *cc.Declaration) {
@@ -204,6 +217,7 @@ func (c *converter) collectFuncs(ast *cc.AST, t Target, funcs map[string]*ir.Fun
 	})
 }
 
+// collectTypedefs converts every SDL typedef declared in ast.
 func (c *converter) collectTypedefs(ast *cc.AST) {
 	walkDecls(ast, func(d *cc.Declaration) {
 		for _, dd := range declarators(d) {
@@ -214,6 +228,8 @@ func (c *converter) collectTypedefs(ast *cc.AST) {
 	})
 }
 
+// collectConsts adds the constant object-like macros of ast to the API,
+// sorted by header file path and then by position in the file, and derives API.Version from SDL_*_VERSION.
 func (c *converter) collectConsts(ast *cc.AST) {
 	type entry struct {
 		m    *cc.Macro

@@ -11,6 +11,7 @@ import (
 	"github.com/opengoui/puresdl/internal/ir"
 )
 
+// intLit renders v as a Go integer literal, in hex from 0x100 upward.
 func intLit(v *big.Int) jen.Code {
 	if v.Sign() >= 0 && v.Cmp(big.NewInt(0x100)) >= 0 {
 		return jen.Id("0x" + strings.ToUpper(v.Text(16)))
@@ -18,6 +19,7 @@ func intLit(v *big.Int) jen.Code {
 	return jen.Id(v.String())
 }
 
+// emitEnums generates a named integer type and constants for every enum.
 func (g *gen) emitEnums() {
 	for _, e := range g.api.Enums {
 		f := e.File
@@ -52,8 +54,10 @@ func (g *gen) emitEnums() {
 	}
 }
 
+// skipConst lists the name prefixes of printf-style format macros that are not bound.
 var skipConst = []string{"SDL_PRI", "SDL_SCN"}
 
+// emitConsts generates the macro constants into the buffer of their header.
 func (g *gen) emitConsts() {
 	byFile := map[string][]jen.Code{}
 	var order []string
@@ -101,6 +105,8 @@ func (g *gen) emitConsts() {
 	}
 }
 
+// argPlan describes how one C parameter appears in the public wrapper and in
+// the raw call.
 type argPlan struct {
 	hidden bool // not part of the public signature (slice result count)
 	name   string
@@ -109,7 +115,10 @@ type argPlan struct {
 	expr   jen.Code
 }
 
+// emitFuncs generates a wrapper for every function and records the reason for
+// each one that is skipped.
 func (g *gen) emitFuncs() {
+	g.emitMemStream()
 	for _, f := range g.api.Funcs {
 		if why := g.bindFunc(f); why != "" {
 			g.skip(f.Name, why)
@@ -117,6 +126,7 @@ func (g *gen) emitFuncs() {
 	}
 }
 
+// isFmtParam reports whether p is the const char *fmt parameter of a printf-style function.
 func isFmtParam(p ir.Param) bool {
 	return p.Name == "fmt" && isCString(p.Type) && p.Type.Resolve().Const
 }
@@ -190,6 +200,33 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 		plans = append(plans, argPlan{name: name, pub: t, raw: t, expr: jen.Id(name)})
 	}
+	var vf *nullParam
+	vfIdx := -1
+	for i, p := range sig.Params {
+		if np, ok := nullParams[f.Name+"."+p.Name]; ok && np.distinct && np.valueForm && !plans[i].hidden {
+			vf, vfIdx = &np, i
+		}
+	}
+	var sf *sliceForm
+	if sr == nil && !printf {
+		sf = sliceFormOf(f, plans)
+	}
+	var pl *planarForm
+	if sr == nil && !printf {
+		pl = planarFormOf(f, plans)
+	}
+	var bf *bytesForm
+	if sr == nil && !printf {
+		bf = bytesFormOf(f, plans)
+	}
+	var tu *textureUpdate
+	if sr == nil && !printf {
+		tu = textureUpdateOf(f, plans)
+	}
+	var ol *ownedLoad
+	if sr == nil && !printf {
+		ol = ownedLoadOf(f)
+	}
 	var rawRet, pubRet *jen.Statement
 	retString, retFree, guidRet := false, false, false
 	if sr != nil {
@@ -240,10 +277,30 @@ func (g *gen) bindFunc(f *ir.Function) string {
 
 	doc := g.docText(f.Doc)
 	if printf {
-		notes = append(notes, "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.")
+		notes = append(notes, "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.")
 	}
 	if n := keepAliveNote(f); n != "" {
 		notes = append(notes, n)
+	}
+	if ol == nil && sf == nil {
+		if n := freedBufferNote(f); n != "" {
+			notes = append(notes, n)
+		}
+	}
+	if sf != nil {
+		notes = append(notes, sliceNote(n))
+	}
+	if pl != nil {
+		notes = append(notes, planarNote(pl))
+	}
+	if bf != nil {
+		notes = append(notes, bytesNote(n))
+	}
+	if tu != nil {
+		notes = append(notes, textureUpdateNote(tu))
+	}
+	if ol != nil && g.claimed["IOFromBytes"] != "" {
+		notes = append(notes, ownedLoadNote(n))
 	}
 	if len(f.Targets) < 3 {
 		notes = append(notes, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
@@ -262,7 +319,7 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	var body []jen.Code
 	switch {
 	case sr != nil:
-		doc = append(doc, "", "The SDL allocation is copied into the returned slice and released.")
+		doc = append(doc, "", "The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.")
 		if sr.idx >= 0 {
 			body = []jen.Code{jen.Var().Id("n").Add(sr.cnt)}
 		}
@@ -301,6 +358,24 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 		fb.funcs = append(fb.funcs, start(okDoc).Func().Id(okName).Params(pubParams...).Params(jen.String(), jen.Bool()).Block(okBody...))
 	}
+	if vf != nil {
+		g.emitValueForm(f, vf, vfIdx, plans, n, fb)
+	}
+	if sf != nil {
+		g.emitSlice(f, sf, plans, n, fnVar, fb, doc)
+	}
+	if bf != nil {
+		g.emitBytes(f, bf, plans, n, fnVar, fb)
+	}
+	if ol != nil {
+		g.emitOwnedLoad(f, ol, n)
+	}
+	if pl != nil {
+		g.emitPlanar(f, pl, plans, n, fb)
+	}
+	if tu != nil {
+		g.emitTextureUpdate(f, tu, plans, n, fb)
+	}
 	_ = fmt.Sprint
 	return ""
 }
@@ -319,12 +394,15 @@ type sliceRes struct {
 	finish   func(call *jen.Statement) []jen.Code
 }
 
+// countNames are the parameter names SDL uses for the out-count of a returned array.
 var countNames = map[string]bool{"count": true, "num_mime_types": true, "datasize": true, "size": true}
 
 // deepCopy lists the structs that SDL returns in an array of pointers whose
 // pointees live in the same allocation as the array.
 var deepCopy = map[string]bool{"SDL_CameraSpec": true, "SDL_DisplayMode": true, "SDL_GamepadBinding": true, "SDL_Finger": true}
 
+// sliceResult returns the plan for converting an SDL-allocated array result
+// into a Go slice that is copied and freed, or nil when f does not return one.
 func (g *gen) sliceResult(f *ir.Function) *sliceRes {
 	rt := f.Sig.Ret.Resolve()
 	if rt.Kind != ir.Pointer || rt.Const || isCString(f.Sig.Ret) || !freedStringRe.MatchString(f.Doc) {
@@ -406,7 +484,7 @@ func (g *gen) sliceResult(f *ir.Function) *sliceRes {
 
 // retainedRe matches doc text saying that SDL keeps using a pointer argument
 // after the call returns instead of copying what it points to.
-var retainedRe = regexp.MustCompile(`(?i)not copied|NoCopy|must (?:remain|stay) valid|keeps? a reference|remain valid[^.]{0,40}until the [^.]{0,40}(?:destroyed|closed)`)
+var retainedRe = regexp.MustCompile(`(?i)not copied|NoCopy|must (?:remain|stay) (?:valid|available)|keeps? a reference|remain valid[^.]{0,40}until the [^.]{0,40}(?:destroyed|closed)`)
 
 // keepAliveNote returns the "Keep alive:" doc note of f, or "" when neither
 // the function doc nor a parameter doc says that SDL retains a pointer
@@ -422,14 +500,58 @@ func keepAliveNote(f *ir.Function) string {
 			hasString = hasString || isCString(p.Type)
 		}
 	}
+	stored := storedPointerNote(f)
 	if !retained || !hasPtr {
-		return storedPointerNote(f)
+		return stored
 	}
 	n := "Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it."
+	if name := taskBufferParam(f); name != "" {
+		n = "Keep alive: " + name + " must stay alive and unmoved until the task completes, and SDL may access it at any time until then; pass memory that Go keeps reachable and does not move (not a stack variable) and do not release it before the outcome is reported."
+	}
 	if hasString {
 		n += " String arguments are converted to a temporary C string per call and are not kept alive by this wrapper."
 	}
+	if stored != "" {
+		n += " " + strings.TrimPrefix(stored, "Keep alive: ")
+	}
 	return n
+}
+
+// taskBufferRe matches doc text that ties the lifetime of a buffer argument
+// to the completion of an asynchronous task.
+var taskBufferRe = regexp.MustCompile("`(\\w+)`[^.]*must (?:remain|stay) (?:valid|available) until[^.]*(?:work|task)")
+
+// taskBufferParam returns the pointer parameter that f's doc says must stay
+// valid until the asynchronous work is done, or "".
+func taskBufferParam(f *ir.Function) string {
+	for _, m := range taskBufferRe.FindAllStringSubmatch(f.Doc, -1) {
+		for _, p := range f.Sig.Params {
+			if p.Name == m[1] && p.Type.Resolve().Kind == ir.Pointer {
+				return p.Name
+			}
+		}
+	}
+	return ""
+}
+
+// freedBufferNote returns the doc note of a function that hands out a buffer
+// allocated by SDL: a non-const double-pointer out parameter whose
+// documentation tells the caller to use SDL_free.
+func freedBufferNote(f *ir.Function) string {
+	docs := f.Doc
+	out := false
+	for _, p := range f.Sig.Params {
+		docs += " " + p.Doc
+		if r := p.Type.Resolve(); r.Kind == ir.Pointer && !r.Const {
+			if e := r.Elem.Resolve(); e != nil && e.Kind == ir.Pointer && !isCString(r.Elem) {
+				out = true
+			}
+		}
+	}
+	if !out || !freedStringRe.MatchString(docs) {
+		return ""
+	}
+	return "The buffer returned through the pointer parameters is SDL-allocated and must be released with Free."
 }
 
 // storedPointerFuncs are functions that store a void * argument without any
@@ -460,5 +582,63 @@ func storedPointerNote(f *ir.Function) string {
 	if arg == "" {
 		return ""
 	}
-	return "Keep alive: SDL stores the " + arg + " argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it."
+	note := "Keep alive: SDL stores the " + arg + " argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it."
+	if asyncUserdataRe.MatchString(f.Name) {
+		note += " " + asyncUserdataSentence
+	}
+	return note
+}
+
+// emitValueForm emits <Name>Value, which takes the nullable parameter vi as a
+// plain string, and the optional clear helper that drops it and passes nil.
+func (g *gen) emitValueForm(f *ir.Function, np *nullParam, vi int, plans []argPlan, n string, fb *fileBuf) {
+	vname := plans[vi].name
+	ret := f.Sig.Ret.Resolve().Kind != ir.Void
+	var full, clear []jen.Code
+	var withValue, withNil []jen.Code
+	for i, p := range plans {
+		if p.hidden {
+			continue
+		}
+		if i == vi {
+			full = append(full, jen.Id(p.name).String())
+			withValue = append(withValue, jen.Op("&").Id(p.name))
+			withNil = append(withNil, jen.Nil())
+			continue
+		}
+		full = append(full, jen.Id(p.name).Add(p.pub))
+		clear = append(clear, jen.Id(p.name).Add(p.pub))
+		withValue = append(withValue, jen.Id(p.name))
+		withNil = append(withNil, jen.Id(p.name))
+	}
+	body := func(args []jen.Code) jen.Code {
+		c := jen.Id(n).Call(args...)
+		if ret {
+			return jen.Return(c)
+		}
+		return c
+	}
+	retT := func(w *jen.Statement) *jen.Statement {
+		if ret {
+			t, err := g.typ(f.Sig.Ret)
+			if err == nil {
+				return w.Add(t)
+			}
+		}
+		return w
+	}
+	name := n + "Value"
+	if g.claim(name, f.Name+" (value form)") {
+		doc := []string{n + "Value is " + n + " with the " + vname + " parameter as a plain string instead of a *string.", "Use the clear helper to pass NULL."}
+		if np.clearForm == "" {
+			doc[1] = "Use " + n + " with a nil " + vname + " to pass NULL."
+		} else {
+			doc[1] = "Use " + np.clearForm + " to pass NULL."
+		}
+		fb.funcs = append(fb.funcs, retT(start(doc).Func().Id(name).Params(full...)).Block(body(withValue)))
+	}
+	if np.clearForm != "" && g.claim(np.clearForm, f.Name+" (clear form)") {
+		doc := []string{np.clearForm + " is " + n + " with a nil " + vname + ", which " + np.effect + "."}
+		fb.funcs = append(fb.funcs, retT(start(doc).Func().Id(np.clearForm).Params(clear...)).Block(body(withNil)))
+	}
 }

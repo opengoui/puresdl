@@ -39,6 +39,10 @@ func Main(ctx context.Context, args []string, getenv func(string) string, stdout
 	return 0
 }
 
+// run parses args and executes one sdlsync invocation, returning an error for
+// the caller (Main) to print and map to an exit code. getenv supplies the
+// environment (GITHUB_TOKEN and the SDLSYNC_* URL overrides) so tests need not
+// touch the real one.
 func run(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("sdlsync", flag.ContinueOnError)
 	fs.SetOutput(stderr)

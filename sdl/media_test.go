@@ -3,6 +3,7 @@ package sdl
 import (
 	"math"
 	"runtime"
+	"slices"
 	"sync/atomic"
 	"testing"
 	"unsafe"
@@ -176,11 +177,28 @@ func TestMediaSoftwareRenderer(t *testing.T) {
 	rects := []FRect{{X: 40, Y: 20, W: 2, H: 2}, {X: 44, Y: 20, W: 2, H: 2}}
 	RenderFillRects(r, &rects[0], int32(len(rects)))
 
+	if !RenderPointsSlice(r, nil) || !RenderLinesSlice(r, nil) || !RenderRectsSlice(r, []FRect{}) || !RenderFillRectsSlice(r, nil) {
+		t.Error("empty slice helper should be a successful no-op")
+	}
+	SetRenderDrawColor(r, 255, 0, 255, 255)
+	if !RenderFillRectsSlice(r, []FRect{{X: 55, Y: 30, W: 2, H: 2}}) {
+		t.Fatal(GetError())
+	}
+	if !RenderPointsSlice(r, []FPoint{{X: 58, Y: 5}}) {
+		t.Fatal(GetError())
+	}
+
 	surf := RenderReadPixels(r, nil)
 	if surf == nil {
 		t.Fatal(GetError())
 	}
 	defer DestroySurface(surf)
+	if got := mediaPixel(t, surf, 55, 30); got != [4]uint8{255, 0, 255, 255} {
+		t.Errorf("RenderFillRectsSlice pixel = %v", got)
+	}
+	if got := mediaPixel(t, surf, 58, 5); got != [4]uint8{255, 0, 255, 255} {
+		t.Errorf("RenderPointsSlice pixel = %v", got)
+	}
 	if surf.W != 64 || surf.H != 48 || surf.Pixels == nil || surf.Pitch < 64*4 {
 		t.Fatalf("surface = %dx%d pitch %d", surf.W, surf.H, surf.Pitch)
 	}
@@ -552,6 +570,37 @@ func TestMediaAudio(t *testing.T) {
 	}
 }
 
+func TestMediaPlanarSlices(t *testing.T) {
+	mediaInit(t, INIT_AUDIO)
+	spec := AudioSpec{Format: AUDIO_U8, Channels: 2, Freq: 22050}
+	st := CreateAudioStream(&spec, &spec)
+	if st == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroyAudioStream(st)
+	if !PutAudioStreamPlanarDataSlices(st, nil, 4) {
+		t.Error("no planes should be a successful no-op")
+	}
+	if got := GetAudioStreamAvailable(st); got != 0 {
+		t.Fatalf("available after no-op = %d", got)
+	}
+	left := []byte{1, 3, 5, 7}
+	right := []byte{2, 4, 6, 8}
+	if !PutAudioStreamPlanarDataSlices(st, [][]byte{left, right}, 4) {
+		t.Fatal(GetError())
+	}
+	FlushAudioStream(st)
+	out := make([]byte, 8)
+	if got := GetAudioStreamData(st, unsafe.Pointer(&out[0]), 8); got != 8 {
+		t.Fatalf("read %d bytes", got)
+	}
+	for i, b := range out {
+		if b != byte(i+1) {
+			t.Fatalf("interleaved = %v", out)
+		}
+	}
+}
+
 func TestMediaMisc(t *testing.T) {
 	mediaInit(t, INIT_VIDEO)
 	if GetPlatform() == "" || GetNumRenderDrivers() < 1 {
@@ -576,5 +625,188 @@ func TestMediaMisc(t *testing.T) {
 	}
 	if a := GetTicks(); a > GetTicks() {
 		t.Error("GetTicks went backwards")
+	}
+}
+
+// testWAV builds a minimal PCM WAV file (mono, 8-bit, 8000 Hz).
+func testWAV(data []byte) []byte {
+	le32 := func(v uint32) []byte { return []byte{byte(v), byte(v >> 8), byte(v >> 16), byte(v >> 24)} }
+	var w []byte
+	w = append(w, "RIFF"...)
+	w = append(w, le32(uint32(36+len(data)))...)
+	w = append(w, "WAVEfmt "...)
+	w = append(w, le32(16)...)
+	w = append(w, 1, 0, 1, 0) // PCM, mono
+	w = append(w, le32(8000)...)
+	w = append(w, le32(8000)...)
+	w = append(w, 1, 0, 8, 0) // block align, bits
+	w = append(w, "data"...)
+	w = append(w, le32(uint32(len(data)))...)
+	return append(w, data...)
+}
+
+func TestIOFromBytesRoundTrip(t *testing.T) {
+	if IOFromBytes(nil) != nil || IOFromBytes([]byte{}) != nil {
+		t.Error("empty input should give a nil stream")
+	}
+	src := []byte{1, 2, 3, 4, 5}
+	io := IOFromBytes(src)
+	if io == nil {
+		t.Fatal(GetError())
+	}
+	defer CloseIO(io)
+	src[0] = 99 // the stream owns a copy
+	if got := ReadIOBytes(io, nil); got != 0 {
+		t.Errorf("ReadIOBytes(empty) = %d", got)
+	}
+	dst := make([]byte, 8)
+	if n := ReadIOBytes(io, dst); n != 5 {
+		t.Fatalf("read %d bytes, want 5", n)
+	}
+	if want := []byte{1, 2, 3, 4, 5, 0, 0, 0}; !slices.Equal(dst, want) {
+		t.Errorf("dst = %v, want %v", dst, want)
+	}
+}
+
+func TestLoadWAVBytes(t *testing.T) {
+	pcm := []byte{10, 20, 30, 40}
+	spec, data, err := LoadWAVBytes(testWAV(pcm))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if spec.Channels != 1 || spec.Freq != 8000 || spec.Format != AUDIO_U8 {
+		t.Errorf("spec = %+v", spec)
+	}
+	if !slices.Equal(data, pcm) {
+		t.Errorf("data = %v, want %v", data, pcm)
+	}
+	if _, _, err := LoadWAVBytes([]byte("not a wav file at all")); err == nil {
+		t.Error("garbage should fail")
+	}
+	if _, _, err := LoadWAVBytes(nil); err == nil {
+		t.Error("empty input should fail")
+	}
+}
+
+func TestPutAudioStreamBytes(t *testing.T) {
+	mediaInit(t, INIT_AUDIO)
+	spec := AudioSpec{Format: AUDIO_U8, Channels: 1, Freq: 8000}
+	st := CreateAudioStream(&spec, &spec)
+	if st == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroyAudioStream(st)
+	if !PutAudioStreamBytes(st, nil) || GetAudioStreamAvailable(st) != 0 {
+		t.Error("empty slice should be a successful no-op")
+	}
+	if !PutAudioStreamBytes(st, []byte{1, 2, 3, 4}) {
+		t.Fatal(GetError())
+	}
+	FlushAudioStream(st)
+	if got := GetAudioStreamAvailable(st); got != 4 {
+		t.Errorf("available = %d, want 4", got)
+	}
+}
+
+func TestUpdateTextureBytes(t *testing.T) {
+	mediaInit(t, INIT_VIDEO)
+	dst := CreateSurface(8, 8, PIXELFORMAT_RGBA32)
+	if dst == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroySurface(dst)
+	r := CreateSoftwareRenderer(dst)
+	if r == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroyRenderer(r)
+	tex := CreateTexture(r, PIXELFORMAT_RGBA32, TEXTUREACCESS_STATIC, 2, 2)
+	if tex == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroyTexture(tex)
+	if !UpdateTextureBytes(tex, nil, nil, 8) {
+		t.Error("empty slice should be a successful no-op")
+	}
+	px := make([]byte, 16)
+	for i := 0; i < len(px); i += 4 {
+		px[i], px[i+1], px[i+2], px[i+3] = 10, 20, 30, 255
+	}
+	if !UpdateTextureBytes(tex, nil, px, 8) {
+		t.Fatal(GetError())
+	}
+	RenderClear(r)
+	RenderTexture(r, tex, nil, &FRect{W: 8, H: 8})
+	out := RenderReadPixels(r, nil)
+	if out == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroySurface(out)
+	if got, want := mediaPixel(t, out, 4, 4), [4]uint8{10, 20, 30, 255}; got != want {
+		t.Errorf("pixel = %v, want %v", got, want)
+	}
+}
+
+// TestNoAudioStreamCallback opens a stream with the generated NULL callback
+// constant, which SDL accepts as "no callback", and checks it is usable.
+func TestNoAudioStreamCallback(t *testing.T) {
+	mediaInit(t, INIT_AUDIO)
+	var _ AudioStreamCallback = NoAudioStreamCallback
+	spec := AudioSpec{Format: AUDIO_S16, Channels: 2, Freq: 22050}
+	stream := OpenAudioDeviceStream(AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NoAudioStreamCallback, nil)
+	if stream == nil {
+		t.Skipf("no dummy playback device: %s", GetError())
+	}
+	defer DestroyAudioStream(stream)
+	data := make([]byte, 64)
+	if !PutAudioStreamBytes(stream, data) {
+		t.Fatal(GetError())
+	}
+}
+
+// TestUpdateTextureBytesPlanar checks that a planar texture needs the chroma
+// planes in the slice: a luma-only slice must be rejected before SDL reads
+// past it.
+func TestUpdateTextureBytesPlanar(t *testing.T) {
+	mediaInit(t, INIT_VIDEO)
+	dst := CreateSurface(8, 8, PIXELFORMAT_RGBA32)
+	if dst == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroySurface(dst)
+	r := CreateSoftwareRenderer(dst)
+	if r == nil {
+		t.Fatal(GetError())
+	}
+	defer DestroyRenderer(r)
+	for _, tc := range []struct {
+		name   string
+		format PixelFormat
+		full   int // luma plane plus chroma planes for a 4x4 texture, pitch 4
+	}{
+		{"YV12", PIXELFORMAT_YV12, 16 + 2*2*2},
+		{"IYUV", PIXELFORMAT_IYUV, 16 + 2*2*2},
+		{"NV12", PIXELFORMAT_NV12, 16 + 2*4},
+		{"NV21", PIXELFORMAT_NV21, 16 + 2*4},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tex := CreateTexture(r, tc.format, TEXTUREACCESS_STATIC, 4, 4)
+			if tex == nil {
+				t.Skipf("planar texture unsupported: %s", GetError())
+			}
+			defer DestroyTexture(tex)
+			for _, n := range []int{16, tc.full - 1} {
+				ClearError()
+				if UpdateTextureBytes(tex, nil, make([]byte, n), 4) {
+					t.Errorf("%d bytes accepted, want rejection (need %d)", n, tc.full)
+				}
+				if GetError() == "" {
+					t.Errorf("%d bytes: no SDL error set", n)
+				}
+			}
+			if !UpdateTextureBytes(tex, nil, make([]byte, tc.full), 4) {
+				t.Errorf("%d bytes rejected: %s", tc.full, GetError())
+			}
+		})
 	}
 }

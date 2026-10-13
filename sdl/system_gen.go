@@ -34,7 +34,11 @@ type XEvent struct{}
 // See also: SetWindowsMessageHook, HINT_WINDOWS_ENABLE_MESSAGELOOP
 //
 // It holds a C function pointer; create one with NewWindowsMessageHook.
+// The zero value means NULL (no callback); use NoWindowsMessageHook where an optional callback is not wanted.
 type WindowsMessageHook uintptr
+
+// NoWindowsMessageHook is the NULL WindowsMessageHook, for optional callback parameters.
+const NoWindowsMessageHook WindowsMessageHook = 0
 
 // NewWindowsMessageHook wraps fn as a C callback of type WindowsMessageHook.
 //
@@ -65,7 +69,11 @@ func NewWindowsMessageHook(fn func(userdata unsafe.Pointer, msg *MSG) bool) Wind
 // See also: SetX11EventHook
 //
 // It holds a C function pointer; create one with NewX11EventHook.
+// The zero value means NULL (no callback); use NoX11EventHook where an optional callback is not wanted.
 type X11EventHook uintptr
+
+// NoX11EventHook is the NULL X11EventHook, for optional callback parameters.
+const NoX11EventHook X11EventHook = 0
 
 // NewX11EventHook wraps fn as a C callback of type X11EventHook.
 //

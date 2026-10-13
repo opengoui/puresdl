@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // A structure that represents a color as RGBA components.
 //
 // The bits of this structure can be directly reinterpreted as an
@@ -42,6 +44,19 @@ type Palette struct {
 	Version uint32
 	// internal use only, do not touch.
 	Refcount int32
+}
+
+// ColorSlice returns Colors as a slice of Ncolors elements without copying. It
+// returns nil for a nil receiver, a nil Colors pointer or a non-positive Ncolors.
+//
+// The slice aliases memory owned by SDL: do not retain it after DestroyPalette.
+// Do not write to it directly; use SetPaletteColors.
+// Copy it (for example with slices.Clone) if it must outlive the palette.
+func (p *Palette) ColorSlice() []Color {
+	if p == nil || p.Colors == nil || p.Ncolors <= 0 {
+		return nil
+	}
+	return unsafe.Slice(p.Colors, int(p.Ncolors))
 }
 
 // Details about the format of a pixel.

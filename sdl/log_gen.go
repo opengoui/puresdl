@@ -22,7 +22,11 @@ import (
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewLogOutputFunction.
+// The zero value means NULL (no callback); use NoLogOutputFunction where an optional callback is not wanted.
 type LogOutputFunction uintptr
+
+// NoLogOutputFunction is the NULL LogOutputFunction, for optional callback parameters.
+const NoLogOutputFunction LogOutputFunction = 0
 
 // NewLogOutputFunction wraps fn as a C callback of type LogOutputFunction.
 //
@@ -188,7 +192,7 @@ var fnLog func(fmt_ *byte)
 //
 // See also: LogCritical, LogDebug, LogError, LogInfo, LogMessage, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func Log(format string, args ...any) {
 	fnLog(cprintf(format, args))
 }
@@ -208,7 +212,7 @@ var fnLogTrace func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogError, LogInfo, LogMessage, LogMessageV, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogTrace(category int32, format string, args ...any) {
 	fnLogTrace(category, cprintf(format, args))
 }
@@ -228,7 +232,7 @@ var fnLogVerbose func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogError, LogInfo, LogMessage, LogMessageV, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogVerbose(category int32, format string, args ...any) {
 	fnLogVerbose(category, cprintf(format, args))
 }
@@ -248,7 +252,7 @@ var fnLogDebug func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogError, LogInfo, LogMessage, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogDebug(category int32, format string, args ...any) {
 	fnLogDebug(category, cprintf(format, args))
 }
@@ -268,7 +272,7 @@ var fnLogInfo func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogError, LogMessage, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogInfo(category int32, format string, args ...any) {
 	fnLogInfo(category, cprintf(format, args))
 }
@@ -288,7 +292,7 @@ var fnLogWarn func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogError, LogInfo, LogMessage, LogMessageV, LogTrace, LogVerbose
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogWarn(category int32, format string, args ...any) {
 	fnLogWarn(category, cprintf(format, args))
 }
@@ -308,7 +312,7 @@ var fnLogError func(category int32, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogInfo, LogMessage, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogError(category int32, format string, args ...any) {
 	fnLogError(category, cprintf(format, args))
 }
@@ -328,7 +332,7 @@ var fnLogCritical func(category int32, fmt_ *byte)
 //
 // See also: Log, LogDebug, LogError, LogInfo, LogMessage, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogCritical(category int32, format string, args ...any) {
 	fnLogCritical(category, cprintf(format, args))
 }
@@ -349,7 +353,7 @@ var fnLogMessage func(category int32, priority LogPriority, fmt_ *byte)
 //
 // See also: Log, LogCritical, LogDebug, LogError, LogInfo, LogMessageV, LogTrace, LogVerbose, LogWarn
 //
-// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise.
+// The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.
 func LogMessage(category int32, priority LogPriority, format string, args ...any) {
 	fnLogMessage(category, priority, cprintf(format, args))
 }

@@ -25,6 +25,7 @@ var builtinNames = map[string]string{
 // unsupportedNames are typedefs the generator cannot express portably.
 var unsupportedNames = map[string]bool{"va_list": true, "__builtin_va_list": true}
 
+// intName returns the Go fixed-size integer type for a C integer of size bytes.
 func intName(size int64, signed bool) string {
 	switch size {
 	case 1:
@@ -118,6 +119,8 @@ func (g *gen) typ(t *ir.Type) (*jen.Statement, error) {
 	return nil, fmt.Errorf("unsupported C type %q", t.Name)
 }
 
+// pointerTo returns the Go type for a pointer to elem; function pointers map
+// to uintptr and void or char pointers to unsafe.Pointer and *byte.
 func (g *gen) pointerTo(elem *ir.Type) (*jen.Statement, error) {
 	r := elem.Resolve()
 	if elem.Kind == ir.Named && unsupportedNames[elem.Name] {

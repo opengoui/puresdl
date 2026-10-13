@@ -17,12 +17,14 @@ type converter struct {
 	sdlDir   string // directory holding the SDL3 headers
 	src      sources
 	named    map[string]*ir.Typedef
-	recs     map[any]*ir.Type // keyed by cc.Type identity or "struct tag"
+	recs     map[any]*ir.Type // keyed by cc.Type identity, or by "<isUnion> <tag>" when tagged
 	enums    map[any]*ir.Type
 	docs     map[*cc.Declarator]string
 	warnings []string
 }
 
+// newConverter returns a converter that treats files under sdlDir as SDL
+// headers (as opposed to libc stubs) when recovering docs and positions.
 func newConverter(sdlDir string) *converter {
 	return &converter{
 		api: &ir.API{}, sdlDir: sdlDir, src: sources{},
@@ -31,20 +33,24 @@ func newConverter(sdlDir string) *converter {
 	}
 }
 
+// inSDL reports whether file lives under the SDL3 header directory.
 func (c *converter) inSDL(file string) bool {
 	rel, err := filepath.Rel(c.sdlDir, file)
 	return err == nil && !strings.HasPrefix(rel, "..")
 }
 
+// warnf records a non-fatal conversion problem, returned by Load.
 func (c *converter) warnf(format string, a ...any) {
 	c.warnings = append(c.warnings, fmt.Sprintf(format, a...))
 }
 
+// isConst reports whether t carries a const qualifier.
 func isConst(t cc.Type) bool {
 	a := t.Attributes()
 	return a != nil && a.IsConst()
 }
 
+// basic returns a scalar type of the given size with natural alignment.
 func basic(kind ir.Kind, size int64, signed, char bool) *ir.Type {
 	return &ir.Type{Kind: kind, Size: size, Align: int(size), Signed: signed, Char: char}
 }
@@ -57,6 +63,9 @@ func (c *converter) typ(t cc.Type) *ir.Type {
 	return c.shape(t)
 }
 
+// typedefType converts the typedef declarator td once and returns its Named
+// type. It also names anonymous structs, unions and enums after the typedef
+// and lends them the typedef's doc.
 func (c *converter) typedefType(td *cc.Declarator) *ir.Type {
 	name := td.Name()
 	if d, ok := c.named[name]; ok {
@@ -95,6 +104,8 @@ func (c *converter) typedefType(td *cc.Declarator) *ir.Type {
 	return d.Type
 }
 
+// shape converts the structure of t, ignoring any typedef name on t itself.
+// Unsupported kinds (such as long double) become ir.Invalid.
 func (c *converter) shape(t cc.Type) *ir.Type {
 	switch x := t.(type) {
 	case *cc.PointerType:
@@ -132,6 +143,8 @@ func (c *converter) shape(t cc.Type) *ir.Type {
 	return &ir.Type{Kind: ir.Invalid, Size: t.Size(), Align: t.Align(), Name: t.String()}
 }
 
+// sig converts a function type, dropping the unnamed (void) parameter of
+// prototypes like f(void).
 func (c *converter) sig(ft *cc.FunctionType) *ir.Sig {
 	s := &ir.Sig{Ret: c.typ(ft.Result()), Variadic: ft.IsVariadic()}
 	for _, p := range ft.Parameters() {
@@ -143,6 +156,9 @@ func (c *converter) sig(ft *cc.FunctionType) *ir.Sig {
 	return s
 }
 
+// record converts a struct or union, sharing one ir.Record per tag across
+// targets. A forward-declared record is completed when a later definition is
+// seen, and a size mismatch between targets is reported as a warning.
 func (c *converter) record(t cc.Type, union bool, tag string, n int, field func(int) *cc.Field, size int64, align int, incomplete bool) *ir.Type {
 	var key any = t
 	if tag != "" {
@@ -171,6 +187,8 @@ func (c *converter) record(t cc.Type, union bool, tag string, n int, field func(
 	return rt
 }
 
+// fillRecord populates rt with layout and fields, attaching member docs from
+// the header text. Bitfields are warned about since they are not supported.
 func (c *converter) fillRecord(rt *ir.Type, n int, field func(int) *cc.Field, size int64, align int) {
 	rec := rt.Rec
 	rec.Incomplete, rec.Size, rec.Align = false, size, align
@@ -198,6 +216,8 @@ func (c *converter) fillRecord(rt *ir.Type, n int, field func(int) *cc.Field, si
 	}
 }
 
+// enum converts an enum type, sharing one ir.EnumDecl per tag. Enumerators
+// with non-integer values are skipped with a warning.
 func (c *converter) enum(et *cc.EnumType) *ir.Type {
 	var key any = et
 	tag := tagName(et.Tag())
@@ -238,7 +258,11 @@ func (c *converter) enum(et *cc.EnumType) *ir.Type {
 	return t
 }
 
-func bigInt(v int64) *big.Int   { return big.NewInt(v) }
+// bigInt boxes v as a *big.Int.
+func bigInt(v int64) *big.Int { return big.NewInt(v) }
+
+// bigUint boxes v as a *big.Int.
 func bigUint(v uint64) *big.Int { return new(big.Int).SetUint64(v) }
 
+// tagName returns the source spelling of t, "" for an absent token.
 func tagName(t cc.Token) string { return t.SrcStr() }

@@ -29,7 +29,11 @@ import (
 // See also: SetPointerPropertyWithCleanup
 //
 // It holds a C function pointer; create one with NewCleanupPropertyCallback.
+// The zero value means NULL (no callback); use NoCleanupPropertyCallback where an optional callback is not wanted.
 type CleanupPropertyCallback uintptr
+
+// NoCleanupPropertyCallback is the NULL CleanupPropertyCallback, for optional callback parameters.
+const NoCleanupPropertyCallback CleanupPropertyCallback = 0
 
 // NewCleanupPropertyCallback wraps fn as a C callback of type CleanupPropertyCallback.
 //
@@ -56,7 +60,11 @@ func NewCleanupPropertyCallback(fn func(userdata unsafe.Pointer, value unsafe.Po
 // See also: EnumerateProperties
 //
 // It holds a C function pointer; create one with NewEnumeratePropertiesCallback.
+// The zero value means NULL (no callback); use NoEnumeratePropertiesCallback where an optional callback is not wanted.
 type EnumeratePropertiesCallback uintptr
+
+// NoEnumeratePropertiesCallback is the NULL EnumeratePropertiesCallback, for optional callback parameters.
+const NoEnumeratePropertiesCallback EnumeratePropertiesCallback = 0
 
 // NewEnumeratePropertiesCallback wraps fn as a C callback of type EnumeratePropertiesCallback.
 //

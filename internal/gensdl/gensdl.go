@@ -34,7 +34,9 @@ type Config struct {
 }
 
 // Run executes the pipeline. Stale *_gen.go and *_gen_test.go files in
-// Config.Out are removed first.
+// Config.Out are removed first. The registered [Patch] list is applied to the
+// freshly generated files before Run returns, so `sdlsync -check` compares
+// patched output.
 func Run(c Config) error {
 	if c.Include == "" {
 		return fmt.Errorf("gensdl: include directory is required")
@@ -63,6 +65,9 @@ func Run(c Config) error {
 	}
 	res, err := bindgen.Generate(api, bindgen.Options{OutDir: c.Out, HandDir: c.HandDir, Tag: c.Tag, Revision: c.Revision})
 	if err != nil {
+		return err
+	}
+	if err := applyPatches(c.Out, patches); err != nil {
 		return err
 	}
 	fmt.Fprintf(stdout, "SDL %s: wrote %d files, %d declarations not bound, %d typed constants\n", api.Version, len(res.Files), len(res.Skipped), res.TypedConsts)

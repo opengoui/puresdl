@@ -26,7 +26,11 @@ import (
 // See also: AddHintCallback
 //
 // It holds a C function pointer; create one with NewHintCallback.
+// The zero value means NULL (no callback); use NoHintCallback where an optional callback is not wanted.
 type HintCallback uintptr
+
+// NoHintCallback is the NULL HintCallback, for optional callback parameters.
+const NoHintCallback HintCallback = 0
 
 // NewHintCallback wraps fn as a C callback of type HintCallback.
 //

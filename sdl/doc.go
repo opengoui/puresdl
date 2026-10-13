@@ -60,6 +60,28 @@
 // in the SDL_VERSION file. cmd/sdlsync downloads those headers and runs the
 // generator (cmd/gensdl, built on modernc.org/cc/v4 and github.com/dave/jennifer);
 // see the repository README.
+//
+// Never edit a *_gen.go file by hand: the next generation overwrites it and
+// `sdlsync -check` (run in CI) fails on any difference. To change generated
+// code, change the rules in internal/bindgen (preferred), or, when a rule
+// cannot express the change, register a Patch in internal/gensdl, which is
+// applied to the generated files at the end of every run.
+//
+// The files without the _gen suffix are hand-written and are the only place
+// for code that cannot be derived from the headers:
+//
+//   - doc.go: this package documentation.
+//   - loader.go, loader_unix.go, loader_windows.go: locating and loading
+//     libSDL3 and binding its symbols.
+//   - macros.go: Go versions of SDL function-like macros and static inline
+//     functions, which the shared library does not export.
+//   - slices.go: helpers behind the generated wrappers that return
+//     SDL_free-able arrays, plus [GoStrings], [GoStringsN] and [Slice].
+//   - wchar.go, wchar_windows.go, wchar_common.go: the platform-dependent
+//     [Wchar] type and wide-string conversion.
+//   - guid.go: the scalar-field ABI form of [GUID] used at the C boundary.
+//   - extra.go: pure Go helpers such as [Ptr], the UTF-8 stepping functions
+//     and the user-data handle table.
 package sdl
 
 //go:generate go run ../cmd/sdlsync -root .. -generate

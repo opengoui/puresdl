@@ -1454,3 +1454,15 @@ func TestCoreSharedCallbackMutation(t *testing.T) {
 		t.Errorf("total = %d, want %d", total.Load(), 8*50*3)
 	}
 }
+
+func TestAsyncIOOutcomeBytes(t *testing.T) {
+	var nilOut *AsyncIOOutcome
+	if nilOut.Bytes() != nil || (&AsyncIOOutcome{}).Bytes() != nil {
+		t.Fatal("nil buffer must give nil")
+	}
+	src := []byte("hello")
+	o := &AsyncIOOutcome{Buffer: unsafe.Pointer(&src[0]), BytesTransferred: 3}
+	if got := string(o.Bytes()); got != "hel" {
+		t.Fatalf("Bytes = %q", got)
+	}
+}

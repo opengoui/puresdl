@@ -44,7 +44,11 @@ type AssertData struct {
 // Since: SDL 3.2.0.
 //
 // It holds a C function pointer; create one with NewAssertionHandler.
+// The zero value means NULL (no callback); use NoAssertionHandler where an optional callback is not wanted.
 type AssertionHandler uintptr
+
+// NoAssertionHandler is the NULL AssertionHandler, for optional callback parameters.
+const NoAssertionHandler AssertionHandler = 0
 
 // NewAssertionHandler wraps fn as a C callback of type AssertionHandler.
 //
