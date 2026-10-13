@@ -68,7 +68,7 @@ SDL_VIDEODRIVER=dummy go run ./examples/hello -frames 30  # 无头：不开窗�
 
 ## 安装 SDL3
 
-puresdl 运行时需要 SDL3 动态库。绑定生成自 SDL 官方 release `release-3.4.18` 的头文件（见仓库根的 `SDL_VERSION`），与同版本动态库的导出符号完全一致；更新的库通常也能用。
+puresdl 运行时需要 SDL3 动态库。绑定生成自 SDL 官方 release `release-3.4.18` 的头文件（见仓库根的 `SDL_VERSION`），与同版本动态库的导出符号完全一致；更新的库通常也能用。注意：`sdl.Main`（`SDL_main`）已移除——该符号由应用自己定义，libSDL3 并不导出它。
 
 | 平台 | 安装 | 搜索顺序 |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ export SDL_INCLUDE=$(go run ./cmd/sdlsync -print-include)   # 给需要头文件
 | `-version` | `SDL_VERSION` 的内容 | 目标版本，接受 `3.4.18`、`v3.4.18`、`release-3.4.18`，统一成 `release-3.4.18`；`prerelease-`/`preview-`/`-rc` 版本会被拒绝 |
 | `-allow-prerelease` | 否 | 允许预发布标签 |
 | `-latest` | 否 | 通过 `https://api.github.com/repos/libsdl-org/SDL/releases/latest` 取最新正式 release（读取 `GITHUB_TOKEN`；触发频率限制时报错并提示设置 token） |
-| `-write` | 否 | 解析出的标签与 `SDL_VERSION` 不同时更新该文件 |
+| `-write` | 否 | 解析出的标签与 `SDL_VERSION` 不同时更新该文件（在 `-generate`/`-check` 成功之后才写入） |
 | `-list`、`-n` | 否、10 | 打印最近 n 个非预发布标签后退出 |
 | `-generate` | 否 | 同步后重新生成 `sdl/*_gen.go`、`sdl/layout_gen_test.go`、`docs/skipped.txt` |
 | `-check` | 否 | 重新生成到临时目录，有差异则以差异摘要（新增/删除/变化的文件及首个不同行）失败 |

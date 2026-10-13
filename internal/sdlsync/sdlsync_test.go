@@ -605,3 +605,107 @@ func TestGenerateAndCheck(t *testing.T) {
 		t.Fatal("-check with -generate accepted")
 	}
 }
+
+func TestParseTagRejectsBad(t *testing.T) {
+	for _, in := range []string{
+		"99999999999999999999.1.1", "0.0.0", "2.32.10", "release-2.32.10",
+		"3.4.18-", "3.4.18.", "3.4.18-..", "3.4.18.1", "3.4.18rc1",
+	} {
+		if got, err := ParseTag(in, true); err == nil {
+			t.Errorf("ParseTag(%q) = %q, want error", in, got.Name)
+		}
+	}
+}
+
+func TestLatestSkipsOtherMajor(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/latest") {
+			fmt.Fprint(w, `{"tag_name":"release-2.32.10"}`)
+			return
+		}
+		fmt.Fprint(w, `[{"tag_name":"release-2.32.10"},{"tag_name":"release-3.4.18"}]`)
+	}))
+	defer srv.Close()
+	got, err := (&Client{APIURL: srv.URL}).Latest(context.Background())
+	if err != nil || got.Name != "release-3.4.18" {
+		t.Fatalf("Latest = %v, %v", got, err)
+	}
+}
+
+func TestTokenOnlyToTrustedHosts(t *testing.T) {
+	for _, tc := range []struct {
+		url  string
+		want bool
+	}{
+		{"https://api.github.com", true},
+		{"http://127.0.0.1:1234", true},
+		{"http://example.com", false},
+		{"https://example.com", false},
+	} {
+		if got := (&Client{APIURL: tc.url, Token: "x"}).tokenAllowed(); got != tc.want {
+			t.Errorf("tokenAllowed(%s) = %v", tc.url, got)
+		}
+	}
+	if !(&Client{APIURL: "https://ghe.example", AllowTokenAnyHost: true}).tokenAllowed() {
+		t.Error("AllowTokenAnyHost ignored")
+	}
+}
+
+func TestExtractVerifiesGzipFooter(t *testing.T) {
+	tb := tarball(t, fakeTree("SDL-release-3.4.18", plainRevision)...)
+	if _, err := Extract(bytes.NewReader(tb), t.TempDir()); err != nil {
+		t.Fatal(err)
+	}
+	bad := append([]byte(nil), tb...)
+	bad[len(bad)-8] ^= 0xff // CRC32
+	if _, err := Extract(bytes.NewReader(bad), t.TempDir()); err == nil {
+		t.Error("corrupt CRC accepted")
+	}
+	if _, err := Extract(bytes.NewReader(tb[:len(tb)-6]), t.TempDir()); err == nil {
+		t.Error("truncated footer accepted")
+	}
+}
+
+func TestSyncDetectsModifiedCache(t *testing.T) {
+	f := newFakeGitHub(t)
+	f.tarballs["release-3.4.18"] = tarball(t, fakeTree("SDL-release-3.4.18", plainRevision)...)
+	tag, _ := ParseTag("3.4.18", false)
+	cache := t.TempDir()
+	s := &Syncer{Client: f.client(), CacheDir: cache}
+	if _, err := s.Sync(context.Background(), tag); err != nil {
+		t.Fatal(err)
+	}
+	h := filepath.Join(cache, "release-3.4.18", "include", "SDL3", "SDL_h05.h")
+	if err := os.WriteFile(h, []byte("#error pwned\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := (&Syncer{CacheDir: cache, Offline: true}).Sync(context.Background(), tag); err == nil {
+		t.Error("offline sync accepted a modified cache")
+	}
+	got, err := s.Sync(context.Background(), tag)
+	if err != nil || !got.Downloaded {
+		t.Fatalf("repair: %+v, %v", got, err)
+	}
+	if b, _ := os.ReadFile(h); strings.Contains(string(b), "pwned") {
+		t.Error("cache not repaired")
+	}
+}
+
+func TestSyncConcurrent(t *testing.T) {
+	f := newFakeGitHub(t)
+	f.tarballs["release-3.4.18"] = tarball(t, fakeTree("SDL-release-3.4.18", plainRevision)...)
+	tag, _ := ParseTag("3.4.18", false)
+	cache := t.TempDir()
+	errs := make(chan error, 12)
+	for i := 0; i < 12; i++ {
+		go func() {
+			_, err := (&Syncer{Client: f.client(), CacheDir: cache}).Sync(context.Background(), tag)
+			errs <- err
+		}()
+	}
+	for i := 0; i < 12; i++ {
+		if err := <-errs; err != nil {
+			t.Error(err)
+		}
+	}
+}

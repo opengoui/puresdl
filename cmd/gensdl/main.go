@@ -8,6 +8,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/opengoui/puresdl/internal/gensdl"
 )
@@ -19,6 +20,9 @@ func main() {
 	flag.Parse()
 	if *include == "" {
 		log.Fatal("gensdl: -include or $SDL_INCLUDE is required")
+	}
+	if _, err := os.Stat(filepath.Join(*include, "SDL3", "SDL.h")); err != nil {
+		log.Fatalf("gensdl: -include: no SDL3/SDL.h in %s", *include)
 	}
 	err := gensdl.Run(gensdl.Config{Include: *include, Out: *out, Skipped: *skipped, Stdout: os.Stdout, Stderr: os.Stderr})
 	if err != nil {

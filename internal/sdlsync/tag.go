@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -15,7 +16,7 @@ import (
 // pinned release tag.
 const DefaultVersionFile = "SDL_VERSION"
 
-var tagRE = regexp.MustCompile(`^(?:(release|prerelease|preview)-)?v?(\d+)\.(\d+)\.(\d+)(?:[-.]?([0-9A-Za-z.\-]+))?$`)
+var tagRE = regexp.MustCompile(`^(?:(release|prerelease|preview)-)?v?(\d{1,9})\.(\d{1,9})\.(\d{1,9})(?:-([0-9A-Za-z]+(?:[.\-][0-9A-Za-z]+)*))?$`)
 
 // Tag is a parsed release tag.
 type Tag struct {
@@ -41,7 +42,16 @@ func ParseTag(in string, allowPrerelease bool) (Tag, error) {
 		return Tag{}, fmt.Errorf("sdlsync: %q is not a release version (want 3.4.18, v3.4.18 or release-3.4.18)", in)
 	}
 	var t Tag
-	fmt.Sscanf(m[2]+" "+m[3]+" "+m[4], "%d %d %d", &t.Major, &t.Minor, &t.Micro)
+	for i, p := range []*int{&t.Major, &t.Minor, &t.Micro} {
+		n, err := strconv.Atoi(m[2+i])
+		if err != nil {
+			return Tag{}, fmt.Errorf("sdlsync: %q: bad version number: %w", in, err)
+		}
+		*p = n
+	}
+	if t.Major != 3 {
+		return Tag{}, fmt.Errorf("sdlsync: %q is not an SDL3 release (major version %d)", in, t.Major)
+	}
 	t.Prerelease = (m[1] != "" && m[1] != "release") || m[5] != ""
 	switch {
 	case m[1] == "prerelease" || m[1] == "preview":
@@ -77,5 +87,13 @@ func WriteVersionFile(path string, tag Tag) (changed bool, err error) {
 	if old, err := os.ReadFile(path); err == nil && string(old) == want {
 		return false, nil
 	}
-	return true, os.WriteFile(path, []byte(want), 0o644)
+	tmp := path + ".tmp"
+	if err := os.WriteFile(tmp, []byte(want), 0o644); err != nil {
+		return false, err
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		os.Remove(tmp)
+		return false, err
+	}
+	return true, nil
 }

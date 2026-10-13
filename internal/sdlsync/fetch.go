@@ -19,12 +19,14 @@ import (
 )
 
 const (
-	maxFileSize  = 4 << 20  // largest single header accepted
-	maxTotalSize = 32 << 20 // all extracted headers together
-	maxFiles     = 400
-	minHeaders   = 60 // a real release has ~87
-	includeDir   = "include/SDL3/"
-	metaName     = ".sync.json"
+	maxFileSize     = 4 << 20  // largest single header accepted
+	maxTotalSize    = 32 << 20 // all extracted headers together
+	maxFiles        = 400
+	maxCompressed   = 64 << 20 // tarball as downloaded
+	maxDecompressed = 1 << 30  // tarball after gunzip, including skipped entries
+	minHeaders      = 60       // a real release has ~87
+	includeDir      = "include/SDL3/"
+	metaName        = ".sync.json"
 )
 
 // Meta is stored as <cache>/<tag>/.sync.json.
@@ -38,7 +40,10 @@ type Meta struct {
 	RevisionSource string `json:"revision_source"`
 	Commit         string `json:"commit,omitempty"`
 	SHA256         string `json:"sha256"`
-	Files          int    `json:"files"`
+	// Tree is a digest over the names and contents of the extracted headers;
+	// validate recomputes it to detect a modified cache.
+	Tree  string `json:"tree"`
+	Files int    `json:"files"`
 }
 
 // Synced describes a validated header tree in the cache.
@@ -94,6 +99,9 @@ func (s *Syncer) Sync(ctx context.Context, tag Tag) (*Synced, error) {
 	if err != nil {
 		return nil, err
 	}
+	if meta.Tree, err = treeDigest(filepath.Join(tmp, "include", "SDL3")); err != nil {
+		return nil, err
+	}
 	b, _ := json.MarshalIndent(meta, "", "  ")
 	if err := os.WriteFile(filepath.Join(tmp, metaName), append(b, '\n'), 0o644); err != nil {
 		return nil, err
@@ -107,11 +115,27 @@ func (s *Syncer) Sync(ctx context.Context, tag Tag) (*Synced, error) {
 	if err := os.WriteFile(filepath.Join(tmp, metaName), append(b, '\n'), 0o644); err != nil {
 		return nil, err
 	}
-	if err := os.RemoveAll(dir); err != nil {
-		return nil, err
+	// Install the new tree. If another process installed a valid entry in the
+	// meantime, use that one; an invalid entry is moved aside under a unique
+	// name (never deleted in place) before the rename, and the whole step is
+	// retried a few times when it loses a race.
+	var rerr error
+	for attempt := 0; attempt < 5; attempt++ {
+		if m, err := validate(dir, tag); err == nil {
+			return &Synced{Meta: *m, Include: filepath.Join(dir, "include")}, nil
+		}
+		if _, err := os.Lstat(dir); err == nil {
+			if aside, err := os.MkdirTemp(s.CacheDir, ".old-"+tag.Name+"-"); err == nil {
+				defer os.RemoveAll(aside)
+				os.Rename(dir, filepath.Join(aside, "e"))
+			}
+		}
+		if rerr = os.Rename(tmp, dir); rerr == nil {
+			break
+		}
 	}
-	if err := os.Rename(tmp, dir); err != nil {
-		return nil, err
+	if rerr != nil {
+		return nil, rerr
 	}
 	return &Synced{Meta: *meta, Include: filepath.Join(dir, "include"), Downloaded: true}, nil
 }
@@ -132,11 +156,11 @@ func (s *Syncer) download(ctx context.Context, tag Tag, dst string) (*Meta, erro
 		return nil, fmt.Errorf("sdlsync: downloading %s: %s", url, resp.Status)
 	}
 	h := sha256.New()
-	meta, err := Extract(io.TeeReader(resp.Body, h), dst)
+	body := io.LimitReader(io.TeeReader(resp.Body, h), maxCompressed)
+	meta, err := Extract(body, dst)
 	if err != nil {
 		return nil, fmt.Errorf("sdlsync: %s: %w", url, err)
 	}
-	io.Copy(io.Discard, resp.Body) // hash the trailer too
 	meta.Tag = tag.Name
 	meta.SHA256 = hex.EncodeToString(h.Sum(nil))
 	return meta, nil
@@ -152,7 +176,7 @@ func Extract(r io.Reader, dst string) (*Meta, error) {
 	if err != nil {
 		return nil, fmt.Errorf("not a gzip stream: %w", err)
 	}
-	tr := tar.NewReader(zr)
+	tr := tar.NewReader(&capReader{r: zr, n: maxDecompressed})
 	meta := &Meta{}
 	var total int64
 	for {
@@ -217,7 +241,51 @@ func Extract(r io.Reader, dst string) (*Meta, error) {
 		total += n
 		meta.Files++
 	}
+	// Read the stream to its end so that the gzip CRC and length footer are
+	// verified; a truncated or corrupted tarball fails here.
+	if _, err := io.Copy(io.Discard, &capReader{r: zr, n: maxDecompressed}); err != nil {
+		return nil, fmt.Errorf("reading gzip trailer: %w", err)
+	}
 	return meta, nil
+}
+
+// capReader fails once more than n bytes have been read from r.
+type capReader struct {
+	r io.Reader
+	n int64
+}
+
+func (c *capReader) Read(p []byte) (int, error) {
+	if c.n <= 0 {
+		return 0, errors.New("tarball expands beyond the decompressed size limit")
+	}
+	if int64(len(p)) > c.n {
+		p = p[:c.n]
+	}
+	n, err := c.r.Read(p)
+	c.n -= int64(n)
+	return n, err
+}
+
+// treeDigest hashes the sorted names and contents of the regular files in dir.
+func treeDigest(dir string) (string, error) {
+	ents, err := os.ReadDir(dir)
+	if err != nil {
+		return "", err
+	}
+	h := sha256.New()
+	for _, e := range ents { // ReadDir sorts by name
+		if !e.Type().IsRegular() {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			return "", err
+		}
+		sum := sha256.Sum256(b)
+		fmt.Fprintf(h, "%s %x\n", e.Name(), sum)
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 var (
@@ -255,6 +323,11 @@ func validate(dir string, tag Tag) (*Meta, error) {
 	}
 	if n < minHeaders {
 		return nil, fmt.Errorf("only %d headers; a release has at least %d", n, minHeaders)
+	}
+	if tree, err := treeDigest(hdr); err != nil {
+		return nil, err
+	} else if m.Tree == "" || tree != m.Tree {
+		return nil, fmt.Errorf("headers do not match the digest recorded in %s (cache modified or incomplete)", metaName)
 	}
 	ver, err := os.ReadFile(filepath.Join(hdr, "SDL_version.h"))
 	if err != nil {

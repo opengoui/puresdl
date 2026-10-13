@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -28,6 +30,9 @@ type Client struct {
 	DownloadURL string       // default DefaultDownloadURL
 	Token       string       // optional GitHub token, sent to the API only
 	HTTP        *http.Client // default: 2 minute timeout
+	// AllowTokenAnyHost sends Token to a custom https APIURL as well. By
+	// default the token only goes to api.github.com or a loopback server.
+	AllowTokenAnyHost bool
 }
 
 func (c *Client) apiURL() string {
@@ -35,6 +40,24 @@ func (c *Client) apiURL() string {
 		return strings.TrimRight(c.APIURL, "/")
 	}
 	return DefaultAPIURL
+}
+
+// tokenAllowed reports whether the token may be sent to the API URL: only
+// https, or plain http to a loopback host. Any other host (including a custom
+// https one) gets the request without credentials unless AllowTokenAnyHost.
+func (c *Client) tokenAllowed() bool {
+	u, err := url.Parse(c.apiURL())
+	if err != nil {
+		return false
+	}
+	switch u.Scheme {
+	case "https":
+		return c.AllowTokenAnyHost || u.Hostname() == "api.github.com"
+	case "http":
+		ip := net.ParseIP(u.Hostname())
+		return u.Hostname() == "localhost" || (ip != nil && ip.IsLoopback())
+	}
+	return false
 }
 
 func (c *Client) downloadURL() string {
@@ -64,7 +87,7 @@ func (c *Client) getJSON(ctx context.Context, path string, v any) error {
 	}
 	req.Header.Set("User-Agent", UserAgent)
 	req.Header.Set("Accept", "application/vnd.github+json")
-	if c.Token != "" {
+	if c.Token != "" && c.tokenAllowed() {
 		req.Header.Set("Authorization", "Bearer "+c.Token)
 	}
 	resp, err := c.httpClient().Do(req)
@@ -97,9 +120,9 @@ func apiError(resp *http.Response, body []byte, haveToken bool) error {
 	}
 	snippet := strings.TrimSpace(string(body))
 	if len(snippet) > 200 {
-		snippet = snippet[:200]
+		snippet = strings.ToValidUTF8(snippet[:200], "")
 	}
-	return fmt.Errorf("sdlsync: GitHub API: %s: %s", resp.Status, snippet)
+	return fmt.Errorf("sdlsync: GitHub API: %s: %q", resp.Status, snippet)
 }
 
 // Latest returns the tag of the latest official (non-prerelease) release.
@@ -109,29 +132,40 @@ func (c *Client) Latest(ctx context.Context) (Tag, error) {
 		return Tag{}, err
 	}
 	t, err := ParseTag(r.TagName, false)
-	if err != nil {
-		return Tag{}, fmt.Errorf("sdlsync: latest release %q is not a plain release tag: %w", r.TagName, err)
+	if err == nil {
+		return t, nil
 	}
-	return t, nil
+	// The repository also publishes other majors; fall back to the newest
+	// SDL3 release in the list.
+	if tags, lerr := c.List(ctx, 1); lerr == nil && len(tags) > 0 {
+		return tags[0], nil
+	}
+	return Tag{}, fmt.Errorf("sdlsync: latest release %q is not a plain SDL3 release tag: %w", r.TagName, err)
 }
 
-// List returns up to n recent non-prerelease release tags, newest first.
+// List returns up to n recent non-prerelease SDL3 release tags, newest first.
+// It follows the API pagination; n <= 0 means one page.
 func (c *Client) List(ctx context.Context, n int) ([]Tag, error) {
-	var rs []release
-	if err := c.getJSON(ctx, fmt.Sprintf("%s/releases?per_page=%d", repoPath, 100), &rs); err != nil {
-		return nil, err
-	}
 	var out []Tag
-	for _, r := range rs {
-		if r.Prerelease || r.Draft {
-			continue
+	for page := 1; page <= 10; page++ {
+		var rs []release
+		if err := c.getJSON(ctx, fmt.Sprintf("%s/releases?per_page=100&page=%d", repoPath, page), &rs); err != nil {
+			return nil, err
 		}
-		t, err := ParseTag(r.TagName, false)
-		if err != nil {
-			continue
+		for _, r := range rs {
+			if r.Prerelease || r.Draft {
+				continue
+			}
+			t, err := ParseTag(r.TagName, false)
+			if err != nil {
+				continue
+			}
+			out = append(out, t)
+			if n > 0 && len(out) == n {
+				return out, nil
+			}
 		}
-		out = append(out, t)
-		if n > 0 && len(out) == n {
+		if n <= 0 || len(rs) < 100 {
 			break
 		}
 	}

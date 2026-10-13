@@ -122,23 +122,6 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout,
 	fmt.Fprintf(stderr, "%s: %s headers (%d files, sha256 %s)\n  version %s, SDL_REVISION %q (%s)\n  include %s\n",
 		tag.Name, how, res.Files, res.SHA256, res.Version, res.Revision, res.RevisionSource, res.Include)
 
-	if *write {
-		pinned, perr := ReadVersionFile(versionFile, true)
-		changed, err := WriteVersionFile(versionFile, tag)
-		if err != nil {
-			return err
-		}
-		if changed {
-			from := "(none)"
-			if perr == nil {
-				from = pinned.Name
-			}
-			fmt.Fprintf(stderr, "SDL_VERSION: %s -> %s\n", from, tag.Name)
-		} else {
-			fmt.Fprintf(stderr, "SDL_VERSION already %s\n", tag.Name)
-		}
-	}
-
 	sdlDir := filepath.Join(*root, "sdl")
 	skipped := filepath.Join(*root, "docs", "skipped.txt")
 	cfg := GenConfig{Include: res.Include, HandDir: sdlDir, Tag: tag.Name, Revision: res.Revision, Stdout: stderr, Stderr: stderr}
@@ -170,6 +153,23 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout,
 		}
 		fmt.Fprintf(stderr, "generated code is up to date for %s\n", tag.Name)
 	}
+	if *write {
+		pinned, perr := ReadVersionFile(versionFile, true)
+		changed, err := WriteVersionFile(versionFile, tag)
+		if err != nil {
+			return err
+		}
+		if changed {
+			from := "(none)"
+			if perr == nil {
+				from = pinned.Name
+			}
+			fmt.Fprintf(stderr, "SDL_VERSION: %s -> %s\n", from, tag.Name)
+		} else {
+			fmt.Fprintf(stderr, "SDL_VERSION already %s\n", tag.Name)
+		}
+	}
+
 	if *printIn {
 		fmt.Fprintln(stdout, res.Include)
 	}
