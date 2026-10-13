@@ -51,8 +51,10 @@
 //
 // # Generation
 //
-// The *_gen.go files are generated from the SDL headers by cmd/gensdl using
-// modernc.org/cc/v4 and github.com/dave/jennifer; see the repository README.
+// The *_gen.go files are generated from the headers of the SDL release pinned
+// in the SDL_VERSION file. cmd/sdlsync downloads those headers and runs the
+// generator (cmd/gensdl, built on modernc.org/cc/v4 and github.com/dave/jennifer);
+// see the repository README.
 package sdl
 
-//go:generate go run ../cmd/gensdl -include ../../SDL/include -out . -skipped ../docs/skipped.txt
+//go:generate go run ../cmd/sdlsync -root .. -generate

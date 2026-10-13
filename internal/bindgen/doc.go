@@ -25,19 +25,17 @@ var docAllow = map[string]bool{
 	"SDL_MemoryBarrierAcquire": true, "SDL_MemoryBarrierRelease": true,
 	"SDL_assert": true, "SDL_REVISION": true, "SDL_revision": true,
 	"SDL_INIT_INTERFACE": true, "SDL_HAPTIC_GAIN_MAX": true, "SDL_GDK_TEXTINPUT": true,
-	"SDL_GDKSuspendGPU": true, "SDL_GDKSuspendRenderer": true, "SDL_UDEV_deviceclass": true,
+	"SDL_GDKSuspendGPU": true, "SDL_UDEV_deviceclass": true,
 	"SDL_SRCCOLORKEY": true, "SDL_UpdateRects": true, "SDL_Flip": true,
 	"SDL_MAIN_HANDLED": true, "SDL_MAIN_USE_CALLBACKS": true,
 	// Names that appear in the headers' prose only (typos, hint values,
 	// property names without a constant, library or subsystem names).
 	"SDL_FILESYSTEM_BASE_DIR_TYPE": true, "SDL_windowX": true, "SDL_SetJoystickVirtualSensorData": true,
-	"SDL_PROP_NOTIFICATIONS_ACTION_COUNT_NUMBER":    true,
 	"SDL_PROP_TEXTURE_CREATE_GPU_TEXTURE_UV_NUMBER": true,
 	"SDL_PROP_TEXTURE_CREATE_GPU_TEXTURE_U_NUMBER":  true,
 	"SDL_PROP_TEXTURE_CREATE_GPU_TEXTURE_V_NUMBER":  true,
 	"SDL_app": true, "SDL_ttf": true, "SDL_gamepad": true, "SDL_sensor": true,
 	"SDL_GPU": true, "SDL_Render": true, "SDL_Rects": true,
-	"SDL_BindComputeStorageBuffers": true, "SDL_BindComputeStorageTextures": true,
 }
 
 var (

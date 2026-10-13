@@ -7,7 +7,6 @@ SDL_UCS4ToUTF8: libc replacement
 SDL_abs: libc replacement
 SDL_acos: libc replacement
 SDL_acosf: libc replacement
-SDL_aligned_alloc_zero: libc replacement
 SDL_asin: libc replacement
 SDL_asinf: libc replacement
 SDL_asprintf: libc replacement
@@ -58,6 +57,7 @@ SDL_logf: libc replacement
 SDL_lround: libc replacement
 SDL_lroundf: libc replacement
 SDL_ltoa: libc replacement
+SDL_main: defined by the application, not exported by libSDL3
 SDL_memcmp: libc replacement
 SDL_memcpy: libc replacement
 SDL_memmove: libc replacement
@@ -133,6 +133,3 @@ SDL_wcsnlen: libc replacement
 SDL_wcsnstr: libc replacement
 SDL_wcsstr: libc replacement
 SDL_wcstol: libc replacement
-SDL_wcstoll: libc replacement
-SDL_wcstoul: libc replacement
-SDL_wcstoull: libc replacement

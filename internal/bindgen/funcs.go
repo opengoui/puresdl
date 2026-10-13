@@ -123,6 +123,9 @@ func isFmtParam(p ir.Param) bool {
 
 // bindFunc emits the wrapper for f and returns a reason when it is skipped.
 func (g *gen) bindFunc(f *ir.Function) string {
+	if f.Name == "SDL_main" {
+		return "defined by the application, not exported by libSDL3"
+	}
 	if f.File == "SDL_stdinc.h" && !keptStdinc.MatchString(f.Name) {
 		return "libc replacement"
 	}

@@ -71,8 +71,8 @@ var handWritten = map[string]bool{
 
 // constTypeOverrides pins the type of macro constants whose contiguous
 // #define block does not name the right typedef. The value is the C typedef
-// name; "" keeps the constant untyped. Entries were checked against the SDL
-// 3.5 headers.
+// name; "" keeps the constant untyped. Entries were checked against the
+// headers of the pinned release (SDL_VERSION).
 var constTypeOverrides = map[string]string{
 	// Positions, not window flags: they are passed as int coordinates.
 	"SDL_WINDOWPOS_UNDEFINED_MASK": "",
@@ -173,7 +173,6 @@ var nullParams = map[string]nullParam{
 	"SDL_ShowOpenFileDialog.default_location":   {doc: "the default folder or file to start the dialog at, may be NULL."},
 	"SDL_ShowSaveFileDialog.default_location":   {doc: "the default folder or file to start the dialog at, may be NULL."},
 	"SDL_ShowOpenFolderDialog.default_location": {doc: "the default folder or file to start the dialog at, may be NULL."},
-	"SDL_ShowNotification.message":              {doc: "UTF-8 message text, may be NULL."},
 	"SDL_GlobDirectory.pattern":                 {doc: "the pattern that files in the directory must match. Can be NULL."},
 	"SDL_GlobStorageDirectory.pattern":          {doc: "the pattern that files in the directory must match. Can be NULL."},
 	"SDL_GPUSupportsShaderFormats.name":         {doc: "the preferred GPU driver, or NULL to let SDL pick the optimal driver."},
@@ -250,7 +249,6 @@ var nullFailureResults = map[string]string{
 	"SDL_GetPrefPath":                           "a UTF-8 string of the user directory in platform-dependent notation. NULL if there's a problem (creating directory failed, etc.). This should be freed with SDL_free() when it is no longer needed.",
 	"SDL_GetUserFolder":                         "either a null-terminated C string containing the full path to the folder, or NULL if an error happened.",
 	"SDL_GetCurrentDirectory":                   "a UTF-8 string of the current working directory in platform-dependent notation. NULL if there's a problem. This should be freed with SDL_free() when it is no longer needed.",
-	"SDL_GetGPUDriver":                          "the name of the GPU driver with the given **index** or NULL when the index is out of bounds; call SDL_GetError() for more information.",
 	"SDL_GetGPUDeviceDriver":                    "the name of the device's driver, or NULL on error.",
 	"SDL_GetHapticNameForID":                    "the name of the selected haptic device. If no name can be found, this function returns NULL; call SDL_GetError() for more information.",
 	"SDL_GetHapticName":                         "the name of the selected haptic device. If no name can be found, this function returns NULL; call SDL_GetError() for more information.",
