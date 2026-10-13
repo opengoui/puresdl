@@ -48,8 +48,10 @@ func init() {
 // already loaded (for example a system copy found at import time), Load
 // switches to the new one: it opens path, rebinds every function and updates
 // [LoadedPath]. Loading the path that is already loaded is a no-op. If path
-// cannot be opened, Load returns the error and the previous library stays
-// loaded and usable. The previous library is never unloaded.
+// cannot be opened, or is not an SDL3 library (it does not export
+// SDL_GetVersion), Load returns the error and the previous library stays
+// loaded and usable; the same check makes the import-time search skip such a
+// file, for example a bad SDL3_LIBRARY value. The previous library is never unloaded.
 //
 // Switching is not safe concurrently with SDL calls: do it before using SDL,
 // from one goroutine. Function values that callers captured earlier stay
@@ -101,14 +103,22 @@ func LoadedPath() string {
 	return loadedPath
 }
 
-// openFirst opens the first candidate that loads and returns it. The error
-// joins every failure.
+// sentinelSymbol is resolved in every opened library to make sure it really
+// is SDL3 before it replaces or becomes the bound library.
+const sentinelSymbol = "SDL_GetVersion"
+
+// openFirst opens the first candidate that loads and exports the SDL3
+// sentinel symbol, and returns it. The error joins every failure.
 func openFirst(candidates []string) (uintptr, string, error) {
 	var errs []error
 	for _, c := range candidates {
 		h, err := openLibrary(c)
 		if err != nil {
 			errs = append(errs, err)
+			continue
+		}
+		if addr, err := lookup(h, sentinelSymbol); err != nil || addr == 0 {
+			errs = append(errs, fmt.Errorf("sdl: %s is not an SDL3 library (no %s)", c, sentinelSymbol))
 			continue
 		}
 		return h, c, nil

@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -49,5 +50,44 @@ func TestLoadedPathNames(t *testing.T) {
 	}
 	if LoadedPath() == "" {
 		t.Error("LoadedPath is empty although a library is loaded")
+	}
+}
+
+// nonSDLLibrary returns a system library that dlopens but is not SDL3.
+func nonSDLLibrary() string {
+	switch runtime.GOOS {
+	case "darwin":
+		return "/usr/lib/libSystem.B.dylib"
+	case "windows":
+		return "kernel32.dll"
+	default:
+		return "libc.so.6"
+	}
+}
+
+func TestLoadNonSDLLibraryKeepsPreviousLibrary(t *testing.T) {
+	if LoadError() != nil {
+		t.Skip("SDL3 not loaded")
+	}
+	before, version := LoadedPath(), GetVersion()
+	err := Load(nonSDLLibrary())
+	if err == nil || !strings.Contains(err.Error(), "not an SDL3 library") {
+		t.Fatalf("Load of a non-SDL library = %v", err)
+	}
+	if LoadError() != nil || LoadedPath() != before || GetVersion() != version {
+		t.Errorf("previous library not intact: LoadError=%v path %q, version %d", LoadError(), LoadedPath(), GetVersion())
+	}
+	if !Available("SDL_Init") {
+		t.Error("SDL_Init no longer available")
+	}
+}
+
+func TestOpenFirstSkipsNonSDLLibrary(t *testing.T) {
+	if LoadError() != nil {
+		t.Skip("SDL3 not loaded")
+	}
+	_, _, err := openFirst([]string{nonSDLLibrary()})
+	if err == nil {
+		t.Fatal("openFirst accepted a non-SDL library")
 	}
 }
