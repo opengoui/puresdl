@@ -3,6 +3,7 @@ package sdl
 import (
 	"errors"
 	"math"
+	"strconv"
 	"strings"
 	"testing"
 	"unsafe"
@@ -16,15 +17,22 @@ func TestFitsInt32(t *testing.T) {
 	if GetError() != "" {
 		t.Fatalf("unexpected error %q", GetError())
 	}
-	if fitsInt32(math.MaxInt32+1, "myFunc") {
-		t.Fatal("MaxInt32+1 must not fit")
-	}
-	if got := GetError(); !strings.Contains(got, "myFunc") {
-		t.Fatalf("error = %q, want it to name the function", got)
+	if strconv.IntSize > 32 {
+		maxPlusOne := int64(math.MaxInt32)
+		maxPlusOne++
+		if fitsInt32(int(maxPlusOne), "myFunc") {
+			t.Fatal("MaxInt32+1 must not fit")
+		}
+		if got := GetError(); !strings.Contains(got, "myFunc") {
+			t.Fatalf("error = %q, want it to name the function", got)
+		}
 	}
 }
 
 func TestPutAudioStreamBytesTooLong(t *testing.T) {
+	if strconv.IntSize < 64 {
+		t.Skip("requires a slice length larger than the int32 limit")
+	}
 	mediaInit(t, INIT_AUDIO)
 	if testing.Short() {
 		t.Skip("allocates 2 GiB of address space")
@@ -35,7 +43,9 @@ func TestPutAudioStreamBytesTooLong(t *testing.T) {
 		t.Fatal(GetError())
 	}
 	defer DestroyAudioStream(st)
-	big := make([]byte, math.MaxInt32+1) // untouched pages stay virtual
+	bigSize := int64(math.MaxInt32)
+	bigSize++
+	big := make([]byte, int(bigSize)) // untouched pages stay virtual
 	ClearError()
 	if PutAudioStreamBytes(st, big) {
 		t.Fatal("2 GiB slice must be rejected")
