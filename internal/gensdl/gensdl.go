@@ -19,6 +19,9 @@ type Config struct {
 	Include string
 	// Out is the output directory of the Go package.
 	Out string
+	// HandDir is the directory whose hand-written Go files name extra
+	// identifiers that docs may refer to; default Out.
+	HandDir string
 	// Skipped, when not empty, is the file that receives the list of unbound
 	// C declarations.
 	Skipped string
@@ -58,7 +61,7 @@ func Run(c Config) error {
 	for _, f := range append(old, olt...) {
 		os.Remove(f)
 	}
-	res, err := bindgen.Generate(api, bindgen.Options{OutDir: c.Out, Tag: c.Tag, Revision: c.Revision})
+	res, err := bindgen.Generate(api, bindgen.Options{OutDir: c.Out, HandDir: c.HandDir, Tag: c.Tag, Revision: c.Revision})
 	if err != nil {
 		return err
 	}
