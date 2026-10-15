@@ -79,6 +79,8 @@ var fnGetError func() *byte
 // Since: SDL 3.2.0.
 //
 // See also: ClearError, SetError
+//
+// SDL error state belongs to the calling OS thread. If this goroutine may move between OS threads, use runtime.LockOSThread across the failing SDL call and this call.
 func GetError() string {
 	return GoString(fnGetError())
 }

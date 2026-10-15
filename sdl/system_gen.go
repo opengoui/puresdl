@@ -287,7 +287,7 @@ var fnSetLinuxThreadPriority func(threadID int64, priority int32) bool
 //
 // Since: SDL 3.2.0.
 //
-// Only declared by the SDL headers for linux/amd64.
+// Only declared by the SDL headers for linux/amd64, linux/arm64.
 func SetLinuxThreadPriority(threadID int64, priority int32) bool {
 	return fnSetLinuxThreadPriority(threadID, priority)
 }
@@ -309,7 +309,7 @@ var fnSetLinuxThreadPriorityAndPolicy func(threadID int64, sdlPriority int32, sc
 //
 // Since: SDL 3.2.0.
 //
-// Only declared by the SDL headers for linux/amd64.
+// Only declared by the SDL headers for linux/amd64, linux/arm64.
 func SetLinuxThreadPriorityAndPolicy(threadID int64, sdlPriority int32, schedPolicy int32) bool {
 	return fnSetLinuxThreadPriorityAndPolicy(threadID, sdlPriority, schedPolicy)
 }
@@ -332,7 +332,7 @@ var fnSetWindowsMessageHook func(callback WindowsMessageHook, userdata unsafe.Po
 // See also: WindowsMessageHook, HINT_WINDOWS_ENABLE_MESSAGELOOP
 //
 // Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
-// Only declared by the SDL headers for windows/amd64.
+// Only declared by the SDL headers for windows/amd64, windows/arm64.
 func SetWindowsMessageHook(callback WindowsMessageHook, userdata unsafe.Pointer) {
 	fnSetWindowsMessageHook(callback, userdata)
 }
@@ -351,7 +351,7 @@ var fnGetDirect3D9AdapterIndex func(displayID DisplayID) int32
 //
 // Since: SDL 3.2.0.
 //
-// Only declared by the SDL headers for windows/amd64.
+// Only declared by the SDL headers for windows/amd64, windows/arm64.
 func GetDirect3D9AdapterIndex(displayID DisplayID) int32 {
 	return fnGetDirect3D9AdapterIndex(displayID)
 }
@@ -373,7 +373,7 @@ var fnGetDXGIOutputInfo func(displayID DisplayID, adapterIndex *int32, outputInd
 //
 // Since: SDL 3.2.0.
 //
-// Only declared by the SDL headers for windows/amd64.
+// Only declared by the SDL headers for windows/amd64, windows/arm64.
 func GetDXGIOutputInfo(displayID DisplayID, adapterIndex *int32, outputIndex *int32) bool {
 	return fnGetDXGIOutputInfo(displayID, adapterIndex, outputIndex)
 }

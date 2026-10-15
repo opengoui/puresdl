@@ -168,6 +168,10 @@ func (g *gen) bindFunc(f *ir.Function) string {
 				expr: jen.Id("cprintf").Call(jen.Id("format"), jen.Id("args"))})
 			continue
 		}
+		if isCString(p.Type) && p.Type.Resolve().Const && retainedParam(f, p) {
+			plans = append(plans, argPlan{name: name, pub: jen.Op("*").Id("byte"), raw: jen.Op("*").Id("byte"), expr: jen.Id(name)})
+			continue
+		}
 		if isCString(p.Type) && p.Type.Resolve().Const {
 			if np, ok := nullParams[f.Name+"."+p.Name]; ok && np.distinct {
 				notes = append(notes, "A nil "+name+" is passed as NULL, which "+np.effect+"; an empty string is passed as an empty C string.")
@@ -278,6 +282,9 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	doc := g.docText(f.Doc)
 	if printf {
 		notes = append(notes, "The message is formatted with fmt.Sprintf when args are given and used verbatim otherwise. Verbs follow Go fmt, not C printf: write %d instead of %u.")
+	}
+	if f.Name == "SDL_GetError" {
+		notes = append(notes, "SDL error state belongs to the calling OS thread. If this goroutine may move between OS threads, use runtime.LockOSThread across the failing SDL call and this call.")
 	}
 	if n := keepAliveNote(f); n != "" {
 		notes = append(notes, n)
@@ -486,35 +493,56 @@ func (g *gen) sliceResult(f *ir.Function) *sliceRes {
 // after the call returns instead of copying what it points to.
 var retainedRe = regexp.MustCompile(`(?i)not copied|NoCopy|must (?:remain|stay) (?:valid|available)|keeps? a reference|remain valid[^.]{0,40}until the [^.]{0,40}(?:destroyed|closed)`)
 
-// keepAliveNote returns the "Keep alive:" doc note of f, or "" when neither
-// the function doc nor a parameter doc says that SDL retains a pointer
-// argument. Go's garbage collector does not know about the reference SDL
-// holds, so the caller has to keep the memory reachable.
+// keepAliveNote returns the "Keep alive:" doc note for pointers SDL retains.
+// Go's garbage collector does not know about the reference SDL holds, so the
+// caller has to keep that memory reachable.
 func keepAliveNote(f *ir.Function) string {
-	retained := retainedRe.MatchString(f.Doc) || retainedRe.MatchString(f.Name)
-	hasPtr, hasString := false, false
-	for _, p := range f.Sig.Params {
-		retained = retained || retainedRe.MatchString(p.Doc)
-		if r := p.Type.Resolve(); r.Kind == ir.Pointer {
-			hasPtr = true
-			hasString = hasString || isCString(p.Type)
-		}
-	}
+	retainedParams := retainedPointerNames(f)
 	stored := storedPointerNote(f)
-	if !retained || !hasPtr {
+	if len(retainedParams) == 0 {
 		return stored
 	}
-	n := "Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it."
+	n := "Keep alive: SDL retains the " + strings.Join(retainedParams, ", ") + " pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it."
 	if name := taskBufferParam(f); name != "" {
 		n = "Keep alive: " + name + " must stay alive and unmoved until the task completes, and SDL may access it at any time until then; pass memory that Go keeps reachable and does not move (not a stack variable) and do not release it before the outcome is reported."
-	}
-	if hasString {
-		n += " String arguments are converted to a temporary C string per call and are not kept alive by this wrapper."
 	}
 	if stored != "" {
 		n += " " + strings.TrimPrefix(stored, "Keep alive: ")
 	}
 	return n
+}
+
+// retainedParam reports whether SDL's function or parameter docs say that p
+// remains in use after the call returns.
+func retainedParam(f *ir.Function, p ir.Param) bool {
+	for _, name := range retainedPointerNames(f) {
+		if name == p.Name {
+			return true
+		}
+	}
+	return false
+}
+
+// retainedPointerNames prefers parameter docs when they identify a specific
+// retained pointer, since function docs also contain the parameter sections.
+func retainedPointerNames(f *ir.Function) []string {
+	var pointers, documented []string
+	for _, p := range f.Sig.Params {
+		if p.Type.Resolve().Kind != ir.Pointer {
+			continue
+		}
+		pointers = append(pointers, p.Name)
+		if retainedRe.MatchString(p.Doc) {
+			documented = append(documented, p.Name)
+		}
+	}
+	if len(documented) > 0 {
+		return documented
+	}
+	if retainedRe.MatchString(f.Doc) || retainedRe.MatchString(f.Name) {
+		return pointers
+	}
+	return nil
 }
 
 // taskBufferRe matches doc text that ties the lifetime of a buffer argument

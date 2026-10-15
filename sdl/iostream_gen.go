@@ -276,7 +276,7 @@ var fnIOFromMem func(mem unsafe.Pointer, size uint) *IOStream
 //
 // See also: IOFromConstMem, CloseIO, FlushIO, ReadIO, SeekIO, TellIO, WriteIO
 //
-// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL retains the mem pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
 func IOFromMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromMem(mem, size)
 }
@@ -324,7 +324,7 @@ var fnIOFromConstMem func(mem unsafe.Pointer, size uint) *IOStream
 //
 // See also: IOFromMem, CloseIO, ReadIO, SeekIO, TellIO
 //
-// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL retains the mem pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it.
 func IOFromConstMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromConstMem(mem, size)
 }

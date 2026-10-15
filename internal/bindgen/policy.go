@@ -90,10 +90,22 @@ var initialisms = map[string]string{"hid": "HID", "id": "ID", "io": "IO", "utf":
 // be wrong for them.
 var handWritten = map[string]bool{
 	"SDL_GetPreferredLocales": true,
+	// This scalar hot path uses the pooled, allocation-free purego syscall
+	// bridge instead of the reflection wrapper installed by RegisterFunc.
+	"SDL_GetNumberProperty": true,
 	// SDL keeps the name pointer; the wrapper has to own a permanent copy.
 	"SDL_SetScancodeName": true,
 	// The output has no length and the input length must derive from the Go value.
 	"SDL_iconv_string": true,
+}
+
+// fastSliceCalls route renderer slice forms around the reflective function
+// wrappers installed by purego.RegisterFunc.
+var fastSliceCalls = map[string]string{
+	"SDL_RenderFillRects": "fastRenderFillRects",
+	"SDL_RenderLines":     "fastRenderLines",
+	"SDL_RenderPoints":    "fastRenderPoints",
+	"SDL_RenderRects":     "fastRenderRects",
 }
 
 // constTypeOverrides pins the type of macro constants whose contiguous
@@ -127,6 +139,12 @@ var constTypeOverrides = map[string]string{
 	"SDL_BUTTON_RMASK":  "SDL_MouseButtonFlags",
 	"SDL_BUTTON_X1MASK": "SDL_MouseButtonFlags",
 	"SDL_BUTTON_X2MASK": "SDL_MouseButtonFlags",
+	// VSync intervals are plain integers accepted by the renderer and window
+	// surface APIs, not flag masks.
+	"SDL_RENDERER_VSYNC_DISABLED":       "",
+	"SDL_RENDERER_VSYNC_ADAPTIVE":       "",
+	"SDL_WINDOW_SURFACE_VSYNC_DISABLED": "",
+	"SDL_WINDOW_SURFACE_VSYNC_ADAPTIVE": "",
 }
 
 // constType returns the Go type name for an integer macro, or "" when it

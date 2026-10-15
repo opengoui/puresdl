@@ -30,10 +30,17 @@ func pinnedVersion(t *testing.T) (num int, tag string) {
 // stubs for the platform-specific ones, so there are no exceptions.)
 func TestBindingsMatchPinnedRelease(t *testing.T) {
 	if err := LoadError(); err != nil {
+		if strictABITest() {
+			t.Fatalf("strict ABI check requires the pinned SDL3 library: %v", err)
+		}
 		t.Skipf("SDL3 not loaded: %v", err)
 	}
 	want, tag := pinnedVersion(t)
 	if got := GetVersion(); int(got) != want {
+		if strictABITest() {
+			t.Fatalf("strict ABI check needs %s (%d); loaded SDL3 is %d.%d.%d",
+				tag, want, VERSIONNUM_MAJOR(int(got)), VERSIONNUM_MINOR(int(got)), VERSIONNUM_MICRO(int(got)))
+		}
 		t.Skipf("loaded SDL3 is %d.%d.%d but the bindings are generated from %s; ABI check needs the matching library",
 			VERSIONNUM_MAJOR(int(got)), VERSIONNUM_MINOR(int(got)), VERSIONNUM_MICRO(int(got)), tag)
 	}
@@ -50,4 +57,8 @@ func TestBindingsMatchPinnedRelease(t *testing.T) {
 	if len(missing) > 0 {
 		t.Errorf("%d of %d bound symbols are missing from the loaded SDL3 %s: %s", len(missing), len(syms), tag, strings.Join(missing, ", "))
 	}
+}
+
+func strictABITest() bool {
+	return os.Getenv("CI") != "" || os.Getenv("STRICT_ABI_TEST") != ""
 }

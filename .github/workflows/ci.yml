@@ -97,9 +97,11 @@ jobs:
         shell: bash
         run: echo "SDL_INCLUDE=$(go run ./cmd/sdlsync -print-include)" >> "$GITHUB_ENV"
       # The tests select the dummy video/audio/camera drivers and the software
-      # renderer themselves (internal/sdltest) and skip when libSDL3 cannot be
-      # loaded, so no SDL_* variables are needed here.
+      # renderer themselves (internal/sdltest). The pinned-release ABI test is
+      # strict here, so a missing or mismatched SDL3 library fails the job.
       - name: test
+        env:
+          STRICT_ABI_TEST: "1"
         run: go test ./... -count=1
       - name: test (shuffled, repeated)
         run: go test ./examples/... -count=3 -shuffle=on

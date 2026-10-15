@@ -1,11 +1,90 @@
 package sdl
 
 import (
+	"runtime"
 	"strings"
 	"sync"
 	"unicode/utf8"
 	"unsafe"
+
+	"github.com/ebitengine/purego"
 )
+
+var syscallArgs3 = sync.Pool{New: func() any { return new([3]uintptr) }}
+
+func syscallBool3(fn, arg0, arg1, arg2 uintptr) bool {
+	args := syscallArgs3.Get().(*[3]uintptr)
+	args[0], args[1], args[2] = arg0, arg1, arg2
+	value, _, _ := purego.SyscallN(fn, args[:]...)
+	clear(args[:])
+	syscallArgs3.Put(args)
+	return value != 0
+}
+
+func fastRenderPoints(renderer *Renderer, points *FPoint, count int32) bool {
+	if fn := symbols["SDL_RenderPoints"]; fn != 0 {
+		return syscallBool3(fn, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(points)), uintptr(count))
+	}
+	return fnRenderPoints(renderer, points, count)
+}
+
+func fastRenderLines(renderer *Renderer, points *FPoint, count int32) bool {
+	if fn := symbols["SDL_RenderLines"]; fn != 0 {
+		return syscallBool3(fn, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(points)), uintptr(count))
+	}
+	return fnRenderLines(renderer, points, count)
+}
+
+func fastRenderRects(renderer *Renderer, rects *FRect, count int32) bool {
+	if fn := symbols["SDL_RenderRects"]; fn != 0 {
+		return syscallBool3(fn, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rects)), uintptr(count))
+	}
+	return fnRenderRects(renderer, rects, count)
+}
+
+func fastRenderFillRects(renderer *Renderer, rects *FRect, count int32) bool {
+	if fn := symbols["SDL_RenderFillRects"]; fn != 0 {
+		return syscallBool3(fn, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rects)), uintptr(count))
+	}
+	return fnRenderFillRects(renderer, rects, count)
+}
+
+// GetNumberProperty gets an integer property from a group of properties.
+//
+// You can use [GetPropertyType] to query whether the property exists and is an
+// integer property.
+//
+// Parameters:
+//   - props: the properties to query.
+//   - name: the name of the property to query.
+//   - default_value: the default value of the property.
+//
+// Returns: the value of the property, or default_value if it is not set or not
+// a number property.
+//
+// Thread safety: It is safe to call this function from any thread.
+//
+// Since: SDL 3.2.0.
+//
+// See also: GetPropertyType, HasProperty, SetNumberProperty
+//
+// The name is converted to a C string for this call. If it already ends in
+// NUL, the conversion does not copy it.
+func GetNumberProperty(props PropertiesID, name string, default_value int64) int64 {
+	namePtr := cstr(name)
+	fn := symbols["SDL_GetNumberProperty"]
+	if fn == 0 {
+		return fnGetNumberProperty(props, namePtr, default_value)
+	}
+	args := syscallArgs3.Get().(*[3]uintptr)
+	args[0], args[1], args[2] = uintptr(props), uintptr(unsafe.Pointer(namePtr)), uintptr(default_value)
+	value, _, _ := purego.SyscallN(fn, args[:]...)
+	runtime.KeepAlive(name)
+	runtime.KeepAlive(namePtr)
+	clear(args[:])
+	syscallArgs3.Put(args)
+	return int64(value)
+}
 
 // Ptr returns a pointer to a copy of v. It is the way to pass a non-nil value
 // for the *string parameters that distinguish nil (C NULL) from an empty

@@ -166,7 +166,7 @@ var fnRegisterApp func(name *byte, style uint32, hInst unsafe.Pointer) bool
 // Since: SDL 3.2.0.
 //
 // An empty name is passed as NULL.
-// Only declared by the SDL headers for windows/amd64.
+// Only declared by the SDL headers for windows/amd64, windows/arm64.
 func RegisterApp(name string, style uint32, hInst unsafe.Pointer) bool {
 	return fnRegisterApp(cstrNull(name), style, hInst)
 }
@@ -189,7 +189,7 @@ var fnUnregisterApp func()
 //
 // Since: SDL 3.2.0.
 //
-// Only declared by the SDL headers for windows/amd64.
+// Only declared by the SDL headers for windows/amd64, windows/arm64.
 func UnregisterApp() {
 	fnUnregisterApp()
 }

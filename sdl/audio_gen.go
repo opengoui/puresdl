@@ -1403,7 +1403,7 @@ var fnPutAudioStreamDataNoCopy func(stream *AudioStream, buf unsafe.Pointer, len
 //
 // See also: ClearAudioStream, FlushAudioStream, GetAudioStreamData, GetAudioStreamQueued
 //
-// Keep alive: SDL keeps the pointer arguments of this function without copying what they point to; keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
+// Keep alive: SDL retains the stream, buf, callback, userdata pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func PutAudioStreamDataNoCopy(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool {
 	return fnPutAudioStreamDataNoCopy(stream, buf, len_, callback, userdata)
 }

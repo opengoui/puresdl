@@ -14,7 +14,12 @@ import (
 // library path searched by [Load].
 const LibraryEnv = "SDL3_LIBRARY"
 
-// Loader state. All of it is guarded by loadMu.
+// AutoLoadDisabledEnv disables the import-time library search when set to "1".
+// Call [Load] explicitly to load SDL after setting it.
+const AutoLoadDisabledEnv = "SDL3_NO_AUTO_LOAD"
+
+// Loader state is guarded by loadMu. symbols is read without the lock only
+// while SDL calls are running; [Load] must not switch libraries concurrently.
 var (
 	loadMu  sync.Mutex
 	loadErr error
@@ -23,6 +28,7 @@ var (
 	// loadedPath is the candidate (path or bare name) that opened handle.
 	loadedPath string
 	missing    = map[string]struct{}{}
+	symbols    = map[string]uintptr{}
 )
 
 // ErrNotLoaded is returned by [LoadError] when the shared library has not
@@ -35,6 +41,9 @@ var ErrUnsupportedArch = errors.New("sdl: 32-bit targets are not supported")
 
 // init attempts the automatic load described in [Load] at import time.
 func init() {
+	if os.Getenv(AutoLoadDisabledEnv) == "1" {
+		return
+	}
 	// A failure here is not fatal: it is recorded and reported by LoadError
 	// so that importing the package never panics on machines without SDL3.
 	_ = Load("")
@@ -44,7 +53,8 @@ func init() {
 //
 // An empty path searches the SDL3_LIBRARY environment variable followed by
 // the platform defaults; it runs once automatically when the package is
-// imported and is a no-op while a library is loaded.
+// imported unless SDL3_NO_AUTO_LOAD is set to "1". It is a no-op while a
+// library is loaded.
 //
 // A non-empty path loads exactly that library. If a different library is
 // already loaded (for example a system copy found at import time), Load
@@ -56,10 +66,9 @@ func init() {
 // file, for example a bad SDL3_LIBRARY value. The previous library is never unloaded.
 //
 // Switching is not safe concurrently with SDL calls: do it before using SDL,
-// from one goroutine. Function values that callers captured earlier stay
-// valid because the wrappers call package-level variables that are rebound.
-// Objects created by the previous library (windows, callbacks) must not be
-// passed to the new one.
+// from one goroutine. Function values callers captured earlier remain valid;
+// wrappers resolve the current bindings when called. Objects created by the
+// previous library (windows, callbacks) must not be passed to the new one.
 func Load(path string) error {
 	loadMu.Lock()
 	defer loadMu.Unlock()
@@ -87,6 +96,7 @@ func Load(path string) error {
 	}
 	handle, loadedPath = h, from
 	clear(missing)
+	clear(symbols)
 	bindAll()
 	loaded, loadErr = true, nil
 	return nil
@@ -163,6 +173,7 @@ func Available(symbol string) bool {
 // when called, so older SDL3 releases still work for the APIs they have.
 func register(fptr any, symbol string) {
 	addr, err := lookup(handle, symbol)
+	symbols[symbol] = addr
 	if err != nil || addr == 0 {
 		missing[symbol] = struct{}{}
 		fn := reflect.ValueOf(fptr).Elem()
@@ -196,15 +207,20 @@ func GoString(p *byte) string {
 	return string(unsafe.Slice(p, n))
 }
 
-// cstr returns a NUL-terminated copy of s.
-func cstr(s string) *byte { return CString(s) }
+// cstr returns a NUL-terminated pointer to s, copying it only when needed.
+func cstr(s string) *byte {
+	if len(s) > 0 && s[len(s)-1] == 0 {
+		return unsafe.StringData(s)
+	}
+	return CString(s)
+}
 
 // cstrNull is like cstr but maps the empty string to NULL.
 func cstrNull(s string) *byte {
 	if s == "" {
 		return nil
 	}
-	return CString(s)
+	return cstr(s)
 }
 
 // cstrPtr returns a NUL-terminated copy of *s, or NULL when s is nil. Unlike
@@ -213,7 +229,7 @@ func cstrPtr(s *string) *byte {
 	if s == nil {
 		return nil
 	}
-	return CString(*s)
+	return cstr(*s)
 }
 
 // cprintf formats a printf-style message and escapes it so that SDL's own

@@ -436,28 +436,6 @@ func GetStringProperty(props PropertiesID, name string, default_value string) st
 }
 
 var fnGetNumberProperty func(props PropertiesID, name *byte, default_value int64) int64
-
-// Get a number property from a group of properties.
-//
-// You can use GetPropertyType() to query whether the property exists and
-// is a number property.
-//
-// Parameters:
-//   - props: the properties to query.
-//   - name: the name of the property to query.
-//   - default_value: the default value of the property.
-//
-// Returns: the value of the property, or `default_value` if it is not set or not a number property.
-//
-// Thread safety: It is safe to call this function from any thread.
-//
-// Since: SDL 3.2.0.
-//
-// See also: GetPropertyType, HasProperty, SetNumberProperty
-func GetNumberProperty(props PropertiesID, name string, default_value int64) int64 {
-	return fnGetNumberProperty(props, cstr(name), default_value)
-}
-
 var fnGetFloatProperty func(props PropertiesID, name *byte, default_value float32) float32
 
 // Get a floating point property from a group of properties.

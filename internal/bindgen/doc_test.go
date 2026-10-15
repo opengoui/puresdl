@@ -195,6 +195,39 @@ func TestKeepAliveNote(t *testing.T) {
 	if keepAliveNote(mk("not copied", "", ir.Param{Name: "n", Type: &ir.Type{Kind: ir.Int, Size: 4}})) != "" {
 		t.Error("functions without pointer parameters get no note")
 	}
+	retained := mk("The memory is not copied.", "",
+		ir.Param{Name: "mem", Type: ptr}, ir.Param{Name: "other", Type: ptr})
+	if !retainedParam(retained, retained.Sig.Params[0]) || !retainedParam(retained, retained.Sig.Params[1]) {
+		t.Error("function-level retention docs must conservatively retain every pointer parameter")
+	}
+	retained.Sig.Params[0].Doc = "the memory is not copied"
+	retained.Sig.Params[1].Doc = "copied before returning"
+	if !retainedParam(retained, retained.Sig.Params[0]) || retainedParam(retained, retained.Sig.Params[1]) {
+		t.Error("parameter-level retention docs must identify only the retained pointer")
+	}
+}
+
+func TestRetainedCStringUsesParameterDocumentation(t *testing.T) {
+	filter := &ir.Type{Kind: ir.Pointer, Size: 8, Elem: &ir.Type{Kind: ir.Struct}}
+	path := &ir.Type{Kind: ir.Pointer, Size: 8, Const: true, Elem: &ir.Type{Kind: ir.Int, Size: 1, Char: true}}
+	f := &ir.Function{
+		Name: "SDL_ShowOpenFileDialog",
+		Doc:  "This is an asynchronous function.",
+		Sig: &ir.Sig{Params: []ir.Param{
+			{Name: "filters", Type: filter, Doc: "If non-NULL, it must remain valid at least until the callback is invoked."},
+			{Name: "default_location", Type: path, Doc: "The default folder or file to start the dialog at."},
+		}},
+	}
+
+	if !retainedParam(f, f.Sig.Params[0]) {
+		t.Fatal("filters must be recognized as retained")
+	}
+	if retainedParam(f, f.Sig.Params[1]) {
+		t.Fatal("an asynchronous function must not make an undocumented string parameter retained")
+	}
+	if !isCString(f.Sig.Params[1].Type) {
+		t.Fatal("default_location must be recognized as a C string")
+	}
 }
 
 func TestGeneratedDocsAreClean(t *testing.T) {

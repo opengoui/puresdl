@@ -2,8 +2,10 @@ package bindgen
 
 import (
 	"math/big"
+	"strings"
 	"testing"
 
+	"github.com/opengoui/puresdl/internal/ccfront"
 	"github.com/opengoui/puresdl/internal/ir"
 )
 
@@ -56,4 +58,50 @@ func TestConstType(t *testing.T) {
 			t.Errorf("constType(%s) = %q, want %q", tc.k.Name, got, tc.want)
 		}
 	}
+}
+
+func TestBitmaskConstPrefixesAreTyped(t *testing.T) {
+	api, _, err := ccfront.Load(ccfront.Options{IncludeDir: sdlInclude(t)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := &gen{
+		tdGo:     make(map[string]string),
+		typedefs: make(map[string]*ir.Typedef),
+		api:      api,
+		opt:      Options{HandDir: "../../sdl"},
+		pkg:      "sdl",
+		docNames: make(map[string]string),
+		claimed:  make(map[string]string),
+		recName:  make(map[*ir.Record]string),
+		enumName: make(map[*ir.EnumDecl]string),
+		files:    make(map[string]*fileBuf),
+	}
+	g.index()
+
+	prefixes := []string{"SDL_WINDOW_", "SDL_INIT_", "SDL_RENDERER_"}
+	var checked int
+	for _, k := range api.Consts {
+		if k.Kind != ir.ConstInt || !hasAnyPrefix(k.Name, prefixes) {
+			continue
+		}
+		checked++
+		if got := g.constType(k); got == "" {
+			if override, reviewed := constTypeOverrides[k.Name]; !reviewed || override != "" {
+				t.Errorf("%s has no named Go type; review its typedef association or add an explicit constType override", k.Name)
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no integer constants matched the bitmask prefixes; update the guard for this SDL release")
+	}
+}
+
+func hasAnyPrefix(s string, prefixes []string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	return false
 }

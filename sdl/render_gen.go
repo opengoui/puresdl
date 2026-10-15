@@ -2296,7 +2296,7 @@ func RenderPointsSlice(renderer *Renderer, points []FPoint) bool {
 	if !fitsInt32(len(points), "RenderPointsSlice") {
 		return false
 	}
-	ret := fnRenderPoints(renderer, &points[0], int32(len(points)))
+	ret := fastRenderPoints(renderer, &points[0], int32(len(points)))
 	runtime.KeepAlive(points)
 	return ret
 }
@@ -2358,7 +2358,7 @@ func RenderLinesSlice(renderer *Renderer, points []FPoint) bool {
 	if !fitsInt32(len(points), "RenderLinesSlice") {
 		return false
 	}
-	ret := fnRenderLines(renderer, &points[0], int32(len(points)))
+	ret := fastRenderLines(renderer, &points[0], int32(len(points)))
 	runtime.KeepAlive(points)
 	return ret
 }
@@ -2417,7 +2417,7 @@ func RenderRectsSlice(renderer *Renderer, rects []FRect) bool {
 	if !fitsInt32(len(rects), "RenderRectsSlice") {
 		return false
 	}
-	ret := fnRenderRects(renderer, &rects[0], int32(len(rects)))
+	ret := fastRenderRects(renderer, &rects[0], int32(len(rects)))
 	runtime.KeepAlive(rects)
 	return ret
 }
@@ -2477,7 +2477,7 @@ func RenderFillRectsSlice(renderer *Renderer, rects []FRect) bool {
 	if !fitsInt32(len(rects), "RenderFillRectsSlice") {
 		return false
 	}
-	ret := fnRenderFillRects(renderer, &rects[0], int32(len(rects)))
+	ret := fastRenderFillRects(renderer, &rects[0], int32(len(rects)))
 	runtime.KeepAlive(rects)
 	return ret
 }

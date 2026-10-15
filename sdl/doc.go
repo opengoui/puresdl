@@ -5,10 +5,11 @@
 // # Loading
 //
 // The library is located when the package is imported (SDL3_LIBRARY, then the
-// platform defaults). A missing library does not panic at import time; check
-// [LoadError], or call [Load] with an explicit path. Functions that the
-// installed SDL3 does not export panic with a descriptive message when
-// called; [Available] tests for a symbol.
+// platform defaults). Set [AutoLoadDisabledEnv] to "1" to skip this search and
+// call [Load] explicitly. A missing library does not panic at import time;
+// check [LoadError], or call [Load] with an explicit path. Functions that the
+// installed SDL3 does not export panic with a descriptive message when called;
+// [Available] tests for a symbol.
 //
 // [Load] with a non-empty path also switches an already loaded library to
 // that path (see [Load] for the rules) and [LoadedPath] reports which library
@@ -22,7 +23,9 @@
 // enum types map to the Go types of the same size. Pointers to C data are Go
 // pointers; opaque handles are pointers to empty structs.
 //
-//   - const char * parameters are Go strings. Where the documentation says
+//   - const char * parameters are Go strings. A string with a trailing NUL is
+//     passed without a temporary copy; cache NUL-terminated names used in a
+//     hot loop to avoid an allocation on each call. Where the documentation says
 //     NULL is allowed and NULL only selects a default, the empty string is
 //     passed as NULL. Where NULL means something different from "" (deleting
 //     a property in [SetStringProperty], [SetAppMetadataProperty],
@@ -52,7 +55,10 @@
 //
 // SDL requires most video and event functions to run on the main thread. On
 // macOS call runtime.LockOSThread in an init function so that main.main runs
-// on the process main thread.
+// on the process main thread. SDL error state belongs to the current OS
+// thread. If a goroutine may move between OS threads, keep it locked with
+// runtime.LockOSThread across both a failing SDL call and the following
+// [GetError] call.
 //
 // # Generation
 //
