@@ -3,6 +3,7 @@ package sdl
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -36,6 +37,21 @@ func copyFile(t *testing.T, src, dst string) {
 	}
 }
 
+// libraryTempDir returns a temporary directory for a library copy that the
+// test loads. Load never unloads a library, and Windows refuses to delete a
+// loaded DLL, so there the directory is left behind instead of failing the
+// t.TempDir cleanup.
+func libraryTempDir(t *testing.T) string {
+	if runtime.GOOS != "windows" {
+		return t.TempDir()
+	}
+	dir, err := os.MkdirTemp("", "puresdl-load-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return dir
+}
+
 // TestLoadSwitchesLibrary loads a copy of the current library from another
 // path and checks that the binding follows, then restores the original.
 // The copy is a separate image, so it has its own SDL state.
@@ -44,7 +60,7 @@ func TestLoadSwitchesLibrary(t *testing.T) {
 	origName := LoadedPath()
 	wantVersion := GetVersion()
 
-	other := filepath.Join(t.TempDir(), filepath.Base(orig))
+	other := filepath.Join(libraryTempDir(t), filepath.Base(orig))
 	copyFile(t, orig, other)
 	t.Cleanup(func() {
 		if err := Load(origName); err != nil {

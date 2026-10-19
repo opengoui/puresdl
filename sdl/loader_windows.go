@@ -3,6 +3,7 @@
 package sdl
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -23,10 +24,15 @@ func libraryCandidates() []string {
 	return append(c, "SDL3.dll")
 }
 
-// openLibrary loads the DLL at path and returns its module handle.
+// openLibrary loads the DLL at path and returns its module handle. The
+// error names path, as the dlopen errors on other platforms do; the
+// LoadLibrary error text alone does not.
 func openLibrary(path string) (uintptr, error) {
 	h, err := syscall.LoadLibrary(path)
-	return uintptr(h), err
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", path, err)
+	}
+	return uintptr(h), nil
 }
 
 // lookup returns the address of the exported symbol name in the module h.

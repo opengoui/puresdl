@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -575,7 +576,13 @@ func TestCoreIOStreamDynamicAndFile(t *testing.T) {
 	if GetIOSize(f) != 5 {
 		t.Errorf("file size = %d", GetIOSize(f))
 	}
-	if fd := GetNumberProperty(GetIOProperties(f), PROP_IOSTREAM_FILE_DESCRIPTOR_NUMBER, -1); fd < 0 {
+	// SDL opens files with CreateFile on Windows and reports the HANDLE
+	// instead of a file descriptor.
+	if runtime.GOOS == "windows" {
+		if h := GetPointerProperty(GetIOProperties(f), PROP_IOSTREAM_WINDOWS_HANDLE_POINTER, nil); h == nil {
+			t.Error("Windows handle property is NULL")
+		}
+	} else if fd := GetNumberProperty(GetIOProperties(f), PROP_IOSTREAM_FILE_DESCRIPTOR_NUMBER, -1); fd < 0 {
 		t.Errorf("file descriptor property = %d", fd)
 	}
 	CloseIO(f)
@@ -689,7 +696,7 @@ func TestCoreFilesystemAndStorage(t *testing.T) {
 	var seen []string
 	cb := NewEnumerateDirectoryCallback(func(ud unsafe.Pointer, dirname, fname *byte) EnumerationResult {
 		seen = append(seen, GoString(fname))
-		if d := GoString(dirname); d == "" || d[len(d)-1] != '/' {
+		if d := GoString(dirname); d == "" || !os.IsPathSeparator(d[len(d)-1]) {
 			t.Errorf("dirname %q does not end with a separator", d)
 		}
 		return ENUM_CONTINUE

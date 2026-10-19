@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/opengoui/puresdl/internal/sdltest"
@@ -15,6 +16,23 @@ import (
 )
 
 func TestMain(m *testing.M) { os.Exit(sdltest.Main(m)) }
+
+// asyncioUsed records that a test of this process has used async I/O.
+var asyncioUsed bool
+
+// requireFreshAsyncIO skips the test when async I/O cannot work again in
+// this process. On Windows, SDL 3.4.18 cannot use async I/O after SDL_Quit:
+// UnloadWinIoRingLibrary clears the IoRing function table but keeps the
+// library handle, so the next initialization skips reloading the functions
+// and SDL_CreateAsyncIOQueue calls a NULL pointer. Every test here ends with
+// SDL_Quit, so only the first one that uses async I/O can run there.
+func requireFreshAsyncIO(t *testing.T) {
+	t.Helper()
+	if runtime.GOOS == "windows" && asyncioUsed {
+		t.Skip("SDL 3.4.18 on Windows cannot reinitialize async I/O after SDL_Quit (stale IoRing library handle)")
+	}
+	asyncioUsed = true
+}
 
 // waitTimeoutMS and waitAttempts bound a blocking wait for a load to finish.
 // They are failure bounds, never delays: the wait returns as soon as a result
@@ -56,6 +74,8 @@ func writeAssets(t *testing.T) string {
 // newTestApp initializes SDL and starts the loads from dir, drawing on a canvas.
 func newTestApp(t *testing.T, dir string) (*app, *sdltest.Canvas) {
 	t.Helper()
+	sdltest.Skip(t)
+	requireFreshAsyncIO(t)
 	sdltest.Setup(t, sdl.INIT_VIDEO)
 	c := sdltest.NewCanvas(t, 640, 480)
 	a := sdltest.Call(t, func() *app {
@@ -408,6 +428,7 @@ func TestCloseReleasesTextures(t *testing.T) {
 
 func TestRunSmoke(t *testing.T) {
 	sdltest.Skip(t)
+	requireFreshAsyncIO(t)
 	var err error
 	sdltest.OnMain(t, func() { err = run(30) })
 	if err != nil {
