@@ -119,33 +119,6 @@ func TestGeneratedPlanarForm(t *testing.T) {
 	}
 }
 
-func TestRendererSliceFormsUseFastCalls(t *testing.T) {
-	i32 := &ir.Type{Kind: ir.Int, Size: 4, Signed: true}
-	boolT := &ir.Type{Kind: ir.Bool}
-	constPtr := ptrTo(synthModeType)
-	constPtr.Const = true
-	for name, fast := range fastSliceCalls {
-		arrayName := "points"
-		if strings.Contains(name, "Rects") {
-			arrayName = "rects"
-		}
-		f := &ir.Function{
-			Name: name,
-			Doc:  "Returns: true on success or false on failure.",
-			Sig: &ir.Sig{Ret: boolT, Params: []ir.Param{
-				{Name: "renderer", Type: ptrTo(i32)},
-				{Name: arrayName, Type: constPtr},
-				{Name: "count", Type: i32},
-			}},
-		}
-		src := synthFile(t, f)
-		want := fast + "(renderer, &" + arrayName + "[0], int32(len(" + arrayName + ")))"
-		if !strings.Contains(src, want) {
-			t.Errorf("%s slice form does not call its fast path %q", name, want)
-		}
-	}
-}
-
 func TestGeneratedBytesForms(t *testing.T) {
 	i32 := &ir.Type{Kind: ir.Int, Size: 4, Signed: true}
 	sizeT := &ir.Type{Kind: ir.Int, Size: 8}

@@ -1840,7 +1840,14 @@ const (
 	PROP_GPU_TRANSFERBUFFER_CREATE_NAME_STRING                                                 = "SDL.gpu.transferbuffer.create.name"
 )
 
-var fnGPUSupportsShaderFormats func(format_flags GPUShaderFormat, name *byte) bool
+var addrGPUSupportsShaderFormats uintptr
+
+func fnGPUSupportsShaderFormats(format_flags GPUShaderFormat, name *byte) bool {
+	if addrGPUSupportsShaderFormats == 0 {
+		missingSymbol("SDL_GPUSupportsShaderFormats")
+	}
+	return uint8(call2(addrGPUSupportsShaderFormats, uintptr(format_flags), uintptr(unsafe.Pointer(name)))) != 0
+}
 
 // Checks for GPU runtime support.
 //
@@ -1859,7 +1866,14 @@ func GPUSupportsShaderFormats(format_flags GPUShaderFormat, name string) bool {
 	return fnGPUSupportsShaderFormats(format_flags, cstrNull(name))
 }
 
-var fnGPUSupportsProperties func(props PropertiesID) bool
+var addrGPUSupportsProperties uintptr
+
+func fnGPUSupportsProperties(props PropertiesID) bool {
+	if addrGPUSupportsProperties == 0 {
+		missingSymbol("SDL_GPUSupportsProperties")
+	}
+	return uint8(call1(addrGPUSupportsProperties, uintptr(props))) != 0
+}
 
 // Checks for GPU runtime support.
 //
@@ -1875,7 +1889,14 @@ func GPUSupportsProperties(props PropertiesID) bool {
 	return fnGPUSupportsProperties(props)
 }
 
-var fnCreateGPUDevice func(format_flags GPUShaderFormat, debug_mode bool, name *byte) *GPUDevice
+var addrCreateGPUDevice uintptr
+
+func fnCreateGPUDevice(format_flags GPUShaderFormat, debug_mode bool, name *byte) *GPUDevice {
+	if addrCreateGPUDevice == 0 {
+		missingSymbol("SDL_CreateGPUDevice")
+	}
+	return (*GPUDevice)(cptr(call3(addrCreateGPUDevice, uintptr(format_flags), cbool(debug_mode), uintptr(unsafe.Pointer(name)))))
+}
 
 // Creates a GPU context.
 //
@@ -1902,7 +1923,14 @@ func CreateGPUDevice(format_flags GPUShaderFormat, debug_mode bool, name string)
 	return fnCreateGPUDevice(format_flags, debug_mode, cstrNull(name))
 }
 
-var fnCreateGPUDeviceWithProperties func(props PropertiesID) *GPUDevice
+var addrCreateGPUDeviceWithProperties uintptr
+
+func fnCreateGPUDeviceWithProperties(props PropertiesID) *GPUDevice {
+	if addrCreateGPUDeviceWithProperties == 0 {
+		missingSymbol("SDL_CreateGPUDeviceWithProperties")
+	}
+	return (*GPUDevice)(cptr(call1(addrCreateGPUDeviceWithProperties, uintptr(props))))
+}
 
 // Creates a GPU context.
 //
@@ -2016,7 +2044,14 @@ func CreateGPUDeviceWithProperties(props PropertiesID) *GPUDevice {
 	return fnCreateGPUDeviceWithProperties(props)
 }
 
-var fnDestroyGPUDevice func(device *GPUDevice)
+var addrDestroyGPUDevice uintptr
+
+func fnDestroyGPUDevice(device *GPUDevice) {
+	if addrDestroyGPUDevice == 0 {
+		missingSymbol("SDL_DestroyGPUDevice")
+	}
+	call1(addrDestroyGPUDevice, uintptr(unsafe.Pointer(device)))
+}
 
 // Destroys a GPU context previously returned by CreateGPUDevice.
 //
@@ -2030,7 +2065,14 @@ func DestroyGPUDevice(device *GPUDevice) {
 	fnDestroyGPUDevice(device)
 }
 
-var fnGetNumGPUDrivers func() int32
+var addrGetNumGPUDrivers uintptr
+
+func fnGetNumGPUDrivers() int32 {
+	if addrGetNumGPUDrivers == 0 {
+		missingSymbol("SDL_GetNumGPUDrivers")
+	}
+	return int32(call0(addrGetNumGPUDrivers))
+}
 
 // Get the number of GPU drivers compiled into SDL.
 //
@@ -2043,7 +2085,14 @@ func GetNumGPUDrivers() int32 {
 	return fnGetNumGPUDrivers()
 }
 
-var fnGetGPUDriver func(index int32) *byte
+var addrGetGPUDriver uintptr
+
+func fnGetGPUDriver(index int32) *byte {
+	if addrGetGPUDriver == 0 {
+		missingSymbol("SDL_GetGPUDriver")
+	}
+	return (*byte)(cptr(call1(addrGetGPUDriver, uintptr(index))))
+}
 
 // Get the name of a built in GPU driver.
 //
@@ -2066,7 +2115,14 @@ func GetGPUDriver(index int32) string {
 	return GoString(fnGetGPUDriver(index))
 }
 
-var fnGetGPUDeviceDriver func(device *GPUDevice) *byte
+var addrGetGPUDeviceDriver uintptr
+
+func fnGetGPUDeviceDriver(device *GPUDevice) *byte {
+	if addrGetGPUDeviceDriver == 0 {
+		missingSymbol("SDL_GetGPUDeviceDriver")
+	}
+	return (*byte)(cptr(call1(addrGetGPUDeviceDriver, uintptr(unsafe.Pointer(device)))))
+}
 
 // Returns the name of the backend used to create this GPU context.
 //
@@ -2080,7 +2136,14 @@ func GetGPUDeviceDriver(device *GPUDevice) string {
 	return GoString(fnGetGPUDeviceDriver(device))
 }
 
-var fnGetGPUShaderFormats func(device *GPUDevice) GPUShaderFormat
+var addrGetGPUShaderFormats uintptr
+
+func fnGetGPUShaderFormats(device *GPUDevice) GPUShaderFormat {
+	if addrGetGPUShaderFormats == 0 {
+		missingSymbol("SDL_GetGPUShaderFormats")
+	}
+	return GPUShaderFormat(call1(addrGetGPUShaderFormats, uintptr(unsafe.Pointer(device))))
+}
 
 // Returns the supported shader formats for this GPU context.
 //
@@ -2094,7 +2157,14 @@ func GetGPUShaderFormats(device *GPUDevice) GPUShaderFormat {
 	return fnGetGPUShaderFormats(device)
 }
 
-var fnGetGPUDeviceProperties func(device *GPUDevice) PropertiesID
+var addrGetGPUDeviceProperties uintptr
+
+func fnGetGPUDeviceProperties(device *GPUDevice) PropertiesID {
+	if addrGetGPUDeviceProperties == 0 {
+		missingSymbol("SDL_GetGPUDeviceProperties")
+	}
+	return PropertiesID(call1(addrGetGPUDeviceProperties, uintptr(unsafe.Pointer(device))))
+}
 
 // Get the properties associated with a GPU device.
 //
@@ -2199,7 +2269,14 @@ func GetGPUDeviceProperties(device *GPUDevice) PropertiesID {
 	return fnGetGPUDeviceProperties(device)
 }
 
-var fnCreateGPUComputePipeline func(device *GPUDevice, createinfo *GPUComputePipelineCreateInfo) *GPUComputePipeline
+var addrCreateGPUComputePipeline uintptr
+
+func fnCreateGPUComputePipeline(device *GPUDevice, createinfo *GPUComputePipelineCreateInfo) *GPUComputePipeline {
+	if addrCreateGPUComputePipeline == 0 {
+		missingSymbol("SDL_CreateGPUComputePipeline")
+	}
+	return (*GPUComputePipeline)(cptr(call2(addrCreateGPUComputePipeline, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a pipeline object to be used in a compute workflow.
 //
@@ -2247,7 +2324,14 @@ func CreateGPUComputePipeline(device *GPUDevice, createinfo *GPUComputePipelineC
 	return fnCreateGPUComputePipeline(device, createinfo)
 }
 
-var fnCreateGPUGraphicsPipeline func(device *GPUDevice, createinfo *GPUGraphicsPipelineCreateInfo) *GPUGraphicsPipeline
+var addrCreateGPUGraphicsPipeline uintptr
+
+func fnCreateGPUGraphicsPipeline(device *GPUDevice, createinfo *GPUGraphicsPipelineCreateInfo) *GPUGraphicsPipeline {
+	if addrCreateGPUGraphicsPipeline == 0 {
+		missingSymbol("SDL_CreateGPUGraphicsPipeline")
+	}
+	return (*GPUGraphicsPipeline)(cptr(call2(addrCreateGPUGraphicsPipeline, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a pipeline object to be used in a graphics workflow.
 //
@@ -2270,7 +2354,14 @@ func CreateGPUGraphicsPipeline(device *GPUDevice, createinfo *GPUGraphicsPipelin
 	return fnCreateGPUGraphicsPipeline(device, createinfo)
 }
 
-var fnCreateGPUSampler func(device *GPUDevice, createinfo *GPUSamplerCreateInfo) *GPUSampler
+var addrCreateGPUSampler uintptr
+
+func fnCreateGPUSampler(device *GPUDevice, createinfo *GPUSamplerCreateInfo) *GPUSampler {
+	if addrCreateGPUSampler == 0 {
+		missingSymbol("SDL_CreateGPUSampler")
+	}
+	return (*GPUSampler)(cptr(call2(addrCreateGPUSampler, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a sampler object to be used when binding textures in a graphics
 // workflow.
@@ -2294,7 +2385,14 @@ func CreateGPUSampler(device *GPUDevice, createinfo *GPUSamplerCreateInfo) *GPUS
 	return fnCreateGPUSampler(device, createinfo)
 }
 
-var fnCreateGPUShader func(device *GPUDevice, createinfo *GPUShaderCreateInfo) *GPUShader
+var addrCreateGPUShader uintptr
+
+func fnCreateGPUShader(device *GPUDevice, createinfo *GPUShaderCreateInfo) *GPUShader {
+	if addrCreateGPUShader == 0 {
+		missingSymbol("SDL_CreateGPUShader")
+	}
+	return (*GPUShader)(cptr(call2(addrCreateGPUShader, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a shader to be used when creating a graphics pipeline.
 //
@@ -2371,7 +2469,14 @@ func CreateGPUShader(device *GPUDevice, createinfo *GPUShaderCreateInfo) *GPUSha
 	return fnCreateGPUShader(device, createinfo)
 }
 
-var fnCreateGPUTexture func(device *GPUDevice, createinfo *GPUTextureCreateInfo) *GPUTexture
+var addrCreateGPUTexture uintptr
+
+func fnCreateGPUTexture(device *GPUDevice, createinfo *GPUTextureCreateInfo) *GPUTexture {
+	if addrCreateGPUTexture == 0 {
+		missingSymbol("SDL_CreateGPUTexture")
+	}
+	return (*GPUTexture)(cptr(call2(addrCreateGPUTexture, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a texture object to be used in graphics or compute workflows.
 //
@@ -2423,7 +2528,14 @@ func CreateGPUTexture(device *GPUDevice, createinfo *GPUTextureCreateInfo) *GPUT
 	return fnCreateGPUTexture(device, createinfo)
 }
 
-var fnCreateGPUBuffer func(device *GPUDevice, createinfo *GPUBufferCreateInfo) *GPUBuffer
+var addrCreateGPUBuffer uintptr
+
+func fnCreateGPUBuffer(device *GPUDevice, createinfo *GPUBufferCreateInfo) *GPUBuffer {
+	if addrCreateGPUBuffer == 0 {
+		missingSymbol("SDL_CreateGPUBuffer")
+	}
+	return (*GPUBuffer)(cptr(call2(addrCreateGPUBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a buffer object to be used in graphics or compute workflows.
 //
@@ -2461,7 +2573,14 @@ func CreateGPUBuffer(device *GPUDevice, createinfo *GPUBufferCreateInfo) *GPUBuf
 	return fnCreateGPUBuffer(device, createinfo)
 }
 
-var fnCreateGPUTransferBuffer func(device *GPUDevice, createinfo *GPUTransferBufferCreateInfo) *GPUTransferBuffer
+var addrCreateGPUTransferBuffer uintptr
+
+func fnCreateGPUTransferBuffer(device *GPUDevice, createinfo *GPUTransferBufferCreateInfo) *GPUTransferBuffer {
+	if addrCreateGPUTransferBuffer == 0 {
+		missingSymbol("SDL_CreateGPUTransferBuffer")
+	}
+	return (*GPUTransferBuffer)(cptr(call2(addrCreateGPUTransferBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Creates a transfer buffer to be used when uploading to or downloading from
 // graphics resources.
@@ -2488,7 +2607,14 @@ func CreateGPUTransferBuffer(device *GPUDevice, createinfo *GPUTransferBufferCre
 	return fnCreateGPUTransferBuffer(device, createinfo)
 }
 
-var fnSetGPUBufferName func(device *GPUDevice, buffer *GPUBuffer, text *byte)
+var addrSetGPUBufferName uintptr
+
+func fnSetGPUBufferName(device *GPUDevice, buffer *GPUBuffer, text *byte) {
+	if addrSetGPUBufferName == 0 {
+		missingSymbol("SDL_SetGPUBufferName")
+	}
+	call3(addrSetGPUBufferName, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(buffer)), uintptr(unsafe.Pointer(text)))
+}
 
 // Sets an arbitrary string constant to label a buffer.
 //
@@ -2509,7 +2635,14 @@ func SetGPUBufferName(device *GPUDevice, buffer *GPUBuffer, text string) {
 	fnSetGPUBufferName(device, buffer, cstr(text))
 }
 
-var fnSetGPUTextureName func(device *GPUDevice, texture *GPUTexture, text *byte)
+var addrSetGPUTextureName uintptr
+
+func fnSetGPUTextureName(device *GPUDevice, texture *GPUTexture, text *byte) {
+	if addrSetGPUTextureName == 0 {
+		missingSymbol("SDL_SetGPUTextureName")
+	}
+	call3(addrSetGPUTextureName, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(text)))
+}
 
 // Sets an arbitrary string constant to label a texture.
 //
@@ -2531,7 +2664,14 @@ func SetGPUTextureName(device *GPUDevice, texture *GPUTexture, text string) {
 	fnSetGPUTextureName(device, texture, cstr(text))
 }
 
-var fnInsertGPUDebugLabel func(command_buffer *GPUCommandBuffer, text *byte)
+var addrInsertGPUDebugLabel uintptr
+
+func fnInsertGPUDebugLabel(command_buffer *GPUCommandBuffer, text *byte) {
+	if addrInsertGPUDebugLabel == 0 {
+		missingSymbol("SDL_InsertGPUDebugLabel")
+	}
+	call2(addrInsertGPUDebugLabel, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(text)))
+}
 
 // Inserts an arbitrary string label into the command buffer callstream.
 //
@@ -2552,7 +2692,14 @@ func InsertGPUDebugLabel(command_buffer *GPUCommandBuffer, text string) {
 	fnInsertGPUDebugLabel(command_buffer, cstr(text))
 }
 
-var fnPushGPUDebugGroup func(command_buffer *GPUCommandBuffer, name *byte)
+var addrPushGPUDebugGroup uintptr
+
+func fnPushGPUDebugGroup(command_buffer *GPUCommandBuffer, name *byte) {
+	if addrPushGPUDebugGroup == 0 {
+		missingSymbol("SDL_PushGPUDebugGroup")
+	}
+	call2(addrPushGPUDebugGroup, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(name)))
+}
 
 // Begins a debug group with an arbitrary name.
 //
@@ -2583,7 +2730,14 @@ func PushGPUDebugGroup(command_buffer *GPUCommandBuffer, name string) {
 	fnPushGPUDebugGroup(command_buffer, cstr(name))
 }
 
-var fnPopGPUDebugGroup func(command_buffer *GPUCommandBuffer)
+var addrPopGPUDebugGroup uintptr
+
+func fnPopGPUDebugGroup(command_buffer *GPUCommandBuffer) {
+	if addrPopGPUDebugGroup == 0 {
+		missingSymbol("SDL_PopGPUDebugGroup")
+	}
+	call1(addrPopGPUDebugGroup, uintptr(unsafe.Pointer(command_buffer)))
+}
 
 // Ends the most-recently pushed debug group.
 //
@@ -2602,7 +2756,14 @@ func PopGPUDebugGroup(command_buffer *GPUCommandBuffer) {
 	fnPopGPUDebugGroup(command_buffer)
 }
 
-var fnReleaseGPUTexture func(device *GPUDevice, texture *GPUTexture)
+var addrReleaseGPUTexture uintptr
+
+func fnReleaseGPUTexture(device *GPUDevice, texture *GPUTexture) {
+	if addrReleaseGPUTexture == 0 {
+		missingSymbol("SDL_ReleaseGPUTexture")
+	}
+	call2(addrReleaseGPUTexture, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(texture)))
+}
 
 // Frees the given texture as soon as it is safe to do so.
 //
@@ -2617,7 +2778,14 @@ func ReleaseGPUTexture(device *GPUDevice, texture *GPUTexture) {
 	fnReleaseGPUTexture(device, texture)
 }
 
-var fnReleaseGPUSampler func(device *GPUDevice, sampler *GPUSampler)
+var addrReleaseGPUSampler uintptr
+
+func fnReleaseGPUSampler(device *GPUDevice, sampler *GPUSampler) {
+	if addrReleaseGPUSampler == 0 {
+		missingSymbol("SDL_ReleaseGPUSampler")
+	}
+	call2(addrReleaseGPUSampler, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(sampler)))
+}
 
 // Frees the given sampler as soon as it is safe to do so.
 //
@@ -2632,7 +2800,14 @@ func ReleaseGPUSampler(device *GPUDevice, sampler *GPUSampler) {
 	fnReleaseGPUSampler(device, sampler)
 }
 
-var fnReleaseGPUBuffer func(device *GPUDevice, buffer *GPUBuffer)
+var addrReleaseGPUBuffer uintptr
+
+func fnReleaseGPUBuffer(device *GPUDevice, buffer *GPUBuffer) {
+	if addrReleaseGPUBuffer == 0 {
+		missingSymbol("SDL_ReleaseGPUBuffer")
+	}
+	call2(addrReleaseGPUBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(buffer)))
+}
 
 // Frees the given buffer as soon as it is safe to do so.
 //
@@ -2647,7 +2822,14 @@ func ReleaseGPUBuffer(device *GPUDevice, buffer *GPUBuffer) {
 	fnReleaseGPUBuffer(device, buffer)
 }
 
-var fnReleaseGPUTransferBuffer func(device *GPUDevice, transfer_buffer *GPUTransferBuffer)
+var addrReleaseGPUTransferBuffer uintptr
+
+func fnReleaseGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuffer) {
+	if addrReleaseGPUTransferBuffer == 0 {
+		missingSymbol("SDL_ReleaseGPUTransferBuffer")
+	}
+	call2(addrReleaseGPUTransferBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(transfer_buffer)))
+}
 
 // Frees the given transfer buffer as soon as it is safe to do so.
 //
@@ -2662,7 +2844,14 @@ func ReleaseGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuf
 	fnReleaseGPUTransferBuffer(device, transfer_buffer)
 }
 
-var fnReleaseGPUComputePipeline func(device *GPUDevice, compute_pipeline *GPUComputePipeline)
+var addrReleaseGPUComputePipeline uintptr
+
+func fnReleaseGPUComputePipeline(device *GPUDevice, compute_pipeline *GPUComputePipeline) {
+	if addrReleaseGPUComputePipeline == 0 {
+		missingSymbol("SDL_ReleaseGPUComputePipeline")
+	}
+	call2(addrReleaseGPUComputePipeline, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(compute_pipeline)))
+}
 
 // Frees the given compute pipeline as soon as it is safe to do so.
 //
@@ -2677,7 +2866,14 @@ func ReleaseGPUComputePipeline(device *GPUDevice, compute_pipeline *GPUComputePi
 	fnReleaseGPUComputePipeline(device, compute_pipeline)
 }
 
-var fnReleaseGPUShader func(device *GPUDevice, shader *GPUShader)
+var addrReleaseGPUShader uintptr
+
+func fnReleaseGPUShader(device *GPUDevice, shader *GPUShader) {
+	if addrReleaseGPUShader == 0 {
+		missingSymbol("SDL_ReleaseGPUShader")
+	}
+	call2(addrReleaseGPUShader, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(shader)))
+}
 
 // Frees the given shader as soon as it is safe to do so.
 //
@@ -2692,7 +2888,14 @@ func ReleaseGPUShader(device *GPUDevice, shader *GPUShader) {
 	fnReleaseGPUShader(device, shader)
 }
 
-var fnReleaseGPUGraphicsPipeline func(device *GPUDevice, graphics_pipeline *GPUGraphicsPipeline)
+var addrReleaseGPUGraphicsPipeline uintptr
+
+func fnReleaseGPUGraphicsPipeline(device *GPUDevice, graphics_pipeline *GPUGraphicsPipeline) {
+	if addrReleaseGPUGraphicsPipeline == 0 {
+		missingSymbol("SDL_ReleaseGPUGraphicsPipeline")
+	}
+	call2(addrReleaseGPUGraphicsPipeline, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(graphics_pipeline)))
+}
 
 // Frees the given graphics pipeline as soon as it is safe to do so.
 //
@@ -2707,7 +2910,14 @@ func ReleaseGPUGraphicsPipeline(device *GPUDevice, graphics_pipeline *GPUGraphic
 	fnReleaseGPUGraphicsPipeline(device, graphics_pipeline)
 }
 
-var fnAcquireGPUCommandBuffer func(device *GPUDevice) *GPUCommandBuffer
+var addrAcquireGPUCommandBuffer uintptr
+
+func fnAcquireGPUCommandBuffer(device *GPUDevice) *GPUCommandBuffer {
+	if addrAcquireGPUCommandBuffer == 0 {
+		missingSymbol("SDL_AcquireGPUCommandBuffer")
+	}
+	return (*GPUCommandBuffer)(cptr(call1(addrAcquireGPUCommandBuffer, uintptr(unsafe.Pointer(device)))))
+}
 
 // Acquire a command buffer.
 //
@@ -2735,7 +2945,14 @@ func AcquireGPUCommandBuffer(device *GPUDevice) *GPUCommandBuffer {
 	return fnAcquireGPUCommandBuffer(device)
 }
 
-var fnPushGPUVertexUniformData func(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32)
+var addrPushGPUVertexUniformData uintptr
+
+func fnPushGPUVertexUniformData(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32) {
+	if addrPushGPUVertexUniformData == 0 {
+		missingSymbol("SDL_PushGPUVertexUniformData")
+	}
+	call4(addrPushGPUVertexUniformData, uintptr(unsafe.Pointer(command_buffer)), uintptr(slot_index), uintptr(unsafe.Pointer(data)), uintptr(length))
+}
 
 // Pushes data to a vertex uniform slot on the command buffer.
 //
@@ -2759,7 +2976,14 @@ func PushGPUVertexUniformData(command_buffer *GPUCommandBuffer, slot_index uint3
 	fnPushGPUVertexUniformData(command_buffer, slot_index, data, length)
 }
 
-var fnPushGPUFragmentUniformData func(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32)
+var addrPushGPUFragmentUniformData uintptr
+
+func fnPushGPUFragmentUniformData(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32) {
+	if addrPushGPUFragmentUniformData == 0 {
+		missingSymbol("SDL_PushGPUFragmentUniformData")
+	}
+	call4(addrPushGPUFragmentUniformData, uintptr(unsafe.Pointer(command_buffer)), uintptr(slot_index), uintptr(unsafe.Pointer(data)), uintptr(length))
+}
 
 // Pushes data to a fragment uniform slot on the command buffer.
 //
@@ -2780,7 +3004,14 @@ func PushGPUFragmentUniformData(command_buffer *GPUCommandBuffer, slot_index uin
 	fnPushGPUFragmentUniformData(command_buffer, slot_index, data, length)
 }
 
-var fnPushGPUComputeUniformData func(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32)
+var addrPushGPUComputeUniformData uintptr
+
+func fnPushGPUComputeUniformData(command_buffer *GPUCommandBuffer, slot_index uint32, data unsafe.Pointer, length uint32) {
+	if addrPushGPUComputeUniformData == 0 {
+		missingSymbol("SDL_PushGPUComputeUniformData")
+	}
+	call4(addrPushGPUComputeUniformData, uintptr(unsafe.Pointer(command_buffer)), uintptr(slot_index), uintptr(unsafe.Pointer(data)), uintptr(length))
+}
 
 // Pushes data to a uniform slot on the command buffer.
 //
@@ -2801,7 +3032,14 @@ func PushGPUComputeUniformData(command_buffer *GPUCommandBuffer, slot_index uint
 	fnPushGPUComputeUniformData(command_buffer, slot_index, data, length)
 }
 
-var fnBeginGPURenderPass func(command_buffer *GPUCommandBuffer, color_target_infos *GPUColorTargetInfo, num_color_targets uint32, depth_stencil_target_info *GPUDepthStencilTargetInfo) *GPURenderPass
+var addrBeginGPURenderPass uintptr
+
+func fnBeginGPURenderPass(command_buffer *GPUCommandBuffer, color_target_infos *GPUColorTargetInfo, num_color_targets uint32, depth_stencil_target_info *GPUDepthStencilTargetInfo) *GPURenderPass {
+	if addrBeginGPURenderPass == 0 {
+		missingSymbol("SDL_BeginGPURenderPass")
+	}
+	return (*GPURenderPass)(cptr(call4(addrBeginGPURenderPass, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(color_target_infos)), uintptr(num_color_targets), uintptr(unsafe.Pointer(depth_stencil_target_info)))))
+}
 
 // Begins a render pass on a command buffer.
 //
@@ -2836,7 +3074,14 @@ func BeginGPURenderPass(command_buffer *GPUCommandBuffer, color_target_infos *GP
 	return fnBeginGPURenderPass(command_buffer, color_target_infos, num_color_targets, depth_stencil_target_info)
 }
 
-var fnBindGPUGraphicsPipeline func(render_pass *GPURenderPass, graphics_pipeline *GPUGraphicsPipeline)
+var addrBindGPUGraphicsPipeline uintptr
+
+func fnBindGPUGraphicsPipeline(render_pass *GPURenderPass, graphics_pipeline *GPUGraphicsPipeline) {
+	if addrBindGPUGraphicsPipeline == 0 {
+		missingSymbol("SDL_BindGPUGraphicsPipeline")
+	}
+	call2(addrBindGPUGraphicsPipeline, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(graphics_pipeline)))
+}
 
 // Binds a graphics pipeline on a render pass to be used in rendering.
 //
@@ -2851,7 +3096,14 @@ func BindGPUGraphicsPipeline(render_pass *GPURenderPass, graphics_pipeline *GPUG
 	fnBindGPUGraphicsPipeline(render_pass, graphics_pipeline)
 }
 
-var fnSetGPUViewport func(render_pass *GPURenderPass, viewport *GPUViewport)
+var addrSetGPUViewport uintptr
+
+func fnSetGPUViewport(render_pass *GPURenderPass, viewport *GPUViewport) {
+	if addrSetGPUViewport == 0 {
+		missingSymbol("SDL_SetGPUViewport")
+	}
+	call2(addrSetGPUViewport, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(viewport)))
+}
 
 // Sets the current viewport state on a command buffer.
 //
@@ -2864,7 +3116,14 @@ func SetGPUViewport(render_pass *GPURenderPass, viewport *GPUViewport) {
 	fnSetGPUViewport(render_pass, viewport)
 }
 
-var fnSetGPUScissor func(render_pass *GPURenderPass, scissor *Rect)
+var addrSetGPUScissor uintptr
+
+func fnSetGPUScissor(render_pass *GPURenderPass, scissor *Rect) {
+	if addrSetGPUScissor == 0 {
+		missingSymbol("SDL_SetGPUScissor")
+	}
+	call2(addrSetGPUScissor, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(scissor)))
+}
 
 // Sets the current scissor state on a command buffer.
 //
@@ -2892,7 +3151,14 @@ func SetGPUBlendConstants(render_pass *GPURenderPass, blend_constants FColor) {
 	fnSetGPUBlendConstants(render_pass, blend_constants)
 }
 
-var fnSetGPUStencilReference func(render_pass *GPURenderPass, reference uint8)
+var addrSetGPUStencilReference uintptr
+
+func fnSetGPUStencilReference(render_pass *GPURenderPass, reference uint8) {
+	if addrSetGPUStencilReference == 0 {
+		missingSymbol("SDL_SetGPUStencilReference")
+	}
+	call2(addrSetGPUStencilReference, uintptr(unsafe.Pointer(render_pass)), uintptr(reference))
+}
 
 // Sets the current stencil reference value on a command buffer.
 //
@@ -2905,7 +3171,14 @@ func SetGPUStencilReference(render_pass *GPURenderPass, reference uint8) {
 	fnSetGPUStencilReference(render_pass, reference)
 }
 
-var fnBindGPUVertexBuffers func(render_pass *GPURenderPass, first_slot uint32, bindings *GPUBufferBinding, num_bindings uint32)
+var addrBindGPUVertexBuffers uintptr
+
+func fnBindGPUVertexBuffers(render_pass *GPURenderPass, first_slot uint32, bindings *GPUBufferBinding, num_bindings uint32) {
+	if addrBindGPUVertexBuffers == 0 {
+		missingSymbol("SDL_BindGPUVertexBuffers")
+	}
+	call4(addrBindGPUVertexBuffers, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(bindings)), uintptr(num_bindings))
+}
 
 // Binds vertex buffers on a command buffer for use with subsequent draw
 // calls.
@@ -2921,7 +3194,14 @@ func BindGPUVertexBuffers(render_pass *GPURenderPass, first_slot uint32, binding
 	fnBindGPUVertexBuffers(render_pass, first_slot, bindings, num_bindings)
 }
 
-var fnBindGPUIndexBuffer func(render_pass *GPURenderPass, binding *GPUBufferBinding, index_element_size GPUIndexElementSize)
+var addrBindGPUIndexBuffer uintptr
+
+func fnBindGPUIndexBuffer(render_pass *GPURenderPass, binding *GPUBufferBinding, index_element_size GPUIndexElementSize) {
+	if addrBindGPUIndexBuffer == 0 {
+		missingSymbol("SDL_BindGPUIndexBuffer")
+	}
+	call3(addrBindGPUIndexBuffer, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(binding)), uintptr(index_element_size))
+}
 
 // Binds an index buffer on a command buffer for use with subsequent draw
 // calls.
@@ -2936,7 +3216,14 @@ func BindGPUIndexBuffer(render_pass *GPURenderPass, binding *GPUBufferBinding, i
 	fnBindGPUIndexBuffer(render_pass, binding, index_element_size)
 }
 
-var fnBindGPUVertexSamplers func(render_pass *GPURenderPass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32)
+var addrBindGPUVertexSamplers uintptr
+
+func fnBindGPUVertexSamplers(render_pass *GPURenderPass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32) {
+	if addrBindGPUVertexSamplers == 0 {
+		missingSymbol("SDL_BindGPUVertexSamplers")
+	}
+	call4(addrBindGPUVertexSamplers, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(texture_sampler_bindings)), uintptr(num_bindings))
+}
 
 // Binds texture-sampler pairs for use on the vertex shader.
 //
@@ -2961,7 +3248,14 @@ func BindGPUVertexSamplers(render_pass *GPURenderPass, first_slot uint32, textur
 	fnBindGPUVertexSamplers(render_pass, first_slot, texture_sampler_bindings, num_bindings)
 }
 
-var fnBindGPUVertexStorageTextures func(render_pass *GPURenderPass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32)
+var addrBindGPUVertexStorageTextures uintptr
+
+func fnBindGPUVertexStorageTextures(render_pass *GPURenderPass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32) {
+	if addrBindGPUVertexStorageTextures == 0 {
+		missingSymbol("SDL_BindGPUVertexStorageTextures")
+	}
+	call4(addrBindGPUVertexStorageTextures, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_textures)), uintptr(num_bindings))
+}
 
 // Binds storage textures for use on the vertex shader.
 //
@@ -2987,7 +3281,14 @@ func BindGPUVertexStorageTextures(render_pass *GPURenderPass, first_slot uint32,
 	fnBindGPUVertexStorageTextures(render_pass, first_slot, storage_textures, num_bindings)
 }
 
-var fnBindGPUVertexStorageBuffers func(render_pass *GPURenderPass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32)
+var addrBindGPUVertexStorageBuffers uintptr
+
+func fnBindGPUVertexStorageBuffers(render_pass *GPURenderPass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32) {
+	if addrBindGPUVertexStorageBuffers == 0 {
+		missingSymbol("SDL_BindGPUVertexStorageBuffers")
+	}
+	call4(addrBindGPUVertexStorageBuffers, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_buffers)), uintptr(num_bindings))
+}
 
 // Binds storage buffers for use on the vertex shader.
 //
@@ -3010,7 +3311,14 @@ func BindGPUVertexStorageBuffers(render_pass *GPURenderPass, first_slot uint32, 
 	fnBindGPUVertexStorageBuffers(render_pass, first_slot, storage_buffers, num_bindings)
 }
 
-var fnBindGPUFragmentSamplers func(render_pass *GPURenderPass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32)
+var addrBindGPUFragmentSamplers uintptr
+
+func fnBindGPUFragmentSamplers(render_pass *GPURenderPass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32) {
+	if addrBindGPUFragmentSamplers == 0 {
+		missingSymbol("SDL_BindGPUFragmentSamplers")
+	}
+	call4(addrBindGPUFragmentSamplers, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(texture_sampler_bindings)), uintptr(num_bindings))
+}
 
 // Binds texture-sampler pairs for use on the fragment shader.
 //
@@ -3035,7 +3343,14 @@ func BindGPUFragmentSamplers(render_pass *GPURenderPass, first_slot uint32, text
 	fnBindGPUFragmentSamplers(render_pass, first_slot, texture_sampler_bindings, num_bindings)
 }
 
-var fnBindGPUFragmentStorageTextures func(render_pass *GPURenderPass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32)
+var addrBindGPUFragmentStorageTextures uintptr
+
+func fnBindGPUFragmentStorageTextures(render_pass *GPURenderPass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32) {
+	if addrBindGPUFragmentStorageTextures == 0 {
+		missingSymbol("SDL_BindGPUFragmentStorageTextures")
+	}
+	call4(addrBindGPUFragmentStorageTextures, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_textures)), uintptr(num_bindings))
+}
 
 // Binds storage textures for use on the fragment shader.
 //
@@ -3061,7 +3376,14 @@ func BindGPUFragmentStorageTextures(render_pass *GPURenderPass, first_slot uint3
 	fnBindGPUFragmentStorageTextures(render_pass, first_slot, storage_textures, num_bindings)
 }
 
-var fnBindGPUFragmentStorageBuffers func(render_pass *GPURenderPass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32)
+var addrBindGPUFragmentStorageBuffers uintptr
+
+func fnBindGPUFragmentStorageBuffers(render_pass *GPURenderPass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32) {
+	if addrBindGPUFragmentStorageBuffers == 0 {
+		missingSymbol("SDL_BindGPUFragmentStorageBuffers")
+	}
+	call4(addrBindGPUFragmentStorageBuffers, uintptr(unsafe.Pointer(render_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_buffers)), uintptr(num_bindings))
+}
 
 // Binds storage buffers for use on the fragment shader.
 //
@@ -3084,7 +3406,14 @@ func BindGPUFragmentStorageBuffers(render_pass *GPURenderPass, first_slot uint32
 	fnBindGPUFragmentStorageBuffers(render_pass, first_slot, storage_buffers, num_bindings)
 }
 
-var fnDrawGPUIndexedPrimitives func(render_pass *GPURenderPass, num_indices uint32, num_instances uint32, first_index uint32, vertex_offset int32, first_instance uint32)
+var addrDrawGPUIndexedPrimitives uintptr
+
+func fnDrawGPUIndexedPrimitives(render_pass *GPURenderPass, num_indices uint32, num_instances uint32, first_index uint32, vertex_offset int32, first_instance uint32) {
+	if addrDrawGPUIndexedPrimitives == 0 {
+		missingSymbol("SDL_DrawGPUIndexedPrimitives")
+	}
+	call6(addrDrawGPUIndexedPrimitives, uintptr(unsafe.Pointer(render_pass)), uintptr(num_indices), uintptr(num_instances), uintptr(first_index), uintptr(vertex_offset), uintptr(first_instance))
+}
 
 // Draws data using bound graphics state with an index buffer and instancing
 // enabled.
@@ -3111,7 +3440,14 @@ func DrawGPUIndexedPrimitives(render_pass *GPURenderPass, num_indices uint32, nu
 	fnDrawGPUIndexedPrimitives(render_pass, num_indices, num_instances, first_index, vertex_offset, first_instance)
 }
 
-var fnDrawGPUPrimitives func(render_pass *GPURenderPass, num_vertices uint32, num_instances uint32, first_vertex uint32, first_instance uint32)
+var addrDrawGPUPrimitives uintptr
+
+func fnDrawGPUPrimitives(render_pass *GPURenderPass, num_vertices uint32, num_instances uint32, first_vertex uint32, first_instance uint32) {
+	if addrDrawGPUPrimitives == 0 {
+		missingSymbol("SDL_DrawGPUPrimitives")
+	}
+	call5(addrDrawGPUPrimitives, uintptr(unsafe.Pointer(render_pass)), uintptr(num_vertices), uintptr(num_instances), uintptr(first_vertex), uintptr(first_instance))
+}
 
 // Draws data using bound graphics state.
 //
@@ -3136,7 +3472,14 @@ func DrawGPUPrimitives(render_pass *GPURenderPass, num_vertices uint32, num_inst
 	fnDrawGPUPrimitives(render_pass, num_vertices, num_instances, first_vertex, first_instance)
 }
 
-var fnDrawGPUPrimitivesIndirect func(render_pass *GPURenderPass, buffer *GPUBuffer, offset uint32, draw_count uint32)
+var addrDrawGPUPrimitivesIndirect uintptr
+
+func fnDrawGPUPrimitivesIndirect(render_pass *GPURenderPass, buffer *GPUBuffer, offset uint32, draw_count uint32) {
+	if addrDrawGPUPrimitivesIndirect == 0 {
+		missingSymbol("SDL_DrawGPUPrimitivesIndirect")
+	}
+	call4(addrDrawGPUPrimitivesIndirect, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(buffer)), uintptr(offset), uintptr(draw_count))
+}
 
 // Draws data using bound graphics state and with draw parameters set from a
 // buffer.
@@ -3156,7 +3499,14 @@ func DrawGPUPrimitivesIndirect(render_pass *GPURenderPass, buffer *GPUBuffer, of
 	fnDrawGPUPrimitivesIndirect(render_pass, buffer, offset, draw_count)
 }
 
-var fnDrawGPUIndexedPrimitivesIndirect func(render_pass *GPURenderPass, buffer *GPUBuffer, offset uint32, draw_count uint32)
+var addrDrawGPUIndexedPrimitivesIndirect uintptr
+
+func fnDrawGPUIndexedPrimitivesIndirect(render_pass *GPURenderPass, buffer *GPUBuffer, offset uint32, draw_count uint32) {
+	if addrDrawGPUIndexedPrimitivesIndirect == 0 {
+		missingSymbol("SDL_DrawGPUIndexedPrimitivesIndirect")
+	}
+	call4(addrDrawGPUIndexedPrimitivesIndirect, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(buffer)), uintptr(offset), uintptr(draw_count))
+}
 
 // Draws data using bound graphics state with an index buffer enabled and with
 // draw parameters set from a buffer.
@@ -3176,7 +3526,14 @@ func DrawGPUIndexedPrimitivesIndirect(render_pass *GPURenderPass, buffer *GPUBuf
 	fnDrawGPUIndexedPrimitivesIndirect(render_pass, buffer, offset, draw_count)
 }
 
-var fnEndGPURenderPass func(render_pass *GPURenderPass)
+var addrEndGPURenderPass uintptr
+
+func fnEndGPURenderPass(render_pass *GPURenderPass) {
+	if addrEndGPURenderPass == 0 {
+		missingSymbol("SDL_EndGPURenderPass")
+	}
+	call1(addrEndGPURenderPass, uintptr(unsafe.Pointer(render_pass)))
+}
 
 // Ends the given render pass.
 //
@@ -3191,7 +3548,14 @@ func EndGPURenderPass(render_pass *GPURenderPass) {
 	fnEndGPURenderPass(render_pass)
 }
 
-var fnBeginGPUComputePass func(command_buffer *GPUCommandBuffer, storage_texture_bindings *GPUStorageTextureReadWriteBinding, num_storage_texture_bindings uint32, storage_buffer_bindings *GPUStorageBufferReadWriteBinding, num_storage_buffer_bindings uint32) *GPUComputePass
+var addrBeginGPUComputePass uintptr
+
+func fnBeginGPUComputePass(command_buffer *GPUCommandBuffer, storage_texture_bindings *GPUStorageTextureReadWriteBinding, num_storage_texture_bindings uint32, storage_buffer_bindings *GPUStorageBufferReadWriteBinding, num_storage_buffer_bindings uint32) *GPUComputePass {
+	if addrBeginGPUComputePass == 0 {
+		missingSymbol("SDL_BeginGPUComputePass")
+	}
+	return (*GPUComputePass)(cptr(call5(addrBeginGPUComputePass, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(storage_texture_bindings)), uintptr(num_storage_texture_bindings), uintptr(unsafe.Pointer(storage_buffer_bindings)), uintptr(num_storage_buffer_bindings))))
+}
 
 // Begins a compute pass on a command buffer.
 //
@@ -3230,7 +3594,14 @@ func BeginGPUComputePass(command_buffer *GPUCommandBuffer, storage_texture_bindi
 	return fnBeginGPUComputePass(command_buffer, storage_texture_bindings, num_storage_texture_bindings, storage_buffer_bindings, num_storage_buffer_bindings)
 }
 
-var fnBindGPUComputePipeline func(compute_pass *GPUComputePass, compute_pipeline *GPUComputePipeline)
+var addrBindGPUComputePipeline uintptr
+
+func fnBindGPUComputePipeline(compute_pass *GPUComputePass, compute_pipeline *GPUComputePipeline) {
+	if addrBindGPUComputePipeline == 0 {
+		missingSymbol("SDL_BindGPUComputePipeline")
+	}
+	call2(addrBindGPUComputePipeline, uintptr(unsafe.Pointer(compute_pass)), uintptr(unsafe.Pointer(compute_pipeline)))
+}
 
 // Binds a compute pipeline on a command buffer for use in compute dispatch.
 //
@@ -3243,7 +3614,14 @@ func BindGPUComputePipeline(compute_pass *GPUComputePass, compute_pipeline *GPUC
 	fnBindGPUComputePipeline(compute_pass, compute_pipeline)
 }
 
-var fnBindGPUComputeSamplers func(compute_pass *GPUComputePass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32)
+var addrBindGPUComputeSamplers uintptr
+
+func fnBindGPUComputeSamplers(compute_pass *GPUComputePass, first_slot uint32, texture_sampler_bindings *GPUTextureSamplerBinding, num_bindings uint32) {
+	if addrBindGPUComputeSamplers == 0 {
+		missingSymbol("SDL_BindGPUComputeSamplers")
+	}
+	call4(addrBindGPUComputeSamplers, uintptr(unsafe.Pointer(compute_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(texture_sampler_bindings)), uintptr(num_bindings))
+}
 
 // Binds texture-sampler pairs for use on the compute shader.
 //
@@ -3268,7 +3646,14 @@ func BindGPUComputeSamplers(compute_pass *GPUComputePass, first_slot uint32, tex
 	fnBindGPUComputeSamplers(compute_pass, first_slot, texture_sampler_bindings, num_bindings)
 }
 
-var fnBindGPUComputeStorageTextures func(compute_pass *GPUComputePass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32)
+var addrBindGPUComputeStorageTextures uintptr
+
+func fnBindGPUComputeStorageTextures(compute_pass *GPUComputePass, first_slot uint32, storage_textures **GPUTexture, num_bindings uint32) {
+	if addrBindGPUComputeStorageTextures == 0 {
+		missingSymbol("SDL_BindGPUComputeStorageTextures")
+	}
+	call4(addrBindGPUComputeStorageTextures, uintptr(unsafe.Pointer(compute_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_textures)), uintptr(num_bindings))
+}
 
 // Binds storage textures as readonly for use on the compute pipeline.
 //
@@ -3294,7 +3679,14 @@ func BindGPUComputeStorageTextures(compute_pass *GPUComputePass, first_slot uint
 	fnBindGPUComputeStorageTextures(compute_pass, first_slot, storage_textures, num_bindings)
 }
 
-var fnBindGPUComputeStorageBuffers func(compute_pass *GPUComputePass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32)
+var addrBindGPUComputeStorageBuffers uintptr
+
+func fnBindGPUComputeStorageBuffers(compute_pass *GPUComputePass, first_slot uint32, storage_buffers **GPUBuffer, num_bindings uint32) {
+	if addrBindGPUComputeStorageBuffers == 0 {
+		missingSymbol("SDL_BindGPUComputeStorageBuffers")
+	}
+	call4(addrBindGPUComputeStorageBuffers, uintptr(unsafe.Pointer(compute_pass)), uintptr(first_slot), uintptr(unsafe.Pointer(storage_buffers)), uintptr(num_bindings))
+}
 
 // Binds storage buffers as readonly for use on the compute pipeline.
 //
@@ -3317,7 +3709,14 @@ func BindGPUComputeStorageBuffers(compute_pass *GPUComputePass, first_slot uint3
 	fnBindGPUComputeStorageBuffers(compute_pass, first_slot, storage_buffers, num_bindings)
 }
 
-var fnDispatchGPUCompute func(compute_pass *GPUComputePass, groupcount_x uint32, groupcount_y uint32, groupcount_z uint32)
+var addrDispatchGPUCompute uintptr
+
+func fnDispatchGPUCompute(compute_pass *GPUComputePass, groupcount_x uint32, groupcount_y uint32, groupcount_z uint32) {
+	if addrDispatchGPUCompute == 0 {
+		missingSymbol("SDL_DispatchGPUCompute")
+	}
+	call4(addrDispatchGPUCompute, uintptr(unsafe.Pointer(compute_pass)), uintptr(groupcount_x), uintptr(groupcount_y), uintptr(groupcount_z))
+}
 
 // Dispatches compute work.
 //
@@ -3339,7 +3738,14 @@ func DispatchGPUCompute(compute_pass *GPUComputePass, groupcount_x uint32, group
 	fnDispatchGPUCompute(compute_pass, groupcount_x, groupcount_y, groupcount_z)
 }
 
-var fnDispatchGPUComputeIndirect func(compute_pass *GPUComputePass, buffer *GPUBuffer, offset uint32)
+var addrDispatchGPUComputeIndirect uintptr
+
+func fnDispatchGPUComputeIndirect(compute_pass *GPUComputePass, buffer *GPUBuffer, offset uint32) {
+	if addrDispatchGPUComputeIndirect == 0 {
+		missingSymbol("SDL_DispatchGPUComputeIndirect")
+	}
+	call3(addrDispatchGPUComputeIndirect, uintptr(unsafe.Pointer(compute_pass)), uintptr(unsafe.Pointer(buffer)), uintptr(offset))
+}
 
 // Dispatches compute work with parameters set from a buffer.
 //
@@ -3362,7 +3768,14 @@ func DispatchGPUComputeIndirect(compute_pass *GPUComputePass, buffer *GPUBuffer,
 	fnDispatchGPUComputeIndirect(compute_pass, buffer, offset)
 }
 
-var fnEndGPUComputePass func(compute_pass *GPUComputePass)
+var addrEndGPUComputePass uintptr
+
+func fnEndGPUComputePass(compute_pass *GPUComputePass) {
+	if addrEndGPUComputePass == 0 {
+		missingSymbol("SDL_EndGPUComputePass")
+	}
+	call1(addrEndGPUComputePass, uintptr(unsafe.Pointer(compute_pass)))
+}
 
 // Ends the current compute pass.
 //
@@ -3377,7 +3790,14 @@ func EndGPUComputePass(compute_pass *GPUComputePass) {
 	fnEndGPUComputePass(compute_pass)
 }
 
-var fnMapGPUTransferBuffer func(device *GPUDevice, transfer_buffer *GPUTransferBuffer, cycle bool) unsafe.Pointer
+var addrMapGPUTransferBuffer uintptr
+
+func fnMapGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuffer, cycle bool) unsafe.Pointer {
+	if addrMapGPUTransferBuffer == 0 {
+		missingSymbol("SDL_MapGPUTransferBuffer")
+	}
+	return cptr(call3(addrMapGPUTransferBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(transfer_buffer)), cbool(cycle)))
+}
 
 // Maps a transfer buffer into application address space.
 //
@@ -3397,7 +3817,14 @@ func MapGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuffer,
 	return fnMapGPUTransferBuffer(device, transfer_buffer, cycle)
 }
 
-var fnUnmapGPUTransferBuffer func(device *GPUDevice, transfer_buffer *GPUTransferBuffer)
+var addrUnmapGPUTransferBuffer uintptr
+
+func fnUnmapGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuffer) {
+	if addrUnmapGPUTransferBuffer == 0 {
+		missingSymbol("SDL_UnmapGPUTransferBuffer")
+	}
+	call2(addrUnmapGPUTransferBuffer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(transfer_buffer)))
+}
 
 // Unmaps a previously mapped transfer buffer.
 //
@@ -3410,7 +3837,14 @@ func UnmapGPUTransferBuffer(device *GPUDevice, transfer_buffer *GPUTransferBuffe
 	fnUnmapGPUTransferBuffer(device, transfer_buffer)
 }
 
-var fnBeginGPUCopyPass func(command_buffer *GPUCommandBuffer) *GPUCopyPass
+var addrBeginGPUCopyPass uintptr
+
+func fnBeginGPUCopyPass(command_buffer *GPUCommandBuffer) *GPUCopyPass {
+	if addrBeginGPUCopyPass == 0 {
+		missingSymbol("SDL_BeginGPUCopyPass")
+	}
+	return (*GPUCopyPass)(cptr(call1(addrBeginGPUCopyPass, uintptr(unsafe.Pointer(command_buffer)))))
+}
 
 // Begins a copy pass on a command buffer.
 //
@@ -3430,7 +3864,14 @@ func BeginGPUCopyPass(command_buffer *GPUCommandBuffer) *GPUCopyPass {
 	return fnBeginGPUCopyPass(command_buffer)
 }
 
-var fnUploadToGPUTexture func(copy_pass *GPUCopyPass, source *GPUTextureTransferInfo, destination *GPUTextureRegion, cycle bool)
+var addrUploadToGPUTexture uintptr
+
+func fnUploadToGPUTexture(copy_pass *GPUCopyPass, source *GPUTextureTransferInfo, destination *GPUTextureRegion, cycle bool) {
+	if addrUploadToGPUTexture == 0 {
+		missingSymbol("SDL_UploadToGPUTexture")
+	}
+	call4(addrUploadToGPUTexture, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)), cbool(cycle))
+}
 
 // Uploads data from a transfer buffer to a texture.
 //
@@ -3451,7 +3892,14 @@ func UploadToGPUTexture(copy_pass *GPUCopyPass, source *GPUTextureTransferInfo, 
 	fnUploadToGPUTexture(copy_pass, source, destination, cycle)
 }
 
-var fnUploadToGPUBuffer func(copy_pass *GPUCopyPass, source *GPUTransferBufferLocation, destination *GPUBufferRegion, cycle bool)
+var addrUploadToGPUBuffer uintptr
+
+func fnUploadToGPUBuffer(copy_pass *GPUCopyPass, source *GPUTransferBufferLocation, destination *GPUBufferRegion, cycle bool) {
+	if addrUploadToGPUBuffer == 0 {
+		missingSymbol("SDL_UploadToGPUBuffer")
+	}
+	call4(addrUploadToGPUBuffer, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)), cbool(cycle))
+}
 
 // Uploads data from a transfer buffer to a buffer.
 //
@@ -3469,7 +3917,14 @@ func UploadToGPUBuffer(copy_pass *GPUCopyPass, source *GPUTransferBufferLocation
 	fnUploadToGPUBuffer(copy_pass, source, destination, cycle)
 }
 
-var fnCopyGPUTextureToTexture func(copy_pass *GPUCopyPass, source *GPUTextureLocation, destination *GPUTextureLocation, w uint32, h uint32, d uint32, cycle bool)
+var addrCopyGPUTextureToTexture uintptr
+
+func fnCopyGPUTextureToTexture(copy_pass *GPUCopyPass, source *GPUTextureLocation, destination *GPUTextureLocation, w uint32, h uint32, d uint32, cycle bool) {
+	if addrCopyGPUTextureToTexture == 0 {
+		missingSymbol("SDL_CopyGPUTextureToTexture")
+	}
+	call7(addrCopyGPUTextureToTexture, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)), uintptr(w), uintptr(h), uintptr(d), cbool(cycle))
+}
 
 // Performs a texture-to-texture copy.
 //
@@ -3494,7 +3949,14 @@ func CopyGPUTextureToTexture(copy_pass *GPUCopyPass, source *GPUTextureLocation,
 	fnCopyGPUTextureToTexture(copy_pass, source, destination, w, h, d, cycle)
 }
 
-var fnCopyGPUBufferToBuffer func(copy_pass *GPUCopyPass, source *GPUBufferLocation, destination *GPUBufferLocation, size uint32, cycle bool)
+var addrCopyGPUBufferToBuffer uintptr
+
+func fnCopyGPUBufferToBuffer(copy_pass *GPUCopyPass, source *GPUBufferLocation, destination *GPUBufferLocation, size uint32, cycle bool) {
+	if addrCopyGPUBufferToBuffer == 0 {
+		missingSymbol("SDL_CopyGPUBufferToBuffer")
+	}
+	call5(addrCopyGPUBufferToBuffer, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)), uintptr(size), cbool(cycle))
+}
 
 // Performs a buffer-to-buffer copy.
 //
@@ -3513,7 +3975,14 @@ func CopyGPUBufferToBuffer(copy_pass *GPUCopyPass, source *GPUBufferLocation, de
 	fnCopyGPUBufferToBuffer(copy_pass, source, destination, size, cycle)
 }
 
-var fnDownloadFromGPUTexture func(copy_pass *GPUCopyPass, source *GPUTextureRegion, destination *GPUTextureTransferInfo)
+var addrDownloadFromGPUTexture uintptr
+
+func fnDownloadFromGPUTexture(copy_pass *GPUCopyPass, source *GPUTextureRegion, destination *GPUTextureTransferInfo) {
+	if addrDownloadFromGPUTexture == 0 {
+		missingSymbol("SDL_DownloadFromGPUTexture")
+	}
+	call3(addrDownloadFromGPUTexture, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)))
+}
 
 // Copies data from a texture to a transfer buffer on the GPU timeline.
 //
@@ -3530,7 +3999,14 @@ func DownloadFromGPUTexture(copy_pass *GPUCopyPass, source *GPUTextureRegion, de
 	fnDownloadFromGPUTexture(copy_pass, source, destination)
 }
 
-var fnDownloadFromGPUBuffer func(copy_pass *GPUCopyPass, source *GPUBufferRegion, destination *GPUTransferBufferLocation)
+var addrDownloadFromGPUBuffer uintptr
+
+func fnDownloadFromGPUBuffer(copy_pass *GPUCopyPass, source *GPUBufferRegion, destination *GPUTransferBufferLocation) {
+	if addrDownloadFromGPUBuffer == 0 {
+		missingSymbol("SDL_DownloadFromGPUBuffer")
+	}
+	call3(addrDownloadFromGPUBuffer, uintptr(unsafe.Pointer(copy_pass)), uintptr(unsafe.Pointer(source)), uintptr(unsafe.Pointer(destination)))
+}
 
 // Copies data from a buffer to a transfer buffer on the GPU timeline.
 //
@@ -3547,7 +4023,14 @@ func DownloadFromGPUBuffer(copy_pass *GPUCopyPass, source *GPUBufferRegion, dest
 	fnDownloadFromGPUBuffer(copy_pass, source, destination)
 }
 
-var fnEndGPUCopyPass func(copy_pass *GPUCopyPass)
+var addrEndGPUCopyPass uintptr
+
+func fnEndGPUCopyPass(copy_pass *GPUCopyPass) {
+	if addrEndGPUCopyPass == 0 {
+		missingSymbol("SDL_EndGPUCopyPass")
+	}
+	call1(addrEndGPUCopyPass, uintptr(unsafe.Pointer(copy_pass)))
+}
 
 // Ends the current copy pass.
 //
@@ -3559,7 +4042,14 @@ func EndGPUCopyPass(copy_pass *GPUCopyPass) {
 	fnEndGPUCopyPass(copy_pass)
 }
 
-var fnGenerateMipmapsForGPUTexture func(command_buffer *GPUCommandBuffer, texture *GPUTexture)
+var addrGenerateMipmapsForGPUTexture uintptr
+
+func fnGenerateMipmapsForGPUTexture(command_buffer *GPUCommandBuffer, texture *GPUTexture) {
+	if addrGenerateMipmapsForGPUTexture == 0 {
+		missingSymbol("SDL_GenerateMipmapsForGPUTexture")
+	}
+	call2(addrGenerateMipmapsForGPUTexture, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(texture)))
+}
 
 // Generates mipmaps for the given texture.
 //
@@ -3574,7 +4064,14 @@ func GenerateMipmapsForGPUTexture(command_buffer *GPUCommandBuffer, texture *GPU
 	fnGenerateMipmapsForGPUTexture(command_buffer, texture)
 }
 
-var fnBlitGPUTexture func(command_buffer *GPUCommandBuffer, info *GPUBlitInfo)
+var addrBlitGPUTexture uintptr
+
+func fnBlitGPUTexture(command_buffer *GPUCommandBuffer, info *GPUBlitInfo) {
+	if addrBlitGPUTexture == 0 {
+		missingSymbol("SDL_BlitGPUTexture")
+	}
+	call2(addrBlitGPUTexture, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(info)))
+}
 
 // Blits from a source texture region to a destination texture region.
 //
@@ -3589,7 +4086,14 @@ func BlitGPUTexture(command_buffer *GPUCommandBuffer, info *GPUBlitInfo) {
 	fnBlitGPUTexture(command_buffer, info)
 }
 
-var fnWindowSupportsGPUSwapchainComposition func(device *GPUDevice, window *Window, swapchain_composition GPUSwapchainComposition) bool
+var addrWindowSupportsGPUSwapchainComposition uintptr
+
+func fnWindowSupportsGPUSwapchainComposition(device *GPUDevice, window *Window, swapchain_composition GPUSwapchainComposition) bool {
+	if addrWindowSupportsGPUSwapchainComposition == 0 {
+		missingSymbol("SDL_WindowSupportsGPUSwapchainComposition")
+	}
+	return uint8(call3(addrWindowSupportsGPUSwapchainComposition, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)), uintptr(swapchain_composition))) != 0
+}
 
 // Determines whether a swapchain composition is supported by the window.
 //
@@ -3609,7 +4113,14 @@ func WindowSupportsGPUSwapchainComposition(device *GPUDevice, window *Window, sw
 	return fnWindowSupportsGPUSwapchainComposition(device, window, swapchain_composition)
 }
 
-var fnWindowSupportsGPUPresentMode func(device *GPUDevice, window *Window, present_mode GPUPresentMode) bool
+var addrWindowSupportsGPUPresentMode uintptr
+
+func fnWindowSupportsGPUPresentMode(device *GPUDevice, window *Window, present_mode GPUPresentMode) bool {
+	if addrWindowSupportsGPUPresentMode == 0 {
+		missingSymbol("SDL_WindowSupportsGPUPresentMode")
+	}
+	return uint8(call3(addrWindowSupportsGPUPresentMode, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)), uintptr(present_mode))) != 0
+}
 
 // Determines whether a presentation mode is supported by the window.
 //
@@ -3629,7 +4140,14 @@ func WindowSupportsGPUPresentMode(device *GPUDevice, window *Window, present_mod
 	return fnWindowSupportsGPUPresentMode(device, window, present_mode)
 }
 
-var fnClaimWindowForGPUDevice func(device *GPUDevice, window *Window) bool
+var addrClaimWindowForGPUDevice uintptr
+
+func fnClaimWindowForGPUDevice(device *GPUDevice, window *Window) bool {
+	if addrClaimWindowForGPUDevice == 0 {
+		missingSymbol("SDL_ClaimWindowForGPUDevice")
+	}
+	return uint8(call2(addrClaimWindowForGPUDevice, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Claims a window, creating a swapchain structure for it.
 //
@@ -3657,7 +4175,14 @@ func ClaimWindowForGPUDevice(device *GPUDevice, window *Window) bool {
 	return fnClaimWindowForGPUDevice(device, window)
 }
 
-var fnReleaseWindowFromGPUDevice func(device *GPUDevice, window *Window)
+var addrReleaseWindowFromGPUDevice uintptr
+
+func fnReleaseWindowFromGPUDevice(device *GPUDevice, window *Window) {
+	if addrReleaseWindowFromGPUDevice == 0 {
+		missingSymbol("SDL_ReleaseWindowFromGPUDevice")
+	}
+	call2(addrReleaseWindowFromGPUDevice, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)))
+}
 
 // Unclaims a window, destroying its swapchain structure.
 //
@@ -3672,7 +4197,14 @@ func ReleaseWindowFromGPUDevice(device *GPUDevice, window *Window) {
 	fnReleaseWindowFromGPUDevice(device, window)
 }
 
-var fnSetGPUSwapchainParameters func(device *GPUDevice, window *Window, swapchain_composition GPUSwapchainComposition, present_mode GPUPresentMode) bool
+var addrSetGPUSwapchainParameters uintptr
+
+func fnSetGPUSwapchainParameters(device *GPUDevice, window *Window, swapchain_composition GPUSwapchainComposition, present_mode GPUPresentMode) bool {
+	if addrSetGPUSwapchainParameters == 0 {
+		missingSymbol("SDL_SetGPUSwapchainParameters")
+	}
+	return uint8(call4(addrSetGPUSwapchainParameters, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)), uintptr(swapchain_composition), uintptr(present_mode))) != 0
+}
 
 // Changes the swapchain parameters for the given claimed window.
 //
@@ -3699,7 +4231,14 @@ func SetGPUSwapchainParameters(device *GPUDevice, window *Window, swapchain_comp
 	return fnSetGPUSwapchainParameters(device, window, swapchain_composition, present_mode)
 }
 
-var fnSetGPUAllowedFramesInFlight func(device *GPUDevice, allowed_frames_in_flight uint32) bool
+var addrSetGPUAllowedFramesInFlight uintptr
+
+func fnSetGPUAllowedFramesInFlight(device *GPUDevice, allowed_frames_in_flight uint32) bool {
+	if addrSetGPUAllowedFramesInFlight == 0 {
+		missingSymbol("SDL_SetGPUAllowedFramesInFlight")
+	}
+	return uint8(call2(addrSetGPUAllowedFramesInFlight, uintptr(unsafe.Pointer(device)), uintptr(allowed_frames_in_flight))) != 0
+}
 
 // Configures the maximum allowed number of frames in flight.
 //
@@ -3728,7 +4267,14 @@ func SetGPUAllowedFramesInFlight(device *GPUDevice, allowed_frames_in_flight uin
 	return fnSetGPUAllowedFramesInFlight(device, allowed_frames_in_flight)
 }
 
-var fnGetGPUSwapchainTextureFormat func(device *GPUDevice, window *Window) GPUTextureFormat
+var addrGetGPUSwapchainTextureFormat uintptr
+
+func fnGetGPUSwapchainTextureFormat(device *GPUDevice, window *Window) GPUTextureFormat {
+	if addrGetGPUSwapchainTextureFormat == 0 {
+		missingSymbol("SDL_GetGPUSwapchainTextureFormat")
+	}
+	return GPUTextureFormat(call2(addrGetGPUSwapchainTextureFormat, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window))))
+}
 
 // Obtains the texture format of the swapchain for the given window.
 //
@@ -3745,7 +4291,14 @@ func GetGPUSwapchainTextureFormat(device *GPUDevice, window *Window) GPUTextureF
 	return fnGetGPUSwapchainTextureFormat(device, window)
 }
 
-var fnAcquireGPUSwapchainTexture func(command_buffer *GPUCommandBuffer, window *Window, swapchain_texture **GPUTexture, swapchain_texture_width *uint32, swapchain_texture_height *uint32) bool
+var addrAcquireGPUSwapchainTexture uintptr
+
+func fnAcquireGPUSwapchainTexture(command_buffer *GPUCommandBuffer, window *Window, swapchain_texture **GPUTexture, swapchain_texture_width *uint32, swapchain_texture_height *uint32) bool {
+	if addrAcquireGPUSwapchainTexture == 0 {
+		missingSymbol("SDL_AcquireGPUSwapchainTexture")
+	}
+	return uint8(call5(addrAcquireGPUSwapchainTexture, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(swapchain_texture)), uintptr(unsafe.Pointer(swapchain_texture_width)), uintptr(unsafe.Pointer(swapchain_texture_height)))) != 0
+}
 
 // Acquire a texture to use in presentation.
 //
@@ -3787,7 +4340,14 @@ func AcquireGPUSwapchainTexture(command_buffer *GPUCommandBuffer, window *Window
 	return fnAcquireGPUSwapchainTexture(command_buffer, window, swapchain_texture, swapchain_texture_width, swapchain_texture_height)
 }
 
-var fnWaitForGPUSwapchain func(device *GPUDevice, window *Window) bool
+var addrWaitForGPUSwapchain uintptr
+
+func fnWaitForGPUSwapchain(device *GPUDevice, window *Window) bool {
+	if addrWaitForGPUSwapchain == 0 {
+		missingSymbol("SDL_WaitForGPUSwapchain")
+	}
+	return uint8(call2(addrWaitForGPUSwapchain, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Blocks the thread until a swapchain texture is available to be acquired.
 //
@@ -3806,7 +4366,14 @@ func WaitForGPUSwapchain(device *GPUDevice, window *Window) bool {
 	return fnWaitForGPUSwapchain(device, window)
 }
 
-var fnWaitAndAcquireGPUSwapchainTexture func(command_buffer *GPUCommandBuffer, window *Window, swapchain_texture **GPUTexture, swapchain_texture_width *uint32, swapchain_texture_height *uint32) bool
+var addrWaitAndAcquireGPUSwapchainTexture uintptr
+
+func fnWaitAndAcquireGPUSwapchainTexture(command_buffer *GPUCommandBuffer, window *Window, swapchain_texture **GPUTexture, swapchain_texture_width *uint32, swapchain_texture_height *uint32) bool {
+	if addrWaitAndAcquireGPUSwapchainTexture == 0 {
+		missingSymbol("SDL_WaitAndAcquireGPUSwapchainTexture")
+	}
+	return uint8(call5(addrWaitAndAcquireGPUSwapchainTexture, uintptr(unsafe.Pointer(command_buffer)), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(swapchain_texture)), uintptr(unsafe.Pointer(swapchain_texture_width)), uintptr(unsafe.Pointer(swapchain_texture_height)))) != 0
+}
 
 // Blocks the thread until a swapchain texture is available to be acquired,
 // and then acquires it.
@@ -3847,7 +4414,14 @@ func WaitAndAcquireGPUSwapchainTexture(command_buffer *GPUCommandBuffer, window 
 	return fnWaitAndAcquireGPUSwapchainTexture(command_buffer, window, swapchain_texture, swapchain_texture_width, swapchain_texture_height)
 }
 
-var fnSubmitGPUCommandBuffer func(command_buffer *GPUCommandBuffer) bool
+var addrSubmitGPUCommandBuffer uintptr
+
+func fnSubmitGPUCommandBuffer(command_buffer *GPUCommandBuffer) bool {
+	if addrSubmitGPUCommandBuffer == 0 {
+		missingSymbol("SDL_SubmitGPUCommandBuffer")
+	}
+	return uint8(call1(addrSubmitGPUCommandBuffer, uintptr(unsafe.Pointer(command_buffer)))) != 0
+}
 
 // Submits a command buffer so its commands can be processed on the GPU.
 //
@@ -3870,7 +4444,14 @@ func SubmitGPUCommandBuffer(command_buffer *GPUCommandBuffer) bool {
 	return fnSubmitGPUCommandBuffer(command_buffer)
 }
 
-var fnSubmitGPUCommandBufferAndAcquireFence func(command_buffer *GPUCommandBuffer) *GPUFence
+var addrSubmitGPUCommandBufferAndAcquireFence uintptr
+
+func fnSubmitGPUCommandBufferAndAcquireFence(command_buffer *GPUCommandBuffer) *GPUFence {
+	if addrSubmitGPUCommandBufferAndAcquireFence == 0 {
+		missingSymbol("SDL_SubmitGPUCommandBufferAndAcquireFence")
+	}
+	return (*GPUFence)(cptr(call1(addrSubmitGPUCommandBufferAndAcquireFence, uintptr(unsafe.Pointer(command_buffer)))))
+}
 
 // Submits a command buffer so its commands can be processed on the GPU, and
 // acquires a fence associated with the command buffer.
@@ -3895,7 +4476,14 @@ func SubmitGPUCommandBufferAndAcquireFence(command_buffer *GPUCommandBuffer) *GP
 	return fnSubmitGPUCommandBufferAndAcquireFence(command_buffer)
 }
 
-var fnCancelGPUCommandBuffer func(command_buffer *GPUCommandBuffer) bool
+var addrCancelGPUCommandBuffer uintptr
+
+func fnCancelGPUCommandBuffer(command_buffer *GPUCommandBuffer) bool {
+	if addrCancelGPUCommandBuffer == 0 {
+		missingSymbol("SDL_CancelGPUCommandBuffer")
+	}
+	return uint8(call1(addrCancelGPUCommandBuffer, uintptr(unsafe.Pointer(command_buffer)))) != 0
+}
 
 // Cancels a command buffer.
 //
@@ -3920,7 +4508,14 @@ func CancelGPUCommandBuffer(command_buffer *GPUCommandBuffer) bool {
 	return fnCancelGPUCommandBuffer(command_buffer)
 }
 
-var fnWaitForGPUIdle func(device *GPUDevice) bool
+var addrWaitForGPUIdle uintptr
+
+func fnWaitForGPUIdle(device *GPUDevice) bool {
+	if addrWaitForGPUIdle == 0 {
+		missingSymbol("SDL_WaitForGPUIdle")
+	}
+	return uint8(call1(addrWaitForGPUIdle, uintptr(unsafe.Pointer(device)))) != 0
+}
 
 // Blocks the thread until the GPU is completely idle.
 //
@@ -3936,7 +4531,14 @@ func WaitForGPUIdle(device *GPUDevice) bool {
 	return fnWaitForGPUIdle(device)
 }
 
-var fnWaitForGPUFences func(device *GPUDevice, wait_all bool, fences **GPUFence, num_fences uint32) bool
+var addrWaitForGPUFences uintptr
+
+func fnWaitForGPUFences(device *GPUDevice, wait_all bool, fences **GPUFence, num_fences uint32) bool {
+	if addrWaitForGPUFences == 0 {
+		missingSymbol("SDL_WaitForGPUFences")
+	}
+	return uint8(call4(addrWaitForGPUFences, uintptr(unsafe.Pointer(device)), cbool(wait_all), uintptr(unsafe.Pointer(fences)), uintptr(num_fences))) != 0
+}
 
 // Blocks the thread until the given fences are signaled.
 //
@@ -3955,7 +4557,14 @@ func WaitForGPUFences(device *GPUDevice, wait_all bool, fences **GPUFence, num_f
 	return fnWaitForGPUFences(device, wait_all, fences, num_fences)
 }
 
-var fnQueryGPUFence func(device *GPUDevice, fence *GPUFence) bool
+var addrQueryGPUFence uintptr
+
+func fnQueryGPUFence(device *GPUDevice, fence *GPUFence) bool {
+	if addrQueryGPUFence == 0 {
+		missingSymbol("SDL_QueryGPUFence")
+	}
+	return uint8(call2(addrQueryGPUFence, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(fence)))) != 0
+}
 
 // Checks the status of a fence.
 //
@@ -3972,7 +4581,14 @@ func QueryGPUFence(device *GPUDevice, fence *GPUFence) bool {
 	return fnQueryGPUFence(device, fence)
 }
 
-var fnReleaseGPUFence func(device *GPUDevice, fence *GPUFence)
+var addrReleaseGPUFence uintptr
+
+func fnReleaseGPUFence(device *GPUDevice, fence *GPUFence) {
+	if addrReleaseGPUFence == 0 {
+		missingSymbol("SDL_ReleaseGPUFence")
+	}
+	call2(addrReleaseGPUFence, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(fence)))
+}
 
 // Releases a fence obtained from SubmitGPUCommandBufferAndAcquireFence.
 //
@@ -3989,7 +4605,14 @@ func ReleaseGPUFence(device *GPUDevice, fence *GPUFence) {
 	fnReleaseGPUFence(device, fence)
 }
 
-var fnGPUTextureFormatTexelBlockSize func(format GPUTextureFormat) uint32
+var addrGPUTextureFormatTexelBlockSize uintptr
+
+func fnGPUTextureFormatTexelBlockSize(format GPUTextureFormat) uint32 {
+	if addrGPUTextureFormatTexelBlockSize == 0 {
+		missingSymbol("SDL_GPUTextureFormatTexelBlockSize")
+	}
+	return uint32(call1(addrGPUTextureFormatTexelBlockSize, uintptr(format)))
+}
 
 // Obtains the texel block size for a texture format.
 //
@@ -4005,7 +4628,14 @@ func GPUTextureFormatTexelBlockSize(format GPUTextureFormat) uint32 {
 	return fnGPUTextureFormatTexelBlockSize(format)
 }
 
-var fnGPUTextureSupportsFormat func(device *GPUDevice, format GPUTextureFormat, type_ GPUTextureType, usage GPUTextureUsageFlags) bool
+var addrGPUTextureSupportsFormat uintptr
+
+func fnGPUTextureSupportsFormat(device *GPUDevice, format GPUTextureFormat, type_ GPUTextureType, usage GPUTextureUsageFlags) bool {
+	if addrGPUTextureSupportsFormat == 0 {
+		missingSymbol("SDL_GPUTextureSupportsFormat")
+	}
+	return uint8(call4(addrGPUTextureSupportsFormat, uintptr(unsafe.Pointer(device)), uintptr(format), uintptr(type_), uintptr(usage))) != 0
+}
 
 // Determines whether a texture format is supported for a given type and
 // usage.
@@ -4023,7 +4653,14 @@ func GPUTextureSupportsFormat(device *GPUDevice, format GPUTextureFormat, type_ 
 	return fnGPUTextureSupportsFormat(device, format, type_, usage)
 }
 
-var fnGPUTextureSupportsSampleCount func(device *GPUDevice, format GPUTextureFormat, sample_count GPUSampleCount) bool
+var addrGPUTextureSupportsSampleCount uintptr
+
+func fnGPUTextureSupportsSampleCount(device *GPUDevice, format GPUTextureFormat, sample_count GPUSampleCount) bool {
+	if addrGPUTextureSupportsSampleCount == 0 {
+		missingSymbol("SDL_GPUTextureSupportsSampleCount")
+	}
+	return uint8(call3(addrGPUTextureSupportsSampleCount, uintptr(unsafe.Pointer(device)), uintptr(format), uintptr(sample_count))) != 0
+}
 
 // Determines if a sample count for a texture format is supported.
 //
@@ -4039,7 +4676,14 @@ func GPUTextureSupportsSampleCount(device *GPUDevice, format GPUTextureFormat, s
 	return fnGPUTextureSupportsSampleCount(device, format, sample_count)
 }
 
-var fnCalculateGPUTextureFormatSize func(format GPUTextureFormat, width uint32, height uint32, depth_or_layer_count uint32) uint32
+var addrCalculateGPUTextureFormatSize uintptr
+
+func fnCalculateGPUTextureFormatSize(format GPUTextureFormat, width uint32, height uint32, depth_or_layer_count uint32) uint32 {
+	if addrCalculateGPUTextureFormatSize == 0 {
+		missingSymbol("SDL_CalculateGPUTextureFormatSize")
+	}
+	return uint32(call4(addrCalculateGPUTextureFormatSize, uintptr(format), uintptr(width), uintptr(height), uintptr(depth_or_layer_count)))
+}
 
 // Calculate the size in bytes of a texture format with dimensions.
 //
@@ -4056,7 +4700,14 @@ func CalculateGPUTextureFormatSize(format GPUTextureFormat, width uint32, height
 	return fnCalculateGPUTextureFormatSize(format, width, height, depth_or_layer_count)
 }
 
-var fnGetPixelFormatFromGPUTextureFormat func(format GPUTextureFormat) PixelFormat
+var addrGetPixelFormatFromGPUTextureFormat uintptr
+
+func fnGetPixelFormatFromGPUTextureFormat(format GPUTextureFormat) PixelFormat {
+	if addrGetPixelFormatFromGPUTextureFormat == 0 {
+		missingSymbol("SDL_GetPixelFormatFromGPUTextureFormat")
+	}
+	return PixelFormat(call1(addrGetPixelFormatFromGPUTextureFormat, uintptr(format)))
+}
 
 // Get the SDL pixel format corresponding to a GPU texture format.
 //
@@ -4070,7 +4721,14 @@ func GetPixelFormatFromGPUTextureFormat(format GPUTextureFormat) PixelFormat {
 	return fnGetPixelFormatFromGPUTextureFormat(format)
 }
 
-var fnGetGPUTextureFormatFromPixelFormat func(format PixelFormat) GPUTextureFormat
+var addrGetGPUTextureFormatFromPixelFormat uintptr
+
+func fnGetGPUTextureFormatFromPixelFormat(format PixelFormat) GPUTextureFormat {
+	if addrGetGPUTextureFormatFromPixelFormat == 0 {
+		missingSymbol("SDL_GetGPUTextureFormatFromPixelFormat")
+	}
+	return GPUTextureFormat(call1(addrGetGPUTextureFormatFromPixelFormat, uintptr(format)))
+}
 
 // Get the GPU texture format corresponding to an SDL pixel format.
 //

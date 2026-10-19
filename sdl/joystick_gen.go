@@ -182,7 +182,14 @@ const (
 	HAT_LEFTDOWN                             = 12
 )
 
-var fnLockJoysticks func()
+var addrLockJoysticks uintptr
+
+func fnLockJoysticks() {
+	if addrLockJoysticks == 0 {
+		missingSymbol("SDL_LockJoysticks")
+	}
+	call0(addrLockJoysticks)
+}
 
 // Locking for atomic access to the joystick API.
 //
@@ -197,7 +204,14 @@ func LockJoysticks() {
 	fnLockJoysticks()
 }
 
-var fnUnlockJoysticks func()
+var addrUnlockJoysticks uintptr
+
+func fnUnlockJoysticks() {
+	if addrUnlockJoysticks == 0 {
+		missingSymbol("SDL_UnlockJoysticks")
+	}
+	call0(addrUnlockJoysticks)
+}
 
 // Unlocking for atomic access to the joystick API.
 //
@@ -208,7 +222,14 @@ func UnlockJoysticks() {
 	fnUnlockJoysticks()
 }
 
-var fnHasJoystick func() bool
+var addrHasJoystick uintptr
+
+func fnHasJoystick() bool {
+	if addrHasJoystick == 0 {
+		missingSymbol("SDL_HasJoystick")
+	}
+	return uint8(call0(addrHasJoystick)) != 0
+}
 
 // Return whether a joystick is currently connected.
 //
@@ -223,7 +244,14 @@ func HasJoystick() bool {
 	return fnHasJoystick()
 }
 
-var fnGetJoysticks func(count *int32) *JoystickID
+var addrGetJoysticks uintptr
+
+func fnGetJoysticks(count *int32) *JoystickID {
+	if addrGetJoysticks == 0 {
+		missingSymbol("SDL_GetJoysticks")
+	}
+	return (*JoystickID)(cptr(call1(addrGetJoysticks, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected joysticks.
 //
@@ -245,7 +273,14 @@ func GetJoysticks() []JoystickID {
 	return copyFree(p, int(n))
 }
 
-var fnGetJoystickNameForID func(instance_id JoystickID) *byte
+var addrGetJoystickNameForID uintptr
+
+func fnGetJoystickNameForID(instance_id JoystickID) *byte {
+	if addrGetJoystickNameForID == 0 {
+		missingSymbol("SDL_GetJoystickNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetJoystickNameForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent name of a joystick.
 //
@@ -265,7 +300,14 @@ func GetJoystickNameForID(instance_id JoystickID) string {
 	return GoString(fnGetJoystickNameForID(instance_id))
 }
 
-var fnGetJoystickPathForID func(instance_id JoystickID) *byte
+var addrGetJoystickPathForID uintptr
+
+func fnGetJoystickPathForID(instance_id JoystickID) *byte {
+	if addrGetJoystickPathForID == 0 {
+		missingSymbol("SDL_GetJoystickPathForID")
+	}
+	return (*byte)(cptr(call1(addrGetJoystickPathForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent path of a joystick.
 //
@@ -285,7 +327,14 @@ func GetJoystickPathForID(instance_id JoystickID) string {
 	return GoString(fnGetJoystickPathForID(instance_id))
 }
 
-var fnGetJoystickPlayerIndexForID func(instance_id JoystickID) int32
+var addrGetJoystickPlayerIndexForID uintptr
+
+func fnGetJoystickPlayerIndexForID(instance_id JoystickID) int32 {
+	if addrGetJoystickPlayerIndexForID == 0 {
+		missingSymbol("SDL_GetJoystickPlayerIndexForID")
+	}
+	return int32(call1(addrGetJoystickPlayerIndexForID, uintptr(instance_id)))
+}
 
 // Get the player index of a joystick.
 //
@@ -325,7 +374,14 @@ func GetJoystickGUIDForID(instance_id JoystickID) GUID {
 	return fnGetJoystickGUIDForID(instance_id).guid()
 }
 
-var fnGetJoystickVendorForID func(instance_id JoystickID) uint16
+var addrGetJoystickVendorForID uintptr
+
+func fnGetJoystickVendorForID(instance_id JoystickID) uint16 {
+	if addrGetJoystickVendorForID == 0 {
+		missingSymbol("SDL_GetJoystickVendorForID")
+	}
+	return uint16(call1(addrGetJoystickVendorForID, uintptr(instance_id)))
+}
 
 // Get the USB vendor ID of a joystick, if available.
 //
@@ -346,7 +402,14 @@ func GetJoystickVendorForID(instance_id JoystickID) uint16 {
 	return fnGetJoystickVendorForID(instance_id)
 }
 
-var fnGetJoystickProductForID func(instance_id JoystickID) uint16
+var addrGetJoystickProductForID uintptr
+
+func fnGetJoystickProductForID(instance_id JoystickID) uint16 {
+	if addrGetJoystickProductForID == 0 {
+		missingSymbol("SDL_GetJoystickProductForID")
+	}
+	return uint16(call1(addrGetJoystickProductForID, uintptr(instance_id)))
+}
 
 // Get the USB product ID of a joystick, if available.
 //
@@ -367,7 +430,14 @@ func GetJoystickProductForID(instance_id JoystickID) uint16 {
 	return fnGetJoystickProductForID(instance_id)
 }
 
-var fnGetJoystickProductVersionForID func(instance_id JoystickID) uint16
+var addrGetJoystickProductVersionForID uintptr
+
+func fnGetJoystickProductVersionForID(instance_id JoystickID) uint16 {
+	if addrGetJoystickProductVersionForID == 0 {
+		missingSymbol("SDL_GetJoystickProductVersionForID")
+	}
+	return uint16(call1(addrGetJoystickProductVersionForID, uintptr(instance_id)))
+}
 
 // Get the product version of a joystick, if available.
 //
@@ -388,7 +458,14 @@ func GetJoystickProductVersionForID(instance_id JoystickID) uint16 {
 	return fnGetJoystickProductVersionForID(instance_id)
 }
 
-var fnGetJoystickTypeForID func(instance_id JoystickID) JoystickType
+var addrGetJoystickTypeForID uintptr
+
+func fnGetJoystickTypeForID(instance_id JoystickID) JoystickType {
+	if addrGetJoystickTypeForID == 0 {
+		missingSymbol("SDL_GetJoystickTypeForID")
+	}
+	return JoystickType(call1(addrGetJoystickTypeForID, uintptr(instance_id)))
+}
 
 // Get the type of a joystick, if available.
 //
@@ -408,7 +485,14 @@ func GetJoystickTypeForID(instance_id JoystickID) JoystickType {
 	return fnGetJoystickTypeForID(instance_id)
 }
 
-var fnOpenJoystick func(instance_id JoystickID) *Joystick
+var addrOpenJoystick uintptr
+
+func fnOpenJoystick(instance_id JoystickID) *Joystick {
+	if addrOpenJoystick == 0 {
+		missingSymbol("SDL_OpenJoystick")
+	}
+	return (*Joystick)(cptr(call1(addrOpenJoystick, uintptr(instance_id))))
+}
 
 // Open a joystick for use.
 //
@@ -429,7 +513,14 @@ func OpenJoystick(instance_id JoystickID) *Joystick {
 	return fnOpenJoystick(instance_id)
 }
 
-var fnGetJoystickFromID func(instance_id JoystickID) *Joystick
+var addrGetJoystickFromID uintptr
+
+func fnGetJoystickFromID(instance_id JoystickID) *Joystick {
+	if addrGetJoystickFromID == 0 {
+		missingSymbol("SDL_GetJoystickFromID")
+	}
+	return (*Joystick)(cptr(call1(addrGetJoystickFromID, uintptr(instance_id))))
+}
 
 // Get the Joystick associated with an instance ID, if it has been opened.
 //
@@ -445,7 +536,14 @@ func GetJoystickFromID(instance_id JoystickID) *Joystick {
 	return fnGetJoystickFromID(instance_id)
 }
 
-var fnGetJoystickFromPlayerIndex func(player_index int32) *Joystick
+var addrGetJoystickFromPlayerIndex uintptr
+
+func fnGetJoystickFromPlayerIndex(player_index int32) *Joystick {
+	if addrGetJoystickFromPlayerIndex == 0 {
+		missingSymbol("SDL_GetJoystickFromPlayerIndex")
+	}
+	return (*Joystick)(cptr(call1(addrGetJoystickFromPlayerIndex, uintptr(player_index))))
+}
 
 // Get the Joystick associated with a player index.
 //
@@ -463,7 +561,14 @@ func GetJoystickFromPlayerIndex(player_index int32) *Joystick {
 	return fnGetJoystickFromPlayerIndex(player_index)
 }
 
-var fnAttachVirtualJoystick func(desc *VirtualJoystickDesc) JoystickID
+var addrAttachVirtualJoystick uintptr
+
+func fnAttachVirtualJoystick(desc *VirtualJoystickDesc) JoystickID {
+	if addrAttachVirtualJoystick == 0 {
+		missingSymbol("SDL_AttachVirtualJoystick")
+	}
+	return JoystickID(call1(addrAttachVirtualJoystick, uintptr(unsafe.Pointer(desc))))
+}
 
 // Attach a new virtual joystick.
 //
@@ -493,7 +598,14 @@ func AttachVirtualJoystick(desc *VirtualJoystickDesc) JoystickID {
 	return fnAttachVirtualJoystick(desc)
 }
 
-var fnDetachVirtualJoystick func(instance_id JoystickID) bool
+var addrDetachVirtualJoystick uintptr
+
+func fnDetachVirtualJoystick(instance_id JoystickID) bool {
+	if addrDetachVirtualJoystick == 0 {
+		missingSymbol("SDL_DetachVirtualJoystick")
+	}
+	return uint8(call1(addrDetachVirtualJoystick, uintptr(instance_id))) != 0
+}
 
 // Detach a virtual joystick.
 //
@@ -511,7 +623,14 @@ func DetachVirtualJoystick(instance_id JoystickID) bool {
 	return fnDetachVirtualJoystick(instance_id)
 }
 
-var fnIsJoystickVirtual func(instance_id JoystickID) bool
+var addrIsJoystickVirtual uintptr
+
+func fnIsJoystickVirtual(instance_id JoystickID) bool {
+	if addrIsJoystickVirtual == 0 {
+		missingSymbol("SDL_IsJoystickVirtual")
+	}
+	return uint8(call1(addrIsJoystickVirtual, uintptr(instance_id))) != 0
+}
 
 // Query whether or not a joystick is virtual.
 //
@@ -527,7 +646,14 @@ func IsJoystickVirtual(instance_id JoystickID) bool {
 	return fnIsJoystickVirtual(instance_id)
 }
 
-var fnSetJoystickVirtualAxis func(joystick *Joystick, axis int32, value int16) bool
+var addrSetJoystickVirtualAxis uintptr
+
+func fnSetJoystickVirtualAxis(joystick *Joystick, axis int32, value int16) bool {
+	if addrSetJoystickVirtualAxis == 0 {
+		missingSymbol("SDL_SetJoystickVirtualAxis")
+	}
+	return uint8(call3(addrSetJoystickVirtualAxis, uintptr(unsafe.Pointer(joystick)), uintptr(axis), uintptr(value))) != 0
+}
 
 // Set the state of an axis on an opened virtual joystick.
 //
@@ -557,7 +683,14 @@ func SetJoystickVirtualAxis(joystick *Joystick, axis int32, value int16) bool {
 	return fnSetJoystickVirtualAxis(joystick, axis, value)
 }
 
-var fnSetJoystickVirtualBall func(joystick *Joystick, ball int32, xrel int16, yrel int16) bool
+var addrSetJoystickVirtualBall uintptr
+
+func fnSetJoystickVirtualBall(joystick *Joystick, ball int32, xrel int16, yrel int16) bool {
+	if addrSetJoystickVirtualBall == 0 {
+		missingSymbol("SDL_SetJoystickVirtualBall")
+	}
+	return uint8(call4(addrSetJoystickVirtualBall, uintptr(unsafe.Pointer(joystick)), uintptr(ball), uintptr(xrel), uintptr(yrel))) != 0
+}
 
 // Generate ball motion on an opened virtual joystick.
 //
@@ -584,7 +717,14 @@ func SetJoystickVirtualBall(joystick *Joystick, ball int32, xrel int16, yrel int
 	return fnSetJoystickVirtualBall(joystick, ball, xrel, yrel)
 }
 
-var fnSetJoystickVirtualButton func(joystick *Joystick, button int32, down bool) bool
+var addrSetJoystickVirtualButton uintptr
+
+func fnSetJoystickVirtualButton(joystick *Joystick, button int32, down bool) bool {
+	if addrSetJoystickVirtualButton == 0 {
+		missingSymbol("SDL_SetJoystickVirtualButton")
+	}
+	return uint8(call3(addrSetJoystickVirtualButton, uintptr(unsafe.Pointer(joystick)), uintptr(button), cbool(down))) != 0
+}
 
 // Set the state of a button on an opened virtual joystick.
 //
@@ -610,7 +750,14 @@ func SetJoystickVirtualButton(joystick *Joystick, button int32, down bool) bool 
 	return fnSetJoystickVirtualButton(joystick, button, down)
 }
 
-var fnSetJoystickVirtualHat func(joystick *Joystick, hat int32, value uint8) bool
+var addrSetJoystickVirtualHat uintptr
+
+func fnSetJoystickVirtualHat(joystick *Joystick, hat int32, value uint8) bool {
+	if addrSetJoystickVirtualHat == 0 {
+		missingSymbol("SDL_SetJoystickVirtualHat")
+	}
+	return uint8(call3(addrSetJoystickVirtualHat, uintptr(unsafe.Pointer(joystick)), uintptr(hat), uintptr(value))) != 0
+}
 
 // Set the state of a hat on an opened virtual joystick.
 //
@@ -666,7 +813,14 @@ func SetJoystickVirtualTouchpad(joystick *Joystick, touchpad int32, finger int32
 	return fnSetJoystickVirtualTouchpad(joystick, touchpad, finger, down, x, y, pressure)
 }
 
-var fnSendJoystickVirtualSensorData func(joystick *Joystick, type_ SensorType, sensor_timestamp uint64, data *float32, num_values int32) bool
+var addrSendJoystickVirtualSensorData uintptr
+
+func fnSendJoystickVirtualSensorData(joystick *Joystick, type_ SensorType, sensor_timestamp uint64, data *float32, num_values int32) bool {
+	if addrSendJoystickVirtualSensorData == 0 {
+		missingSymbol("SDL_SendJoystickVirtualSensorData")
+	}
+	return uint8(call5(addrSendJoystickVirtualSensorData, uintptr(unsafe.Pointer(joystick)), uintptr(type_), uintptr(sensor_timestamp), uintptr(unsafe.Pointer(data)), uintptr(num_values))) != 0
+}
 
 // Send a sensor update for an opened virtual joystick.
 //
@@ -713,7 +867,14 @@ func SendJoystickVirtualSensorDataSlice(joystick *Joystick, type_ SensorType, se
 	return ret
 }
 
-var fnGetJoystickProperties func(joystick *Joystick) PropertiesID
+var addrGetJoystickProperties uintptr
+
+func fnGetJoystickProperties(joystick *Joystick) PropertiesID {
+	if addrGetJoystickProperties == 0 {
+		missingSymbol("SDL_GetJoystickProperties")
+	}
+	return PropertiesID(call1(addrGetJoystickProperties, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the properties associated with a joystick.
 //
@@ -742,7 +903,14 @@ func GetJoystickProperties(joystick *Joystick) PropertiesID {
 	return fnGetJoystickProperties(joystick)
 }
 
-var fnGetJoystickName func(joystick *Joystick) *byte
+var addrGetJoystickName uintptr
+
+func fnGetJoystickName(joystick *Joystick) *byte {
+	if addrGetJoystickName == 0 {
+		missingSymbol("SDL_GetJoystickName")
+	}
+	return (*byte)(cptr(call1(addrGetJoystickName, uintptr(unsafe.Pointer(joystick)))))
+}
 
 // Get the implementation dependent name of a joystick.
 //
@@ -760,7 +928,14 @@ func GetJoystickName(joystick *Joystick) string {
 	return GoString(fnGetJoystickName(joystick))
 }
 
-var fnGetJoystickPath func(joystick *Joystick) *byte
+var addrGetJoystickPath uintptr
+
+func fnGetJoystickPath(joystick *Joystick) *byte {
+	if addrGetJoystickPath == 0 {
+		missingSymbol("SDL_GetJoystickPath")
+	}
+	return (*byte)(cptr(call1(addrGetJoystickPath, uintptr(unsafe.Pointer(joystick)))))
+}
 
 // Get the implementation dependent path of a joystick.
 //
@@ -778,7 +953,14 @@ func GetJoystickPath(joystick *Joystick) string {
 	return GoString(fnGetJoystickPath(joystick))
 }
 
-var fnGetJoystickPlayerIndex func(joystick *Joystick) int32
+var addrGetJoystickPlayerIndex uintptr
+
+func fnGetJoystickPlayerIndex(joystick *Joystick) int32 {
+	if addrGetJoystickPlayerIndex == 0 {
+		missingSymbol("SDL_GetJoystickPlayerIndex")
+	}
+	return int32(call1(addrGetJoystickPlayerIndex, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the player index of an opened joystick.
 //
@@ -799,7 +981,14 @@ func GetJoystickPlayerIndex(joystick *Joystick) int32 {
 	return fnGetJoystickPlayerIndex(joystick)
 }
 
-var fnSetJoystickPlayerIndex func(joystick *Joystick, player_index int32) bool
+var addrSetJoystickPlayerIndex uintptr
+
+func fnSetJoystickPlayerIndex(joystick *Joystick, player_index int32) bool {
+	if addrSetJoystickPlayerIndex == 0 {
+		missingSymbol("SDL_SetJoystickPlayerIndex")
+	}
+	return uint8(call2(addrSetJoystickPlayerIndex, uintptr(unsafe.Pointer(joystick)), uintptr(player_index))) != 0
+}
 
 // Set the player index of an opened joystick.
 //
@@ -838,7 +1027,14 @@ func GetJoystickGUID(joystick *Joystick) GUID {
 	return fnGetJoystickGUID(joystick).guid()
 }
 
-var fnGetJoystickVendor func(joystick *Joystick) uint16
+var addrGetJoystickVendor uintptr
+
+func fnGetJoystickVendor(joystick *Joystick) uint16 {
+	if addrGetJoystickVendor == 0 {
+		missingSymbol("SDL_GetJoystickVendor")
+	}
+	return uint16(call1(addrGetJoystickVendor, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the USB vendor ID of an opened joystick, if available.
 //
@@ -858,7 +1054,14 @@ func GetJoystickVendor(joystick *Joystick) uint16 {
 	return fnGetJoystickVendor(joystick)
 }
 
-var fnGetJoystickProduct func(joystick *Joystick) uint16
+var addrGetJoystickProduct uintptr
+
+func fnGetJoystickProduct(joystick *Joystick) uint16 {
+	if addrGetJoystickProduct == 0 {
+		missingSymbol("SDL_GetJoystickProduct")
+	}
+	return uint16(call1(addrGetJoystickProduct, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the USB product ID of an opened joystick, if available.
 //
@@ -878,7 +1081,14 @@ func GetJoystickProduct(joystick *Joystick) uint16 {
 	return fnGetJoystickProduct(joystick)
 }
 
-var fnGetJoystickProductVersion func(joystick *Joystick) uint16
+var addrGetJoystickProductVersion uintptr
+
+func fnGetJoystickProductVersion(joystick *Joystick) uint16 {
+	if addrGetJoystickProductVersion == 0 {
+		missingSymbol("SDL_GetJoystickProductVersion")
+	}
+	return uint16(call1(addrGetJoystickProductVersion, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the product version of an opened joystick, if available.
 //
@@ -898,7 +1108,14 @@ func GetJoystickProductVersion(joystick *Joystick) uint16 {
 	return fnGetJoystickProductVersion(joystick)
 }
 
-var fnGetJoystickFirmwareVersion func(joystick *Joystick) uint16
+var addrGetJoystickFirmwareVersion uintptr
+
+func fnGetJoystickFirmwareVersion(joystick *Joystick) uint16 {
+	if addrGetJoystickFirmwareVersion == 0 {
+		missingSymbol("SDL_GetJoystickFirmwareVersion")
+	}
+	return uint16(call1(addrGetJoystickFirmwareVersion, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the firmware version of an opened joystick, if available.
 //
@@ -916,7 +1133,14 @@ func GetJoystickFirmwareVersion(joystick *Joystick) uint16 {
 	return fnGetJoystickFirmwareVersion(joystick)
 }
 
-var fnGetJoystickSerial func(joystick *Joystick) *byte
+var addrGetJoystickSerial uintptr
+
+func fnGetJoystickSerial(joystick *Joystick) *byte {
+	if addrGetJoystickSerial == 0 {
+		missingSymbol("SDL_GetJoystickSerial")
+	}
+	return (*byte)(cptr(call1(addrGetJoystickSerial, uintptr(unsafe.Pointer(joystick)))))
+}
 
 // Get the serial number of an opened joystick, if available.
 //
@@ -934,7 +1158,14 @@ func GetJoystickSerial(joystick *Joystick) string {
 	return GoString(fnGetJoystickSerial(joystick))
 }
 
-var fnGetJoystickType func(joystick *Joystick) JoystickType
+var addrGetJoystickType uintptr
+
+func fnGetJoystickType(joystick *Joystick) JoystickType {
+	if addrGetJoystickType == 0 {
+		missingSymbol("SDL_GetJoystickType")
+	}
+	return JoystickType(call1(addrGetJoystickType, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the type of an opened joystick.
 //
@@ -972,7 +1203,14 @@ func GetJoystickGUIDInfo(guid GUID, vendor *uint16, product *uint16, version *ui
 	fnGetJoystickGUIDInfo(guidToABI(guid), vendor, product, version, crc16)
 }
 
-var fnJoystickConnected func(joystick *Joystick) bool
+var addrJoystickConnected uintptr
+
+func fnJoystickConnected(joystick *Joystick) bool {
+	if addrJoystickConnected == 0 {
+		missingSymbol("SDL_JoystickConnected")
+	}
+	return uint8(call1(addrJoystickConnected, uintptr(unsafe.Pointer(joystick)))) != 0
+}
 
 // Get the status of a specified joystick.
 //
@@ -988,7 +1226,14 @@ func JoystickConnected(joystick *Joystick) bool {
 	return fnJoystickConnected(joystick)
 }
 
-var fnGetJoystickID func(joystick *Joystick) JoystickID
+var addrGetJoystickID uintptr
+
+func fnGetJoystickID(joystick *Joystick) JoystickID {
+	if addrGetJoystickID == 0 {
+		missingSymbol("SDL_GetJoystickID")
+	}
+	return JoystickID(call1(addrGetJoystickID, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the instance ID of an opened joystick.
 //
@@ -1004,7 +1249,14 @@ func GetJoystickID(joystick *Joystick) JoystickID {
 	return fnGetJoystickID(joystick)
 }
 
-var fnGetNumJoystickAxes func(joystick *Joystick) int32
+var addrGetNumJoystickAxes uintptr
+
+func fnGetNumJoystickAxes(joystick *Joystick) int32 {
+	if addrGetNumJoystickAxes == 0 {
+		missingSymbol("SDL_GetNumJoystickAxes")
+	}
+	return int32(call1(addrGetNumJoystickAxes, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the number of general axis controls on a joystick.
 //
@@ -1026,7 +1278,14 @@ func GetNumJoystickAxes(joystick *Joystick) int32 {
 	return fnGetNumJoystickAxes(joystick)
 }
 
-var fnGetNumJoystickBalls func(joystick *Joystick) int32
+var addrGetNumJoystickBalls uintptr
+
+func fnGetNumJoystickBalls(joystick *Joystick) int32 {
+	if addrGetNumJoystickBalls == 0 {
+		missingSymbol("SDL_GetNumJoystickBalls")
+	}
+	return int32(call1(addrGetNumJoystickBalls, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the number of trackballs on a joystick.
 //
@@ -1049,7 +1308,14 @@ func GetNumJoystickBalls(joystick *Joystick) int32 {
 	return fnGetNumJoystickBalls(joystick)
 }
 
-var fnGetNumJoystickHats func(joystick *Joystick) int32
+var addrGetNumJoystickHats uintptr
+
+func fnGetNumJoystickHats(joystick *Joystick) int32 {
+	if addrGetNumJoystickHats == 0 {
+		missingSymbol("SDL_GetNumJoystickHats")
+	}
+	return int32(call1(addrGetNumJoystickHats, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the number of POV hats on a joystick.
 //
@@ -1067,7 +1333,14 @@ func GetNumJoystickHats(joystick *Joystick) int32 {
 	return fnGetNumJoystickHats(joystick)
 }
 
-var fnGetNumJoystickButtons func(joystick *Joystick) int32
+var addrGetNumJoystickButtons uintptr
+
+func fnGetNumJoystickButtons(joystick *Joystick) int32 {
+	if addrGetNumJoystickButtons == 0 {
+		missingSymbol("SDL_GetNumJoystickButtons")
+	}
+	return int32(call1(addrGetNumJoystickButtons, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the number of buttons on a joystick.
 //
@@ -1085,7 +1358,14 @@ func GetNumJoystickButtons(joystick *Joystick) int32 {
 	return fnGetNumJoystickButtons(joystick)
 }
 
-var fnSetJoystickEventsEnabled func(enabled bool)
+var addrSetJoystickEventsEnabled uintptr
+
+func fnSetJoystickEventsEnabled(enabled bool) {
+	if addrSetJoystickEventsEnabled == 0 {
+		missingSymbol("SDL_SetJoystickEventsEnabled")
+	}
+	call1(addrSetJoystickEventsEnabled, cbool(enabled))
+}
 
 // Set the state of joystick event processing.
 //
@@ -1105,7 +1385,14 @@ func SetJoystickEventsEnabled(enabled bool) {
 	fnSetJoystickEventsEnabled(enabled)
 }
 
-var fnJoystickEventsEnabled func() bool
+var addrJoystickEventsEnabled uintptr
+
+func fnJoystickEventsEnabled() bool {
+	if addrJoystickEventsEnabled == 0 {
+		missingSymbol("SDL_JoystickEventsEnabled")
+	}
+	return uint8(call0(addrJoystickEventsEnabled)) != 0
+}
 
 // Query the state of joystick event processing.
 //
@@ -1124,7 +1411,14 @@ func JoystickEventsEnabled() bool {
 	return fnJoystickEventsEnabled()
 }
 
-var fnUpdateJoysticks func()
+var addrUpdateJoysticks uintptr
+
+func fnUpdateJoysticks() {
+	if addrUpdateJoysticks == 0 {
+		missingSymbol("SDL_UpdateJoysticks")
+	}
+	call0(addrUpdateJoysticks)
+}
 
 // Update the current state of the open joysticks.
 //
@@ -1138,7 +1432,14 @@ func UpdateJoysticks() {
 	fnUpdateJoysticks()
 }
 
-var fnGetJoystickAxis func(joystick *Joystick, axis int32) int16
+var addrGetJoystickAxis uintptr
+
+func fnGetJoystickAxis(joystick *Joystick, axis int32) int16 {
+	if addrGetJoystickAxis == 0 {
+		missingSymbol("SDL_GetJoystickAxis")
+	}
+	return int16(call2(addrGetJoystickAxis, uintptr(unsafe.Pointer(joystick)), uintptr(axis)))
+}
 
 // Get the current state of an axis control on a joystick.
 //
@@ -1167,7 +1468,14 @@ func GetJoystickAxis(joystick *Joystick, axis int32) int16 {
 	return fnGetJoystickAxis(joystick, axis)
 }
 
-var fnGetJoystickAxisInitialState func(joystick *Joystick, axis int32, state *int16) bool
+var addrGetJoystickAxisInitialState uintptr
+
+func fnGetJoystickAxisInitialState(joystick *Joystick, axis int32, state *int16) bool {
+	if addrGetJoystickAxisInitialState == 0 {
+		missingSymbol("SDL_GetJoystickAxisInitialState")
+	}
+	return uint8(call3(addrGetJoystickAxisInitialState, uintptr(unsafe.Pointer(joystick)), uintptr(axis), uintptr(unsafe.Pointer(state)))) != 0
+}
 
 // Get the initial state of an axis control on a joystick.
 //
@@ -1189,7 +1497,14 @@ func GetJoystickAxisInitialState(joystick *Joystick, axis int32, state *int16) b
 	return fnGetJoystickAxisInitialState(joystick, axis, state)
 }
 
-var fnGetJoystickBall func(joystick *Joystick, ball int32, dx *int32, dy *int32) bool
+var addrGetJoystickBall uintptr
+
+func fnGetJoystickBall(joystick *Joystick, ball int32, dx *int32, dy *int32) bool {
+	if addrGetJoystickBall == 0 {
+		missingSymbol("SDL_GetJoystickBall")
+	}
+	return uint8(call4(addrGetJoystickBall, uintptr(unsafe.Pointer(joystick)), uintptr(ball), uintptr(unsafe.Pointer(dx)), uintptr(unsafe.Pointer(dy)))) != 0
+}
 
 // Get the ball axis change since the last poll.
 //
@@ -1215,7 +1530,14 @@ func GetJoystickBall(joystick *Joystick, ball int32, dx *int32, dy *int32) bool 
 	return fnGetJoystickBall(joystick, ball, dx, dy)
 }
 
-var fnGetJoystickHat func(joystick *Joystick, hat int32) uint8
+var addrGetJoystickHat uintptr
+
+func fnGetJoystickHat(joystick *Joystick, hat int32) uint8 {
+	if addrGetJoystickHat == 0 {
+		missingSymbol("SDL_GetJoystickHat")
+	}
+	return uint8(call2(addrGetJoystickHat, uintptr(unsafe.Pointer(joystick)), uintptr(hat)))
+}
 
 // Get the current state of a POV hat on a joystick.
 //
@@ -1236,7 +1558,14 @@ func GetJoystickHat(joystick *Joystick, hat int32) uint8 {
 	return fnGetJoystickHat(joystick, hat)
 }
 
-var fnGetJoystickButton func(joystick *Joystick, button int32) bool
+var addrGetJoystickButton uintptr
+
+func fnGetJoystickButton(joystick *Joystick, button int32) bool {
+	if addrGetJoystickButton == 0 {
+		missingSymbol("SDL_GetJoystickButton")
+	}
+	return uint8(call2(addrGetJoystickButton, uintptr(unsafe.Pointer(joystick)), uintptr(button))) != 0
+}
 
 // Get the current state of a button on a joystick.
 //
@@ -1255,7 +1584,14 @@ func GetJoystickButton(joystick *Joystick, button int32) bool {
 	return fnGetJoystickButton(joystick, button)
 }
 
-var fnRumbleJoystick func(joystick *Joystick, low_frequency_rumble uint16, high_frequency_rumble uint16, duration_ms uint32) bool
+var addrRumbleJoystick uintptr
+
+func fnRumbleJoystick(joystick *Joystick, low_frequency_rumble uint16, high_frequency_rumble uint16, duration_ms uint32) bool {
+	if addrRumbleJoystick == 0 {
+		missingSymbol("SDL_RumbleJoystick")
+	}
+	return uint8(call4(addrRumbleJoystick, uintptr(unsafe.Pointer(joystick)), uintptr(low_frequency_rumble), uintptr(high_frequency_rumble), uintptr(duration_ms))) != 0
+}
 
 // Start a rumble effect.
 //
@@ -1280,7 +1616,14 @@ func RumbleJoystick(joystick *Joystick, low_frequency_rumble uint16, high_freque
 	return fnRumbleJoystick(joystick, low_frequency_rumble, high_frequency_rumble, duration_ms)
 }
 
-var fnRumbleJoystickTriggers func(joystick *Joystick, left_rumble uint16, right_rumble uint16, duration_ms uint32) bool
+var addrRumbleJoystickTriggers uintptr
+
+func fnRumbleJoystickTriggers(joystick *Joystick, left_rumble uint16, right_rumble uint16, duration_ms uint32) bool {
+	if addrRumbleJoystickTriggers == 0 {
+		missingSymbol("SDL_RumbleJoystickTriggers")
+	}
+	return uint8(call4(addrRumbleJoystickTriggers, uintptr(unsafe.Pointer(joystick)), uintptr(left_rumble), uintptr(right_rumble), uintptr(duration_ms))) != 0
+}
 
 // Start a rumble effect in the joystick's triggers.
 //
@@ -1312,7 +1655,14 @@ func RumbleJoystickTriggers(joystick *Joystick, left_rumble uint16, right_rumble
 	return fnRumbleJoystickTriggers(joystick, left_rumble, right_rumble, duration_ms)
 }
 
-var fnSetJoystickLED func(joystick *Joystick, red uint8, green uint8, blue uint8) bool
+var addrSetJoystickLED uintptr
+
+func fnSetJoystickLED(joystick *Joystick, red uint8, green uint8, blue uint8) bool {
+	if addrSetJoystickLED == 0 {
+		missingSymbol("SDL_SetJoystickLED")
+	}
+	return uint8(call4(addrSetJoystickLED, uintptr(unsafe.Pointer(joystick)), uintptr(red), uintptr(green), uintptr(blue))) != 0
+}
 
 // Update a joystick's LED color.
 //
@@ -1337,7 +1687,14 @@ func SetJoystickLED(joystick *Joystick, red uint8, green uint8, blue uint8) bool
 	return fnSetJoystickLED(joystick, red, green, blue)
 }
 
-var fnSendJoystickEffect func(joystick *Joystick, data unsafe.Pointer, size int32) bool
+var addrSendJoystickEffect uintptr
+
+func fnSendJoystickEffect(joystick *Joystick, data unsafe.Pointer, size int32) bool {
+	if addrSendJoystickEffect == 0 {
+		missingSymbol("SDL_SendJoystickEffect")
+	}
+	return uint8(call3(addrSendJoystickEffect, uintptr(unsafe.Pointer(joystick)), uintptr(unsafe.Pointer(data)), uintptr(size))) != 0
+}
 
 // Send a joystick specific effect packet.
 //
@@ -1392,7 +1749,14 @@ func SendJoystickEffectSlice[T Number](joystick *Joystick, b []T) bool {
 	return ret
 }
 
-var fnCloseJoystick func(joystick *Joystick)
+var addrCloseJoystick uintptr
+
+func fnCloseJoystick(joystick *Joystick) {
+	if addrCloseJoystick == 0 {
+		missingSymbol("SDL_CloseJoystick")
+	}
+	call1(addrCloseJoystick, uintptr(unsafe.Pointer(joystick)))
+}
 
 // Close a joystick previously opened with OpenJoystick().
 //
@@ -1408,7 +1772,14 @@ func CloseJoystick(joystick *Joystick) {
 	fnCloseJoystick(joystick)
 }
 
-var fnGetJoystickConnectionState func(joystick *Joystick) JoystickConnectionState
+var addrGetJoystickConnectionState uintptr
+
+func fnGetJoystickConnectionState(joystick *Joystick) JoystickConnectionState {
+	if addrGetJoystickConnectionState == 0 {
+		missingSymbol("SDL_GetJoystickConnectionState")
+	}
+	return JoystickConnectionState(call1(addrGetJoystickConnectionState, uintptr(unsafe.Pointer(joystick))))
+}
 
 // Get the connection state of a joystick.
 //
@@ -1424,7 +1795,14 @@ func GetJoystickConnectionState(joystick *Joystick) JoystickConnectionState {
 	return fnGetJoystickConnectionState(joystick)
 }
 
-var fnGetJoystickPowerInfo func(joystick *Joystick, percent *int32) PowerState
+var addrGetJoystickPowerInfo uintptr
+
+func fnGetJoystickPowerInfo(joystick *Joystick, percent *int32) PowerState {
+	if addrGetJoystickPowerInfo == 0 {
+		missingSymbol("SDL_GetJoystickPowerInfo")
+	}
+	return PowerState(call2(addrGetJoystickPowerInfo, uintptr(unsafe.Pointer(joystick)), uintptr(unsafe.Pointer(percent))))
+}
 
 // Get the battery state of a joystick.
 //

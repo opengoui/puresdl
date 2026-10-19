@@ -296,7 +296,14 @@ const (
 	ICONV_EINVAL = 0xFFFFFFFFFFFFFFFC
 )
 
-var fnMalloc func(size uint) unsafe.Pointer
+var addrMalloc uintptr
+
+func fnMalloc(size uint) unsafe.Pointer {
+	if addrMalloc == 0 {
+		missingSymbol("SDL_malloc")
+	}
+	return cptr(call1(addrMalloc, uintptr(size)))
+}
 
 // Allocate uninitialized memory.
 //
@@ -325,7 +332,14 @@ func Malloc(size uint) unsafe.Pointer {
 	return fnMalloc(size)
 }
 
-var fnCalloc func(nmemb uint, size uint) unsafe.Pointer
+var addrCalloc uintptr
+
+func fnCalloc(nmemb uint, size uint) unsafe.Pointer {
+	if addrCalloc == 0 {
+		missingSymbol("SDL_calloc")
+	}
+	return cptr(call2(addrCalloc, uintptr(nmemb), uintptr(size)))
+}
 
 // Allocate a zero-initialized array.
 //
@@ -352,7 +366,14 @@ func Calloc(nmemb uint, size uint) unsafe.Pointer {
 	return fnCalloc(nmemb, size)
 }
 
-var fnRealloc func(mem unsafe.Pointer, size uint) unsafe.Pointer
+var addrRealloc uintptr
+
+func fnRealloc(mem unsafe.Pointer, size uint) unsafe.Pointer {
+	if addrRealloc == 0 {
+		missingSymbol("SDL_realloc")
+	}
+	return cptr(call2(addrRealloc, uintptr(unsafe.Pointer(mem)), uintptr(size)))
+}
 
 // Change the size of allocated memory.
 //
@@ -393,7 +414,14 @@ func Realloc(mem unsafe.Pointer, size uint) unsafe.Pointer {
 	return fnRealloc(mem, size)
 }
 
-var fnFree func(mem unsafe.Pointer)
+var addrFree uintptr
+
+func fnFree(mem unsafe.Pointer) {
+	if addrFree == 0 {
+		missingSymbol("SDL_free")
+	}
+	call1(addrFree, uintptr(unsafe.Pointer(mem)))
+}
 
 // Free allocated memory.
 //
@@ -414,7 +442,14 @@ func Free(mem unsafe.Pointer) {
 	fnFree(mem)
 }
 
-var fnGetOriginalMemoryFunctions func(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc)
+var addrGetOriginalMemoryFunctions uintptr
+
+func fnGetOriginalMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc) {
+	if addrGetOriginalMemoryFunctions == 0 {
+		missingSymbol("SDL_GetOriginalMemoryFunctions")
+	}
+	call4(addrGetOriginalMemoryFunctions, uintptr(unsafe.Pointer(malloc_func)), uintptr(unsafe.Pointer(calloc_func)), uintptr(unsafe.Pointer(realloc_func)), uintptr(unsafe.Pointer(free_func)))
+}
 
 // Get the original set of SDL memory functions.
 //
@@ -436,7 +471,14 @@ func GetOriginalMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc
 	fnGetOriginalMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnGetMemoryFunctions func(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc)
+var addrGetMemoryFunctions uintptr
+
+func fnGetMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc, realloc_func *ReallocFunc, free_func *FreeFunc) {
+	if addrGetMemoryFunctions == 0 {
+		missingSymbol("SDL_GetMemoryFunctions")
+	}
+	call4(addrGetMemoryFunctions, uintptr(unsafe.Pointer(malloc_func)), uintptr(unsafe.Pointer(calloc_func)), uintptr(unsafe.Pointer(realloc_func)), uintptr(unsafe.Pointer(free_func)))
+}
 
 // Get the current set of SDL memory functions.
 //
@@ -455,7 +497,14 @@ func GetMemoryFunctions(malloc_func *MallocFunc, calloc_func *CallocFunc, reallo
 	fnGetMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnSetMemoryFunctions func(malloc_func MallocFunc, calloc_func CallocFunc, realloc_func ReallocFunc, free_func FreeFunc) bool
+var addrSetMemoryFunctions uintptr
+
+func fnSetMemoryFunctions(malloc_func MallocFunc, calloc_func CallocFunc, realloc_func ReallocFunc, free_func FreeFunc) bool {
+	if addrSetMemoryFunctions == 0 {
+		missingSymbol("SDL_SetMemoryFunctions")
+	}
+	return uint8(call4(addrSetMemoryFunctions, uintptr(malloc_func), uintptr(calloc_func), uintptr(realloc_func), uintptr(free_func))) != 0
+}
 
 // Replace SDL's memory allocation functions with a custom set.
 //
@@ -483,7 +532,14 @@ func SetMemoryFunctions(malloc_func MallocFunc, calloc_func CallocFunc, realloc_
 	return fnSetMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func)
 }
 
-var fnAlignedAlloc func(alignment uint, size uint) unsafe.Pointer
+var addrAlignedAlloc uintptr
+
+func fnAlignedAlloc(alignment uint, size uint) unsafe.Pointer {
+	if addrAlignedAlloc == 0 {
+		missingSymbol("SDL_aligned_alloc")
+	}
+	return cptr(call2(addrAlignedAlloc, uintptr(alignment), uintptr(size)))
+}
 
 // Allocate memory aligned to a specific alignment.
 //
@@ -511,7 +567,14 @@ func AlignedAlloc(alignment uint, size uint) unsafe.Pointer {
 	return fnAlignedAlloc(alignment, size)
 }
 
-var fnAlignedFree func(mem unsafe.Pointer)
+var addrAlignedFree uintptr
+
+func fnAlignedFree(mem unsafe.Pointer) {
+	if addrAlignedFree == 0 {
+		missingSymbol("SDL_aligned_free")
+	}
+	call1(addrAlignedFree, uintptr(unsafe.Pointer(mem)))
+}
 
 // Free memory allocated by AlignedAlloc().
 //
@@ -532,7 +595,14 @@ func AlignedFree(mem unsafe.Pointer) {
 	fnAlignedFree(mem)
 }
 
-var fnGetNumAllocations func() int32
+var addrGetNumAllocations uintptr
+
+func fnGetNumAllocations() int32 {
+	if addrGetNumAllocations == 0 {
+		missingSymbol("SDL_GetNumAllocations")
+	}
+	return int32(call0(addrGetNumAllocations))
+}
 
 // Get the number of outstanding (unfreed) allocations.
 //
@@ -545,7 +615,14 @@ func GetNumAllocations() int32 {
 	return fnGetNumAllocations()
 }
 
-var fnGetEnvironment func() *Environment
+var addrGetEnvironment uintptr
+
+func fnGetEnvironment() *Environment {
+	if addrGetEnvironment == 0 {
+		missingSymbol("SDL_GetEnvironment")
+	}
+	return (*Environment)(cptr(call0(addrGetEnvironment)))
+}
 
 // Get the process environment.
 //
@@ -566,7 +643,14 @@ func GetEnvironment() *Environment {
 	return fnGetEnvironment()
 }
 
-var fnCreateEnvironment func(populated bool) *Environment
+var addrCreateEnvironment uintptr
+
+func fnCreateEnvironment(populated bool) *Environment {
+	if addrCreateEnvironment == 0 {
+		missingSymbol("SDL_CreateEnvironment")
+	}
+	return (*Environment)(cptr(call1(addrCreateEnvironment, cbool(populated))))
+}
 
 // Create a set of environment variables
 //
@@ -584,7 +668,14 @@ func CreateEnvironment(populated bool) *Environment {
 	return fnCreateEnvironment(populated)
 }
 
-var fnGetEnvironmentVariable func(env *Environment, name *byte) *byte
+var addrGetEnvironmentVariable uintptr
+
+func fnGetEnvironmentVariable(env *Environment, name *byte) *byte {
+	if addrGetEnvironmentVariable == 0 {
+		missingSymbol("SDL_GetEnvironmentVariable")
+	}
+	return (*byte)(cptr(call2(addrGetEnvironmentVariable, uintptr(unsafe.Pointer(env)), uintptr(unsafe.Pointer(name)))))
+}
 
 // Get the value of a variable in the environment.
 //
@@ -628,7 +719,14 @@ func GetEnvironmentVariableOK(env *Environment, name string) (string, bool) {
 	return GoString(p), true
 }
 
-var fnGetEnvironmentVariables func(env *Environment) **byte
+var addrGetEnvironmentVariables uintptr
+
+func fnGetEnvironmentVariables(env *Environment) **byte {
+	if addrGetEnvironmentVariables == 0 {
+		missingSymbol("SDL_GetEnvironmentVariables")
+	}
+	return (**byte)(cptr(call1(addrGetEnvironmentVariables, uintptr(unsafe.Pointer(env)))))
+}
 
 // Get all variables in the environment.
 //
@@ -648,7 +746,14 @@ func GetEnvironmentVariables(env *Environment) []string {
 	return copyFreeStrings0(fnGetEnvironmentVariables(env))
 }
 
-var fnSetEnvironmentVariable func(env *Environment, name *byte, value *byte, overwrite bool) bool
+var addrSetEnvironmentVariable uintptr
+
+func fnSetEnvironmentVariable(env *Environment, name *byte, value *byte, overwrite bool) bool {
+	if addrSetEnvironmentVariable == 0 {
+		missingSymbol("SDL_SetEnvironmentVariable")
+	}
+	return uint8(call4(addrSetEnvironmentVariable, uintptr(unsafe.Pointer(env)), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), cbool(overwrite))) != 0
+}
 
 // Set the value of a variable in the environment.
 //
@@ -669,7 +774,14 @@ func SetEnvironmentVariable(env *Environment, name string, value string, overwri
 	return fnSetEnvironmentVariable(env, cstr(name), cstr(value), overwrite)
 }
 
-var fnUnsetEnvironmentVariable func(env *Environment, name *byte) bool
+var addrUnsetEnvironmentVariable uintptr
+
+func fnUnsetEnvironmentVariable(env *Environment, name *byte) bool {
+	if addrUnsetEnvironmentVariable == 0 {
+		missingSymbol("SDL_UnsetEnvironmentVariable")
+	}
+	return uint8(call2(addrUnsetEnvironmentVariable, uintptr(unsafe.Pointer(env)), uintptr(unsafe.Pointer(name)))) != 0
+}
 
 // Clear a variable from the environment.
 //
@@ -688,7 +800,14 @@ func UnsetEnvironmentVariable(env *Environment, name string) bool {
 	return fnUnsetEnvironmentVariable(env, cstr(name))
 }
 
-var fnDestroyEnvironment func(env *Environment)
+var addrDestroyEnvironment uintptr
+
+func fnDestroyEnvironment(env *Environment) {
+	if addrDestroyEnvironment == 0 {
+		missingSymbol("SDL_DestroyEnvironment")
+	}
+	call1(addrDestroyEnvironment, uintptr(unsafe.Pointer(env)))
+}
 
 // Destroy a set of environment variables.
 //
@@ -704,7 +823,14 @@ func DestroyEnvironment(env *Environment) {
 	fnDestroyEnvironment(env)
 }
 
-var fnGetenv func(name *byte) *byte
+var addrGetenv uintptr
+
+func fnGetenv(name *byte) *byte {
+	if addrGetenv == 0 {
+		missingSymbol("SDL_getenv")
+	}
+	return (*byte)(cptr(call1(addrGetenv, uintptr(unsafe.Pointer(name)))))
+}
 
 // Get the value of a variable in the environment.
 //
@@ -750,7 +876,14 @@ func GetenvOK(name string) (string, bool) {
 	return GoString(p), true
 }
 
-var fnGetenvUnsafe func(name *byte) *byte
+var addrGetenvUnsafe uintptr
+
+func fnGetenvUnsafe(name *byte) *byte {
+	if addrGetenvUnsafe == 0 {
+		missingSymbol("SDL_getenv_unsafe")
+	}
+	return (*byte)(cptr(call1(addrGetenvUnsafe, uintptr(unsafe.Pointer(name)))))
+}
 
 // Get the value of a variable in the environment.
 //
@@ -808,7 +941,14 @@ func GetenvUnsafeOK(name string) (string, bool) {
 	return GoString(p), true
 }
 
-var fnSetenvUnsafe func(name *byte, value *byte, overwrite int32) int32
+var addrSetenvUnsafe uintptr
+
+func fnSetenvUnsafe(name *byte, value *byte, overwrite int32) int32 {
+	if addrSetenvUnsafe == 0 {
+		missingSymbol("SDL_setenv_unsafe")
+	}
+	return int32(call3(addrSetenvUnsafe, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), uintptr(overwrite)))
+}
 
 // Set the value of a variable in the environment.
 //
@@ -828,7 +968,14 @@ func SetenvUnsafe(name string, value string, overwrite int32) int32 {
 	return fnSetenvUnsafe(cstr(name), cstr(value), overwrite)
 }
 
-var fnUnsetenvUnsafe func(name *byte) int32
+var addrUnsetenvUnsafe uintptr
+
+func fnUnsetenvUnsafe(name *byte) int32 {
+	if addrUnsetenvUnsafe == 0 {
+		missingSymbol("SDL_unsetenv_unsafe")
+	}
+	return int32(call1(addrUnsetenvUnsafe, uintptr(unsafe.Pointer(name))))
+}
 
 // Clear a variable from the environment.
 //
@@ -846,7 +993,14 @@ func UnsetenvUnsafe(name string) int32 {
 	return fnUnsetenvUnsafe(cstr(name))
 }
 
-var fnCrc16 func(crc uint16, data unsafe.Pointer, len_ uint) uint16
+var addrCrc16 uintptr
+
+func fnCrc16(crc uint16, data unsafe.Pointer, len_ uint) uint16 {
+	if addrCrc16 == 0 {
+		missingSymbol("SDL_crc16")
+	}
+	return uint16(call3(addrCrc16, uintptr(crc), uintptr(unsafe.Pointer(data)), uintptr(len_)))
+}
 
 // Calculate a CRC-16 value.
 //
@@ -902,7 +1056,14 @@ func Crc16Slice[T Number](crc uint16, b []T) uint16 {
 	return ret
 }
 
-var fnCrc32 func(crc uint32, data unsafe.Pointer, len_ uint) uint32
+var addrCrc32 uintptr
+
+func fnCrc32(crc uint32, data unsafe.Pointer, len_ uint) uint32 {
+	if addrCrc32 == 0 {
+		missingSymbol("SDL_crc32")
+	}
+	return uint32(call3(addrCrc32, uintptr(crc), uintptr(unsafe.Pointer(data)), uintptr(len_)))
+}
 
 // Calculate a CRC-32 value.
 //
@@ -958,7 +1119,14 @@ func Crc32Slice[T Number](crc uint32, b []T) uint32 {
 	return ret
 }
 
-var fnMurmur3_32 func(data unsafe.Pointer, len_ uint, seed uint32) uint32
+var addrMurmur3_32 uintptr
+
+func fnMurmur3_32(data unsafe.Pointer, len_ uint, seed uint32) uint32 {
+	if addrMurmur3_32 == 0 {
+		missingSymbol("SDL_murmur3_32")
+	}
+	return uint32(call3(addrMurmur3_32, uintptr(unsafe.Pointer(data)), uintptr(len_), uintptr(seed)))
+}
 
 // Calculate a 32-bit MurmurHash3 value for a block of data.
 //
@@ -1019,7 +1187,14 @@ func Murmur3_32Slice[T Number](b []T, seed uint32) uint32 {
 	return ret
 }
 
-var fnSrand func(seed uint64)
+var addrSrand uintptr
+
+func fnSrand(seed uint64) {
+	if addrSrand == 0 {
+		missingSymbol("SDL_srand")
+	}
+	call1(addrSrand, uintptr(seed))
+}
 
 // Seeds the pseudo-random number generator.
 //
@@ -1038,7 +1213,14 @@ func Srand(seed uint64) {
 	fnSrand(seed)
 }
 
-var fnRand func(n int32) int32
+var addrRand uintptr
+
+func fnRand(n int32) int32 {
+	if addrRand == 0 {
+		missingSymbol("SDL_rand")
+	}
+	return int32(call1(addrRand, uintptr(n)))
+}
 
 // Generate a pseudo-random number less than n for positive n
 //
@@ -1099,7 +1281,14 @@ func Randf() float32 {
 	return fnRandf()
 }
 
-var fnRandBits func() uint32
+var addrRandBits uintptr
+
+func fnRandBits() uint32 {
+	if addrRandBits == 0 {
+		missingSymbol("SDL_rand_bits")
+	}
+	return uint32(call0(addrRandBits))
+}
 
 // Generate 32 pseudo-random bits.
 //
@@ -1122,7 +1311,14 @@ func RandBits() uint32 {
 	return fnRandBits()
 }
 
-var fnRandR func(state *uint64, n int32) int32
+var addrRandR uintptr
+
+func fnRandR(state *uint64, n int32) int32 {
+	if addrRandR == 0 {
+		missingSymbol("SDL_rand_r")
+	}
+	return int32(call2(addrRandR, uintptr(unsafe.Pointer(state)), uintptr(n)))
+}
 
 // Generate a pseudo-random number less than n for positive n
 //
@@ -1184,7 +1380,14 @@ func RandfR(state *uint64) float32 {
 	return fnRandfR(state)
 }
 
-var fnRandBitsR func(state *uint64) uint32
+var addrRandBitsR uintptr
+
+func fnRandBitsR(state *uint64) uint32 {
+	if addrRandBitsR == 0 {
+		missingSymbol("SDL_rand_bits_r")
+	}
+	return uint32(call1(addrRandBitsR, uintptr(unsafe.Pointer(state))))
+}
 
 // Generate 32 pseudo-random bits.
 //
@@ -1210,7 +1413,14 @@ func RandBitsR(state *uint64) uint32 {
 	return fnRandBitsR(state)
 }
 
-var fnIconvOpen func(tocode *byte, fromcode *byte) IconvT
+var addrIconvOpen uintptr
+
+func fnIconvOpen(tocode *byte, fromcode *byte) IconvT {
+	if addrIconvOpen == 0 {
+		missingSymbol("SDL_iconv_open")
+	}
+	return (IconvT)(cptr(call2(addrIconvOpen, uintptr(unsafe.Pointer(tocode)), uintptr(unsafe.Pointer(fromcode)))))
+}
 
 // This function allocates a context for the specified character set
 // conversion.
@@ -1230,7 +1440,14 @@ func IconvOpen(tocode string, fromcode string) IconvT {
 	return fnIconvOpen(cstr(tocode), cstr(fromcode))
 }
 
-var fnIconvClose func(cd IconvT) int32
+var addrIconvClose uintptr
+
+func fnIconvClose(cd IconvT) int32 {
+	if addrIconvClose == 0 {
+		missingSymbol("SDL_iconv_close")
+	}
+	return int32(call1(addrIconvClose, uintptr(unsafe.Pointer(cd))))
+}
 
 // This function frees a context used for character set conversion.
 //
@@ -1248,7 +1465,14 @@ func IconvClose(cd IconvT) int32 {
 	return fnIconvClose(cd)
 }
 
-var fnIconv func(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint
+var addrIconv uintptr
+
+func fnIconv(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesleft *uint) uint {
+	if addrIconv == 0 {
+		missingSymbol("SDL_iconv")
+	}
+	return uint(call5(addrIconv, uintptr(unsafe.Pointer(cd)), uintptr(unsafe.Pointer(inbuf)), uintptr(unsafe.Pointer(inbytesleft)), uintptr(unsafe.Pointer(outbuf)), uintptr(unsafe.Pointer(outbytesleft))))
+}
 
 // This function converts text between encodings, reading from and writing to
 // a buffer.
@@ -1288,4 +1512,11 @@ func Iconv(cd IconvT, inbuf **byte, inbytesleft *uint, outbuf **byte, outbytesle
 	return fnIconv(cd, inbuf, inbytesleft, outbuf, outbytesleft)
 }
 
-var fnIconvString func(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft uint) *byte
+var addrIconvString uintptr
+
+func fnIconvString(tocode *byte, fromcode *byte, inbuf *byte, inbytesleft uint) *byte {
+	if addrIconvString == 0 {
+		missingSymbol("SDL_iconv_string")
+	}
+	return (*byte)(cptr(call4(addrIconvString, uintptr(unsafe.Pointer(tocode)), uintptr(unsafe.Pointer(fromcode)), uintptr(unsafe.Pointer(inbuf)), uintptr(inbytesleft))))
+}

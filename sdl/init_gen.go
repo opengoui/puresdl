@@ -207,7 +207,14 @@ const (
 	PROP_APP_METADATA_TYPE_STRING                 = "SDL.app.metadata.type"
 )
 
-var fnInit func(flags InitFlags) bool
+var addrInit uintptr
+
+func fnInit(flags InitFlags) bool {
+	if addrInit == 0 {
+		missingSymbol("SDL_Init")
+	}
+	return uint8(call1(addrInit, uintptr(flags))) != 0
+}
 
 // Initialize the SDL library.
 //
@@ -264,7 +271,14 @@ func Init(flags InitFlags) bool {
 	return fnInit(flags)
 }
 
-var fnInitSubSystem func(flags InitFlags) bool
+var addrInitSubSystem uintptr
+
+func fnInitSubSystem(flags InitFlags) bool {
+	if addrInitSubSystem == 0 {
+		missingSymbol("SDL_InitSubSystem")
+	}
+	return uint8(call1(addrInitSubSystem, uintptr(flags))) != 0
+}
 
 // Compatibility function to initialize the SDL library.
 //
@@ -284,7 +298,14 @@ func InitSubSystem(flags InitFlags) bool {
 	return fnInitSubSystem(flags)
 }
 
-var fnQuitSubSystem func(flags InitFlags)
+var addrQuitSubSystem uintptr
+
+func fnQuitSubSystem(flags InitFlags) {
+	if addrQuitSubSystem == 0 {
+		missingSymbol("SDL_QuitSubSystem")
+	}
+	call1(addrQuitSubSystem, uintptr(flags))
+}
 
 // Shut down specific SDL subsystems.
 //
@@ -303,7 +324,14 @@ func QuitSubSystem(flags InitFlags) {
 	fnQuitSubSystem(flags)
 }
 
-var fnWasInit func(flags InitFlags) InitFlags
+var addrWasInit uintptr
+
+func fnWasInit(flags InitFlags) InitFlags {
+	if addrWasInit == 0 {
+		missingSymbol("SDL_WasInit")
+	}
+	return InitFlags(call1(addrWasInit, uintptr(flags)))
+}
 
 // Get a mask of the specified subsystems which are currently initialized.
 //
@@ -321,7 +349,14 @@ func WasInit(flags InitFlags) InitFlags {
 	return fnWasInit(flags)
 }
 
-var fnQuit func()
+var addrQuit uintptr
+
+func fnQuit() {
+	if addrQuit == 0 {
+		missingSymbol("SDL_Quit")
+	}
+	call0(addrQuit)
+}
 
 // Clean up all initialized subsystems.
 //
@@ -342,7 +377,14 @@ func Quit() {
 	fnQuit()
 }
 
-var fnIsMainThread func() bool
+var addrIsMainThread uintptr
+
+func fnIsMainThread() bool {
+	if addrIsMainThread == 0 {
+		missingSymbol("SDL_IsMainThread")
+	}
+	return uint8(call0(addrIsMainThread)) != 0
+}
 
 // Return whether this is the main thread.
 //
@@ -364,7 +406,14 @@ func IsMainThread() bool {
 	return fnIsMainThread()
 }
 
-var fnRunOnMainThread func(callback MainThreadCallback, userdata unsafe.Pointer, wait_complete bool) bool
+var addrRunOnMainThread uintptr
+
+func fnRunOnMainThread(callback MainThreadCallback, userdata unsafe.Pointer, wait_complete bool) bool {
+	if addrRunOnMainThread == 0 {
+		missingSymbol("SDL_RunOnMainThread")
+	}
+	return uint8(call3(addrRunOnMainThread, uintptr(callback), uintptr(unsafe.Pointer(userdata)), cbool(wait_complete))) != 0
+}
 
 // Call a function on the main thread during event processing.
 //
@@ -394,7 +443,14 @@ func RunOnMainThread(callback MainThreadCallback, userdata unsafe.Pointer, wait_
 	return fnRunOnMainThread(callback, userdata, wait_complete)
 }
 
-var fnSetAppMetadata func(appname *byte, appversion *byte, appidentifier *byte) bool
+var addrSetAppMetadata uintptr
+
+func fnSetAppMetadata(appname *byte, appversion *byte, appidentifier *byte) bool {
+	if addrSetAppMetadata == 0 {
+		missingSymbol("SDL_SetAppMetadata")
+	}
+	return uint8(call3(addrSetAppMetadata, uintptr(unsafe.Pointer(appname)), uintptr(unsafe.Pointer(appversion)), uintptr(unsafe.Pointer(appidentifier)))) != 0
+}
 
 // Specify basic metadata about your app.
 //
@@ -432,7 +488,14 @@ func SetAppMetadata(appname string, appversion string, appidentifier string) boo
 	return fnSetAppMetadata(cstr(appname), cstr(appversion), cstr(appidentifier))
 }
 
-var fnSetAppMetadataProperty func(name *byte, value *byte) bool
+var addrSetAppMetadataProperty uintptr
+
+func fnSetAppMetadataProperty(name *byte, value *byte) bool {
+	if addrSetAppMetadataProperty == 0 {
+		missingSymbol("SDL_SetAppMetadataProperty")
+	}
+	return uint8(call2(addrSetAppMetadataProperty, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Specify metadata about your app through a set of properties.
 //
@@ -511,7 +574,14 @@ func ClearAppMetadataProperty(name string) bool {
 	return SetAppMetadataProperty(name, nil)
 }
 
-var fnGetAppMetadataProperty func(name *byte) *byte
+var addrGetAppMetadataProperty uintptr
+
+func fnGetAppMetadataProperty(name *byte) *byte {
+	if addrGetAppMetadataProperty == 0 {
+		missingSymbol("SDL_GetAppMetadataProperty")
+	}
+	return (*byte)(cptr(call1(addrGetAppMetadataProperty, uintptr(unsafe.Pointer(name)))))
+}
 
 // Get metadata about your app.
 //

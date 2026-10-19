@@ -40,6 +40,13 @@ type Result struct {
 
 // gen holds the state of one generation run: the input API, the Go names
 // assigned so far and the output buffers per header.
+// binding is one C symbol that bindAll binds after the library is loaded.
+type binding struct {
+	goVar  string // fn<Name> for RegisterFunc, addr<Name> for a direct call
+	cName  string
+	direct bool // goVar holds the symbol address used by call0 ... call8
+}
+
 type gen struct {
 	api      *ir.API
 	opt      Options
@@ -52,7 +59,7 @@ type gen struct {
 	enumName map[*ir.EnumDecl]string
 	files    map[string]*fileBuf
 	skipped  []string
-	binds    [][2]string // {Go func var, C symbol}
+	binds    []binding
 	layouts  []layoutEntry
 	errs     []string
 	// typedConsts counts the macro constants emitted with a typedef type.
@@ -204,10 +211,14 @@ func (g *gen) newFile() *jen.File {
 // bindFile builds the file that registers every bound C symbol with purego.
 func (g *gen) bindFile() *jen.File {
 	f := g.newFile()
-	sort.Slice(g.binds, func(i, j int) bool { return g.binds[i][1] < g.binds[j][1] })
+	sort.Slice(g.binds, func(i, j int) bool { return g.binds[i].cName < g.binds[j].cName })
 	var body []jen.Code
 	for _, b := range g.binds {
-		body = append(body, jen.Id("register").Call(jen.Op("&").Id(b[0]), jen.Lit(b[1])))
+		reg := "register"
+		if b.direct {
+			reg = "registerAddr"
+		}
+		body = append(body, jen.Id(reg).Call(jen.Op("&").Id(b.goVar), jen.Lit(b.cName)))
 	}
 	f.Comment("bindAll binds every wrapped C function. It runs after the library is loaded.")
 	f.Func().Id("bindAll").Params().Block(body...)
@@ -236,7 +247,7 @@ func (g *gen) bindFile() *jen.File {
 	textureHelpers(f)
 	var names []jen.Code
 	for _, b := range g.binds {
-		names = append(names, jen.Lit(b[1]))
+		names = append(names, jen.Lit(b.cName))
 	}
 	f.Comment("allBindings lists the C symbols that bindAll registers.")
 	f.Func().Id("allBindings").Params().Index().String().Block(jen.Return(jen.Index().String().Values(names...)))

@@ -65,7 +65,14 @@ func NewClipboardDataCallback(fn func(userdata unsafe.Pointer, mime_type *byte, 
 	return ClipboardDataCallback(purego.NewCallback(fn))
 }
 
-var fnSetClipboardText func(text *byte) bool
+var addrSetClipboardText uintptr
+
+func fnSetClipboardText(text *byte) bool {
+	if addrSetClipboardText == 0 {
+		missingSymbol("SDL_SetClipboardText")
+	}
+	return uint8(call1(addrSetClipboardText, uintptr(unsafe.Pointer(text)))) != 0
+}
 
 // Put UTF-8 text into the clipboard.
 //
@@ -83,7 +90,14 @@ func SetClipboardText(text string) bool {
 	return fnSetClipboardText(cstr(text))
 }
 
-var fnGetClipboardText func() *byte
+var addrGetClipboardText uintptr
+
+func fnGetClipboardText() *byte {
+	if addrGetClipboardText == 0 {
+		missingSymbol("SDL_GetClipboardText")
+	}
+	return (*byte)(cptr(call0(addrGetClipboardText)))
+}
 
 // Get UTF-8 text from the clipboard.
 //
@@ -107,7 +121,14 @@ func GetClipboardText() string {
 	return s
 }
 
-var fnHasClipboardText func() bool
+var addrHasClipboardText uintptr
+
+func fnHasClipboardText() bool {
+	if addrHasClipboardText == 0 {
+		missingSymbol("SDL_HasClipboardText")
+	}
+	return uint8(call0(addrHasClipboardText)) != 0
+}
 
 // Query whether the clipboard exists and contains a non-empty text string.
 //
@@ -122,7 +143,14 @@ func HasClipboardText() bool {
 	return fnHasClipboardText()
 }
 
-var fnSetPrimarySelectionText func(text *byte) bool
+var addrSetPrimarySelectionText uintptr
+
+func fnSetPrimarySelectionText(text *byte) bool {
+	if addrSetPrimarySelectionText == 0 {
+		missingSymbol("SDL_SetPrimarySelectionText")
+	}
+	return uint8(call1(addrSetPrimarySelectionText, uintptr(unsafe.Pointer(text)))) != 0
+}
 
 // Put UTF-8 text into the primary selection.
 //
@@ -140,7 +168,14 @@ func SetPrimarySelectionText(text string) bool {
 	return fnSetPrimarySelectionText(cstr(text))
 }
 
-var fnGetPrimarySelectionText func() *byte
+var addrGetPrimarySelectionText uintptr
+
+func fnGetPrimarySelectionText() *byte {
+	if addrGetPrimarySelectionText == 0 {
+		missingSymbol("SDL_GetPrimarySelectionText")
+	}
+	return (*byte)(cptr(call0(addrGetPrimarySelectionText)))
+}
 
 // Get UTF-8 text from the primary selection.
 //
@@ -164,7 +199,14 @@ func GetPrimarySelectionText() string {
 	return s
 }
 
-var fnHasPrimarySelectionText func() bool
+var addrHasPrimarySelectionText uintptr
+
+func fnHasPrimarySelectionText() bool {
+	if addrHasPrimarySelectionText == 0 {
+		missingSymbol("SDL_HasPrimarySelectionText")
+	}
+	return uint8(call0(addrHasPrimarySelectionText)) != 0
+}
 
 // Query whether the primary selection exists and contains a non-empty text
 // string.
@@ -180,7 +222,14 @@ func HasPrimarySelectionText() bool {
 	return fnHasPrimarySelectionText()
 }
 
-var fnSetClipboardData func(callback ClipboardDataCallback, cleanup ClipboardCleanupCallback, userdata unsafe.Pointer, mime_types **byte, num_mime_types uint) bool
+var addrSetClipboardData uintptr
+
+func fnSetClipboardData(callback ClipboardDataCallback, cleanup ClipboardCleanupCallback, userdata unsafe.Pointer, mime_types **byte, num_mime_types uint) bool {
+	if addrSetClipboardData == 0 {
+		missingSymbol("SDL_SetClipboardData")
+	}
+	return uint8(call5(addrSetClipboardData, uintptr(callback), uintptr(cleanup), uintptr(unsafe.Pointer(userdata)), uintptr(unsafe.Pointer(mime_types)), uintptr(num_mime_types))) != 0
+}
 
 // Offer clipboard data to the OS.
 //
@@ -213,7 +262,14 @@ func SetClipboardData(callback ClipboardDataCallback, cleanup ClipboardCleanupCa
 	return fnSetClipboardData(callback, cleanup, userdata, mime_types, num_mime_types)
 }
 
-var fnClearClipboardData func() bool
+var addrClearClipboardData uintptr
+
+func fnClearClipboardData() bool {
+	if addrClearClipboardData == 0 {
+		missingSymbol("SDL_ClearClipboardData")
+	}
+	return uint8(call0(addrClearClipboardData)) != 0
+}
 
 // Clear the clipboard data.
 //
@@ -228,7 +284,14 @@ func ClearClipboardData() bool {
 	return fnClearClipboardData()
 }
 
-var fnGetClipboardData func(mime_type *byte, size *uint) unsafe.Pointer
+var addrGetClipboardData uintptr
+
+func fnGetClipboardData(mime_type *byte, size *uint) unsafe.Pointer {
+	if addrGetClipboardData == 0 {
+		missingSymbol("SDL_GetClipboardData")
+	}
+	return cptr(call2(addrGetClipboardData, uintptr(unsafe.Pointer(mime_type)), uintptr(unsafe.Pointer(size))))
+}
 
 // Get the data from the clipboard for a given mime type.
 //
@@ -254,7 +317,14 @@ func GetClipboardData(mime_type string) []byte {
 	return copyFreeBytes(p, int(n))
 }
 
-var fnHasClipboardData func(mime_type *byte) bool
+var addrHasClipboardData uintptr
+
+func fnHasClipboardData(mime_type *byte) bool {
+	if addrHasClipboardData == 0 {
+		missingSymbol("SDL_HasClipboardData")
+	}
+	return uint8(call1(addrHasClipboardData, uintptr(unsafe.Pointer(mime_type)))) != 0
+}
 
 // Query whether there is data in the clipboard for the provided mime type.
 //
@@ -272,7 +342,14 @@ func HasClipboardData(mime_type string) bool {
 	return fnHasClipboardData(cstr(mime_type))
 }
 
-var fnGetClipboardMimeTypes func(num_mime_types *uint) **byte
+var addrGetClipboardMimeTypes uintptr
+
+func fnGetClipboardMimeTypes(num_mime_types *uint) **byte {
+	if addrGetClipboardMimeTypes == 0 {
+		missingSymbol("SDL_GetClipboardMimeTypes")
+	}
+	return (**byte)(cptr(call1(addrGetClipboardMimeTypes, uintptr(unsafe.Pointer(num_mime_types)))))
+}
 
 // Retrieve the list of mime types available in the clipboard.
 //

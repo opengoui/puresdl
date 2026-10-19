@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // Data about a single finger in a multitouch event.
 //
 // Each touch event is a collection of fingers that are simultaneously in
@@ -69,7 +71,14 @@ const (
 	MOUSE_TOUCHID TouchID = 0xFFFFFFFFFFFFFFFF
 )
 
-var fnGetTouchDevices func(count *int32) *TouchID
+var addrGetTouchDevices uintptr
+
+func fnGetTouchDevices(count *int32) *TouchID {
+	if addrGetTouchDevices == 0 {
+		missingSymbol("SDL_GetTouchDevices")
+	}
+	return (*TouchID)(cptr(call1(addrGetTouchDevices, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of registered touch devices.
 //
@@ -91,7 +100,14 @@ func GetTouchDevices() []TouchID {
 	return copyFree(p, int(n))
 }
 
-var fnGetTouchDeviceName func(touchID TouchID) *byte
+var addrGetTouchDeviceName uintptr
+
+func fnGetTouchDeviceName(touchID TouchID) *byte {
+	if addrGetTouchDeviceName == 0 {
+		missingSymbol("SDL_GetTouchDeviceName")
+	}
+	return (*byte)(cptr(call1(addrGetTouchDeviceName, uintptr(touchID))))
+}
 
 // Get the touch device name as reported from the driver.
 //
@@ -105,7 +121,14 @@ func GetTouchDeviceName(touchID TouchID) string {
 	return GoString(fnGetTouchDeviceName(touchID))
 }
 
-var fnGetTouchDeviceType func(touchID TouchID) TouchDeviceType
+var addrGetTouchDeviceType uintptr
+
+func fnGetTouchDeviceType(touchID TouchID) TouchDeviceType {
+	if addrGetTouchDeviceType == 0 {
+		missingSymbol("SDL_GetTouchDeviceType")
+	}
+	return TouchDeviceType(call1(addrGetTouchDeviceType, uintptr(touchID)))
+}
 
 // Get the type of the given touch device.
 //
@@ -119,7 +142,14 @@ func GetTouchDeviceType(touchID TouchID) TouchDeviceType {
 	return fnGetTouchDeviceType(touchID)
 }
 
-var fnGetTouchFingers func(touchID TouchID, count *int32) **Finger
+var addrGetTouchFingers uintptr
+
+func fnGetTouchFingers(touchID TouchID, count *int32) **Finger {
+	if addrGetTouchFingers == 0 {
+		missingSymbol("SDL_GetTouchFingers")
+	}
+	return (**Finger)(cptr(call2(addrGetTouchFingers, uintptr(touchID), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of active fingers for a given touch device.
 //

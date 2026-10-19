@@ -99,7 +99,14 @@ const (
 	PROP_FILE_DIALOG_CANCEL_STRING   = "SDL.filedialog.cancel"
 )
 
-var fnShowOpenFileDialog func(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location *byte, allow_many bool)
+var addrShowOpenFileDialog uintptr
+
+func fnShowOpenFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location *byte, allow_many bool) {
+	if addrShowOpenFileDialog == 0 {
+		missingSymbol("SDL_ShowOpenFileDialog")
+	}
+	call7(addrShowOpenFileDialog, uintptr(callback), uintptr(unsafe.Pointer(userdata)), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(filters)), uintptr(nfilters), uintptr(unsafe.Pointer(default_location)), cbool(allow_many))
+}
 
 // Displays a dialog that lets the user select a file on their filesystem.
 //
@@ -141,7 +148,14 @@ func ShowOpenFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, wi
 	fnShowOpenFileDialog(callback, userdata, window, filters, nfilters, cstrNull(default_location), allow_many)
 }
 
-var fnShowSaveFileDialog func(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location *byte)
+var addrShowSaveFileDialog uintptr
+
+func fnShowSaveFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location *byte) {
+	if addrShowSaveFileDialog == 0 {
+		missingSymbol("SDL_ShowSaveFileDialog")
+	}
+	call6(addrShowSaveFileDialog, uintptr(callback), uintptr(unsafe.Pointer(userdata)), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(filters)), uintptr(nfilters), uintptr(unsafe.Pointer(default_location)))
+}
 
 // Displays a dialog that lets the user choose a new or existing file on their
 // filesystem.
@@ -182,7 +196,14 @@ func ShowSaveFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, wi
 	fnShowSaveFileDialog(callback, userdata, window, filters, nfilters, cstrNull(default_location))
 }
 
-var fnShowOpenFolderDialog func(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, default_location *byte, allow_many bool)
+var addrShowOpenFolderDialog uintptr
+
+func fnShowOpenFolderDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, default_location *byte, allow_many bool) {
+	if addrShowOpenFolderDialog == 0 {
+		missingSymbol("SDL_ShowOpenFolderDialog")
+	}
+	call5(addrShowOpenFolderDialog, uintptr(callback), uintptr(unsafe.Pointer(userdata)), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(default_location)), cbool(allow_many))
+}
 
 // Displays a dialog that lets the user select a folder on their filesystem.
 //
@@ -222,7 +243,14 @@ func ShowOpenFolderDialog(callback DialogFileCallback, userdata unsafe.Pointer, 
 	fnShowOpenFolderDialog(callback, userdata, window, cstrNull(default_location), allow_many)
 }
 
-var fnShowFileDialogWithProperties func(type_ FileDialogType, callback DialogFileCallback, userdata unsafe.Pointer, props PropertiesID)
+var addrShowFileDialogWithProperties uintptr
+
+func fnShowFileDialogWithProperties(type_ FileDialogType, callback DialogFileCallback, userdata unsafe.Pointer, props PropertiesID) {
+	if addrShowFileDialogWithProperties == 0 {
+		missingSymbol("SDL_ShowFileDialogWithProperties")
+	}
+	call4(addrShowFileDialogWithProperties, uintptr(type_), uintptr(callback), uintptr(unsafe.Pointer(userdata)), uintptr(props))
+}
 
 // Create and launch a file dialog with the specified properties.
 //

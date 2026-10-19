@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // The opaque structure used to identify an opened SDL sensor.
 //
 // Since: SDL 3.2.0.
@@ -102,7 +104,14 @@ const (
 	STANDARD_GRAVITY = 9.80665
 )
 
-var fnGetSensors func(count *int32) *SensorID
+var addrGetSensors uintptr
+
+func fnGetSensors(count *int32) *SensorID {
+	if addrGetSensors == 0 {
+		missingSymbol("SDL_GetSensors")
+	}
+	return (*SensorID)(cptr(call1(addrGetSensors, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected sensors.
 //
@@ -120,7 +129,14 @@ func GetSensors() []SensorID {
 	return copyFree(p, int(n))
 }
 
-var fnGetSensorNameForID func(instance_id SensorID) *byte
+var addrGetSensorNameForID uintptr
+
+func fnGetSensorNameForID(instance_id SensorID) *byte {
+	if addrGetSensorNameForID == 0 {
+		missingSymbol("SDL_GetSensorNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetSensorNameForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent name of a sensor.
 //
@@ -136,7 +152,14 @@ func GetSensorNameForID(instance_id SensorID) string {
 	return GoString(fnGetSensorNameForID(instance_id))
 }
 
-var fnGetSensorTypeForID func(instance_id SensorID) SensorType
+var addrGetSensorTypeForID uintptr
+
+func fnGetSensorTypeForID(instance_id SensorID) SensorType {
+	if addrGetSensorTypeForID == 0 {
+		missingSymbol("SDL_GetSensorTypeForID")
+	}
+	return SensorType(call1(addrGetSensorTypeForID, uintptr(instance_id)))
+}
 
 // Get the type of a sensor.
 //
@@ -152,7 +175,14 @@ func GetSensorTypeForID(instance_id SensorID) SensorType {
 	return fnGetSensorTypeForID(instance_id)
 }
 
-var fnGetSensorNonPortableTypeForID func(instance_id SensorID) int32
+var addrGetSensorNonPortableTypeForID uintptr
+
+func fnGetSensorNonPortableTypeForID(instance_id SensorID) int32 {
+	if addrGetSensorNonPortableTypeForID == 0 {
+		missingSymbol("SDL_GetSensorNonPortableTypeForID")
+	}
+	return int32(call1(addrGetSensorNonPortableTypeForID, uintptr(instance_id)))
+}
 
 // Get the platform dependent type of a sensor.
 //
@@ -168,7 +198,14 @@ func GetSensorNonPortableTypeForID(instance_id SensorID) int32 {
 	return fnGetSensorNonPortableTypeForID(instance_id)
 }
 
-var fnOpenSensor func(instance_id SensorID) *Sensor
+var addrOpenSensor uintptr
+
+func fnOpenSensor(instance_id SensorID) *Sensor {
+	if addrOpenSensor == 0 {
+		missingSymbol("SDL_OpenSensor")
+	}
+	return (*Sensor)(cptr(call1(addrOpenSensor, uintptr(instance_id))))
+}
 
 // Open a sensor for use.
 //
@@ -182,7 +219,14 @@ func OpenSensor(instance_id SensorID) *Sensor {
 	return fnOpenSensor(instance_id)
 }
 
-var fnGetSensorFromID func(instance_id SensorID) *Sensor
+var addrGetSensorFromID uintptr
+
+func fnGetSensorFromID(instance_id SensorID) *Sensor {
+	if addrGetSensorFromID == 0 {
+		missingSymbol("SDL_GetSensorFromID")
+	}
+	return (*Sensor)(cptr(call1(addrGetSensorFromID, uintptr(instance_id))))
+}
 
 // Return the Sensor associated with an instance ID.
 //
@@ -196,7 +240,14 @@ func GetSensorFromID(instance_id SensorID) *Sensor {
 	return fnGetSensorFromID(instance_id)
 }
 
-var fnGetSensorProperties func(sensor *Sensor) PropertiesID
+var addrGetSensorProperties uintptr
+
+func fnGetSensorProperties(sensor *Sensor) PropertiesID {
+	if addrGetSensorProperties == 0 {
+		missingSymbol("SDL_GetSensorProperties")
+	}
+	return PropertiesID(call1(addrGetSensorProperties, uintptr(unsafe.Pointer(sensor))))
+}
 
 // Get the properties associated with a sensor.
 //
@@ -210,7 +261,14 @@ func GetSensorProperties(sensor *Sensor) PropertiesID {
 	return fnGetSensorProperties(sensor)
 }
 
-var fnGetSensorName func(sensor *Sensor) *byte
+var addrGetSensorName uintptr
+
+func fnGetSensorName(sensor *Sensor) *byte {
+	if addrGetSensorName == 0 {
+		missingSymbol("SDL_GetSensorName")
+	}
+	return (*byte)(cptr(call1(addrGetSensorName, uintptr(unsafe.Pointer(sensor)))))
+}
 
 // Get the implementation dependent name of a sensor.
 //
@@ -224,7 +282,14 @@ func GetSensorName(sensor *Sensor) string {
 	return GoString(fnGetSensorName(sensor))
 }
 
-var fnGetSensorType func(sensor *Sensor) SensorType
+var addrGetSensorType uintptr
+
+func fnGetSensorType(sensor *Sensor) SensorType {
+	if addrGetSensorType == 0 {
+		missingSymbol("SDL_GetSensorType")
+	}
+	return SensorType(call1(addrGetSensorType, uintptr(unsafe.Pointer(sensor))))
+}
 
 // Get the type of a sensor.
 //
@@ -238,7 +303,14 @@ func GetSensorType(sensor *Sensor) SensorType {
 	return fnGetSensorType(sensor)
 }
 
-var fnGetSensorNonPortableType func(sensor *Sensor) int32
+var addrGetSensorNonPortableType uintptr
+
+func fnGetSensorNonPortableType(sensor *Sensor) int32 {
+	if addrGetSensorNonPortableType == 0 {
+		missingSymbol("SDL_GetSensorNonPortableType")
+	}
+	return int32(call1(addrGetSensorNonPortableType, uintptr(unsafe.Pointer(sensor))))
+}
 
 // Get the platform dependent type of a sensor.
 //
@@ -252,7 +324,14 @@ func GetSensorNonPortableType(sensor *Sensor) int32 {
 	return fnGetSensorNonPortableType(sensor)
 }
 
-var fnGetSensorID func(sensor *Sensor) SensorID
+var addrGetSensorID uintptr
+
+func fnGetSensorID(sensor *Sensor) SensorID {
+	if addrGetSensorID == 0 {
+		missingSymbol("SDL_GetSensorID")
+	}
+	return SensorID(call1(addrGetSensorID, uintptr(unsafe.Pointer(sensor))))
+}
 
 // Get the instance ID of a sensor.
 //
@@ -266,7 +345,14 @@ func GetSensorID(sensor *Sensor) SensorID {
 	return fnGetSensorID(sensor)
 }
 
-var fnGetSensorData func(sensor *Sensor, data *float32, num_values int32) bool
+var addrGetSensorData uintptr
+
+func fnGetSensorData(sensor *Sensor, data *float32, num_values int32) bool {
+	if addrGetSensorData == 0 {
+		missingSymbol("SDL_GetSensorData")
+	}
+	return uint8(call3(addrGetSensorData, uintptr(unsafe.Pointer(sensor)), uintptr(unsafe.Pointer(data)), uintptr(num_values))) != 0
+}
 
 // Get the current state of an opened sensor.
 //
@@ -284,7 +370,14 @@ func GetSensorData(sensor *Sensor, data *float32, num_values int32) bool {
 	return fnGetSensorData(sensor, data, num_values)
 }
 
-var fnCloseSensor func(sensor *Sensor)
+var addrCloseSensor uintptr
+
+func fnCloseSensor(sensor *Sensor) {
+	if addrCloseSensor == 0 {
+		missingSymbol("SDL_CloseSensor")
+	}
+	call1(addrCloseSensor, uintptr(unsafe.Pointer(sensor)))
+}
 
 // Close a sensor previously opened with OpenSensor().
 //
@@ -296,7 +389,14 @@ func CloseSensor(sensor *Sensor) {
 	fnCloseSensor(sensor)
 }
 
-var fnUpdateSensors func()
+var addrUpdateSensors uintptr
+
+func fnUpdateSensors() {
+	if addrUpdateSensors == 0 {
+		missingSymbol("SDL_UpdateSensors")
+	}
+	call0(addrUpdateSensors)
+}
 
 // Update the current state of the open sensors.
 //

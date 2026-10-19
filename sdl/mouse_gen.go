@@ -155,7 +155,14 @@ const (
 	BUTTON_X2MASK MouseButtonFlags = 16
 )
 
-var fnHasMouse func() bool
+var addrHasMouse uintptr
+
+func fnHasMouse() bool {
+	if addrHasMouse == 0 {
+		missingSymbol("SDL_HasMouse")
+	}
+	return uint8(call0(addrHasMouse)) != 0
+}
 
 // Return whether a mouse is currently connected.
 //
@@ -170,7 +177,14 @@ func HasMouse() bool {
 	return fnHasMouse()
 }
 
-var fnGetMice func(count *int32) *MouseID
+var addrGetMice uintptr
+
+func fnGetMice(count *int32) *MouseID {
+	if addrGetMice == 0 {
+		missingSymbol("SDL_GetMice")
+	}
+	return (*MouseID)(cptr(call1(addrGetMice, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected mice.
 //
@@ -197,7 +211,14 @@ func GetMice() []MouseID {
 	return copyFree(p, int(n))
 }
 
-var fnGetMouseNameForID func(instance_id MouseID) *byte
+var addrGetMouseNameForID uintptr
+
+func fnGetMouseNameForID(instance_id MouseID) *byte {
+	if addrGetMouseNameForID == 0 {
+		missingSymbol("SDL_GetMouseNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetMouseNameForID, uintptr(instance_id))))
+}
 
 // Get the name of a mouse.
 //
@@ -217,7 +238,14 @@ func GetMouseNameForID(instance_id MouseID) string {
 	return GoString(fnGetMouseNameForID(instance_id))
 }
 
-var fnGetMouseFocus func() *Window
+var addrGetMouseFocus uintptr
+
+func fnGetMouseFocus() *Window {
+	if addrGetMouseFocus == 0 {
+		missingSymbol("SDL_GetMouseFocus")
+	}
+	return (*Window)(cptr(call0(addrGetMouseFocus)))
+}
 
 // Get the window which currently has mouse focus.
 //
@@ -230,7 +258,14 @@ func GetMouseFocus() *Window {
 	return fnGetMouseFocus()
 }
 
-var fnGetMouseState func(x *float32, y *float32) MouseButtonFlags
+var addrGetMouseState uintptr
+
+func fnGetMouseState(x *float32, y *float32) MouseButtonFlags {
+	if addrGetMouseState == 0 {
+		missingSymbol("SDL_GetMouseState")
+	}
+	return MouseButtonFlags(call2(addrGetMouseState, uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y))))
+}
 
 // Query SDL's cache for the synchronous mouse button state and the
 // window-relative SDL-cursor position.
@@ -263,7 +298,14 @@ func GetMouseState(x *float32, y *float32) MouseButtonFlags {
 	return fnGetMouseState(x, y)
 }
 
-var fnGetGlobalMouseState func(x *float32, y *float32) MouseButtonFlags
+var addrGetGlobalMouseState uintptr
+
+func fnGetGlobalMouseState(x *float32, y *float32) MouseButtonFlags {
+	if addrGetGlobalMouseState == 0 {
+		missingSymbol("SDL_GetGlobalMouseState")
+	}
+	return MouseButtonFlags(call2(addrGetGlobalMouseState, uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y))))
+}
 
 // Query the platform for the asynchronous mouse button state and the
 // desktop-relative platform-cursor position.
@@ -299,7 +341,14 @@ func GetGlobalMouseState(x *float32, y *float32) MouseButtonFlags {
 	return fnGetGlobalMouseState(x, y)
 }
 
-var fnGetRelativeMouseState func(x *float32, y *float32) MouseButtonFlags
+var addrGetRelativeMouseState uintptr
+
+func fnGetRelativeMouseState(x *float32, y *float32) MouseButtonFlags {
+	if addrGetRelativeMouseState == 0 {
+		missingSymbol("SDL_GetRelativeMouseState")
+	}
+	return MouseButtonFlags(call2(addrGetRelativeMouseState, uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y))))
+}
 
 // Query SDL's cache for the synchronous mouse button state and accumulated
 // mouse delta since last call.
@@ -386,7 +435,14 @@ func WarpMouseGlobal(x float32, y float32) bool {
 	return fnWarpMouseGlobal(x, y)
 }
 
-var fnSetRelativeMouseTransform func(callback MouseMotionTransformCallback, userdata unsafe.Pointer) bool
+var addrSetRelativeMouseTransform uintptr
+
+func fnSetRelativeMouseTransform(callback MouseMotionTransformCallback, userdata unsafe.Pointer) bool {
+	if addrSetRelativeMouseTransform == 0 {
+		missingSymbol("SDL_SetRelativeMouseTransform")
+	}
+	return uint8(call2(addrSetRelativeMouseTransform, uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Set a user-defined function by which to transform relative mouse inputs.
 //
@@ -408,7 +464,14 @@ func SetRelativeMouseTransform(callback MouseMotionTransformCallback, userdata u
 	return fnSetRelativeMouseTransform(callback, userdata)
 }
 
-var fnSetWindowRelativeMouseMode func(window *Window, enabled bool) bool
+var addrSetWindowRelativeMouseMode uintptr
+
+func fnSetWindowRelativeMouseMode(window *Window, enabled bool) bool {
+	if addrSetWindowRelativeMouseMode == 0 {
+		missingSymbol("SDL_SetWindowRelativeMouseMode")
+	}
+	return uint8(call2(addrSetWindowRelativeMouseMode, uintptr(unsafe.Pointer(window)), cbool(enabled))) != 0
+}
 
 // Set relative mouse mode for a window.
 //
@@ -439,7 +502,14 @@ func SetWindowRelativeMouseMode(window *Window, enabled bool) bool {
 	return fnSetWindowRelativeMouseMode(window, enabled)
 }
 
-var fnGetWindowRelativeMouseMode func(window *Window) bool
+var addrGetWindowRelativeMouseMode uintptr
+
+func fnGetWindowRelativeMouseMode(window *Window) bool {
+	if addrGetWindowRelativeMouseMode == 0 {
+		missingSymbol("SDL_GetWindowRelativeMouseMode")
+	}
+	return uint8(call1(addrGetWindowRelativeMouseMode, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Query whether relative mouse mode is enabled for a window.
 //
@@ -457,7 +527,14 @@ func GetWindowRelativeMouseMode(window *Window) bool {
 	return fnGetWindowRelativeMouseMode(window)
 }
 
-var fnCaptureMouse func(enabled bool) bool
+var addrCaptureMouse uintptr
+
+func fnCaptureMouse(enabled bool) bool {
+	if addrCaptureMouse == 0 {
+		missingSymbol("SDL_CaptureMouse")
+	}
+	return uint8(call1(addrCaptureMouse, cbool(enabled))) != 0
+}
 
 // Capture the mouse and to track input outside an SDL window.
 //
@@ -508,7 +585,14 @@ func CaptureMouse(enabled bool) bool {
 	return fnCaptureMouse(enabled)
 }
 
-var fnCreateCursor func(data *uint8, mask *uint8, w int32, h int32, hot_x int32, hot_y int32) *Cursor
+var addrCreateCursor uintptr
+
+func fnCreateCursor(data *uint8, mask *uint8, w int32, h int32, hot_x int32, hot_y int32) *Cursor {
+	if addrCreateCursor == 0 {
+		missingSymbol("SDL_CreateCursor")
+	}
+	return (*Cursor)(cptr(call6(addrCreateCursor, uintptr(unsafe.Pointer(data)), uintptr(unsafe.Pointer(mask)), uintptr(w), uintptr(h), uintptr(hot_x), uintptr(hot_y))))
+}
 
 // Create a cursor using the specified bitmap data and mask (in MSB format).
 //
@@ -552,7 +636,14 @@ func CreateCursor(data *uint8, mask *uint8, w int32, h int32, hot_x int32, hot_y
 	return fnCreateCursor(data, mask, w, h, hot_x, hot_y)
 }
 
-var fnCreateColorCursor func(surface *Surface, hot_x int32, hot_y int32) *Cursor
+var addrCreateColorCursor uintptr
+
+func fnCreateColorCursor(surface *Surface, hot_x int32, hot_y int32) *Cursor {
+	if addrCreateColorCursor == 0 {
+		missingSymbol("SDL_CreateColorCursor")
+	}
+	return (*Cursor)(cptr(call3(addrCreateColorCursor, uintptr(unsafe.Pointer(surface)), uintptr(hot_x), uintptr(hot_y))))
+}
 
 // Create a color cursor.
 //
@@ -584,7 +675,14 @@ func CreateColorCursor(surface *Surface, hot_x int32, hot_y int32) *Cursor {
 	return fnCreateColorCursor(surface, hot_x, hot_y)
 }
 
-var fnCreateAnimatedCursor func(frames *CursorFrameInfo, frame_count int32, hot_x int32, hot_y int32) *Cursor
+var addrCreateAnimatedCursor uintptr
+
+func fnCreateAnimatedCursor(frames *CursorFrameInfo, frame_count int32, hot_x int32, hot_y int32) *Cursor {
+	if addrCreateAnimatedCursor == 0 {
+		missingSymbol("SDL_CreateAnimatedCursor")
+	}
+	return (*Cursor)(cptr(call4(addrCreateAnimatedCursor, uintptr(unsafe.Pointer(frames)), uintptr(frame_count), uintptr(hot_x), uintptr(hot_y))))
+}
 
 // Create an animated color cursor.
 //
@@ -630,7 +728,14 @@ func CreateAnimatedCursor(frames *CursorFrameInfo, frame_count int32, hot_x int3
 	return fnCreateAnimatedCursor(frames, frame_count, hot_x, hot_y)
 }
 
-var fnCreateSystemCursor func(id SystemCursor) *Cursor
+var addrCreateSystemCursor uintptr
+
+func fnCreateSystemCursor(id SystemCursor) *Cursor {
+	if addrCreateSystemCursor == 0 {
+		missingSymbol("SDL_CreateSystemCursor")
+	}
+	return (*Cursor)(cptr(call1(addrCreateSystemCursor, uintptr(id))))
+}
 
 // Create a system cursor.
 //
@@ -648,7 +753,14 @@ func CreateSystemCursor(id SystemCursor) *Cursor {
 	return fnCreateSystemCursor(id)
 }
 
-var fnSetCursor func(cursor *Cursor) bool
+var addrSetCursor uintptr
+
+func fnSetCursor(cursor *Cursor) bool {
+	if addrSetCursor == 0 {
+		missingSymbol("SDL_SetCursor")
+	}
+	return uint8(call1(addrSetCursor, uintptr(unsafe.Pointer(cursor)))) != 0
+}
 
 // Set the active cursor.
 //
@@ -671,7 +783,14 @@ func SetCursor(cursor *Cursor) bool {
 	return fnSetCursor(cursor)
 }
 
-var fnGetCursor func() *Cursor
+var addrGetCursor uintptr
+
+func fnGetCursor() *Cursor {
+	if addrGetCursor == 0 {
+		missingSymbol("SDL_GetCursor")
+	}
+	return (*Cursor)(cptr(call0(addrGetCursor)))
+}
 
 // Get the active cursor.
 //
@@ -689,7 +808,14 @@ func GetCursor() *Cursor {
 	return fnGetCursor()
 }
 
-var fnGetDefaultCursor func() *Cursor
+var addrGetDefaultCursor uintptr
+
+func fnGetDefaultCursor() *Cursor {
+	if addrGetDefaultCursor == 0 {
+		missingSymbol("SDL_GetDefaultCursor")
+	}
+	return (*Cursor)(cptr(call0(addrGetDefaultCursor)))
+}
 
 // Get the default cursor.
 //
@@ -705,7 +831,14 @@ func GetDefaultCursor() *Cursor {
 	return fnGetDefaultCursor()
 }
 
-var fnDestroyCursor func(cursor *Cursor)
+var addrDestroyCursor uintptr
+
+func fnDestroyCursor(cursor *Cursor) {
+	if addrDestroyCursor == 0 {
+		missingSymbol("SDL_DestroyCursor")
+	}
+	call1(addrDestroyCursor, uintptr(unsafe.Pointer(cursor)))
+}
 
 // Free a previously-created cursor.
 //
@@ -724,7 +857,14 @@ func DestroyCursor(cursor *Cursor) {
 	fnDestroyCursor(cursor)
 }
 
-var fnShowCursor func() bool
+var addrShowCursor uintptr
+
+func fnShowCursor() bool {
+	if addrShowCursor == 0 {
+		missingSymbol("SDL_ShowCursor")
+	}
+	return uint8(call0(addrShowCursor)) != 0
+}
 
 // Show the cursor.
 //
@@ -739,7 +879,14 @@ func ShowCursor() bool {
 	return fnShowCursor()
 }
 
-var fnHideCursor func() bool
+var addrHideCursor uintptr
+
+func fnHideCursor() bool {
+	if addrHideCursor == 0 {
+		missingSymbol("SDL_HideCursor")
+	}
+	return uint8(call0(addrHideCursor)) != 0
+}
 
 // Hide the cursor.
 //
@@ -754,7 +901,14 @@ func HideCursor() bool {
 	return fnHideCursor()
 }
 
-var fnCursorVisible func() bool
+var addrCursorVisible uintptr
+
+func fnCursorVisible() bool {
+	if addrCursorVisible == 0 {
+		missingSymbol("SDL_CursorVisible")
+	}
+	return uint8(call0(addrCursorVisible)) != 0
+}
 
 // Return whether the cursor is currently being shown.
 //

@@ -1473,7 +1473,14 @@ const (
 	GETEVENT EventAction = 2
 )
 
-var fnPumpEvents func()
+var addrPumpEvents uintptr
+
+func fnPumpEvents() {
+	if addrPumpEvents == 0 {
+		missingSymbol("SDL_PumpEvents")
+	}
+	call0(addrPumpEvents)
+}
 
 // Pump the event loop, gathering events from the input devices.
 //
@@ -1496,7 +1503,14 @@ func PumpEvents() {
 	fnPumpEvents()
 }
 
-var fnPeepEvents func(events *Event, numevents int32, action EventAction, minType EventType, maxType EventType) int32
+var addrPeepEvents uintptr
+
+func fnPeepEvents(events *Event, numevents int32, action EventAction, minType EventType, maxType EventType) int32 {
+	if addrPeepEvents == 0 {
+		missingSymbol("SDL_PeepEvents")
+	}
+	return int32(call5(addrPeepEvents, uintptr(unsafe.Pointer(events)), uintptr(numevents), uintptr(action), uintptr(minType), uintptr(maxType)))
+}
 
 // Check the event queue for messages and optionally return them.
 //
@@ -1535,7 +1549,14 @@ func PeepEvents(events *Event, numevents int32, action EventAction, minType Even
 	return fnPeepEvents(events, numevents, action, minType, maxType)
 }
 
-var fnHasEvent func(type_ EventType) bool
+var addrHasEvent uintptr
+
+func fnHasEvent(type_ EventType) bool {
+	if addrHasEvent == 0 {
+		missingSymbol("SDL_HasEvent")
+	}
+	return uint8(call1(addrHasEvent, uintptr(type_))) != 0
+}
 
 // Check for the existence of a certain event type in the event queue.
 //
@@ -1556,7 +1577,14 @@ func HasEvent(type_ EventType) bool {
 	return fnHasEvent(type_)
 }
 
-var fnHasEvents func(minType EventType, maxType EventType) bool
+var addrHasEvents uintptr
+
+func fnHasEvents(minType EventType, maxType EventType) bool {
+	if addrHasEvents == 0 {
+		missingSymbol("SDL_HasEvents")
+	}
+	return uint8(call2(addrHasEvents, uintptr(minType), uintptr(maxType))) != 0
+}
 
 // Check for the existence of certain event types in the event queue.
 //
@@ -1577,7 +1605,14 @@ func HasEvents(minType EventType, maxType EventType) bool {
 	return fnHasEvents(minType, maxType)
 }
 
-var fnFlushEvent func(type_ EventType)
+var addrFlushEvent uintptr
+
+func fnFlushEvent(type_ EventType) {
+	if addrFlushEvent == 0 {
+		missingSymbol("SDL_FlushEvent")
+	}
+	call1(addrFlushEvent, uintptr(type_))
+}
 
 // Clear events of a specific type from the event queue.
 //
@@ -1608,7 +1643,14 @@ func FlushEvent(type_ EventType) {
 	fnFlushEvent(type_)
 }
 
-var fnFlushEvents func(minType EventType, maxType EventType)
+var addrFlushEvents uintptr
+
+func fnFlushEvents(minType EventType, maxType EventType) {
+	if addrFlushEvents == 0 {
+		missingSymbol("SDL_FlushEvents")
+	}
+	call2(addrFlushEvents, uintptr(minType), uintptr(maxType))
+}
 
 // Clear events of a range of types from the event queue.
 //
@@ -1636,7 +1678,14 @@ func FlushEvents(minType EventType, maxType EventType) {
 	fnFlushEvents(minType, maxType)
 }
 
-var fnPollEvent func(event *Event) bool
+var addrPollEvent uintptr
+
+func fnPollEvent(event *Event) bool {
+	if addrPollEvent == 0 {
+		missingSymbol("SDL_PollEvent")
+	}
+	return uint8(call1(addrPollEvent, uintptr(unsafe.Pointer(event)))) != 0
+}
 
 // Poll for currently pending events.
 //
@@ -1686,7 +1735,14 @@ func PollEvent(event *Event) bool {
 	return fnPollEvent(event)
 }
 
-var fnWaitEvent func(event *Event) bool
+var addrWaitEvent uintptr
+
+func fnWaitEvent(event *Event) bool {
+	if addrWaitEvent == 0 {
+		missingSymbol("SDL_WaitEvent")
+	}
+	return uint8(call1(addrWaitEvent, uintptr(unsafe.Pointer(event)))) != 0
+}
 
 // Wait indefinitely for the next available event.
 //
@@ -1710,7 +1766,14 @@ func WaitEvent(event *Event) bool {
 	return fnWaitEvent(event)
 }
 
-var fnWaitEventTimeout func(event *Event, timeoutMS int32) bool
+var addrWaitEventTimeout uintptr
+
+func fnWaitEventTimeout(event *Event, timeoutMS int32) bool {
+	if addrWaitEventTimeout == 0 {
+		missingSymbol("SDL_WaitEventTimeout")
+	}
+	return uint8(call2(addrWaitEventTimeout, uintptr(unsafe.Pointer(event)), uintptr(timeoutMS))) != 0
+}
 
 // Wait until the specified timeout (in milliseconds) for the next available
 // event.
@@ -1739,7 +1802,14 @@ func WaitEventTimeout(event *Event, timeoutMS int32) bool {
 	return fnWaitEventTimeout(event, timeoutMS)
 }
 
-var fnPushEvent func(event *Event) bool
+var addrPushEvent uintptr
+
+func fnPushEvent(event *Event) bool {
+	if addrPushEvent == 0 {
+		missingSymbol("SDL_PushEvent")
+	}
+	return uint8(call1(addrPushEvent, uintptr(unsafe.Pointer(event)))) != 0
+}
 
 // Add an event to the event queue.
 //
@@ -1773,7 +1843,14 @@ func PushEvent(event *Event) bool {
 	return fnPushEvent(event)
 }
 
-var fnSetEventFilter func(filter EventFilter, userdata unsafe.Pointer)
+var addrSetEventFilter uintptr
+
+func fnSetEventFilter(filter EventFilter, userdata unsafe.Pointer) {
+	if addrSetEventFilter == 0 {
+		missingSymbol("SDL_SetEventFilter")
+	}
+	call2(addrSetEventFilter, uintptr(filter), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Set up a filter to process all events before they are added to the internal
 // event queue.
@@ -1818,7 +1895,14 @@ func SetEventFilter(filter EventFilter, userdata unsafe.Pointer) {
 	fnSetEventFilter(filter, userdata)
 }
 
-var fnGetEventFilter func(filter *EventFilter, userdata *unsafe.Pointer) bool
+var addrGetEventFilter uintptr
+
+func fnGetEventFilter(filter *EventFilter, userdata *unsafe.Pointer) bool {
+	if addrGetEventFilter == 0 {
+		missingSymbol("SDL_GetEventFilter")
+	}
+	return uint8(call2(addrGetEventFilter, uintptr(unsafe.Pointer(filter)), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Query the current event filter.
 //
@@ -1842,7 +1926,14 @@ func GetEventFilter(filter *EventFilter, userdata *unsafe.Pointer) bool {
 	return fnGetEventFilter(filter, userdata)
 }
 
-var fnAddEventWatch func(filter EventFilter, userdata unsafe.Pointer) bool
+var addrAddEventWatch uintptr
+
+func fnAddEventWatch(filter EventFilter, userdata unsafe.Pointer) bool {
+	if addrAddEventWatch == 0 {
+		missingSymbol("SDL_AddEventWatch")
+	}
+	return uint8(call2(addrAddEventWatch, uintptr(filter), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Add a callback to be triggered when an event is added to the event queue.
 //
@@ -1878,7 +1969,14 @@ func AddEventWatch(filter EventFilter, userdata unsafe.Pointer) bool {
 	return fnAddEventWatch(filter, userdata)
 }
 
-var fnRemoveEventWatch func(filter EventFilter, userdata unsafe.Pointer)
+var addrRemoveEventWatch uintptr
+
+func fnRemoveEventWatch(filter EventFilter, userdata unsafe.Pointer) {
+	if addrRemoveEventWatch == 0 {
+		missingSymbol("SDL_RemoveEventWatch")
+	}
+	call2(addrRemoveEventWatch, uintptr(filter), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Remove an event watch callback added with AddEventWatch().
 //
@@ -1898,7 +1996,14 @@ func RemoveEventWatch(filter EventFilter, userdata unsafe.Pointer) {
 	fnRemoveEventWatch(filter, userdata)
 }
 
-var fnFilterEvents func(filter EventFilter, userdata unsafe.Pointer)
+var addrFilterEvents uintptr
+
+func fnFilterEvents(filter EventFilter, userdata unsafe.Pointer) {
+	if addrFilterEvents == 0 {
+		missingSymbol("SDL_FilterEvents")
+	}
+	call2(addrFilterEvents, uintptr(filter), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Run a specific filter function on the current event queue, removing any
 // events for which the filter returns false.
@@ -1920,7 +2025,14 @@ func FilterEvents(filter EventFilter, userdata unsafe.Pointer) {
 	fnFilterEvents(filter, userdata)
 }
 
-var fnSetEventEnabled func(type_ EventType, enabled bool)
+var addrSetEventEnabled uintptr
+
+func fnSetEventEnabled(type_ EventType, enabled bool) {
+	if addrSetEventEnabled == 0 {
+		missingSymbol("SDL_SetEventEnabled")
+	}
+	call2(addrSetEventEnabled, uintptr(type_), cbool(enabled))
+}
 
 // Set the state of processing events by type.
 //
@@ -1937,7 +2049,14 @@ func SetEventEnabled(type_ EventType, enabled bool) {
 	fnSetEventEnabled(type_, enabled)
 }
 
-var fnEventEnabled func(type_ EventType) bool
+var addrEventEnabled uintptr
+
+func fnEventEnabled(type_ EventType) bool {
+	if addrEventEnabled == 0 {
+		missingSymbol("SDL_EventEnabled")
+	}
+	return uint8(call1(addrEventEnabled, uintptr(type_))) != 0
+}
 
 // Query the state of processing events by type.
 //
@@ -1955,7 +2074,14 @@ func EventEnabled(type_ EventType) bool {
 	return fnEventEnabled(type_)
 }
 
-var fnRegisterEvents func(numevents int32) uint32
+var addrRegisterEvents uintptr
+
+func fnRegisterEvents(numevents int32) uint32 {
+	if addrRegisterEvents == 0 {
+		missingSymbol("SDL_RegisterEvents")
+	}
+	return uint32(call1(addrRegisterEvents, uintptr(numevents)))
+}
 
 // Allocate a set of user-defined events, and return the beginning event
 // number for that set of events.
@@ -1974,7 +2100,14 @@ func RegisterEvents(numevents int32) uint32 {
 	return fnRegisterEvents(numevents)
 }
 
-var fnGetWindowFromEvent func(event *Event) *Window
+var addrGetWindowFromEvent uintptr
+
+func fnGetWindowFromEvent(event *Event) *Window {
+	if addrGetWindowFromEvent == 0 {
+		missingSymbol("SDL_GetWindowFromEvent")
+	}
+	return (*Window)(cptr(call1(addrGetWindowFromEvent, uintptr(unsafe.Pointer(event)))))
+}
 
 // Get window associated with an event.
 //
@@ -1992,7 +2125,14 @@ func GetWindowFromEvent(event *Event) *Window {
 	return fnGetWindowFromEvent(event)
 }
 
-var fnGetEventDescription func(event *Event, buf *byte, buflen int32) int32
+var addrGetEventDescription uintptr
+
+func fnGetEventDescription(event *Event, buf *byte, buflen int32) int32 {
+	if addrGetEventDescription == 0 {
+		missingSymbol("SDL_GetEventDescription")
+	}
+	return int32(call3(addrGetEventDescription, uintptr(unsafe.Pointer(event)), uintptr(unsafe.Pointer(buf)), uintptr(buflen)))
+}
 
 // Generate an English description of an event.
 //

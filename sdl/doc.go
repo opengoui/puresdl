@@ -60,6 +60,17 @@
 // runtime.LockOSThread across both a failing SDL call and the following
 // [GetError] call.
 //
+// # Calls
+//
+// Functions whose parameters and result are each one integer word (integers,
+// enums, bool, pointers) and that take at most eight parameters call C
+// through purego.SyscallN with a pooled argument array: they do not allocate
+// and cost about half as much as the reflective wrappers of
+// purego.RegisterFunc, which the remaining functions (floating-point values,
+// structs passed by value, more parameters) still use. Go memory passed by
+// pointer is moved to the heap and kept alive for the duration of the call
+// in both cases.
+//
 // # Generation
 //
 // The *_gen.go files are generated from the headers of the SDL release pinned
@@ -79,6 +90,8 @@
 //   - doc.go: this package documentation.
 //   - loader.go, loader_unix.go, loader_windows.go: locating and loading
 //     libSDL3 and binding its symbols.
+//   - call.go: the allocation-free call0 ... call8 bridge that most generated
+//     functions use instead of purego.RegisterFunc (see below).
 //   - macros.go: Go versions of SDL function-like macros and static inline
 //     functions, which the shared library does not export.
 //   - slices.go: helpers behind the generated wrappers that return

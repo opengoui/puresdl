@@ -713,7 +713,14 @@ const (
 	HAPTIC_STEERING_AXIS HapticDirectionType = 3
 )
 
-var fnGetHaptics func(count *int32) *HapticID
+var addrGetHaptics uintptr
+
+func fnGetHaptics(count *int32) *HapticID {
+	if addrGetHaptics == 0 {
+		missingSymbol("SDL_GetHaptics")
+	}
+	return (*HapticID)(cptr(call1(addrGetHaptics, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected haptic devices.
 //
@@ -733,7 +740,14 @@ func GetHaptics() []HapticID {
 	return copyFree(p, int(n))
 }
 
-var fnGetHapticNameForID func(instance_id HapticID) *byte
+var addrGetHapticNameForID uintptr
+
+func fnGetHapticNameForID(instance_id HapticID) *byte {
+	if addrGetHapticNameForID == 0 {
+		missingSymbol("SDL_GetHapticNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetHapticNameForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent name of a haptic device.
 //
@@ -751,7 +765,14 @@ func GetHapticNameForID(instance_id HapticID) string {
 	return GoString(fnGetHapticNameForID(instance_id))
 }
 
-var fnOpenHaptic func(instance_id HapticID) *Haptic
+var addrOpenHaptic uintptr
+
+func fnOpenHaptic(instance_id HapticID) *Haptic {
+	if addrOpenHaptic == 0 {
+		missingSymbol("SDL_OpenHaptic")
+	}
+	return (*Haptic)(cptr(call1(addrOpenHaptic, uintptr(instance_id))))
+}
 
 // Open a haptic device for use.
 //
@@ -774,7 +795,14 @@ func OpenHaptic(instance_id HapticID) *Haptic {
 	return fnOpenHaptic(instance_id)
 }
 
-var fnGetHapticFromID func(instance_id HapticID) *Haptic
+var addrGetHapticFromID uintptr
+
+func fnGetHapticFromID(instance_id HapticID) *Haptic {
+	if addrGetHapticFromID == 0 {
+		missingSymbol("SDL_GetHapticFromID")
+	}
+	return (*Haptic)(cptr(call1(addrGetHapticFromID, uintptr(instance_id))))
+}
 
 // Get the Haptic associated with an instance ID, if it has been opened.
 //
@@ -788,7 +816,14 @@ func GetHapticFromID(instance_id HapticID) *Haptic {
 	return fnGetHapticFromID(instance_id)
 }
 
-var fnGetHapticID func(haptic *Haptic) HapticID
+var addrGetHapticID uintptr
+
+func fnGetHapticID(haptic *Haptic) HapticID {
+	if addrGetHapticID == 0 {
+		missingSymbol("SDL_GetHapticID")
+	}
+	return HapticID(call1(addrGetHapticID, uintptr(unsafe.Pointer(haptic))))
+}
 
 // Get the instance ID of an opened haptic device.
 //
@@ -802,7 +837,14 @@ func GetHapticID(haptic *Haptic) HapticID {
 	return fnGetHapticID(haptic)
 }
 
-var fnGetHapticName func(haptic *Haptic) *byte
+var addrGetHapticName uintptr
+
+func fnGetHapticName(haptic *Haptic) *byte {
+	if addrGetHapticName == 0 {
+		missingSymbol("SDL_GetHapticName")
+	}
+	return (*byte)(cptr(call1(addrGetHapticName, uintptr(unsafe.Pointer(haptic)))))
+}
 
 // Get the implementation dependent name of a haptic device.
 //
@@ -818,7 +860,14 @@ func GetHapticName(haptic *Haptic) string {
 	return GoString(fnGetHapticName(haptic))
 }
 
-var fnIsMouseHaptic func() bool
+var addrIsMouseHaptic uintptr
+
+func fnIsMouseHaptic() bool {
+	if addrIsMouseHaptic == 0 {
+		missingSymbol("SDL_IsMouseHaptic")
+	}
+	return uint8(call0(addrIsMouseHaptic)) != 0
+}
 
 // Query whether or not the current mouse has haptic capabilities.
 //
@@ -831,7 +880,14 @@ func IsMouseHaptic() bool {
 	return fnIsMouseHaptic()
 }
 
-var fnOpenHapticFromMouse func() *Haptic
+var addrOpenHapticFromMouse uintptr
+
+func fnOpenHapticFromMouse() *Haptic {
+	if addrOpenHapticFromMouse == 0 {
+		missingSymbol("SDL_OpenHapticFromMouse")
+	}
+	return (*Haptic)(cptr(call0(addrOpenHapticFromMouse)))
+}
 
 // Try to open a haptic device from the current mouse.
 //
@@ -844,7 +900,14 @@ func OpenHapticFromMouse() *Haptic {
 	return fnOpenHapticFromMouse()
 }
 
-var fnIsJoystickHaptic func(joystick *Joystick) bool
+var addrIsJoystickHaptic uintptr
+
+func fnIsJoystickHaptic(joystick *Joystick) bool {
+	if addrIsJoystickHaptic == 0 {
+		missingSymbol("SDL_IsJoystickHaptic")
+	}
+	return uint8(call1(addrIsJoystickHaptic, uintptr(unsafe.Pointer(joystick)))) != 0
+}
 
 // Query if a joystick has haptic features.
 //
@@ -860,7 +923,14 @@ func IsJoystickHaptic(joystick *Joystick) bool {
 	return fnIsJoystickHaptic(joystick)
 }
 
-var fnOpenHapticFromJoystick func(joystick *Joystick) *Haptic
+var addrOpenHapticFromJoystick uintptr
+
+func fnOpenHapticFromJoystick(joystick *Joystick) *Haptic {
+	if addrOpenHapticFromJoystick == 0 {
+		missingSymbol("SDL_OpenHapticFromJoystick")
+	}
+	return (*Haptic)(cptr(call1(addrOpenHapticFromJoystick, uintptr(unsafe.Pointer(joystick)))))
+}
 
 // Open a haptic device for use from a joystick device.
 //
@@ -884,7 +954,14 @@ func OpenHapticFromJoystick(joystick *Joystick) *Haptic {
 	return fnOpenHapticFromJoystick(joystick)
 }
 
-var fnCloseHaptic func(haptic *Haptic)
+var addrCloseHaptic uintptr
+
+func fnCloseHaptic(haptic *Haptic) {
+	if addrCloseHaptic == 0 {
+		missingSymbol("SDL_CloseHaptic")
+	}
+	call1(addrCloseHaptic, uintptr(unsafe.Pointer(haptic)))
+}
 
 // Close a haptic device previously opened with OpenHaptic().
 //
@@ -898,7 +975,14 @@ func CloseHaptic(haptic *Haptic) {
 	fnCloseHaptic(haptic)
 }
 
-var fnGetMaxHapticEffects func(haptic *Haptic) int32
+var addrGetMaxHapticEffects uintptr
+
+func fnGetMaxHapticEffects(haptic *Haptic) int32 {
+	if addrGetMaxHapticEffects == 0 {
+		missingSymbol("SDL_GetMaxHapticEffects")
+	}
+	return int32(call1(addrGetMaxHapticEffects, uintptr(unsafe.Pointer(haptic))))
+}
 
 // Get the number of effects a haptic device can store.
 //
@@ -918,7 +1002,14 @@ func GetMaxHapticEffects(haptic *Haptic) int32 {
 	return fnGetMaxHapticEffects(haptic)
 }
 
-var fnGetMaxHapticEffectsPlaying func(haptic *Haptic) int32
+var addrGetMaxHapticEffectsPlaying uintptr
+
+func fnGetMaxHapticEffectsPlaying(haptic *Haptic) int32 {
+	if addrGetMaxHapticEffectsPlaying == 0 {
+		missingSymbol("SDL_GetMaxHapticEffectsPlaying")
+	}
+	return int32(call1(addrGetMaxHapticEffectsPlaying, uintptr(unsafe.Pointer(haptic))))
+}
 
 // Get the number of effects a haptic device can play at the same time.
 //
@@ -936,7 +1027,14 @@ func GetMaxHapticEffectsPlaying(haptic *Haptic) int32 {
 	return fnGetMaxHapticEffectsPlaying(haptic)
 }
 
-var fnGetHapticFeatures func(haptic *Haptic) uint32
+var addrGetHapticFeatures uintptr
+
+func fnGetHapticFeatures(haptic *Haptic) uint32 {
+	if addrGetHapticFeatures == 0 {
+		missingSymbol("SDL_GetHapticFeatures")
+	}
+	return uint32(call1(addrGetHapticFeatures, uintptr(unsafe.Pointer(haptic))))
+}
 
 // Get the haptic device's supported features in bitwise manner.
 //
@@ -952,7 +1050,14 @@ func GetHapticFeatures(haptic *Haptic) uint32 {
 	return fnGetHapticFeatures(haptic)
 }
 
-var fnGetNumHapticAxes func(haptic *Haptic) int32
+var addrGetNumHapticAxes uintptr
+
+func fnGetNumHapticAxes(haptic *Haptic) int32 {
+	if addrGetNumHapticAxes == 0 {
+		missingSymbol("SDL_GetNumHapticAxes")
+	}
+	return int32(call1(addrGetNumHapticAxes, uintptr(unsafe.Pointer(haptic))))
+}
 
 // Get the number of haptic axes the device has.
 //
@@ -969,7 +1074,14 @@ func GetNumHapticAxes(haptic *Haptic) int32 {
 	return fnGetNumHapticAxes(haptic)
 }
 
-var fnHapticEffectSupported func(haptic *Haptic, effect *HapticEffect) bool
+var addrHapticEffectSupported uintptr
+
+func fnHapticEffectSupported(haptic *Haptic, effect *HapticEffect) bool {
+	if addrHapticEffectSupported == 0 {
+		missingSymbol("SDL_HapticEffectSupported")
+	}
+	return uint8(call2(addrHapticEffectSupported, uintptr(unsafe.Pointer(haptic)), uintptr(unsafe.Pointer(effect)))) != 0
+}
 
 // Check to see if an effect is supported by a haptic device.
 //
@@ -986,7 +1098,14 @@ func HapticEffectSupported(haptic *Haptic, effect *HapticEffect) bool {
 	return fnHapticEffectSupported(haptic, effect)
 }
 
-var fnCreateHapticEffect func(haptic *Haptic, effect *HapticEffect) HapticEffectID
+var addrCreateHapticEffect uintptr
+
+func fnCreateHapticEffect(haptic *Haptic, effect *HapticEffect) HapticEffectID {
+	if addrCreateHapticEffect == 0 {
+		missingSymbol("SDL_CreateHapticEffect")
+	}
+	return HapticEffectID(call2(addrCreateHapticEffect, uintptr(unsafe.Pointer(haptic)), uintptr(unsafe.Pointer(effect))))
+}
 
 // Create a new haptic effect on a specified device.
 //
@@ -1003,7 +1122,14 @@ func CreateHapticEffect(haptic *Haptic, effect *HapticEffect) HapticEffectID {
 	return fnCreateHapticEffect(haptic, effect)
 }
 
-var fnUpdateHapticEffect func(haptic *Haptic, effect HapticEffectID, data *HapticEffect) bool
+var addrUpdateHapticEffect uintptr
+
+func fnUpdateHapticEffect(haptic *Haptic, effect HapticEffectID, data *HapticEffect) bool {
+	if addrUpdateHapticEffect == 0 {
+		missingSymbol("SDL_UpdateHapticEffect")
+	}
+	return uint8(call3(addrUpdateHapticEffect, uintptr(unsafe.Pointer(haptic)), uintptr(effect), uintptr(unsafe.Pointer(data)))) != 0
+}
 
 // Update the properties of an effect.
 //
@@ -1026,7 +1152,14 @@ func UpdateHapticEffect(haptic *Haptic, effect HapticEffectID, data *HapticEffec
 	return fnUpdateHapticEffect(haptic, effect, data)
 }
 
-var fnRunHapticEffect func(haptic *Haptic, effect HapticEffectID, iterations uint32) bool
+var addrRunHapticEffect uintptr
+
+func fnRunHapticEffect(haptic *Haptic, effect HapticEffectID, iterations uint32) bool {
+	if addrRunHapticEffect == 0 {
+		missingSymbol("SDL_RunHapticEffect")
+	}
+	return uint8(call3(addrRunHapticEffect, uintptr(unsafe.Pointer(haptic)), uintptr(effect), uintptr(iterations))) != 0
+}
 
 // Run the haptic effect on its associated haptic device.
 //
@@ -1050,7 +1183,14 @@ func RunHapticEffect(haptic *Haptic, effect HapticEffectID, iterations uint32) b
 	return fnRunHapticEffect(haptic, effect, iterations)
 }
 
-var fnStopHapticEffect func(haptic *Haptic, effect HapticEffectID) bool
+var addrStopHapticEffect uintptr
+
+func fnStopHapticEffect(haptic *Haptic, effect HapticEffectID) bool {
+	if addrStopHapticEffect == 0 {
+		missingSymbol("SDL_StopHapticEffect")
+	}
+	return uint8(call2(addrStopHapticEffect, uintptr(unsafe.Pointer(haptic)), uintptr(effect))) != 0
+}
 
 // Stop the haptic effect on its associated haptic device.
 //
@@ -1067,7 +1207,14 @@ func StopHapticEffect(haptic *Haptic, effect HapticEffectID) bool {
 	return fnStopHapticEffect(haptic, effect)
 }
 
-var fnDestroyHapticEffect func(haptic *Haptic, effect HapticEffectID)
+var addrDestroyHapticEffect uintptr
+
+func fnDestroyHapticEffect(haptic *Haptic, effect HapticEffectID) {
+	if addrDestroyHapticEffect == 0 {
+		missingSymbol("SDL_DestroyHapticEffect")
+	}
+	call2(addrDestroyHapticEffect, uintptr(unsafe.Pointer(haptic)), uintptr(effect))
+}
 
 // Destroy a haptic effect on the device.
 //
@@ -1085,7 +1232,14 @@ func DestroyHapticEffect(haptic *Haptic, effect HapticEffectID) {
 	fnDestroyHapticEffect(haptic, effect)
 }
 
-var fnGetHapticEffectStatus func(haptic *Haptic, effect HapticEffectID) bool
+var addrGetHapticEffectStatus uintptr
+
+func fnGetHapticEffectStatus(haptic *Haptic, effect HapticEffectID) bool {
+	if addrGetHapticEffectStatus == 0 {
+		missingSymbol("SDL_GetHapticEffectStatus")
+	}
+	return uint8(call2(addrGetHapticEffectStatus, uintptr(unsafe.Pointer(haptic)), uintptr(effect))) != 0
+}
 
 // Get the status of the current effect on the specified haptic device.
 //
@@ -1104,7 +1258,14 @@ func GetHapticEffectStatus(haptic *Haptic, effect HapticEffectID) bool {
 	return fnGetHapticEffectStatus(haptic, effect)
 }
 
-var fnSetHapticGain func(haptic *Haptic, gain int32) bool
+var addrSetHapticGain uintptr
+
+func fnSetHapticGain(haptic *Haptic, gain int32) bool {
+	if addrSetHapticGain == 0 {
+		missingSymbol("SDL_SetHapticGain")
+	}
+	return uint8(call2(addrSetHapticGain, uintptr(unsafe.Pointer(haptic)), uintptr(gain))) != 0
+}
 
 // Set the global gain of the specified haptic device.
 //
@@ -1128,7 +1289,14 @@ func SetHapticGain(haptic *Haptic, gain int32) bool {
 	return fnSetHapticGain(haptic, gain)
 }
 
-var fnSetHapticAutocenter func(haptic *Haptic, autocenter int32) bool
+var addrSetHapticAutocenter uintptr
+
+func fnSetHapticAutocenter(haptic *Haptic, autocenter int32) bool {
+	if addrSetHapticAutocenter == 0 {
+		missingSymbol("SDL_SetHapticAutocenter")
+	}
+	return uint8(call2(addrSetHapticAutocenter, uintptr(unsafe.Pointer(haptic)), uintptr(autocenter))) != 0
+}
 
 // Set the global autocenter of the device.
 //
@@ -1150,7 +1318,14 @@ func SetHapticAutocenter(haptic *Haptic, autocenter int32) bool {
 	return fnSetHapticAutocenter(haptic, autocenter)
 }
 
-var fnPauseHaptic func(haptic *Haptic) bool
+var addrPauseHaptic uintptr
+
+func fnPauseHaptic(haptic *Haptic) bool {
+	if addrPauseHaptic == 0 {
+		missingSymbol("SDL_PauseHaptic")
+	}
+	return uint8(call1(addrPauseHaptic, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Pause a haptic device.
 //
@@ -1172,7 +1347,14 @@ func PauseHaptic(haptic *Haptic) bool {
 	return fnPauseHaptic(haptic)
 }
 
-var fnResumeHaptic func(haptic *Haptic) bool
+var addrResumeHaptic uintptr
+
+func fnResumeHaptic(haptic *Haptic) bool {
+	if addrResumeHaptic == 0 {
+		missingSymbol("SDL_ResumeHaptic")
+	}
+	return uint8(call1(addrResumeHaptic, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Resume a haptic device.
 //
@@ -1190,7 +1372,14 @@ func ResumeHaptic(haptic *Haptic) bool {
 	return fnResumeHaptic(haptic)
 }
 
-var fnStopHapticEffects func(haptic *Haptic) bool
+var addrStopHapticEffects uintptr
+
+func fnStopHapticEffects(haptic *Haptic) bool {
+	if addrStopHapticEffects == 0 {
+		missingSymbol("SDL_StopHapticEffects")
+	}
+	return uint8(call1(addrStopHapticEffects, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Stop all the currently playing effects on a haptic device.
 //
@@ -1206,7 +1395,14 @@ func StopHapticEffects(haptic *Haptic) bool {
 	return fnStopHapticEffects(haptic)
 }
 
-var fnHapticRumbleSupported func(haptic *Haptic) bool
+var addrHapticRumbleSupported uintptr
+
+func fnHapticRumbleSupported(haptic *Haptic) bool {
+	if addrHapticRumbleSupported == 0 {
+		missingSymbol("SDL_HapticRumbleSupported")
+	}
+	return uint8(call1(addrHapticRumbleSupported, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Check whether rumble is supported on a haptic device.
 //
@@ -1222,7 +1418,14 @@ func HapticRumbleSupported(haptic *Haptic) bool {
 	return fnHapticRumbleSupported(haptic)
 }
 
-var fnInitHapticRumble func(haptic *Haptic) bool
+var addrInitHapticRumble uintptr
+
+func fnInitHapticRumble(haptic *Haptic) bool {
+	if addrInitHapticRumble == 0 {
+		missingSymbol("SDL_InitHapticRumble")
+	}
+	return uint8(call1(addrInitHapticRumble, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Initialize a haptic device for simple rumble playback.
 //
@@ -1256,7 +1459,14 @@ func PlayHapticRumble(haptic *Haptic, strength float32, length uint32) bool {
 	return fnPlayHapticRumble(haptic, strength, length)
 }
 
-var fnStopHapticRumble func(haptic *Haptic) bool
+var addrStopHapticRumble uintptr
+
+func fnStopHapticRumble(haptic *Haptic) bool {
+	if addrStopHapticRumble == 0 {
+		missingSymbol("SDL_StopHapticRumble")
+	}
+	return uint8(call1(addrStopHapticRumble, uintptr(unsafe.Pointer(haptic)))) != 0
+}
 
 // Stop the simple rumble on a haptic device.
 //

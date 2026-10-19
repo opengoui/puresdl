@@ -81,7 +81,14 @@ const (
 	BLENDMODE_INVALID BlendMode = 0x7FFFFFFF
 )
 
-var fnComposeCustomBlendMode func(srcColorFactor BlendFactor, dstColorFactor BlendFactor, colorOperation BlendOperation, srcAlphaFactor BlendFactor, dstAlphaFactor BlendFactor, alphaOperation BlendOperation) BlendMode
+var addrComposeCustomBlendMode uintptr
+
+func fnComposeCustomBlendMode(srcColorFactor BlendFactor, dstColorFactor BlendFactor, colorOperation BlendOperation, srcAlphaFactor BlendFactor, dstAlphaFactor BlendFactor, alphaOperation BlendOperation) BlendMode {
+	if addrComposeCustomBlendMode == 0 {
+		missingSymbol("SDL_ComposeCustomBlendMode")
+	}
+	return BlendMode(call6(addrComposeCustomBlendMode, uintptr(srcColorFactor), uintptr(dstColorFactor), uintptr(colorOperation), uintptr(srcAlphaFactor), uintptr(dstAlphaFactor), uintptr(alphaOperation)))
+}
 
 // Compose a custom blend mode for renderers.
 //

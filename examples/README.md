@@ -1,6 +1,6 @@
 # 示例
 
-本目录镜像 SDL 官方仓库的 `SDL/examples/<类别>/<编号-名称>/`：每个 C 示例在这里都有同名目录，里面是用 `puresdl` 重写的 `main.go`。目录名与 SDL 保持一致，没有其他示例目录。
+本目录镜像 SDL 官方仓库的 `SDL/examples/<类别>/<编号-名称>/`：每个 C 示例在这里都有同名目录，里面是用 `puresdl` 重写的 `main.go`。目录名与 SDL 保持一致。唯一的例外是 `examples/gpu/`：SDL 仓库没有 GPU API 示例，这里的示例是 puresdl 自己的，用来演示 SDL GPU 与 goroutine 的配合方式。
 
 所有示例都支持 `-frames N`：运行 N 帧后自动退出，便于无头验证。
 
@@ -46,6 +46,12 @@
 | `examples/renderer/19-affine-textures` | `SDL/examples/renderer/19-affine-textures/affine-textures.c` | 内嵌 PNG 资源（go:embed） |
 | `examples/renderer/20-blending` | `SDL/examples/renderer/20-blending/blending.c` | 无特殊要求 |
 | `examples/storage/01-user` | `SDL/examples/storage/01-user/user.c` | 读写用户存储目录 |
+
+### puresdl 自有示例
+
+| Go 目录 | 内容 | 硬件/资源/备注 |
+| --- | --- | --- |
+| `examples/gpu/01-multi-window` | 一个 SDL GPU 设备驱动多个窗口；每个窗口一个 worker goroutine 并行生成粒子顶点，主 goroutine 只负责事件、swapchain、录制与提交 | 需要 Metal/Vulkan/D3D12；内嵌 SPIR-V/MSL/DXIL 着色器（来自 SDL_gpu_examples，zlib，见 `shaders/LICENSE`）；dummy 驱动下冒烟测试跳过 |
 
 ## 运行
 

@@ -239,7 +239,14 @@ const (
 	DEBUG_TEXT_FONT_CHARACTER_SIZE = 8
 )
 
-var fnGetNumRenderDrivers func() int32
+var addrGetNumRenderDrivers uintptr
+
+func fnGetNumRenderDrivers() int32 {
+	if addrGetNumRenderDrivers == 0 {
+		missingSymbol("SDL_GetNumRenderDrivers")
+	}
+	return int32(call0(addrGetNumRenderDrivers))
+}
 
 // Get the number of 2D rendering drivers available for the current display.
 //
@@ -260,7 +267,14 @@ func GetNumRenderDrivers() int32 {
 	return fnGetNumRenderDrivers()
 }
 
-var fnGetRenderDriver func(index int32) *byte
+var addrGetRenderDriver uintptr
+
+func fnGetRenderDriver(index int32) *byte {
+	if addrGetRenderDriver == 0 {
+		missingSymbol("SDL_GetRenderDriver")
+	}
+	return (*byte)(cptr(call1(addrGetRenderDriver, uintptr(index))))
+}
 
 // Use this function to get the name of a built in 2D rendering driver.
 //
@@ -286,7 +300,14 @@ func GetRenderDriver(index int32) string {
 	return GoString(fnGetRenderDriver(index))
 }
 
-var fnCreateWindowAndRenderer func(title *byte, width int32, height int32, window_flags WindowFlags, window **Window, renderer **Renderer) bool
+var addrCreateWindowAndRenderer uintptr
+
+func fnCreateWindowAndRenderer(title *byte, width int32, height int32, window_flags WindowFlags, window **Window, renderer **Renderer) bool {
+	if addrCreateWindowAndRenderer == 0 {
+		missingSymbol("SDL_CreateWindowAndRenderer")
+	}
+	return uint8(call6(addrCreateWindowAndRenderer, uintptr(unsafe.Pointer(title)), uintptr(width), uintptr(height), uintptr(window_flags), uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Create a window and default renderer.
 //
@@ -309,7 +330,14 @@ func CreateWindowAndRenderer(title string, width int32, height int32, window_fla
 	return fnCreateWindowAndRenderer(cstr(title), width, height, window_flags, window, renderer)
 }
 
-var fnCreateRenderer func(window *Window, name *byte) *Renderer
+var addrCreateRenderer uintptr
+
+func fnCreateRenderer(window *Window, name *byte) *Renderer {
+	if addrCreateRenderer == 0 {
+		missingSymbol("SDL_CreateRenderer")
+	}
+	return (*Renderer)(cptr(call2(addrCreateRenderer, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(name)))))
+}
 
 // Create a 2D rendering context for a window.
 //
@@ -343,7 +371,14 @@ func CreateRenderer(window *Window, name string) *Renderer {
 	return fnCreateRenderer(window, cstrNull(name))
 }
 
-var fnCreateRendererWithProperties func(props PropertiesID) *Renderer
+var addrCreateRendererWithProperties uintptr
+
+func fnCreateRendererWithProperties(props PropertiesID) *Renderer {
+	if addrCreateRendererWithProperties == 0 {
+		missingSymbol("SDL_CreateRendererWithProperties")
+	}
+	return (*Renderer)(cptr(call1(addrCreateRendererWithProperties, uintptr(props))))
+}
 
 // Create a 2D rendering context for a window, with the specified properties.
 //
@@ -406,7 +441,14 @@ func CreateRendererWithProperties(props PropertiesID) *Renderer {
 	return fnCreateRendererWithProperties(props)
 }
 
-var fnCreateGPURenderer func(device *GPUDevice, window *Window) *Renderer
+var addrCreateGPURenderer uintptr
+
+func fnCreateGPURenderer(device *GPUDevice, window *Window) *Renderer {
+	if addrCreateGPURenderer == 0 {
+		missingSymbol("SDL_CreateGPURenderer")
+	}
+	return (*Renderer)(cptr(call2(addrCreateGPURenderer, uintptr(unsafe.Pointer(device)), uintptr(unsafe.Pointer(window)))))
+}
 
 // Create a 2D GPU rendering context.
 //
@@ -434,7 +476,14 @@ func CreateGPURenderer(device *GPUDevice, window *Window) *Renderer {
 	return fnCreateGPURenderer(device, window)
 }
 
-var fnGetGPURendererDevice func(renderer *Renderer) *GPUDevice
+var addrGetGPURendererDevice uintptr
+
+func fnGetGPURendererDevice(renderer *Renderer) *GPUDevice {
+	if addrGetGPURendererDevice == 0 {
+		missingSymbol("SDL_GetGPURendererDevice")
+	}
+	return (*GPUDevice)(cptr(call1(addrGetGPURendererDevice, uintptr(unsafe.Pointer(renderer)))))
+}
 
 // Return the GPU device used by a renderer.
 //
@@ -450,7 +499,14 @@ func GetGPURendererDevice(renderer *Renderer) *GPUDevice {
 	return fnGetGPURendererDevice(renderer)
 }
 
-var fnCreateSoftwareRenderer func(surface *Surface) *Renderer
+var addrCreateSoftwareRenderer uintptr
+
+func fnCreateSoftwareRenderer(surface *Surface) *Renderer {
+	if addrCreateSoftwareRenderer == 0 {
+		missingSymbol("SDL_CreateSoftwareRenderer")
+	}
+	return (*Renderer)(cptr(call1(addrCreateSoftwareRenderer, uintptr(unsafe.Pointer(surface)))))
+}
 
 // Create a 2D software rendering context for a surface.
 //
@@ -473,7 +529,14 @@ func CreateSoftwareRenderer(surface *Surface) *Renderer {
 	return fnCreateSoftwareRenderer(surface)
 }
 
-var fnGetRenderer func(window *Window) *Renderer
+var addrGetRenderer uintptr
+
+func fnGetRenderer(window *Window) *Renderer {
+	if addrGetRenderer == 0 {
+		missingSymbol("SDL_GetRenderer")
+	}
+	return (*Renderer)(cptr(call1(addrGetRenderer, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get the renderer associated with a window.
 //
@@ -489,7 +552,14 @@ func GetRenderer(window *Window) *Renderer {
 	return fnGetRenderer(window)
 }
 
-var fnGetRenderWindow func(renderer *Renderer) *Window
+var addrGetRenderWindow uintptr
+
+func fnGetRenderWindow(renderer *Renderer) *Window {
+	if addrGetRenderWindow == 0 {
+		missingSymbol("SDL_GetRenderWindow")
+	}
+	return (*Window)(cptr(call1(addrGetRenderWindow, uintptr(unsafe.Pointer(renderer)))))
+}
 
 // Get the window associated with a renderer.
 //
@@ -505,7 +575,14 @@ func GetRenderWindow(renderer *Renderer) *Window {
 	return fnGetRenderWindow(renderer)
 }
 
-var fnGetRendererName func(renderer *Renderer) *byte
+var addrGetRendererName uintptr
+
+func fnGetRendererName(renderer *Renderer) *byte {
+	if addrGetRendererName == 0 {
+		missingSymbol("SDL_GetRendererName")
+	}
+	return (*byte)(cptr(call1(addrGetRendererName, uintptr(unsafe.Pointer(renderer)))))
+}
 
 // Get the name of a renderer.
 //
@@ -523,7 +600,14 @@ func GetRendererName(renderer *Renderer) string {
 	return GoString(fnGetRendererName(renderer))
 }
 
-var fnGetRendererProperties func(renderer *Renderer) PropertiesID
+var addrGetRendererProperties uintptr
+
+func fnGetRendererProperties(renderer *Renderer) PropertiesID {
+	if addrGetRendererProperties == 0 {
+		missingSymbol("SDL_GetRendererProperties")
+	}
+	return PropertiesID(call1(addrGetRendererProperties, uintptr(unsafe.Pointer(renderer))))
+}
 
 // Get the properties associated with a renderer.
 //
@@ -614,7 +698,14 @@ func GetRendererProperties(renderer *Renderer) PropertiesID {
 	return fnGetRendererProperties(renderer)
 }
 
-var fnGetRenderOutputSize func(renderer *Renderer, w *int32, h *int32) bool
+var addrGetRenderOutputSize uintptr
+
+func fnGetRenderOutputSize(renderer *Renderer, w *int32, h *int32) bool {
+	if addrGetRenderOutputSize == 0 {
+		missingSymbol("SDL_GetRenderOutputSize")
+	}
+	return uint8(call3(addrGetRenderOutputSize, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the output size in pixels of a rendering context.
 //
@@ -640,7 +731,14 @@ func GetRenderOutputSize(renderer *Renderer, w *int32, h *int32) bool {
 	return fnGetRenderOutputSize(renderer, w, h)
 }
 
-var fnGetCurrentRenderOutputSize func(renderer *Renderer, w *int32, h *int32) bool
+var addrGetCurrentRenderOutputSize uintptr
+
+func fnGetCurrentRenderOutputSize(renderer *Renderer, w *int32, h *int32) bool {
+	if addrGetCurrentRenderOutputSize == 0 {
+		missingSymbol("SDL_GetCurrentRenderOutputSize")
+	}
+	return uint8(call3(addrGetCurrentRenderOutputSize, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the current output size in pixels of a rendering context.
 //
@@ -666,7 +764,14 @@ func GetCurrentRenderOutputSize(renderer *Renderer, w *int32, h *int32) bool {
 	return fnGetCurrentRenderOutputSize(renderer, w, h)
 }
 
-var fnCreateTexture func(renderer *Renderer, format PixelFormat, access TextureAccess, w int32, h int32) *Texture
+var addrCreateTexture uintptr
+
+func fnCreateTexture(renderer *Renderer, format PixelFormat, access TextureAccess, w int32, h int32) *Texture {
+	if addrCreateTexture == 0 {
+		missingSymbol("SDL_CreateTexture")
+	}
+	return (*Texture)(cptr(call5(addrCreateTexture, uintptr(unsafe.Pointer(renderer)), uintptr(format), uintptr(access), uintptr(w), uintptr(h))))
+}
 
 // Create a texture for a rendering context.
 //
@@ -690,7 +795,14 @@ func CreateTexture(renderer *Renderer, format PixelFormat, access TextureAccess,
 	return fnCreateTexture(renderer, format, access, w, h)
 }
 
-var fnCreateTextureFromSurface func(renderer *Renderer, surface *Surface) *Texture
+var addrCreateTextureFromSurface uintptr
+
+func fnCreateTextureFromSurface(renderer *Renderer, surface *Surface) *Texture {
+	if addrCreateTextureFromSurface == 0 {
+		missingSymbol("SDL_CreateTextureFromSurface")
+	}
+	return (*Texture)(cptr(call2(addrCreateTextureFromSurface, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(surface)))))
+}
 
 // Create a texture from an existing surface.
 //
@@ -718,7 +830,14 @@ func CreateTextureFromSurface(renderer *Renderer, surface *Surface) *Texture {
 	return fnCreateTextureFromSurface(renderer, surface)
 }
 
-var fnCreateTextureWithProperties func(renderer *Renderer, props PropertiesID) *Texture
+var addrCreateTextureWithProperties uintptr
+
+func fnCreateTextureWithProperties(renderer *Renderer, props PropertiesID) *Texture {
+	if addrCreateTextureWithProperties == 0 {
+		missingSymbol("SDL_CreateTextureWithProperties")
+	}
+	return (*Texture)(cptr(call2(addrCreateTextureWithProperties, uintptr(unsafe.Pointer(renderer)), uintptr(props))))
+}
 
 // Create a texture for a rendering context with the specified properties.
 //
@@ -844,7 +963,14 @@ func CreateTextureWithProperties(renderer *Renderer, props PropertiesID) *Textur
 	return fnCreateTextureWithProperties(renderer, props)
 }
 
-var fnGetTextureProperties func(texture *Texture) PropertiesID
+var addrGetTextureProperties uintptr
+
+func fnGetTextureProperties(texture *Texture) PropertiesID {
+	if addrGetTextureProperties == 0 {
+		missingSymbol("SDL_GetTextureProperties")
+	}
+	return PropertiesID(call1(addrGetTextureProperties, uintptr(unsafe.Pointer(texture))))
+}
 
 // Get the properties associated with a texture.
 //
@@ -946,7 +1072,14 @@ func GetTextureProperties(texture *Texture) PropertiesID {
 	return fnGetTextureProperties(texture)
 }
 
-var fnGetRendererFromTexture func(texture *Texture) *Renderer
+var addrGetRendererFromTexture uintptr
+
+func fnGetRendererFromTexture(texture *Texture) *Renderer {
+	if addrGetRendererFromTexture == 0 {
+		missingSymbol("SDL_GetRendererFromTexture")
+	}
+	return (*Renderer)(cptr(call1(addrGetRendererFromTexture, uintptr(unsafe.Pointer(texture)))))
+}
 
 // Get the renderer that created an Texture.
 //
@@ -962,7 +1095,14 @@ func GetRendererFromTexture(texture *Texture) *Renderer {
 	return fnGetRendererFromTexture(texture)
 }
 
-var fnGetTextureSize func(texture *Texture, w *float32, h *float32) bool
+var addrGetTextureSize uintptr
+
+func fnGetTextureSize(texture *Texture, w *float32, h *float32) bool {
+	if addrGetTextureSize == 0 {
+		missingSymbol("SDL_GetTextureSize")
+	}
+	return uint8(call3(addrGetTextureSize, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the size of a texture, as floating point values.
 //
@@ -980,7 +1120,14 @@ func GetTextureSize(texture *Texture, w *float32, h *float32) bool {
 	return fnGetTextureSize(texture, w, h)
 }
 
-var fnSetTexturePalette func(texture *Texture, palette *Palette) bool
+var addrSetTexturePalette uintptr
+
+func fnSetTexturePalette(texture *Texture, palette *Palette) bool {
+	if addrSetTexturePalette == 0 {
+		missingSymbol("SDL_SetTexturePalette")
+	}
+	return uint8(call2(addrSetTexturePalette, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(palette)))) != 0
+}
 
 // Set the palette used by a texture.
 //
@@ -1004,7 +1151,14 @@ func SetTexturePalette(texture *Texture, palette *Palette) bool {
 	return fnSetTexturePalette(texture, palette)
 }
 
-var fnGetTexturePalette func(texture *Texture) *Palette
+var addrGetTexturePalette uintptr
+
+func fnGetTexturePalette(texture *Texture) *Palette {
+	if addrGetTexturePalette == 0 {
+		missingSymbol("SDL_GetTexturePalette")
+	}
+	return (*Palette)(cptr(call1(addrGetTexturePalette, uintptr(unsafe.Pointer(texture)))))
+}
 
 // Get the palette used by a texture.
 //
@@ -1022,7 +1176,14 @@ func GetTexturePalette(texture *Texture) *Palette {
 	return fnGetTexturePalette(texture)
 }
 
-var fnSetTextureColorMod func(texture *Texture, r uint8, g uint8, b uint8) bool
+var addrSetTextureColorMod uintptr
+
+func fnSetTextureColorMod(texture *Texture, r uint8, g uint8, b uint8) bool {
+	if addrSetTextureColorMod == 0 {
+		missingSymbol("SDL_SetTextureColorMod")
+	}
+	return uint8(call4(addrSetTextureColorMod, uintptr(unsafe.Pointer(texture)), uintptr(r), uintptr(g), uintptr(b))) != 0
+}
 
 // Set an additional color value multiplied into render copy operations.
 //
@@ -1082,7 +1243,14 @@ func SetTextureColorModFloat(texture *Texture, r float32, g float32, b float32) 
 	return fnSetTextureColorModFloat(texture, r, g, b)
 }
 
-var fnGetTextureColorMod func(texture *Texture, r *uint8, g *uint8, b *uint8) bool
+var addrGetTextureColorMod uintptr
+
+func fnGetTextureColorMod(texture *Texture, r *uint8, g *uint8, b *uint8) bool {
+	if addrGetTextureColorMod == 0 {
+		missingSymbol("SDL_GetTextureColorMod")
+	}
+	return uint8(call4(addrGetTextureColorMod, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)))) != 0
+}
 
 // Get the additional color value multiplied into render copy operations.
 //
@@ -1103,7 +1271,14 @@ func GetTextureColorMod(texture *Texture, r *uint8, g *uint8, b *uint8) bool {
 	return fnGetTextureColorMod(texture, r, g, b)
 }
 
-var fnGetTextureColorModFloat func(texture *Texture, r *float32, g *float32, b *float32) bool
+var addrGetTextureColorModFloat uintptr
+
+func fnGetTextureColorModFloat(texture *Texture, r *float32, g *float32, b *float32) bool {
+	if addrGetTextureColorModFloat == 0 {
+		missingSymbol("SDL_GetTextureColorModFloat")
+	}
+	return uint8(call4(addrGetTextureColorModFloat, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)))) != 0
+}
 
 // Get the additional color value multiplied into render copy operations.
 //
@@ -1124,7 +1299,14 @@ func GetTextureColorModFloat(texture *Texture, r *float32, g *float32, b *float3
 	return fnGetTextureColorModFloat(texture, r, g, b)
 }
 
-var fnSetTextureAlphaMod func(texture *Texture, alpha uint8) bool
+var addrSetTextureAlphaMod uintptr
+
+func fnSetTextureAlphaMod(texture *Texture, alpha uint8) bool {
+	if addrSetTextureAlphaMod == 0 {
+		missingSymbol("SDL_SetTextureAlphaMod")
+	}
+	return uint8(call2(addrSetTextureAlphaMod, uintptr(unsafe.Pointer(texture)), uintptr(alpha))) != 0
+}
 
 // Set an additional alpha value multiplied into render copy operations.
 //
@@ -1178,7 +1360,14 @@ func SetTextureAlphaModFloat(texture *Texture, alpha float32) bool {
 	return fnSetTextureAlphaModFloat(texture, alpha)
 }
 
-var fnGetTextureAlphaMod func(texture *Texture, alpha *uint8) bool
+var addrGetTextureAlphaMod uintptr
+
+func fnGetTextureAlphaMod(texture *Texture, alpha *uint8) bool {
+	if addrGetTextureAlphaMod == 0 {
+		missingSymbol("SDL_GetTextureAlphaMod")
+	}
+	return uint8(call2(addrGetTextureAlphaMod, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(alpha)))) != 0
+}
 
 // Get the additional alpha value multiplied into render copy operations.
 //
@@ -1197,7 +1386,14 @@ func GetTextureAlphaMod(texture *Texture, alpha *uint8) bool {
 	return fnGetTextureAlphaMod(texture, alpha)
 }
 
-var fnGetTextureAlphaModFloat func(texture *Texture, alpha *float32) bool
+var addrGetTextureAlphaModFloat uintptr
+
+func fnGetTextureAlphaModFloat(texture *Texture, alpha *float32) bool {
+	if addrGetTextureAlphaModFloat == 0 {
+		missingSymbol("SDL_GetTextureAlphaModFloat")
+	}
+	return uint8(call2(addrGetTextureAlphaModFloat, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(alpha)))) != 0
+}
 
 // Get the additional alpha value multiplied into render copy operations.
 //
@@ -1216,7 +1412,14 @@ func GetTextureAlphaModFloat(texture *Texture, alpha *float32) bool {
 	return fnGetTextureAlphaModFloat(texture, alpha)
 }
 
-var fnSetTextureBlendMode func(texture *Texture, blendMode BlendMode) bool
+var addrSetTextureBlendMode uintptr
+
+func fnSetTextureBlendMode(texture *Texture, blendMode BlendMode) bool {
+	if addrSetTextureBlendMode == 0 {
+		missingSymbol("SDL_SetTextureBlendMode")
+	}
+	return uint8(call2(addrSetTextureBlendMode, uintptr(unsafe.Pointer(texture)), uintptr(blendMode))) != 0
+}
 
 // Set the blend mode for a texture, used by RenderTexture().
 //
@@ -1240,7 +1443,14 @@ func SetTextureBlendMode(texture *Texture, blendMode BlendMode) bool {
 	return fnSetTextureBlendMode(texture, blendMode)
 }
 
-var fnGetTextureBlendMode func(texture *Texture, blendMode *BlendMode) bool
+var addrGetTextureBlendMode uintptr
+
+func fnGetTextureBlendMode(texture *Texture, blendMode *BlendMode) bool {
+	if addrGetTextureBlendMode == 0 {
+		missingSymbol("SDL_GetTextureBlendMode")
+	}
+	return uint8(call2(addrGetTextureBlendMode, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(blendMode)))) != 0
+}
 
 // Get the blend mode used for texture copy operations.
 //
@@ -1259,7 +1469,14 @@ func GetTextureBlendMode(texture *Texture, blendMode *BlendMode) bool {
 	return fnGetTextureBlendMode(texture, blendMode)
 }
 
-var fnSetTextureScaleMode func(texture *Texture, scaleMode ScaleMode) bool
+var addrSetTextureScaleMode uintptr
+
+func fnSetTextureScaleMode(texture *Texture, scaleMode ScaleMode) bool {
+	if addrSetTextureScaleMode == 0 {
+		missingSymbol("SDL_SetTextureScaleMode")
+	}
+	return uint8(call2(addrSetTextureScaleMode, uintptr(unsafe.Pointer(texture)), uintptr(scaleMode))) != 0
+}
 
 // Set the scale mode used for texture scale operations.
 //
@@ -1282,7 +1499,14 @@ func SetTextureScaleMode(texture *Texture, scaleMode ScaleMode) bool {
 	return fnSetTextureScaleMode(texture, scaleMode)
 }
 
-var fnGetTextureScaleMode func(texture *Texture, scaleMode *ScaleMode) bool
+var addrGetTextureScaleMode uintptr
+
+func fnGetTextureScaleMode(texture *Texture, scaleMode *ScaleMode) bool {
+	if addrGetTextureScaleMode == 0 {
+		missingSymbol("SDL_GetTextureScaleMode")
+	}
+	return uint8(call2(addrGetTextureScaleMode, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(scaleMode)))) != 0
+}
 
 // Get the scale mode used for texture scale operations.
 //
@@ -1301,7 +1525,14 @@ func GetTextureScaleMode(texture *Texture, scaleMode *ScaleMode) bool {
 	return fnGetTextureScaleMode(texture, scaleMode)
 }
 
-var fnUpdateTexture func(texture *Texture, rect *Rect, pixels unsafe.Pointer, pitch int32) bool
+var addrUpdateTexture uintptr
+
+func fnUpdateTexture(texture *Texture, rect *Rect, pixels unsafe.Pointer, pitch int32) bool {
+	if addrUpdateTexture == 0 {
+		missingSymbol("SDL_UpdateTexture")
+	}
+	return uint8(call4(addrUpdateTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(pixels)), uintptr(pitch))) != 0
+}
 
 // Update the given texture rectangle with new pixel data.
 //
@@ -1359,7 +1590,14 @@ func UpdateTextureBytes(texture *Texture, rect *Rect, pixels []byte, pitch int32
 	return ok
 }
 
-var fnUpdateYUVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool
+var addrUpdateYUVTexture uintptr
+
+func fnUpdateYUVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, Uplane *uint8, Upitch int32, Vplane *uint8, Vpitch int32) bool {
+	if addrUpdateYUVTexture == 0 {
+		missingSymbol("SDL_UpdateYUVTexture")
+	}
+	return uint8(call8(addrUpdateYUVTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(Uplane)), uintptr(Upitch), uintptr(unsafe.Pointer(Vplane)), uintptr(Vpitch))) != 0
+}
 
 // Update a rectangle within a planar YV12 or IYUV texture with new pixel
 // data.
@@ -1425,7 +1663,14 @@ func UpdateYUVTextureBytes(texture *Texture, rect *Rect, Yplane []byte, Ypitch i
 	return ok
 }
 
-var fnUpdateNVTexture func(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool
+var addrUpdateNVTexture uintptr
+
+func fnUpdateNVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32, UVplane *uint8, UVpitch int32) bool {
+	if addrUpdateNVTexture == 0 {
+		missingSymbol("SDL_UpdateNVTexture")
+	}
+	return uint8(call6(addrUpdateNVTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(UVplane)), uintptr(UVpitch))) != 0
+}
 
 // Update a rectangle within a planar NV12 or NV21 texture with new pixels.
 //
@@ -1484,7 +1729,14 @@ func UpdateNVTextureBytes(texture *Texture, rect *Rect, Yplane []byte, Ypitch in
 	return ok
 }
 
-var fnLockTexture func(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *int32) bool
+var addrLockTexture uintptr
+
+func fnLockTexture(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *int32) bool {
+	if addrLockTexture == 0 {
+		missingSymbol("SDL_LockTexture")
+	}
+	return uint8(call4(addrLockTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(pixels)), uintptr(unsafe.Pointer(pitch)))) != 0
+}
 
 // Lock a portion of the texture for write-only pixel access.
 //
@@ -1513,7 +1765,14 @@ func LockTexture(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *in
 	return fnLockTexture(texture, rect, pixels, pitch)
 }
 
-var fnLockTextureToSurface func(texture *Texture, rect *Rect, surface **Surface) bool
+var addrLockTextureToSurface uintptr
+
+func fnLockTextureToSurface(texture *Texture, rect *Rect, surface **Surface) bool {
+	if addrLockTextureToSurface == 0 {
+		missingSymbol("SDL_LockTextureToSurface")
+	}
+	return uint8(call3(addrLockTextureToSurface, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Lock a portion of the texture for write-only pixel access, and expose
 // it as a SDL surface.
@@ -1548,7 +1807,14 @@ func LockTextureToSurface(texture *Texture, rect *Rect, surface **Surface) bool 
 	return fnLockTextureToSurface(texture, rect, surface)
 }
 
-var fnUnlockTexture func(texture *Texture)
+var addrUnlockTexture uintptr
+
+func fnUnlockTexture(texture *Texture) {
+	if addrUnlockTexture == 0 {
+		missingSymbol("SDL_UnlockTexture")
+	}
+	call1(addrUnlockTexture, uintptr(unsafe.Pointer(texture)))
+}
 
 // Unlock a texture, uploading the changes to video memory, if needed.
 //
@@ -1572,7 +1838,14 @@ func UnlockTexture(texture *Texture) {
 	fnUnlockTexture(texture)
 }
 
-var fnSetRenderTarget func(renderer *Renderer, texture *Texture) bool
+var addrSetRenderTarget uintptr
+
+func fnSetRenderTarget(renderer *Renderer, texture *Texture) bool {
+	if addrSetRenderTarget == 0 {
+		missingSymbol("SDL_SetRenderTarget")
+	}
+	return uint8(call2(addrSetRenderTarget, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)))) != 0
+}
 
 // Set a texture as the current rendering target.
 //
@@ -1600,7 +1873,14 @@ func SetRenderTarget(renderer *Renderer, texture *Texture) bool {
 	return fnSetRenderTarget(renderer, texture)
 }
 
-var fnGetRenderTarget func(renderer *Renderer) *Texture
+var addrGetRenderTarget uintptr
+
+func fnGetRenderTarget(renderer *Renderer) *Texture {
+	if addrGetRenderTarget == 0 {
+		missingSymbol("SDL_GetRenderTarget")
+	}
+	return (*Texture)(cptr(call1(addrGetRenderTarget, uintptr(unsafe.Pointer(renderer)))))
+}
 
 // Get the current render target.
 //
@@ -1621,7 +1901,14 @@ func GetRenderTarget(renderer *Renderer) *Texture {
 	return fnGetRenderTarget(renderer)
 }
 
-var fnSetRenderLogicalPresentation func(renderer *Renderer, w int32, h int32, mode RendererLogicalPresentation) bool
+var addrSetRenderLogicalPresentation uintptr
+
+func fnSetRenderLogicalPresentation(renderer *Renderer, w int32, h int32, mode RendererLogicalPresentation) bool {
+	if addrSetRenderLogicalPresentation == 0 {
+		missingSymbol("SDL_SetRenderLogicalPresentation")
+	}
+	return uint8(call4(addrSetRenderLogicalPresentation, uintptr(unsafe.Pointer(renderer)), uintptr(w), uintptr(h), uintptr(mode))) != 0
+}
 
 // Set a device-independent resolution and presentation mode for rendering.
 //
@@ -1669,7 +1956,14 @@ func SetRenderLogicalPresentation(renderer *Renderer, w int32, h int32, mode Ren
 	return fnSetRenderLogicalPresentation(renderer, w, h, mode)
 }
 
-var fnGetRenderLogicalPresentation func(renderer *Renderer, w *int32, h *int32, mode *RendererLogicalPresentation) bool
+var addrGetRenderLogicalPresentation uintptr
+
+func fnGetRenderLogicalPresentation(renderer *Renderer, w *int32, h *int32, mode *RendererLogicalPresentation) bool {
+	if addrGetRenderLogicalPresentation == 0 {
+		missingSymbol("SDL_GetRenderLogicalPresentation")
+	}
+	return uint8(call4(addrGetRenderLogicalPresentation, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)), uintptr(unsafe.Pointer(mode)))) != 0
+}
 
 // Get device independent resolution and presentation mode for rendering.
 //
@@ -1696,7 +1990,14 @@ func GetRenderLogicalPresentation(renderer *Renderer, w *int32, h *int32, mode *
 	return fnGetRenderLogicalPresentation(renderer, w, h, mode)
 }
 
-var fnGetRenderLogicalPresentationRect func(renderer *Renderer, rect *FRect) bool
+var addrGetRenderLogicalPresentationRect uintptr
+
+func fnGetRenderLogicalPresentationRect(renderer *Renderer, rect *FRect) bool {
+	if addrGetRenderLogicalPresentationRect == 0 {
+		missingSymbol("SDL_GetRenderLogicalPresentationRect")
+	}
+	return uint8(call2(addrGetRenderLogicalPresentationRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the final presentation rectangle for rendering.
 //
@@ -1781,7 +2082,14 @@ func RenderCoordinatesToWindow(renderer *Renderer, x float32, y float32, window_
 	return fnRenderCoordinatesToWindow(renderer, x, y, window_x, window_y)
 }
 
-var fnConvertEventToRenderCoordinates func(renderer *Renderer, event *Event) bool
+var addrConvertEventToRenderCoordinates uintptr
+
+func fnConvertEventToRenderCoordinates(renderer *Renderer, event *Event) bool {
+	if addrConvertEventToRenderCoordinates == 0 {
+		missingSymbol("SDL_ConvertEventToRenderCoordinates")
+	}
+	return uint8(call2(addrConvertEventToRenderCoordinates, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(event)))) != 0
+}
 
 // Convert the coordinates in an event to render coordinates.
 //
@@ -1820,7 +2128,14 @@ func ConvertEventToRenderCoordinates(renderer *Renderer, event *Event) bool {
 	return fnConvertEventToRenderCoordinates(renderer, event)
 }
 
-var fnSetRenderViewport func(renderer *Renderer, rect *Rect) bool
+var addrSetRenderViewport uintptr
+
+func fnSetRenderViewport(renderer *Renderer, rect *Rect) bool {
+	if addrSetRenderViewport == 0 {
+		missingSymbol("SDL_SetRenderViewport")
+	}
+	return uint8(call2(addrSetRenderViewport, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Set the drawing area for rendering on the current target.
 //
@@ -1848,7 +2163,14 @@ func SetRenderViewport(renderer *Renderer, rect *Rect) bool {
 	return fnSetRenderViewport(renderer, rect)
 }
 
-var fnGetRenderViewport func(renderer *Renderer, rect *Rect) bool
+var addrGetRenderViewport uintptr
+
+func fnGetRenderViewport(renderer *Renderer, rect *Rect) bool {
+	if addrGetRenderViewport == 0 {
+		missingSymbol("SDL_GetRenderViewport")
+	}
+	return uint8(call2(addrGetRenderViewport, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the drawing area for the current target.
 //
@@ -1870,7 +2192,14 @@ func GetRenderViewport(renderer *Renderer, rect *Rect) bool {
 	return fnGetRenderViewport(renderer, rect)
 }
 
-var fnRenderViewportSet func(renderer *Renderer) bool
+var addrRenderViewportSet uintptr
+
+func fnRenderViewportSet(renderer *Renderer) bool {
+	if addrRenderViewportSet == 0 {
+		missingSymbol("SDL_RenderViewportSet")
+	}
+	return uint8(call1(addrRenderViewportSet, uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Return whether an explicit rectangle was set as the viewport.
 //
@@ -1894,7 +2223,14 @@ func RenderViewportSet(renderer *Renderer) bool {
 	return fnRenderViewportSet(renderer)
 }
 
-var fnGetRenderSafeArea func(renderer *Renderer, rect *Rect) bool
+var addrGetRenderSafeArea uintptr
+
+func fnGetRenderSafeArea(renderer *Renderer, rect *Rect) bool {
+	if addrGetRenderSafeArea == 0 {
+		missingSymbol("SDL_GetRenderSafeArea")
+	}
+	return uint8(call2(addrGetRenderSafeArea, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the safe area for rendering within the current viewport.
 //
@@ -1918,7 +2254,14 @@ func GetRenderSafeArea(renderer *Renderer, rect *Rect) bool {
 	return fnGetRenderSafeArea(renderer, rect)
 }
 
-var fnSetRenderClipRect func(renderer *Renderer, rect *Rect) bool
+var addrSetRenderClipRect uintptr
+
+func fnSetRenderClipRect(renderer *Renderer, rect *Rect) bool {
+	if addrSetRenderClipRect == 0 {
+		missingSymbol("SDL_SetRenderClipRect")
+	}
+	return uint8(call2(addrSetRenderClipRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Set the clip rectangle for rendering on the specified target.
 //
@@ -1940,7 +2283,14 @@ func SetRenderClipRect(renderer *Renderer, rect *Rect) bool {
 	return fnSetRenderClipRect(renderer, rect)
 }
 
-var fnGetRenderClipRect func(renderer *Renderer, rect *Rect) bool
+var addrGetRenderClipRect uintptr
+
+func fnGetRenderClipRect(renderer *Renderer, rect *Rect) bool {
+	if addrGetRenderClipRect == 0 {
+		missingSymbol("SDL_GetRenderClipRect")
+	}
+	return uint8(call2(addrGetRenderClipRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the clip rectangle for the current target.
 //
@@ -1962,7 +2312,14 @@ func GetRenderClipRect(renderer *Renderer, rect *Rect) bool {
 	return fnGetRenderClipRect(renderer, rect)
 }
 
-var fnRenderClipEnabled func(renderer *Renderer) bool
+var addrRenderClipEnabled uintptr
+
+func fnRenderClipEnabled(renderer *Renderer) bool {
+	if addrRenderClipEnabled == 0 {
+		missingSymbol("SDL_RenderClipEnabled")
+	}
+	return uint8(call1(addrRenderClipEnabled, uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Get whether clipping is enabled on the given render target.
 //
@@ -2014,7 +2371,14 @@ func SetRenderScale(renderer *Renderer, scaleX float32, scaleY float32) bool {
 	return fnSetRenderScale(renderer, scaleX, scaleY)
 }
 
-var fnGetRenderScale func(renderer *Renderer, scaleX *float32, scaleY *float32) bool
+var addrGetRenderScale uintptr
+
+func fnGetRenderScale(renderer *Renderer, scaleX *float32, scaleY *float32) bool {
+	if addrGetRenderScale == 0 {
+		missingSymbol("SDL_GetRenderScale")
+	}
+	return uint8(call3(addrGetRenderScale, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(scaleX)), uintptr(unsafe.Pointer(scaleY)))) != 0
+}
 
 // Get the drawing scale for the current target.
 //
@@ -2037,7 +2401,14 @@ func GetRenderScale(renderer *Renderer, scaleX *float32, scaleY *float32) bool {
 	return fnGetRenderScale(renderer, scaleX, scaleY)
 }
 
-var fnSetRenderDrawColor func(renderer *Renderer, r uint8, g uint8, b uint8, a uint8) bool
+var addrSetRenderDrawColor uintptr
+
+func fnSetRenderDrawColor(renderer *Renderer, r uint8, g uint8, b uint8, a uint8) bool {
+	if addrSetRenderDrawColor == 0 {
+		missingSymbol("SDL_SetRenderDrawColor")
+	}
+	return uint8(call5(addrSetRenderDrawColor, uintptr(unsafe.Pointer(renderer)), uintptr(r), uintptr(g), uintptr(b), uintptr(a))) != 0
+}
 
 // Set the color used for drawing operations.
 //
@@ -2087,7 +2458,14 @@ func SetRenderDrawColorFloat(renderer *Renderer, r float32, g float32, b float32
 	return fnSetRenderDrawColorFloat(renderer, r, g, b, a)
 }
 
-var fnGetRenderDrawColor func(renderer *Renderer, r *uint8, g *uint8, b *uint8, a *uint8) bool
+var addrGetRenderDrawColor uintptr
+
+func fnGetRenderDrawColor(renderer *Renderer, r *uint8, g *uint8, b *uint8, a *uint8) bool {
+	if addrGetRenderDrawColor == 0 {
+		missingSymbol("SDL_GetRenderDrawColor")
+	}
+	return uint8(call5(addrGetRenderDrawColor, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)), uintptr(unsafe.Pointer(a)))) != 0
+}
 
 // Get the color used for drawing operations (Rect, Line and Clear).
 //
@@ -2109,7 +2487,14 @@ func GetRenderDrawColor(renderer *Renderer, r *uint8, g *uint8, b *uint8, a *uin
 	return fnGetRenderDrawColor(renderer, r, g, b, a)
 }
 
-var fnGetRenderDrawColorFloat func(renderer *Renderer, r *float32, g *float32, b *float32, a *float32) bool
+var addrGetRenderDrawColorFloat uintptr
+
+func fnGetRenderDrawColorFloat(renderer *Renderer, r *float32, g *float32, b *float32, a *float32) bool {
+	if addrGetRenderDrawColorFloat == 0 {
+		missingSymbol("SDL_GetRenderDrawColorFloat")
+	}
+	return uint8(call5(addrGetRenderDrawColorFloat, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)), uintptr(unsafe.Pointer(a)))) != 0
+}
 
 // Get the color used for drawing operations (Rect, Line and Clear).
 //
@@ -2158,7 +2543,14 @@ func SetRenderColorScale(renderer *Renderer, scale float32) bool {
 	return fnSetRenderColorScale(renderer, scale)
 }
 
-var fnGetRenderColorScale func(renderer *Renderer, scale *float32) bool
+var addrGetRenderColorScale uintptr
+
+func fnGetRenderColorScale(renderer *Renderer, scale *float32) bool {
+	if addrGetRenderColorScale == 0 {
+		missingSymbol("SDL_GetRenderColorScale")
+	}
+	return uint8(call2(addrGetRenderColorScale, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(scale)))) != 0
+}
 
 // Get the color scale used for render operations.
 //
@@ -2177,7 +2569,14 @@ func GetRenderColorScale(renderer *Renderer, scale *float32) bool {
 	return fnGetRenderColorScale(renderer, scale)
 }
 
-var fnSetRenderDrawBlendMode func(renderer *Renderer, blendMode BlendMode) bool
+var addrSetRenderDrawBlendMode uintptr
+
+func fnSetRenderDrawBlendMode(renderer *Renderer, blendMode BlendMode) bool {
+	if addrSetRenderDrawBlendMode == 0 {
+		missingSymbol("SDL_SetRenderDrawBlendMode")
+	}
+	return uint8(call2(addrSetRenderDrawBlendMode, uintptr(unsafe.Pointer(renderer)), uintptr(blendMode))) != 0
+}
 
 // Set the blend mode used for drawing operations.
 //
@@ -2200,7 +2599,14 @@ func SetRenderDrawBlendMode(renderer *Renderer, blendMode BlendMode) bool {
 	return fnSetRenderDrawBlendMode(renderer, blendMode)
 }
 
-var fnGetRenderDrawBlendMode func(renderer *Renderer, blendMode *BlendMode) bool
+var addrGetRenderDrawBlendMode uintptr
+
+func fnGetRenderDrawBlendMode(renderer *Renderer, blendMode *BlendMode) bool {
+	if addrGetRenderDrawBlendMode == 0 {
+		missingSymbol("SDL_GetRenderDrawBlendMode")
+	}
+	return uint8(call2(addrGetRenderDrawBlendMode, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(blendMode)))) != 0
+}
 
 // Get the blend mode used for drawing operations.
 //
@@ -2219,7 +2625,14 @@ func GetRenderDrawBlendMode(renderer *Renderer, blendMode *BlendMode) bool {
 	return fnGetRenderDrawBlendMode(renderer, blendMode)
 }
 
-var fnRenderClear func(renderer *Renderer) bool
+var addrRenderClear uintptr
+
+func fnRenderClear(renderer *Renderer) bool {
+	if addrRenderClear == 0 {
+		missingSymbol("SDL_RenderClear")
+	}
+	return uint8(call1(addrRenderClear, uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Clear the current rendering target with the drawing color.
 //
@@ -2262,7 +2675,14 @@ func RenderPoint(renderer *Renderer, x float32, y float32) bool {
 	return fnRenderPoint(renderer, x, y)
 }
 
-var fnRenderPoints func(renderer *Renderer, points *FPoint, count int32) bool
+var addrRenderPoints uintptr
+
+func fnRenderPoints(renderer *Renderer, points *FPoint, count int32) bool {
+	if addrRenderPoints == 0 {
+		missingSymbol("SDL_RenderPoints")
+	}
+	return uint8(call3(addrRenderPoints, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(points)), uintptr(count))) != 0
+}
 
 // Draw multiple points on the current rendering target at subpixel precision.
 //
@@ -2296,7 +2716,7 @@ func RenderPointsSlice(renderer *Renderer, points []FPoint) bool {
 	if !fitsInt32(len(points), "RenderPointsSlice") {
 		return false
 	}
-	ret := fastRenderPoints(renderer, &points[0], int32(len(points)))
+	ret := fnRenderPoints(renderer, &points[0], int32(len(points)))
 	runtime.KeepAlive(points)
 	return ret
 }
@@ -2323,7 +2743,14 @@ func RenderLine(renderer *Renderer, x1 float32, y1 float32, x2 float32, y2 float
 	return fnRenderLine(renderer, x1, y1, x2, y2)
 }
 
-var fnRenderLines func(renderer *Renderer, points *FPoint, count int32) bool
+var addrRenderLines uintptr
+
+func fnRenderLines(renderer *Renderer, points *FPoint, count int32) bool {
+	if addrRenderLines == 0 {
+		missingSymbol("SDL_RenderLines")
+	}
+	return uint8(call3(addrRenderLines, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(points)), uintptr(count))) != 0
+}
 
 // Draw a series of connected lines on the current rendering target at
 // subpixel precision.
@@ -2358,12 +2785,19 @@ func RenderLinesSlice(renderer *Renderer, points []FPoint) bool {
 	if !fitsInt32(len(points), "RenderLinesSlice") {
 		return false
 	}
-	ret := fastRenderLines(renderer, &points[0], int32(len(points)))
+	ret := fnRenderLines(renderer, &points[0], int32(len(points)))
 	runtime.KeepAlive(points)
 	return ret
 }
 
-var fnRenderRect func(renderer *Renderer, rect *FRect) bool
+var addrRenderRect uintptr
+
+func fnRenderRect(renderer *Renderer, rect *FRect) bool {
+	if addrRenderRect == 0 {
+		missingSymbol("SDL_RenderRect")
+	}
+	return uint8(call2(addrRenderRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Draw a rectangle on the current rendering target at subpixel precision.
 //
@@ -2382,7 +2816,14 @@ func RenderRect(renderer *Renderer, rect *FRect) bool {
 	return fnRenderRect(renderer, rect)
 }
 
-var fnRenderRects func(renderer *Renderer, rects *FRect, count int32) bool
+var addrRenderRects uintptr
+
+func fnRenderRects(renderer *Renderer, rects *FRect, count int32) bool {
+	if addrRenderRects == 0 {
+		missingSymbol("SDL_RenderRects")
+	}
+	return uint8(call3(addrRenderRects, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rects)), uintptr(count))) != 0
+}
 
 // Draw some number of rectangles on the current rendering target at subpixel
 // precision.
@@ -2417,12 +2858,19 @@ func RenderRectsSlice(renderer *Renderer, rects []FRect) bool {
 	if !fitsInt32(len(rects), "RenderRectsSlice") {
 		return false
 	}
-	ret := fastRenderRects(renderer, &rects[0], int32(len(rects)))
+	ret := fnRenderRects(renderer, &rects[0], int32(len(rects)))
 	runtime.KeepAlive(rects)
 	return ret
 }
 
-var fnRenderFillRect func(renderer *Renderer, rect *FRect) bool
+var addrRenderFillRect uintptr
+
+func fnRenderFillRect(renderer *Renderer, rect *FRect) bool {
+	if addrRenderFillRect == 0 {
+		missingSymbol("SDL_RenderFillRect")
+	}
+	return uint8(call2(addrRenderFillRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Fill a rectangle on the current rendering target with the drawing color at
 // subpixel precision.
@@ -2442,7 +2890,14 @@ func RenderFillRect(renderer *Renderer, rect *FRect) bool {
 	return fnRenderFillRect(renderer, rect)
 }
 
-var fnRenderFillRects func(renderer *Renderer, rects *FRect, count int32) bool
+var addrRenderFillRects uintptr
+
+func fnRenderFillRects(renderer *Renderer, rects *FRect, count int32) bool {
+	if addrRenderFillRects == 0 {
+		missingSymbol("SDL_RenderFillRects")
+	}
+	return uint8(call3(addrRenderFillRects, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rects)), uintptr(count))) != 0
+}
 
 // Fill some number of rectangles on the current rendering target with the
 // drawing color at subpixel precision.
@@ -2477,12 +2932,19 @@ func RenderFillRectsSlice(renderer *Renderer, rects []FRect) bool {
 	if !fitsInt32(len(rects), "RenderFillRectsSlice") {
 		return false
 	}
-	ret := fastRenderFillRects(renderer, &rects[0], int32(len(rects)))
+	ret := fnRenderFillRects(renderer, &rects[0], int32(len(rects)))
 	runtime.KeepAlive(rects)
 	return ret
 }
 
-var fnRenderTexture func(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect) bool
+var addrRenderTexture uintptr
+
+func fnRenderTexture(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect) bool {
+	if addrRenderTexture == 0 {
+		missingSymbol("SDL_RenderTexture")
+	}
+	return uint8(call4(addrRenderTexture, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))) != 0
+}
 
 // Copy a portion of the texture to the current rendering target at subpixel
 // precision.
@@ -2529,7 +2991,14 @@ func RenderTextureRotated(renderer *Renderer, texture *Texture, srcrect *FRect, 
 	return fnRenderTextureRotated(renderer, texture, srcrect, dstrect, angle, center, flip)
 }
 
-var fnRenderTextureAffine func(renderer *Renderer, texture *Texture, srcrect *FRect, origin *FPoint, right *FPoint, down *FPoint) bool
+var addrRenderTextureAffine uintptr
+
+func fnRenderTextureAffine(renderer *Renderer, texture *Texture, srcrect *FRect, origin *FPoint, right *FPoint, down *FPoint) bool {
+	if addrRenderTextureAffine == 0 {
+		missingSymbol("SDL_RenderTextureAffine")
+	}
+	return uint8(call6(addrRenderTextureAffine, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(origin)), uintptr(unsafe.Pointer(right)), uintptr(unsafe.Pointer(down)))) != 0
+}
 
 // Copy a portion of the source texture to the current rendering target, with
 // affine transform, at subpixel precision.
@@ -2646,7 +3115,14 @@ func RenderTexture9GridTiled(renderer *Renderer, texture *Texture, srcrect *FRec
 	return fnRenderTexture9GridTiled(renderer, texture, srcrect, left_width, right_width, top_height, bottom_height, scale, dstrect, tileScale)
 }
 
-var fnRenderGeometry func(renderer *Renderer, texture *Texture, vertices *Vertex, num_vertices int32, indices *int32, num_indices int32) bool
+var addrRenderGeometry uintptr
+
+func fnRenderGeometry(renderer *Renderer, texture *Texture, vertices *Vertex, num_vertices int32, indices *int32, num_indices int32) bool {
+	if addrRenderGeometry == 0 {
+		missingSymbol("SDL_RenderGeometry")
+	}
+	return uint8(call6(addrRenderGeometry, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(vertices)), uintptr(num_vertices), uintptr(unsafe.Pointer(indices)), uintptr(num_indices))) != 0
+}
 
 // Render a list of triangles, optionally using a texture and indices into the
 // vertex array Color and alpha modulation is done per vertex
@@ -2731,7 +3207,14 @@ func RenderGeometryRaw(renderer *Renderer, texture *Texture, xy *float32, xy_str
 	return fnRenderGeometryRaw(renderer, texture, xy, xy_stride, color, color_stride, uv, uv_stride, num_vertices, indices, num_indices, size_indices)
 }
 
-var fnSetRenderTextureAddressMode func(renderer *Renderer, u_mode TextureAddressMode, v_mode TextureAddressMode) bool
+var addrSetRenderTextureAddressMode uintptr
+
+func fnSetRenderTextureAddressMode(renderer *Renderer, u_mode TextureAddressMode, v_mode TextureAddressMode) bool {
+	if addrSetRenderTextureAddressMode == 0 {
+		missingSymbol("SDL_SetRenderTextureAddressMode")
+	}
+	return uint8(call3(addrSetRenderTextureAddressMode, uintptr(unsafe.Pointer(renderer)), uintptr(u_mode), uintptr(v_mode))) != 0
+}
 
 // Set the texture addressing mode used in RenderGeometry().
 //
@@ -2751,7 +3234,14 @@ func SetRenderTextureAddressMode(renderer *Renderer, u_mode TextureAddressMode, 
 	return fnSetRenderTextureAddressMode(renderer, u_mode, v_mode)
 }
 
-var fnGetRenderTextureAddressMode func(renderer *Renderer, u_mode *TextureAddressMode, v_mode *TextureAddressMode) bool
+var addrGetRenderTextureAddressMode uintptr
+
+func fnGetRenderTextureAddressMode(renderer *Renderer, u_mode *TextureAddressMode, v_mode *TextureAddressMode) bool {
+	if addrGetRenderTextureAddressMode == 0 {
+		missingSymbol("SDL_GetRenderTextureAddressMode")
+	}
+	return uint8(call3(addrGetRenderTextureAddressMode, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(u_mode)), uintptr(unsafe.Pointer(v_mode)))) != 0
+}
 
 // Get the texture addressing mode used in RenderGeometry().
 //
@@ -2771,7 +3261,14 @@ func GetRenderTextureAddressMode(renderer *Renderer, u_mode *TextureAddressMode,
 	return fnGetRenderTextureAddressMode(renderer, u_mode, v_mode)
 }
 
-var fnRenderReadPixels func(renderer *Renderer, rect *Rect) *Surface
+var addrRenderReadPixels uintptr
+
+func fnRenderReadPixels(renderer *Renderer, rect *Rect) *Surface {
+	if addrRenderReadPixels == 0 {
+		missingSymbol("SDL_RenderReadPixels")
+	}
+	return (*Surface)(cptr(call2(addrRenderReadPixels, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))))
+}
 
 // Read pixels from the current rendering target.
 //
@@ -2799,7 +3296,14 @@ func RenderReadPixels(renderer *Renderer, rect *Rect) *Surface {
 	return fnRenderReadPixels(renderer, rect)
 }
 
-var fnRenderPresent func(renderer *Renderer) bool
+var addrRenderPresent uintptr
+
+func fnRenderPresent(renderer *Renderer) bool {
+	if addrRenderPresent == 0 {
+		missingSymbol("SDL_RenderPresent")
+	}
+	return uint8(call1(addrRenderPresent, uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Update the screen with any rendering performed since the previous call.
 //
@@ -2840,7 +3344,14 @@ func RenderPresent(renderer *Renderer) bool {
 	return fnRenderPresent(renderer)
 }
 
-var fnDestroyTexture func(texture *Texture)
+var addrDestroyTexture uintptr
+
+func fnDestroyTexture(texture *Texture) {
+	if addrDestroyTexture == 0 {
+		missingSymbol("SDL_DestroyTexture")
+	}
+	call1(addrDestroyTexture, uintptr(unsafe.Pointer(texture)))
+}
 
 // Destroy the specified texture.
 //
@@ -2859,7 +3370,14 @@ func DestroyTexture(texture *Texture) {
 	fnDestroyTexture(texture)
 }
 
-var fnDestroyRenderer func(renderer *Renderer)
+var addrDestroyRenderer uintptr
+
+func fnDestroyRenderer(renderer *Renderer) {
+	if addrDestroyRenderer == 0 {
+		missingSymbol("SDL_DestroyRenderer")
+	}
+	call1(addrDestroyRenderer, uintptr(unsafe.Pointer(renderer)))
+}
 
 // Destroy the rendering context for a window and free all associated
 // textures.
@@ -2878,7 +3396,14 @@ func DestroyRenderer(renderer *Renderer) {
 	fnDestroyRenderer(renderer)
 }
 
-var fnFlushRenderer func(renderer *Renderer) bool
+var addrFlushRenderer uintptr
+
+func fnFlushRenderer(renderer *Renderer) bool {
+	if addrFlushRenderer == 0 {
+		missingSymbol("SDL_FlushRenderer")
+	}
+	return uint8(call1(addrFlushRenderer, uintptr(unsafe.Pointer(renderer)))) != 0
+}
 
 // Force the rendering context to flush any pending commands and state.
 //
@@ -2914,7 +3439,14 @@ func FlushRenderer(renderer *Renderer) bool {
 	return fnFlushRenderer(renderer)
 }
 
-var fnGetRenderMetalLayer func(renderer *Renderer) unsafe.Pointer
+var addrGetRenderMetalLayer uintptr
+
+func fnGetRenderMetalLayer(renderer *Renderer) unsafe.Pointer {
+	if addrGetRenderMetalLayer == 0 {
+		missingSymbol("SDL_GetRenderMetalLayer")
+	}
+	return cptr(call1(addrGetRenderMetalLayer, uintptr(unsafe.Pointer(renderer))))
+}
 
 // Get the CAMetalLayer associated with the given Metal renderer.
 //
@@ -2935,7 +3467,14 @@ func GetRenderMetalLayer(renderer *Renderer) unsafe.Pointer {
 	return fnGetRenderMetalLayer(renderer)
 }
 
-var fnGetRenderMetalCommandEncoder func(renderer *Renderer) unsafe.Pointer
+var addrGetRenderMetalCommandEncoder uintptr
+
+func fnGetRenderMetalCommandEncoder(renderer *Renderer) unsafe.Pointer {
+	if addrGetRenderMetalCommandEncoder == 0 {
+		missingSymbol("SDL_GetRenderMetalCommandEncoder")
+	}
+	return cptr(call1(addrGetRenderMetalCommandEncoder, uintptr(unsafe.Pointer(renderer))))
+}
 
 // Get the Metal command encoder for the current frame.
 //
@@ -2961,7 +3500,14 @@ func GetRenderMetalCommandEncoder(renderer *Renderer) unsafe.Pointer {
 	return fnGetRenderMetalCommandEncoder(renderer)
 }
 
-var fnAddVulkanRenderSemaphores func(renderer *Renderer, wait_stage_mask uint32, wait_semaphore int64, signal_semaphore int64) bool
+var addrAddVulkanRenderSemaphores uintptr
+
+func fnAddVulkanRenderSemaphores(renderer *Renderer, wait_stage_mask uint32, wait_semaphore int64, signal_semaphore int64) bool {
+	if addrAddVulkanRenderSemaphores == 0 {
+		missingSymbol("SDL_AddVulkanRenderSemaphores")
+	}
+	return uint8(call4(addrAddVulkanRenderSemaphores, uintptr(unsafe.Pointer(renderer)), uintptr(wait_stage_mask), uintptr(wait_semaphore), uintptr(signal_semaphore))) != 0
+}
 
 // Add a set of synchronization semaphores for the current frame.
 //
@@ -2990,7 +3536,14 @@ func AddVulkanRenderSemaphores(renderer *Renderer, wait_stage_mask uint32, wait_
 	return fnAddVulkanRenderSemaphores(renderer, wait_stage_mask, wait_semaphore, signal_semaphore)
 }
 
-var fnSetRenderVSync func(renderer *Renderer, vsync int32) bool
+var addrSetRenderVSync uintptr
+
+func fnSetRenderVSync(renderer *Renderer, vsync int32) bool {
+	if addrSetRenderVSync == 0 {
+		missingSymbol("SDL_SetRenderVSync")
+	}
+	return uint8(call2(addrSetRenderVSync, uintptr(unsafe.Pointer(renderer)), uintptr(vsync))) != 0
+}
 
 // Toggle VSync of the given renderer.
 //
@@ -3018,7 +3571,14 @@ func SetRenderVSync(renderer *Renderer, vsync int32) bool {
 	return fnSetRenderVSync(renderer, vsync)
 }
 
-var fnGetRenderVSync func(renderer *Renderer, vsync *int32) bool
+var addrGetRenderVSync uintptr
+
+func fnGetRenderVSync(renderer *Renderer, vsync *int32) bool {
+	if addrGetRenderVSync == 0 {
+		missingSymbol("SDL_GetRenderVSync")
+	}
+	return uint8(call2(addrGetRenderVSync, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(vsync)))) != 0
+}
 
 // Get VSync of the given renderer.
 //
@@ -3111,7 +3671,14 @@ func RenderDebugTextFormat(renderer *Renderer, x float32, y float32, format stri
 	return fnRenderDebugTextFormat(renderer, x, y, cprintf(format, args))
 }
 
-var fnSetDefaultTextureScaleMode func(renderer *Renderer, scale_mode ScaleMode) bool
+var addrSetDefaultTextureScaleMode uintptr
+
+func fnSetDefaultTextureScaleMode(renderer *Renderer, scale_mode ScaleMode) bool {
+	if addrSetDefaultTextureScaleMode == 0 {
+		missingSymbol("SDL_SetDefaultTextureScaleMode")
+	}
+	return uint8(call2(addrSetDefaultTextureScaleMode, uintptr(unsafe.Pointer(renderer)), uintptr(scale_mode))) != 0
+}
 
 // Set default scale mode for new textures for given renderer.
 //
@@ -3132,7 +3699,14 @@ func SetDefaultTextureScaleMode(renderer *Renderer, scale_mode ScaleMode) bool {
 	return fnSetDefaultTextureScaleMode(renderer, scale_mode)
 }
 
-var fnGetDefaultTextureScaleMode func(renderer *Renderer, scale_mode *ScaleMode) bool
+var addrGetDefaultTextureScaleMode uintptr
+
+func fnGetDefaultTextureScaleMode(renderer *Renderer, scale_mode *ScaleMode) bool {
+	if addrGetDefaultTextureScaleMode == 0 {
+		missingSymbol("SDL_GetDefaultTextureScaleMode")
+	}
+	return uint8(call2(addrGetDefaultTextureScaleMode, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(scale_mode)))) != 0
+}
 
 // Get default texture scale mode of the given renderer.
 //
@@ -3151,7 +3725,14 @@ func GetDefaultTextureScaleMode(renderer *Renderer, scale_mode *ScaleMode) bool 
 	return fnGetDefaultTextureScaleMode(renderer, scale_mode)
 }
 
-var fnCreateGPURenderState func(renderer *Renderer, createinfo *GPURenderStateCreateInfo) *GPURenderState
+var addrCreateGPURenderState uintptr
+
+func fnCreateGPURenderState(renderer *Renderer, createinfo *GPURenderStateCreateInfo) *GPURenderState {
+	if addrCreateGPURenderState == 0 {
+		missingSymbol("SDL_CreateGPURenderState")
+	}
+	return (*GPURenderState)(cptr(call2(addrCreateGPURenderState, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(createinfo)))))
+}
 
 // Create custom GPU render state.
 //
@@ -3170,7 +3751,14 @@ func CreateGPURenderState(renderer *Renderer, createinfo *GPURenderStateCreateIn
 	return fnCreateGPURenderState(renderer, createinfo)
 }
 
-var fnSetGPURenderStateFragmentUniforms func(state *GPURenderState, slot_index uint32, data unsafe.Pointer, length uint32) bool
+var addrSetGPURenderStateFragmentUniforms uintptr
+
+func fnSetGPURenderStateFragmentUniforms(state *GPURenderState, slot_index uint32, data unsafe.Pointer, length uint32) bool {
+	if addrSetGPURenderStateFragmentUniforms == 0 {
+		missingSymbol("SDL_SetGPURenderStateFragmentUniforms")
+	}
+	return uint8(call4(addrSetGPURenderStateFragmentUniforms, uintptr(unsafe.Pointer(state)), uintptr(slot_index), uintptr(unsafe.Pointer(data)), uintptr(length))) != 0
+}
 
 // Set fragment shader uniform variables in a custom GPU render state.
 //
@@ -3192,7 +3780,14 @@ func SetGPURenderStateFragmentUniforms(state *GPURenderState, slot_index uint32,
 	return fnSetGPURenderStateFragmentUniforms(state, slot_index, data, length)
 }
 
-var fnSetGPURenderState func(renderer *Renderer, state *GPURenderState) bool
+var addrSetGPURenderState uintptr
+
+func fnSetGPURenderState(renderer *Renderer, state *GPURenderState) bool {
+	if addrSetGPURenderState == 0 {
+		missingSymbol("SDL_SetGPURenderState")
+	}
+	return uint8(call2(addrSetGPURenderState, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(state)))) != 0
+}
 
 // Set custom GPU render state.
 //
@@ -3212,7 +3807,14 @@ func SetGPURenderState(renderer *Renderer, state *GPURenderState) bool {
 	return fnSetGPURenderState(renderer, state)
 }
 
-var fnDestroyGPURenderState func(state *GPURenderState)
+var addrDestroyGPURenderState uintptr
+
+func fnDestroyGPURenderState(state *GPURenderState) {
+	if addrDestroyGPURenderState == 0 {
+		missingSymbol("SDL_DestroyGPURenderState")
+	}
+	call1(addrDestroyGPURenderState, uintptr(unsafe.Pointer(state)))
+}
 
 // Destroy custom GPU render state.
 //

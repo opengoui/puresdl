@@ -117,7 +117,14 @@ const (
 	NS_PER_US = 0x3E8
 )
 
-var fnGetTicks func() uint64
+var addrGetTicks uintptr
+
+func fnGetTicks() uint64 {
+	if addrGetTicks == 0 {
+		missingSymbol("SDL_GetTicks")
+	}
+	return uint64(call0(addrGetTicks))
+}
 
 // Get the number of milliseconds that have elapsed since the SDL library
 // initialization.
@@ -133,7 +140,14 @@ func GetTicks() uint64 {
 	return fnGetTicks()
 }
 
-var fnGetTicksNS func() uint64
+var addrGetTicksNS uintptr
+
+func fnGetTicksNS() uint64 {
+	if addrGetTicksNS == 0 {
+		missingSymbol("SDL_GetTicksNS")
+	}
+	return uint64(call0(addrGetTicksNS))
+}
 
 // Get the number of nanoseconds since SDL library initialization.
 //
@@ -146,7 +160,14 @@ func GetTicksNS() uint64 {
 	return fnGetTicksNS()
 }
 
-var fnGetPerformanceCounter func() uint64
+var addrGetPerformanceCounter uintptr
+
+func fnGetPerformanceCounter() uint64 {
+	if addrGetPerformanceCounter == 0 {
+		missingSymbol("SDL_GetPerformanceCounter")
+	}
+	return uint64(call0(addrGetPerformanceCounter))
+}
 
 // Get the current value of the high resolution counter.
 //
@@ -167,7 +188,14 @@ func GetPerformanceCounter() uint64 {
 	return fnGetPerformanceCounter()
 }
 
-var fnGetPerformanceFrequency func() uint64
+var addrGetPerformanceFrequency uintptr
+
+func fnGetPerformanceFrequency() uint64 {
+	if addrGetPerformanceFrequency == 0 {
+		missingSymbol("SDL_GetPerformanceFrequency")
+	}
+	return uint64(call0(addrGetPerformanceFrequency))
+}
 
 // Get the count per second of the high resolution counter.
 //
@@ -182,7 +210,14 @@ func GetPerformanceFrequency() uint64 {
 	return fnGetPerformanceFrequency()
 }
 
-var fnDelay func(ms uint32)
+var addrDelay uintptr
+
+func fnDelay(ms uint32) {
+	if addrDelay == 0 {
+		missingSymbol("SDL_Delay")
+	}
+	call1(addrDelay, uintptr(ms))
+}
 
 // Wait a specified number of milliseconds before returning.
 //
@@ -202,7 +237,14 @@ func Delay(ms uint32) {
 	fnDelay(ms)
 }
 
-var fnDelayNS func(ns uint64)
+var addrDelayNS uintptr
+
+func fnDelayNS(ns uint64) {
+	if addrDelayNS == 0 {
+		missingSymbol("SDL_DelayNS")
+	}
+	call1(addrDelayNS, uintptr(ns))
+}
 
 // Wait a specified number of nanoseconds before returning.
 //
@@ -222,7 +264,14 @@ func DelayNS(ns uint64) {
 	fnDelayNS(ns)
 }
 
-var fnDelayPrecise func(ns uint64)
+var addrDelayPrecise uintptr
+
+func fnDelayPrecise(ns uint64) {
+	if addrDelayPrecise == 0 {
+		missingSymbol("SDL_DelayPrecise")
+	}
+	call1(addrDelayPrecise, uintptr(ns))
+}
 
 // Wait a specified number of nanoseconds before returning.
 //
@@ -242,7 +291,14 @@ func DelayPrecise(ns uint64) {
 	fnDelayPrecise(ns)
 }
 
-var fnAddTimer func(interval uint32, callback TimerCallback, userdata unsafe.Pointer) TimerID
+var addrAddTimer uintptr
+
+func fnAddTimer(interval uint32, callback TimerCallback, userdata unsafe.Pointer) TimerID {
+	if addrAddTimer == 0 {
+		missingSymbol("SDL_AddTimer")
+	}
+	return TimerID(call3(addrAddTimer, uintptr(interval), uintptr(callback), uintptr(unsafe.Pointer(userdata))))
+}
 
 // Call a callback function at a future time.
 //
@@ -281,7 +337,14 @@ func AddTimer(interval uint32, callback TimerCallback, userdata unsafe.Pointer) 
 	return fnAddTimer(interval, callback, userdata)
 }
 
-var fnAddTimerNS func(interval uint64, callback NSTimerCallback, userdata unsafe.Pointer) TimerID
+var addrAddTimerNS uintptr
+
+func fnAddTimerNS(interval uint64, callback NSTimerCallback, userdata unsafe.Pointer) TimerID {
+	if addrAddTimerNS == 0 {
+		missingSymbol("SDL_AddTimerNS")
+	}
+	return TimerID(call3(addrAddTimerNS, uintptr(interval), uintptr(callback), uintptr(unsafe.Pointer(userdata))))
+}
 
 // Call a callback function at a future time.
 //
@@ -320,7 +383,14 @@ func AddTimerNS(interval uint64, callback NSTimerCallback, userdata unsafe.Point
 	return fnAddTimerNS(interval, callback, userdata)
 }
 
-var fnRemoveTimer func(id TimerID) bool
+var addrRemoveTimer uintptr
+
+func fnRemoveTimer(id TimerID) bool {
+	if addrRemoveTimer == 0 {
+		missingSymbol("SDL_RemoveTimer")
+	}
+	return uint8(call1(addrRemoveTimer, uintptr(id))) != 0
+}
 
 // Remove a timer created with AddTimer().
 //

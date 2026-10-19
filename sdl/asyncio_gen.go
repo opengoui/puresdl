@@ -95,7 +95,14 @@ const (
 	ASYNCIO_CANCELED AsyncIOResult = 2
 )
 
-var fnAsyncIOFromFile func(file *byte, mode *byte) *AsyncIO
+var addrAsyncIOFromFile uintptr
+
+func fnAsyncIOFromFile(file *byte, mode *byte) *AsyncIO {
+	if addrAsyncIOFromFile == 0 {
+		missingSymbol("SDL_AsyncIOFromFile")
+	}
+	return (*AsyncIO)(cptr(call2(addrAsyncIOFromFile, uintptr(unsafe.Pointer(file)), uintptr(unsafe.Pointer(mode)))))
+}
 
 // Use this function to create a new AsyncIO object for reading from
 // and/or writing to a named file.
@@ -136,7 +143,14 @@ func AsyncIOFromFile(file string, mode string) *AsyncIO {
 	return fnAsyncIOFromFile(cstr(file), cstr(mode))
 }
 
-var fnGetAsyncIOSize func(asyncio *AsyncIO) int64
+var addrGetAsyncIOSize uintptr
+
+func fnGetAsyncIOSize(asyncio *AsyncIO) int64 {
+	if addrGetAsyncIOSize == 0 {
+		missingSymbol("SDL_GetAsyncIOSize")
+	}
+	return int64(call1(addrGetAsyncIOSize, uintptr(unsafe.Pointer(asyncio))))
+}
 
 // Use this function to get the size of the data stream in an AsyncIO.
 //
@@ -155,7 +169,14 @@ func GetAsyncIOSize(asyncio *AsyncIO) int64 {
 	return fnGetAsyncIOSize(asyncio)
 }
 
-var fnReadAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool
+var addrReadAsyncIO uintptr
+
+func fnReadAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
+	if addrReadAsyncIO == 0 {
+		missingSymbol("SDL_ReadAsyncIO")
+	}
+	return uint8(call6(addrReadAsyncIO, uintptr(unsafe.Pointer(asyncio)), uintptr(unsafe.Pointer(ptr)), uintptr(offset), uintptr(size), uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Start an async read.
 //
@@ -196,7 +217,14 @@ func ReadAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint6
 	return fnReadAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
 
-var fnWriteAsyncIO func(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool
+var addrWriteAsyncIO uintptr
+
+func fnWriteAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint64, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
+	if addrWriteAsyncIO == 0 {
+		missingSymbol("SDL_WriteAsyncIO")
+	}
+	return uint8(call6(addrWriteAsyncIO, uintptr(unsafe.Pointer(asyncio)), uintptr(unsafe.Pointer(ptr)), uintptr(offset), uintptr(size), uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Start an async write.
 //
@@ -236,7 +264,14 @@ func WriteAsyncIO(asyncio *AsyncIO, ptr unsafe.Pointer, offset uint64, size uint
 	return fnWriteAsyncIO(asyncio, ptr, offset, size, queue, userdata)
 }
 
-var fnCloseAsyncIO func(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userdata unsafe.Pointer) bool
+var addrCloseAsyncIO uintptr
+
+func fnCloseAsyncIO(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
+	if addrCloseAsyncIO == 0 {
+		missingSymbol("SDL_CloseAsyncIO")
+	}
+	return uint8(call4(addrCloseAsyncIO, uintptr(unsafe.Pointer(asyncio)), cbool(flush), uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Close and free any allocated resources for an async I/O object.
 //
@@ -288,7 +323,14 @@ func CloseAsyncIO(asyncio *AsyncIO, flush bool, queue *AsyncIOQueue, userdata un
 	return fnCloseAsyncIO(asyncio, flush, queue, userdata)
 }
 
-var fnCreateAsyncIOQueue func() *AsyncIOQueue
+var addrCreateAsyncIOQueue uintptr
+
+func fnCreateAsyncIOQueue() *AsyncIOQueue {
+	if addrCreateAsyncIOQueue == 0 {
+		missingSymbol("SDL_CreateAsyncIOQueue")
+	}
+	return (*AsyncIOQueue)(cptr(call0(addrCreateAsyncIOQueue)))
+}
 
 // Create a task queue for tracking multiple I/O operations.
 //
@@ -306,7 +348,14 @@ func CreateAsyncIOQueue() *AsyncIOQueue {
 	return fnCreateAsyncIOQueue()
 }
 
-var fnDestroyAsyncIOQueue func(queue *AsyncIOQueue)
+var addrDestroyAsyncIOQueue uintptr
+
+func fnDestroyAsyncIOQueue(queue *AsyncIOQueue) {
+	if addrDestroyAsyncIOQueue == 0 {
+		missingSymbol("SDL_DestroyAsyncIOQueue")
+	}
+	call1(addrDestroyAsyncIOQueue, uintptr(unsafe.Pointer(queue)))
+}
 
 // Destroy a previously-created async I/O task queue.
 //
@@ -337,7 +386,14 @@ func DestroyAsyncIOQueue(queue *AsyncIOQueue) {
 	fnDestroyAsyncIOQueue(queue)
 }
 
-var fnGetAsyncIOResult func(queue *AsyncIOQueue, outcome *AsyncIOOutcome) bool
+var addrGetAsyncIOResult uintptr
+
+func fnGetAsyncIOResult(queue *AsyncIOQueue, outcome *AsyncIOOutcome) bool {
+	if addrGetAsyncIOResult == 0 {
+		missingSymbol("SDL_GetAsyncIOResult")
+	}
+	return uint8(call2(addrGetAsyncIOResult, uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(outcome)))) != 0
+}
 
 // Query an async I/O task queue for completed tasks.
 //
@@ -366,7 +422,14 @@ func GetAsyncIOResult(queue *AsyncIOQueue, outcome *AsyncIOOutcome) bool {
 	return fnGetAsyncIOResult(queue, outcome)
 }
 
-var fnWaitAsyncIOResult func(queue *AsyncIOQueue, outcome *AsyncIOOutcome, timeoutMS int32) bool
+var addrWaitAsyncIOResult uintptr
+
+func fnWaitAsyncIOResult(queue *AsyncIOQueue, outcome *AsyncIOOutcome, timeoutMS int32) bool {
+	if addrWaitAsyncIOResult == 0 {
+		missingSymbol("SDL_WaitAsyncIOResult")
+	}
+	return uint8(call3(addrWaitAsyncIOResult, uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(outcome)), uintptr(timeoutMS))) != 0
+}
 
 // Block until an async I/O task queue has a completed task.
 //
@@ -412,7 +475,14 @@ func WaitAsyncIOResult(queue *AsyncIOQueue, outcome *AsyncIOOutcome, timeoutMS i
 	return fnWaitAsyncIOResult(queue, outcome, timeoutMS)
 }
 
-var fnSignalAsyncIOQueue func(queue *AsyncIOQueue)
+var addrSignalAsyncIOQueue uintptr
+
+func fnSignalAsyncIOQueue(queue *AsyncIOQueue) {
+	if addrSignalAsyncIOQueue == 0 {
+		missingSymbol("SDL_SignalAsyncIOQueue")
+	}
+	call1(addrSignalAsyncIOQueue, uintptr(unsafe.Pointer(queue)))
+}
 
 // Wake up any threads that are blocking in WaitAsyncIOResult().
 //
@@ -439,7 +509,14 @@ func SignalAsyncIOQueue(queue *AsyncIOQueue) {
 	fnSignalAsyncIOQueue(queue)
 }
 
-var fnLoadFileAsync func(file *byte, queue *AsyncIOQueue, userdata unsafe.Pointer) bool
+var addrLoadFileAsync uintptr
+
+func fnLoadFileAsync(file *byte, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
+	if addrLoadFileAsync == 0 {
+		missingSymbol("SDL_LoadFileAsync")
+	}
+	return uint8(call3(addrLoadFileAsync, uintptr(unsafe.Pointer(file)), uintptr(unsafe.Pointer(queue)), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Load all the data from a file path, asynchronously.
 //

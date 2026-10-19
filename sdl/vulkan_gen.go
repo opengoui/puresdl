@@ -8,7 +8,14 @@ type VkInstance unsafe.Pointer
 type VkPhysicalDevice unsafe.Pointer
 type VkSurfaceKHR unsafe.Pointer
 
-var fnVulkan_LoadLibrary func(path *byte) bool
+var addrVulkan_LoadLibrary uintptr
+
+func fnVulkan_LoadLibrary(path *byte) bool {
+	if addrVulkan_LoadLibrary == 0 {
+		missingSymbol("SDL_Vulkan_LoadLibrary")
+	}
+	return uint8(call1(addrVulkan_LoadLibrary, uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Dynamically load the Vulkan loader library.
 //
@@ -64,7 +71,14 @@ func Vulkan_LoadLibrary(path string) bool {
 	return fnVulkan_LoadLibrary(cstrNull(path))
 }
 
-var fnVulkan_GetVkGetInstanceProcAddr func() FunctionPointer
+var addrVulkan_GetVkGetInstanceProcAddr uintptr
+
+func fnVulkan_GetVkGetInstanceProcAddr() FunctionPointer {
+	if addrVulkan_GetVkGetInstanceProcAddr == 0 {
+		missingSymbol("SDL_Vulkan_GetVkGetInstanceProcAddr")
+	}
+	return FunctionPointer(call0(addrVulkan_GetVkGetInstanceProcAddr))
+}
 
 // Get the address of the `vkGetInstanceProcAddr` function.
 //
@@ -86,7 +100,14 @@ func Vulkan_GetVkGetInstanceProcAddr() FunctionPointer {
 	return fnVulkan_GetVkGetInstanceProcAddr()
 }
 
-var fnVulkan_UnloadLibrary func()
+var addrVulkan_UnloadLibrary uintptr
+
+func fnVulkan_UnloadLibrary() {
+	if addrVulkan_UnloadLibrary == 0 {
+		missingSymbol("SDL_Vulkan_UnloadLibrary")
+	}
+	call0(addrVulkan_UnloadLibrary)
+}
 
 // Unload the Vulkan library previously loaded by Vulkan_LoadLibrary().
 //
@@ -110,7 +131,14 @@ func Vulkan_UnloadLibrary() {
 	fnVulkan_UnloadLibrary()
 }
 
-var fnVulkan_GetInstanceExtensions func(count *uint32) **byte
+var addrVulkan_GetInstanceExtensions uintptr
+
+func fnVulkan_GetInstanceExtensions(count *uint32) **byte {
+	if addrVulkan_GetInstanceExtensions == 0 {
+		missingSymbol("SDL_Vulkan_GetInstanceExtensions")
+	}
+	return (**byte)(cptr(call1(addrVulkan_GetInstanceExtensions, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the Vulkan instance extensions needed for vkCreateInstance.
 //
@@ -137,7 +165,14 @@ func Vulkan_GetInstanceExtensions(count *uint32) **byte {
 	return fnVulkan_GetInstanceExtensions(count)
 }
 
-var fnVulkan_CreateSurface func(window *Window, instance VkInstance, allocator unsafe.Pointer, surface *VkSurfaceKHR) bool
+var addrVulkan_CreateSurface uintptr
+
+func fnVulkan_CreateSurface(window *Window, instance VkInstance, allocator unsafe.Pointer, surface *VkSurfaceKHR) bool {
+	if addrVulkan_CreateSurface == 0 {
+		missingSymbol("SDL_Vulkan_CreateSurface")
+	}
+	return uint8(call4(addrVulkan_CreateSurface, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(instance)), uintptr(unsafe.Pointer(allocator)), uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Create a Vulkan rendering surface for a window.
 //
@@ -163,7 +198,14 @@ func Vulkan_CreateSurface(window *Window, instance VkInstance, allocator unsafe.
 	return fnVulkan_CreateSurface(window, instance, allocator, surface)
 }
 
-var fnVulkan_DestroySurface func(instance VkInstance, surface VkSurfaceKHR, allocator unsafe.Pointer)
+var addrVulkan_DestroySurface uintptr
+
+func fnVulkan_DestroySurface(instance VkInstance, surface VkSurfaceKHR, allocator unsafe.Pointer) {
+	if addrVulkan_DestroySurface == 0 {
+		missingSymbol("SDL_Vulkan_DestroySurface")
+	}
+	call3(addrVulkan_DestroySurface, uintptr(unsafe.Pointer(instance)), uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(allocator)))
+}
 
 // Destroy the Vulkan rendering surface of a window.
 //
@@ -189,7 +231,14 @@ func Vulkan_DestroySurface(instance VkInstance, surface VkSurfaceKHR, allocator 
 	fnVulkan_DestroySurface(instance, surface, allocator)
 }
 
-var fnVulkan_GetPresentationSupport func(instance VkInstance, physicalDevice VkPhysicalDevice, queueFamilyIndex uint32) bool
+var addrVulkan_GetPresentationSupport uintptr
+
+func fnVulkan_GetPresentationSupport(instance VkInstance, physicalDevice VkPhysicalDevice, queueFamilyIndex uint32) bool {
+	if addrVulkan_GetPresentationSupport == 0 {
+		missingSymbol("SDL_Vulkan_GetPresentationSupport")
+	}
+	return uint8(call3(addrVulkan_GetPresentationSupport, uintptr(unsafe.Pointer(instance)), uintptr(unsafe.Pointer(physicalDevice)), uintptr(queueFamilyIndex))) != 0
+}
 
 // Query support for presentation via a given physical device and queue
 // family.

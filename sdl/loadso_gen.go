@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // An opaque datatype that represents a loaded shared object.
 //
 // Since: SDL 3.2.0.
@@ -11,7 +13,14 @@ package sdl
 // It is an opaque handle owned by SDL.
 type SharedObject struct{}
 
-var fnLoadObject func(sofile *byte) *SharedObject
+var addrLoadObject uintptr
+
+func fnLoadObject(sofile *byte) *SharedObject {
+	if addrLoadObject == 0 {
+		missingSymbol("SDL_LoadObject")
+	}
+	return (*SharedObject)(cptr(call1(addrLoadObject, uintptr(unsafe.Pointer(sofile)))))
+}
 
 // Dynamically load a shared object.
 //
@@ -29,7 +38,14 @@ func LoadObject(sofile string) *SharedObject {
 	return fnLoadObject(cstr(sofile))
 }
 
-var fnLoadFunction func(handle *SharedObject, name *byte) FunctionPointer
+var addrLoadFunction uintptr
+
+func fnLoadFunction(handle *SharedObject, name *byte) FunctionPointer {
+	if addrLoadFunction == 0 {
+		missingSymbol("SDL_LoadFunction")
+	}
+	return FunctionPointer(call2(addrLoadFunction, uintptr(unsafe.Pointer(handle)), uintptr(unsafe.Pointer(name))))
+}
 
 // Look up the address of the named function in a shared object.
 //
@@ -60,7 +76,14 @@ func LoadFunction(handle *SharedObject, name string) FunctionPointer {
 	return fnLoadFunction(handle, cstr(name))
 }
 
-var fnUnloadObject func(handle *SharedObject)
+var addrUnloadObject uintptr
+
+func fnUnloadObject(handle *SharedObject) {
+	if addrUnloadObject == 0 {
+		missingSymbol("SDL_UnloadObject")
+	}
+	call1(addrUnloadObject, uintptr(unsafe.Pointer(handle)))
+}
 
 // Unload a shared object from memory.
 //

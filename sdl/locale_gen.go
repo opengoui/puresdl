@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // A struct to provide locale data.
 //
 // Locale data is split into a spoken language, like English, and an optional
@@ -19,4 +21,11 @@ type Locale struct {
 	Country *byte
 }
 
-var fnGetPreferredLocales func(count *int32) **Locale
+var addrGetPreferredLocales uintptr
+
+func fnGetPreferredLocales(count *int32) **Locale {
+	if addrGetPreferredLocales == 0 {
+		missingSymbol("SDL_GetPreferredLocales")
+	}
+	return (**Locale)(cptr(call1(addrGetPreferredLocales, uintptr(unsafe.Pointer(count)))))
+}

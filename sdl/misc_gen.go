@@ -2,7 +2,16 @@
 
 package sdl
 
-var fnOpenURL func(url *byte) bool
+import "unsafe"
+
+var addrOpenURL uintptr
+
+func fnOpenURL(url *byte) bool {
+	if addrOpenURL == 0 {
+		missingSymbol("SDL_OpenURL")
+	}
+	return uint8(call1(addrOpenURL, uintptr(unsafe.Pointer(url)))) != 0
+}
 
 // Open a URL/URI in the browser or other appropriate external application.
 //

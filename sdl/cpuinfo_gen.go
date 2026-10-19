@@ -13,7 +13,14 @@ const (
 	CACHELINE_SIZE = 128
 )
 
-var fnGetNumLogicalCPUCores func() int32
+var addrGetNumLogicalCPUCores uintptr
+
+func fnGetNumLogicalCPUCores() int32 {
+	if addrGetNumLogicalCPUCores == 0 {
+		missingSymbol("SDL_GetNumLogicalCPUCores")
+	}
+	return int32(call0(addrGetNumLogicalCPUCores))
+}
 
 // Get the number of logical CPU cores available.
 //
@@ -26,7 +33,14 @@ func GetNumLogicalCPUCores() int32 {
 	return fnGetNumLogicalCPUCores()
 }
 
-var fnGetCPUCacheLineSize func() int32
+var addrGetCPUCacheLineSize uintptr
+
+func fnGetCPUCacheLineSize() int32 {
+	if addrGetCPUCacheLineSize == 0 {
+		missingSymbol("SDL_GetCPUCacheLineSize")
+	}
+	return int32(call0(addrGetCPUCacheLineSize))
+}
 
 // Determine the L1 cache line size of the CPU.
 //
@@ -42,7 +56,14 @@ func GetCPUCacheLineSize() int32 {
 	return fnGetCPUCacheLineSize()
 }
 
-var fnHasAltiVec func() bool
+var addrHasAltiVec uintptr
+
+func fnHasAltiVec() bool {
+	if addrHasAltiVec == 0 {
+		missingSymbol("SDL_HasAltiVec")
+	}
+	return uint8(call0(addrHasAltiVec)) != 0
+}
 
 // Determine whether the CPU has AltiVec features.
 //
@@ -58,7 +79,14 @@ func HasAltiVec() bool {
 	return fnHasAltiVec()
 }
 
-var fnHasMMX func() bool
+var addrHasMMX uintptr
+
+func fnHasMMX() bool {
+	if addrHasMMX == 0 {
+		missingSymbol("SDL_HasMMX")
+	}
+	return uint8(call0(addrHasMMX)) != 0
+}
 
 // Determine whether the CPU has MMX features.
 //
@@ -73,7 +101,14 @@ func HasMMX() bool {
 	return fnHasMMX()
 }
 
-var fnHasSSE func() bool
+var addrHasSSE uintptr
+
+func fnHasSSE() bool {
+	if addrHasSSE == 0 {
+		missingSymbol("SDL_HasSSE")
+	}
+	return uint8(call0(addrHasSSE)) != 0
+}
 
 // Determine whether the CPU has SSE features.
 //
@@ -90,7 +125,14 @@ func HasSSE() bool {
 	return fnHasSSE()
 }
 
-var fnHasSSE2 func() bool
+var addrHasSSE2 uintptr
+
+func fnHasSSE2() bool {
+	if addrHasSSE2 == 0 {
+		missingSymbol("SDL_HasSSE2")
+	}
+	return uint8(call0(addrHasSSE2)) != 0
+}
 
 // Determine whether the CPU has SSE2 features.
 //
@@ -107,7 +149,14 @@ func HasSSE2() bool {
 	return fnHasSSE2()
 }
 
-var fnHasSSE3 func() bool
+var addrHasSSE3 uintptr
+
+func fnHasSSE3() bool {
+	if addrHasSSE3 == 0 {
+		missingSymbol("SDL_HasSSE3")
+	}
+	return uint8(call0(addrHasSSE3)) != 0
+}
 
 // Determine whether the CPU has SSE3 features.
 //
@@ -124,7 +173,14 @@ func HasSSE3() bool {
 	return fnHasSSE3()
 }
 
-var fnHasSSE41 func() bool
+var addrHasSSE41 uintptr
+
+func fnHasSSE41() bool {
+	if addrHasSSE41 == 0 {
+		missingSymbol("SDL_HasSSE41")
+	}
+	return uint8(call0(addrHasSSE41)) != 0
+}
 
 // Determine whether the CPU has SSE4.1 features.
 //
@@ -141,7 +197,14 @@ func HasSSE41() bool {
 	return fnHasSSE41()
 }
 
-var fnHasSSE42 func() bool
+var addrHasSSE42 uintptr
+
+func fnHasSSE42() bool {
+	if addrHasSSE42 == 0 {
+		missingSymbol("SDL_HasSSE42")
+	}
+	return uint8(call0(addrHasSSE42)) != 0
+}
 
 // Determine whether the CPU has SSE4.2 features.
 //
@@ -158,7 +221,14 @@ func HasSSE42() bool {
 	return fnHasSSE42()
 }
 
-var fnHasAVX func() bool
+var addrHasAVX uintptr
+
+func fnHasAVX() bool {
+	if addrHasAVX == 0 {
+		missingSymbol("SDL_HasAVX")
+	}
+	return uint8(call0(addrHasAVX)) != 0
+}
 
 // Determine whether the CPU has AVX features.
 //
@@ -175,7 +245,14 @@ func HasAVX() bool {
 	return fnHasAVX()
 }
 
-var fnHasAVX2 func() bool
+var addrHasAVX2 uintptr
+
+func fnHasAVX2() bool {
+	if addrHasAVX2 == 0 {
+		missingSymbol("SDL_HasAVX2")
+	}
+	return uint8(call0(addrHasAVX2)) != 0
+}
 
 // Determine whether the CPU has AVX2 features.
 //
@@ -192,7 +269,14 @@ func HasAVX2() bool {
 	return fnHasAVX2()
 }
 
-var fnHasAVX512F func() bool
+var addrHasAVX512F uintptr
+
+func fnHasAVX512F() bool {
+	if addrHasAVX512F == 0 {
+		missingSymbol("SDL_HasAVX512F")
+	}
+	return uint8(call0(addrHasAVX512F)) != 0
+}
 
 // Determine whether the CPU has AVX-512F (foundation) features.
 //
@@ -209,7 +293,14 @@ func HasAVX512F() bool {
 	return fnHasAVX512F()
 }
 
-var fnHasARMSIMD func() bool
+var addrHasARMSIMD uintptr
+
+func fnHasARMSIMD() bool {
+	if addrHasARMSIMD == 0 {
+		missingSymbol("SDL_HasARMSIMD")
+	}
+	return uint8(call0(addrHasARMSIMD)) != 0
+}
 
 // Determine whether the CPU has ARM SIMD (ARMv6) features.
 //
@@ -228,7 +319,14 @@ func HasARMSIMD() bool {
 	return fnHasARMSIMD()
 }
 
-var fnHasNEON func() bool
+var addrHasNEON uintptr
+
+func fnHasNEON() bool {
+	if addrHasNEON == 0 {
+		missingSymbol("SDL_HasNEON")
+	}
+	return uint8(call0(addrHasNEON)) != 0
+}
 
 // Determine whether the CPU has NEON (ARM SIMD) features.
 //
@@ -243,7 +341,14 @@ func HasNEON() bool {
 	return fnHasNEON()
 }
 
-var fnHasLSX func() bool
+var addrHasLSX uintptr
+
+func fnHasLSX() bool {
+	if addrHasLSX == 0 {
+		missingSymbol("SDL_HasLSX")
+	}
+	return uint8(call0(addrHasLSX)) != 0
+}
 
 // Determine whether the CPU has LSX (LOONGARCH SIMD) features.
 //
@@ -259,7 +364,14 @@ func HasLSX() bool {
 	return fnHasLSX()
 }
 
-var fnHasLASX func() bool
+var addrHasLASX uintptr
+
+func fnHasLASX() bool {
+	if addrHasLASX == 0 {
+		missingSymbol("SDL_HasLASX")
+	}
+	return uint8(call0(addrHasLASX)) != 0
+}
 
 // Determine whether the CPU has LASX (LOONGARCH SIMD) features.
 //
@@ -275,7 +387,14 @@ func HasLASX() bool {
 	return fnHasLASX()
 }
 
-var fnGetSystemRAM func() int32
+var addrGetSystemRAM uintptr
+
+func fnGetSystemRAM() int32 {
+	if addrGetSystemRAM == 0 {
+		missingSymbol("SDL_GetSystemRAM")
+	}
+	return int32(call0(addrGetSystemRAM))
+}
 
 // Get the amount of RAM configured in the system.
 //
@@ -288,7 +407,14 @@ func GetSystemRAM() int32 {
 	return fnGetSystemRAM()
 }
 
-var fnGetSIMDAlignment func() uint
+var addrGetSIMDAlignment uintptr
+
+func fnGetSIMDAlignment() uint {
+	if addrGetSIMDAlignment == 0 {
+		missingSymbol("SDL_GetSIMDAlignment")
+	}
+	return uint(call0(addrGetSIMDAlignment))
+}
 
 // Report the alignment this system needs for SIMD allocations.
 //
@@ -312,7 +438,14 @@ func GetSIMDAlignment() uint {
 	return fnGetSIMDAlignment()
 }
 
-var fnGetSystemPageSize func() int32
+var addrGetSystemPageSize uintptr
+
+func fnGetSystemPageSize() int32 {
+	if addrGetSystemPageSize == 0 {
+		missingSymbol("SDL_GetSystemPageSize")
+	}
+	return int32(call0(addrGetSystemPageSize))
+}
 
 // Report the size of a page of memory.
 //

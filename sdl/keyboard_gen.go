@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // This is a unique ID for a keyboard for the time it is connected to the
 // system, and is never reused for the lifetime of the application.
 //
@@ -72,7 +74,14 @@ const (
 	PROP_TEXTINPUT_ANDROID_INPUTTYPE_NUMBER = "SDL.textinput.android.inputtype"
 )
 
-var fnHasKeyboard func() bool
+var addrHasKeyboard uintptr
+
+func fnHasKeyboard() bool {
+	if addrHasKeyboard == 0 {
+		missingSymbol("SDL_HasKeyboard")
+	}
+	return uint8(call0(addrHasKeyboard)) != 0
+}
 
 // Return whether a keyboard is currently connected.
 //
@@ -87,7 +96,14 @@ func HasKeyboard() bool {
 	return fnHasKeyboard()
 }
 
-var fnGetKeyboards func(count *int32) *KeyboardID
+var addrGetKeyboards uintptr
+
+func fnGetKeyboards(count *int32) *KeyboardID {
+	if addrGetKeyboards == 0 {
+		missingSymbol("SDL_GetKeyboards")
+	}
+	return (*KeyboardID)(cptr(call1(addrGetKeyboards, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected keyboards.
 //
@@ -114,7 +130,14 @@ func GetKeyboards() []KeyboardID {
 	return copyFree(p, int(n))
 }
 
-var fnGetKeyboardNameForID func(instance_id KeyboardID) *byte
+var addrGetKeyboardNameForID uintptr
+
+func fnGetKeyboardNameForID(instance_id KeyboardID) *byte {
+	if addrGetKeyboardNameForID == 0 {
+		missingSymbol("SDL_GetKeyboardNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetKeyboardNameForID, uintptr(instance_id))))
+}
 
 // Get the name of a keyboard.
 //
@@ -134,7 +157,14 @@ func GetKeyboardNameForID(instance_id KeyboardID) string {
 	return GoString(fnGetKeyboardNameForID(instance_id))
 }
 
-var fnGetKeyboardFocus func() *Window
+var addrGetKeyboardFocus uintptr
+
+func fnGetKeyboardFocus() *Window {
+	if addrGetKeyboardFocus == 0 {
+		missingSymbol("SDL_GetKeyboardFocus")
+	}
+	return (*Window)(cptr(call0(addrGetKeyboardFocus)))
+}
 
 // Query the window which currently has keyboard focus.
 //
@@ -147,7 +177,14 @@ func GetKeyboardFocus() *Window {
 	return fnGetKeyboardFocus()
 }
 
-var fnGetKeyboardState func(numkeys *int32) *bool
+var addrGetKeyboardState uintptr
+
+func fnGetKeyboardState(numkeys *int32) *bool {
+	if addrGetKeyboardState == 0 {
+		missingSymbol("SDL_GetKeyboardState")
+	}
+	return (*bool)(cptr(call1(addrGetKeyboardState, uintptr(unsafe.Pointer(numkeys)))))
+}
 
 // Get a snapshot of the current state of the keyboard.
 //
@@ -183,7 +220,14 @@ func GetKeyboardState(numkeys *int32) *bool {
 	return fnGetKeyboardState(numkeys)
 }
 
-var fnResetKeyboard func()
+var addrResetKeyboard uintptr
+
+func fnResetKeyboard() {
+	if addrResetKeyboard == 0 {
+		missingSymbol("SDL_ResetKeyboard")
+	}
+	call0(addrResetKeyboard)
+}
 
 // Clear the state of the keyboard.
 //
@@ -198,7 +242,14 @@ func ResetKeyboard() {
 	fnResetKeyboard()
 }
 
-var fnGetModState func() Keymod
+var addrGetModState uintptr
+
+func fnGetModState() Keymod {
+	if addrGetModState == 0 {
+		missingSymbol("SDL_GetModState")
+	}
+	return Keymod(call0(addrGetModState))
+}
 
 // Get the current key modifier state for the keyboard.
 //
@@ -213,7 +264,14 @@ func GetModState() Keymod {
 	return fnGetModState()
 }
 
-var fnSetModState func(modstate Keymod)
+var addrSetModState uintptr
+
+func fnSetModState(modstate Keymod) {
+	if addrSetModState == 0 {
+		missingSymbol("SDL_SetModState")
+	}
+	call1(addrSetModState, uintptr(modstate))
+}
 
 // Set the current key modifier state for the keyboard.
 //
@@ -237,7 +295,14 @@ func SetModState(modstate Keymod) {
 	fnSetModState(modstate)
 }
 
-var fnGetKeyFromScancode func(scancode Scancode, modstate Keymod, key_event bool) Keycode
+var addrGetKeyFromScancode uintptr
+
+func fnGetKeyFromScancode(scancode Scancode, modstate Keymod, key_event bool) Keycode {
+	if addrGetKeyFromScancode == 0 {
+		missingSymbol("SDL_GetKeyFromScancode")
+	}
+	return Keycode(call3(addrGetKeyFromScancode, uintptr(scancode), uintptr(modstate), cbool(key_event)))
+}
 
 // Get the key code corresponding to the given scancode according to the
 // current keyboard layout.
@@ -263,7 +328,14 @@ func GetKeyFromScancode(scancode Scancode, modstate Keymod, key_event bool) Keyc
 	return fnGetKeyFromScancode(scancode, modstate, key_event)
 }
 
-var fnGetScancodeFromKey func(key Keycode, modstate *Keymod) Scancode
+var addrGetScancodeFromKey uintptr
+
+func fnGetScancodeFromKey(key Keycode, modstate *Keymod) Scancode {
+	if addrGetScancodeFromKey == 0 {
+		missingSymbol("SDL_GetScancodeFromKey")
+	}
+	return Scancode(call2(addrGetScancodeFromKey, uintptr(key), uintptr(unsafe.Pointer(modstate))))
+}
 
 // Get the scancode corresponding to the given key code according to the
 // current keyboard layout.
@@ -286,8 +358,23 @@ func GetScancodeFromKey(key Keycode, modstate *Keymod) Scancode {
 	return fnGetScancodeFromKey(key, modstate)
 }
 
-var fnSetScancodeName func(scancode Scancode, name *byte) bool
-var fnGetScancodeName func(scancode Scancode) *byte
+var addrSetScancodeName uintptr
+
+func fnSetScancodeName(scancode Scancode, name *byte) bool {
+	if addrSetScancodeName == 0 {
+		missingSymbol("SDL_SetScancodeName")
+	}
+	return uint8(call2(addrSetScancodeName, uintptr(scancode), uintptr(unsafe.Pointer(name)))) != 0
+}
+
+var addrGetScancodeName uintptr
+
+func fnGetScancodeName(scancode Scancode) *byte {
+	if addrGetScancodeName == 0 {
+		missingSymbol("SDL_GetScancodeName")
+	}
+	return (*byte)(cptr(call1(addrGetScancodeName, uintptr(scancode))))
+}
 
 // Get a human-readable name for a scancode.
 //
@@ -314,7 +401,14 @@ func GetScancodeName(scancode Scancode) string {
 	return GoString(fnGetScancodeName(scancode))
 }
 
-var fnGetScancodeFromName func(name *byte) Scancode
+var addrGetScancodeFromName uintptr
+
+func fnGetScancodeFromName(name *byte) Scancode {
+	if addrGetScancodeFromName == 0 {
+		missingSymbol("SDL_GetScancodeFromName")
+	}
+	return Scancode(call1(addrGetScancodeFromName, uintptr(unsafe.Pointer(name))))
+}
 
 // Get a scancode from a human-readable name.
 //
@@ -332,7 +426,14 @@ func GetScancodeFromName(name string) Scancode {
 	return fnGetScancodeFromName(cstr(name))
 }
 
-var fnGetKeyName func(key Keycode) *byte
+var addrGetKeyName uintptr
+
+func fnGetKeyName(key Keycode) *byte {
+	if addrGetKeyName == 0 {
+		missingSymbol("SDL_GetKeyName")
+	}
+	return (*byte)(cptr(call1(addrGetKeyName, uintptr(key))))
+}
 
 // Get a human-readable name for a key.
 //
@@ -354,7 +455,14 @@ func GetKeyName(key Keycode) string {
 	return GoString(fnGetKeyName(key))
 }
 
-var fnGetKeyFromName func(name *byte) Keycode
+var addrGetKeyFromName uintptr
+
+func fnGetKeyFromName(name *byte) Keycode {
+	if addrGetKeyFromName == 0 {
+		missingSymbol("SDL_GetKeyFromName")
+	}
+	return Keycode(call1(addrGetKeyFromName, uintptr(unsafe.Pointer(name))))
+}
 
 // Get a key code from a human-readable name.
 //
@@ -372,7 +480,14 @@ func GetKeyFromName(name string) Keycode {
 	return fnGetKeyFromName(cstr(name))
 }
 
-var fnStartTextInput func(window *Window) bool
+var addrStartTextInput uintptr
+
+func fnStartTextInput(window *Window) bool {
+	if addrStartTextInput == 0 {
+		missingSymbol("SDL_StartTextInput")
+	}
+	return uint8(call1(addrStartTextInput, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Start accepting Unicode text input events in a window.
 //
@@ -400,7 +515,14 @@ func StartTextInput(window *Window) bool {
 	return fnStartTextInput(window)
 }
 
-var fnStartTextInputWithProperties func(window *Window, props PropertiesID) bool
+var addrStartTextInputWithProperties uintptr
+
+func fnStartTextInputWithProperties(window *Window, props PropertiesID) bool {
+	if addrStartTextInputWithProperties == 0 {
+		missingSymbol("SDL_StartTextInputWithProperties")
+	}
+	return uint8(call2(addrStartTextInputWithProperties, uintptr(unsafe.Pointer(window)), uintptr(props))) != 0
+}
 
 // Start accepting Unicode text input events in a window, with properties
 // describing the input.
@@ -452,7 +574,14 @@ func StartTextInputWithProperties(window *Window, props PropertiesID) bool {
 	return fnStartTextInputWithProperties(window, props)
 }
 
-var fnTextInputActive func(window *Window) bool
+var addrTextInputActive uintptr
+
+func fnTextInputActive(window *Window) bool {
+	if addrTextInputActive == 0 {
+		missingSymbol("SDL_TextInputActive")
+	}
+	return uint8(call1(addrTextInputActive, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Check whether or not Unicode text input events are enabled for a window.
 //
@@ -470,7 +599,14 @@ func TextInputActive(window *Window) bool {
 	return fnTextInputActive(window)
 }
 
-var fnStopTextInput func(window *Window) bool
+var addrStopTextInput uintptr
+
+func fnStopTextInput(window *Window) bool {
+	if addrStopTextInput == 0 {
+		missingSymbol("SDL_StopTextInput")
+	}
+	return uint8(call1(addrStopTextInput, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Stop receiving any text input events in a window.
 //
@@ -491,7 +627,14 @@ func StopTextInput(window *Window) bool {
 	return fnStopTextInput(window)
 }
 
-var fnClearComposition func(window *Window) bool
+var addrClearComposition uintptr
+
+func fnClearComposition(window *Window) bool {
+	if addrClearComposition == 0 {
+		missingSymbol("SDL_ClearComposition")
+	}
+	return uint8(call1(addrClearComposition, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Dismiss the composition window/IME without disabling the subsystem.
 //
@@ -509,7 +652,14 @@ func ClearComposition(window *Window) bool {
 	return fnClearComposition(window)
 }
 
-var fnSetTextInputArea func(window *Window, rect *Rect, cursor int32) bool
+var addrSetTextInputArea uintptr
+
+func fnSetTextInputArea(window *Window, rect *Rect, cursor int32) bool {
+	if addrSetTextInputArea == 0 {
+		missingSymbol("SDL_SetTextInputArea")
+	}
+	return uint8(call3(addrSetTextInputArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)), uintptr(cursor))) != 0
+}
 
 // Set the area used to type Unicode text input.
 //
@@ -532,7 +682,14 @@ func SetTextInputArea(window *Window, rect *Rect, cursor int32) bool {
 	return fnSetTextInputArea(window, rect, cursor)
 }
 
-var fnGetTextInputArea func(window *Window, rect *Rect, cursor *int32) bool
+var addrGetTextInputArea uintptr
+
+func fnGetTextInputArea(window *Window, rect *Rect, cursor *int32) bool {
+	if addrGetTextInputArea == 0 {
+		missingSymbol("SDL_GetTextInputArea")
+	}
+	return uint8(call3(addrGetTextInputArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(cursor)))) != 0
+}
 
 // Get the area used to type Unicode text input.
 //
@@ -554,7 +711,14 @@ func GetTextInputArea(window *Window, rect *Rect, cursor *int32) bool {
 	return fnGetTextInputArea(window, rect, cursor)
 }
 
-var fnHasScreenKeyboardSupport func() bool
+var addrHasScreenKeyboardSupport uintptr
+
+func fnHasScreenKeyboardSupport() bool {
+	if addrHasScreenKeyboardSupport == 0 {
+		missingSymbol("SDL_HasScreenKeyboardSupport")
+	}
+	return uint8(call0(addrHasScreenKeyboardSupport)) != 0
+}
 
 // Check whether the platform has screen keyboard support.
 //
@@ -569,7 +733,14 @@ func HasScreenKeyboardSupport() bool {
 	return fnHasScreenKeyboardSupport()
 }
 
-var fnScreenKeyboardShown func(window *Window) bool
+var addrScreenKeyboardShown uintptr
+
+func fnScreenKeyboardShown(window *Window) bool {
+	if addrScreenKeyboardShown == 0 {
+		missingSymbol("SDL_ScreenKeyboardShown")
+	}
+	return uint8(call1(addrScreenKeyboardShown, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Check whether the screen keyboard is shown for given window.
 //

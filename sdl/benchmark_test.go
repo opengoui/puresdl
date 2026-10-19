@@ -65,3 +65,33 @@ func BenchmarkRenderPointsSlice(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkDirectCall measures the call0 ... call8 bridge against the
+// reflective purego.RegisterFunc path, which floating-point signatures use.
+func BenchmarkDirectCall(b *testing.B) {
+	props := CreateProperties()
+	if props == 0 {
+		b.Fatal(GetError())
+	}
+	defer DestroyProperties(props)
+	const key = "puresdl.benchmark.float\x00"
+	SetFloatProperty(props, key, 1)
+	b.Run("GetTicks_0args", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			_ = GetTicks()
+		}
+	})
+	b.Run("HasProperty_2args", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			_ = HasProperty(props, key)
+		}
+	})
+	b.Run("GetFloatProperty_reflect", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			_ = GetFloatProperty(props, key, 0)
+		}
+	})
+}

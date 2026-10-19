@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // Individual button data.
 //
 // Since: SDL 3.2.0.
@@ -88,7 +90,14 @@ const (
 	MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT MessageBoxButtonFlags = 2
 )
 
-var fnShowMessageBox func(messageboxdata *MessageBoxData, buttonid *int32) bool
+var addrShowMessageBox uintptr
+
+func fnShowMessageBox(messageboxdata *MessageBoxData, buttonid *int32) bool {
+	if addrShowMessageBox == 0 {
+		missingSymbol("SDL_ShowMessageBox")
+	}
+	return uint8(call2(addrShowMessageBox, uintptr(unsafe.Pointer(messageboxdata)), uintptr(unsafe.Pointer(buttonid)))) != 0
+}
 
 // Create a modal message box.
 //
@@ -127,7 +136,14 @@ func ShowMessageBox(messageboxdata *MessageBoxData, buttonid *int32) bool {
 	return fnShowMessageBox(messageboxdata, buttonid)
 }
 
-var fnShowSimpleMessageBox func(flags MessageBoxFlags, title *byte, message *byte, window *Window) bool
+var addrShowSimpleMessageBox uintptr
+
+func fnShowSimpleMessageBox(flags MessageBoxFlags, title *byte, message *byte, window *Window) bool {
+	if addrShowSimpleMessageBox == 0 {
+		missingSymbol("SDL_ShowSimpleMessageBox")
+	}
+	return uint8(call4(addrShowSimpleMessageBox, uintptr(flags), uintptr(unsafe.Pointer(title)), uintptr(unsafe.Pointer(message)), uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Display a simple modal message box.
 //

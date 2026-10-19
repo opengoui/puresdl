@@ -615,7 +615,14 @@ const (
 	WINDOW_SURFACE_VSYNC_ADAPTIVE                                                     = -1
 )
 
-var fnGetNumVideoDrivers func() int32
+var addrGetNumVideoDrivers uintptr
+
+func fnGetNumVideoDrivers() int32 {
+	if addrGetNumVideoDrivers == 0 {
+		missingSymbol("SDL_GetNumVideoDrivers")
+	}
+	return int32(call0(addrGetNumVideoDrivers))
+}
 
 // Get the number of video drivers compiled into SDL.
 //
@@ -630,7 +637,14 @@ func GetNumVideoDrivers() int32 {
 	return fnGetNumVideoDrivers()
 }
 
-var fnGetVideoDriver func(index int32) *byte
+var addrGetVideoDriver uintptr
+
+func fnGetVideoDriver(index int32) *byte {
+	if addrGetVideoDriver == 0 {
+		missingSymbol("SDL_GetVideoDriver")
+	}
+	return (*byte)(cptr(call1(addrGetVideoDriver, uintptr(index))))
+}
 
 // Get the name of a built in video driver.
 //
@@ -655,7 +669,14 @@ func GetVideoDriver(index int32) string {
 	return GoString(fnGetVideoDriver(index))
 }
 
-var fnGetCurrentVideoDriver func() *byte
+var addrGetCurrentVideoDriver uintptr
+
+func fnGetCurrentVideoDriver() *byte {
+	if addrGetCurrentVideoDriver == 0 {
+		missingSymbol("SDL_GetCurrentVideoDriver")
+	}
+	return (*byte)(cptr(call0(addrGetCurrentVideoDriver)))
+}
 
 // Get the name of the currently initialized video driver.
 //
@@ -674,7 +695,14 @@ func GetCurrentVideoDriver() string {
 	return GoString(fnGetCurrentVideoDriver())
 }
 
-var fnGetSystemTheme func() SystemTheme
+var addrGetSystemTheme uintptr
+
+func fnGetSystemTheme() SystemTheme {
+	if addrGetSystemTheme == 0 {
+		missingSymbol("SDL_GetSystemTheme")
+	}
+	return SystemTheme(call0(addrGetSystemTheme))
+}
 
 // Get the current system theme.
 //
@@ -687,7 +715,14 @@ func GetSystemTheme() SystemTheme {
 	return fnGetSystemTheme()
 }
 
-var fnGetDisplays func(count *int32) *DisplayID
+var addrGetDisplays uintptr
+
+func fnGetDisplays(count *int32) *DisplayID {
+	if addrGetDisplays == 0 {
+		missingSymbol("SDL_GetDisplays")
+	}
+	return (*DisplayID)(cptr(call1(addrGetDisplays, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected displays.
 //
@@ -707,7 +742,14 @@ func GetDisplays() []DisplayID {
 	return copyFree(p, int(n))
 }
 
-var fnGetPrimaryDisplay func() DisplayID
+var addrGetPrimaryDisplay uintptr
+
+func fnGetPrimaryDisplay() DisplayID {
+	if addrGetPrimaryDisplay == 0 {
+		missingSymbol("SDL_GetPrimaryDisplay")
+	}
+	return DisplayID(call0(addrGetPrimaryDisplay))
+}
 
 // Return the primary display.
 //
@@ -722,7 +764,14 @@ func GetPrimaryDisplay() DisplayID {
 	return fnGetPrimaryDisplay()
 }
 
-var fnGetDisplayProperties func(displayID DisplayID) PropertiesID
+var addrGetDisplayProperties uintptr
+
+func fnGetDisplayProperties(displayID DisplayID) PropertiesID {
+	if addrGetDisplayProperties == 0 {
+		missingSymbol("SDL_GetDisplayProperties")
+	}
+	return PropertiesID(call1(addrGetDisplayProperties, uintptr(displayID)))
+}
 
 // Get the properties associated with a display.
 //
@@ -763,7 +812,14 @@ func GetDisplayProperties(displayID DisplayID) PropertiesID {
 	return fnGetDisplayProperties(displayID)
 }
 
-var fnGetDisplayName func(displayID DisplayID) *byte
+var addrGetDisplayName uintptr
+
+func fnGetDisplayName(displayID DisplayID) *byte {
+	if addrGetDisplayName == 0 {
+		missingSymbol("SDL_GetDisplayName")
+	}
+	return (*byte)(cptr(call1(addrGetDisplayName, uintptr(displayID))))
+}
 
 // Get the name of a display in UTF-8 encoding.
 //
@@ -781,7 +837,14 @@ func GetDisplayName(displayID DisplayID) string {
 	return GoString(fnGetDisplayName(displayID))
 }
 
-var fnGetDisplayBounds func(displayID DisplayID, rect *Rect) bool
+var addrGetDisplayBounds uintptr
+
+func fnGetDisplayBounds(displayID DisplayID, rect *Rect) bool {
+	if addrGetDisplayBounds == 0 {
+		missingSymbol("SDL_GetDisplayBounds")
+	}
+	return uint8(call2(addrGetDisplayBounds, uintptr(displayID), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the desktop area represented by a display.
 //
@@ -803,7 +866,14 @@ func GetDisplayBounds(displayID DisplayID, rect *Rect) bool {
 	return fnGetDisplayBounds(displayID, rect)
 }
 
-var fnGetDisplayUsableBounds func(displayID DisplayID, rect *Rect) bool
+var addrGetDisplayUsableBounds uintptr
+
+func fnGetDisplayUsableBounds(displayID DisplayID, rect *Rect) bool {
+	if addrGetDisplayUsableBounds == 0 {
+		missingSymbol("SDL_GetDisplayUsableBounds")
+	}
+	return uint8(call2(addrGetDisplayUsableBounds, uintptr(displayID), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the usable desktop area represented by a display, in screen
 // coordinates.
@@ -831,7 +901,14 @@ func GetDisplayUsableBounds(displayID DisplayID, rect *Rect) bool {
 	return fnGetDisplayUsableBounds(displayID, rect)
 }
 
-var fnGetNaturalDisplayOrientation func(displayID DisplayID) DisplayOrientation
+var addrGetNaturalDisplayOrientation uintptr
+
+func fnGetNaturalDisplayOrientation(displayID DisplayID) DisplayOrientation {
+	if addrGetNaturalDisplayOrientation == 0 {
+		missingSymbol("SDL_GetNaturalDisplayOrientation")
+	}
+	return DisplayOrientation(call1(addrGetNaturalDisplayOrientation, uintptr(displayID)))
+}
 
 // Get the orientation of a display when it is unrotated.
 //
@@ -849,7 +926,14 @@ func GetNaturalDisplayOrientation(displayID DisplayID) DisplayOrientation {
 	return fnGetNaturalDisplayOrientation(displayID)
 }
 
-var fnGetCurrentDisplayOrientation func(displayID DisplayID) DisplayOrientation
+var addrGetCurrentDisplayOrientation uintptr
+
+func fnGetCurrentDisplayOrientation(displayID DisplayID) DisplayOrientation {
+	if addrGetCurrentDisplayOrientation == 0 {
+		missingSymbol("SDL_GetCurrentDisplayOrientation")
+	}
+	return DisplayOrientation(call1(addrGetCurrentDisplayOrientation, uintptr(displayID)))
+}
 
 // Get the orientation of a display.
 //
@@ -896,7 +980,14 @@ func GetDisplayContentScale(displayID DisplayID) float32 {
 	return fnGetDisplayContentScale(displayID)
 }
 
-var fnGetFullscreenDisplayModes func(displayID DisplayID, count *int32) **DisplayMode
+var addrGetFullscreenDisplayModes uintptr
+
+func fnGetFullscreenDisplayModes(displayID DisplayID, count *int32) **DisplayMode {
+	if addrGetFullscreenDisplayModes == 0 {
+		missingSymbol("SDL_GetFullscreenDisplayModes")
+	}
+	return (**DisplayMode)(cptr(call2(addrGetFullscreenDisplayModes, uintptr(displayID), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of fullscreen display modes available on a display.
 //
@@ -958,7 +1049,14 @@ func GetClosestFullscreenDisplayMode(displayID DisplayID, w int32, h int32, refr
 	return fnGetClosestFullscreenDisplayMode(displayID, w, h, refresh_rate, include_high_density_modes, closest)
 }
 
-var fnGetDesktopDisplayMode func(displayID DisplayID) *DisplayMode
+var addrGetDesktopDisplayMode uintptr
+
+func fnGetDesktopDisplayMode(displayID DisplayID) *DisplayMode {
+	if addrGetDesktopDisplayMode == 0 {
+		missingSymbol("SDL_GetDesktopDisplayMode")
+	}
+	return (*DisplayMode)(cptr(call1(addrGetDesktopDisplayMode, uintptr(displayID))))
+}
 
 // Get information about the desktop's display mode.
 //
@@ -981,7 +1079,14 @@ func GetDesktopDisplayMode(displayID DisplayID) *DisplayMode {
 	return fnGetDesktopDisplayMode(displayID)
 }
 
-var fnGetCurrentDisplayMode func(displayID DisplayID) *DisplayMode
+var addrGetCurrentDisplayMode uintptr
+
+func fnGetCurrentDisplayMode(displayID DisplayID) *DisplayMode {
+	if addrGetCurrentDisplayMode == 0 {
+		missingSymbol("SDL_GetCurrentDisplayMode")
+	}
+	return (*DisplayMode)(cptr(call1(addrGetCurrentDisplayMode, uintptr(displayID))))
+}
 
 // Get information about the current display mode.
 //
@@ -1004,7 +1109,14 @@ func GetCurrentDisplayMode(displayID DisplayID) *DisplayMode {
 	return fnGetCurrentDisplayMode(displayID)
 }
 
-var fnGetDisplayForPoint func(point *Point) DisplayID
+var addrGetDisplayForPoint uintptr
+
+func fnGetDisplayForPoint(point *Point) DisplayID {
+	if addrGetDisplayForPoint == 0 {
+		missingSymbol("SDL_GetDisplayForPoint")
+	}
+	return DisplayID(call1(addrGetDisplayForPoint, uintptr(unsafe.Pointer(point))))
+}
 
 // Get the display containing a point.
 //
@@ -1022,7 +1134,14 @@ func GetDisplayForPoint(point *Point) DisplayID {
 	return fnGetDisplayForPoint(point)
 }
 
-var fnGetDisplayForRect func(rect *Rect) DisplayID
+var addrGetDisplayForRect uintptr
+
+func fnGetDisplayForRect(rect *Rect) DisplayID {
+	if addrGetDisplayForRect == 0 {
+		missingSymbol("SDL_GetDisplayForRect")
+	}
+	return DisplayID(call1(addrGetDisplayForRect, uintptr(unsafe.Pointer(rect))))
+}
 
 // Get the display primarily containing a rect.
 //
@@ -1040,7 +1159,14 @@ func GetDisplayForRect(rect *Rect) DisplayID {
 	return fnGetDisplayForRect(rect)
 }
 
-var fnGetDisplayForWindow func(window *Window) DisplayID
+var addrGetDisplayForWindow uintptr
+
+func fnGetDisplayForWindow(window *Window) DisplayID {
+	if addrGetDisplayForWindow == 0 {
+		missingSymbol("SDL_GetDisplayForWindow")
+	}
+	return DisplayID(call1(addrGetDisplayForWindow, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the display associated with a window.
 //
@@ -1107,7 +1233,14 @@ func GetWindowDisplayScale(window *Window) float32 {
 	return fnGetWindowDisplayScale(window)
 }
 
-var fnSetWindowFullscreenMode func(window *Window, mode *DisplayMode) bool
+var addrSetWindowFullscreenMode uintptr
+
+func fnSetWindowFullscreenMode(window *Window, mode *DisplayMode) bool {
+	if addrSetWindowFullscreenMode == 0 {
+		missingSymbol("SDL_SetWindowFullscreenMode")
+	}
+	return uint8(call2(addrSetWindowFullscreenMode, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(mode)))) != 0
+}
 
 // Set the display mode to use when a window is visible and fullscreen.
 //
@@ -1140,7 +1273,14 @@ func SetWindowFullscreenMode(window *Window, mode *DisplayMode) bool {
 	return fnSetWindowFullscreenMode(window, mode)
 }
 
-var fnGetWindowFullscreenMode func(window *Window) *DisplayMode
+var addrGetWindowFullscreenMode uintptr
+
+func fnGetWindowFullscreenMode(window *Window) *DisplayMode {
+	if addrGetWindowFullscreenMode == 0 {
+		missingSymbol("SDL_GetWindowFullscreenMode")
+	}
+	return (*DisplayMode)(cptr(call1(addrGetWindowFullscreenMode, uintptr(unsafe.Pointer(window)))))
+}
 
 // Query the display mode to use when a window is visible at fullscreen.
 //
@@ -1158,7 +1298,14 @@ func GetWindowFullscreenMode(window *Window) *DisplayMode {
 	return fnGetWindowFullscreenMode(window)
 }
 
-var fnGetWindowICCProfile func(window *Window, size *uint) unsafe.Pointer
+var addrGetWindowICCProfile uintptr
+
+func fnGetWindowICCProfile(window *Window, size *uint) unsafe.Pointer {
+	if addrGetWindowICCProfile == 0 {
+		missingSymbol("SDL_GetWindowICCProfile")
+	}
+	return cptr(call2(addrGetWindowICCProfile, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(size))))
+}
 
 // Get the raw ICC profile data for the screen the window is currently on.
 //
@@ -1179,7 +1326,14 @@ func GetWindowICCProfile(window *Window) []byte {
 	return copyFreeBytes(p, int(n))
 }
 
-var fnGetWindowPixelFormat func(window *Window) PixelFormat
+var addrGetWindowPixelFormat uintptr
+
+func fnGetWindowPixelFormat(window *Window) PixelFormat {
+	if addrGetWindowPixelFormat == 0 {
+		missingSymbol("SDL_GetWindowPixelFormat")
+	}
+	return PixelFormat(call1(addrGetWindowPixelFormat, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the pixel format associated with the window.
 //
@@ -1195,7 +1349,14 @@ func GetWindowPixelFormat(window *Window) PixelFormat {
 	return fnGetWindowPixelFormat(window)
 }
 
-var fnGetWindows func(count *int32) **Window
+var addrGetWindows uintptr
+
+func fnGetWindows(count *int32) **Window {
+	if addrGetWindows == 0 {
+		missingSymbol("SDL_GetWindows")
+	}
+	return (**Window)(cptr(call1(addrGetWindows, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of valid windows.
 //
@@ -1215,7 +1376,14 @@ func GetWindows() []*Window {
 	return copyFree(p, int(n))
 }
 
-var fnCreateWindow func(title *byte, w int32, h int32, flags WindowFlags) *Window
+var addrCreateWindow uintptr
+
+func fnCreateWindow(title *byte, w int32, h int32, flags WindowFlags) *Window {
+	if addrCreateWindow == 0 {
+		missingSymbol("SDL_CreateWindow")
+	}
+	return (*Window)(cptr(call4(addrCreateWindow, uintptr(unsafe.Pointer(title)), uintptr(w), uintptr(h), uintptr(flags))))
+}
 
 // Create a window with the specified dimensions and flags.
 //
@@ -1304,7 +1472,14 @@ func CreateWindow(title string, w int32, h int32, flags WindowFlags) *Window {
 	return fnCreateWindow(cstr(title), w, h, flags)
 }
 
-var fnCreatePopupWindow func(parent *Window, offset_x int32, offset_y int32, w int32, h int32, flags WindowFlags) *Window
+var addrCreatePopupWindow uintptr
+
+func fnCreatePopupWindow(parent *Window, offset_x int32, offset_y int32, w int32, h int32, flags WindowFlags) *Window {
+	if addrCreatePopupWindow == 0 {
+		missingSymbol("SDL_CreatePopupWindow")
+	}
+	return (*Window)(cptr(call6(addrCreatePopupWindow, uintptr(unsafe.Pointer(parent)), uintptr(offset_x), uintptr(offset_y), uintptr(w), uintptr(h), uintptr(flags))))
+}
 
 // Create a child popup window of the specified parent window.
 //
@@ -1377,7 +1552,14 @@ func CreatePopupWindow(parent *Window, offset_x int32, offset_y int32, w int32, 
 	return fnCreatePopupWindow(parent, offset_x, offset_y, w, h, flags)
 }
 
-var fnCreateWindowWithProperties func(props PropertiesID) *Window
+var addrCreateWindowWithProperties uintptr
+
+func fnCreateWindowWithProperties(props PropertiesID) *Window {
+	if addrCreateWindowWithProperties == 0 {
+		missingSymbol("SDL_CreateWindowWithProperties")
+	}
+	return (*Window)(cptr(call1(addrCreateWindowWithProperties, uintptr(props))))
+}
 
 // Create a window with the specified properties.
 //
@@ -1527,7 +1709,14 @@ func CreateWindowWithProperties(props PropertiesID) *Window {
 	return fnCreateWindowWithProperties(props)
 }
 
-var fnGetWindowID func(window *Window) WindowID
+var addrGetWindowID uintptr
+
+func fnGetWindowID(window *Window) WindowID {
+	if addrGetWindowID == 0 {
+		missingSymbol("SDL_GetWindowID")
+	}
+	return WindowID(call1(addrGetWindowID, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the numeric ID of a window.
 //
@@ -1548,7 +1737,14 @@ func GetWindowID(window *Window) WindowID {
 	return fnGetWindowID(window)
 }
 
-var fnGetWindowFromID func(id WindowID) *Window
+var addrGetWindowFromID uintptr
+
+func fnGetWindowFromID(id WindowID) *Window {
+	if addrGetWindowFromID == 0 {
+		missingSymbol("SDL_GetWindowFromID")
+	}
+	return (*Window)(cptr(call1(addrGetWindowFromID, uintptr(id))))
+}
 
 // Get a window from a stored ID.
 //
@@ -1569,7 +1765,14 @@ func GetWindowFromID(id WindowID) *Window {
 	return fnGetWindowFromID(id)
 }
 
-var fnGetWindowParent func(window *Window) *Window
+var addrGetWindowParent uintptr
+
+func fnGetWindowParent(window *Window) *Window {
+	if addrGetWindowParent == 0 {
+		missingSymbol("SDL_GetWindowParent")
+	}
+	return (*Window)(cptr(call1(addrGetWindowParent, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get parent of a window.
 //
@@ -1587,7 +1790,14 @@ func GetWindowParent(window *Window) *Window {
 	return fnGetWindowParent(window)
 }
 
-var fnGetWindowProperties func(window *Window) PropertiesID
+var addrGetWindowProperties uintptr
+
+func fnGetWindowProperties(window *Window) PropertiesID {
+	if addrGetWindowProperties == 0 {
+		missingSymbol("SDL_GetWindowProperties")
+	}
+	return PropertiesID(call1(addrGetWindowProperties, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the properties associated with a window.
 //
@@ -1719,7 +1929,14 @@ func GetWindowProperties(window *Window) PropertiesID {
 	return fnGetWindowProperties(window)
 }
 
-var fnGetWindowFlags func(window *Window) WindowFlags
+var addrGetWindowFlags uintptr
+
+func fnGetWindowFlags(window *Window) WindowFlags {
+	if addrGetWindowFlags == 0 {
+		missingSymbol("SDL_GetWindowFlags")
+	}
+	return WindowFlags(call1(addrGetWindowFlags, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the window flags.
 //
@@ -1737,7 +1954,14 @@ func GetWindowFlags(window *Window) WindowFlags {
 	return fnGetWindowFlags(window)
 }
 
-var fnSetWindowTitle func(window *Window, title *byte) bool
+var addrSetWindowTitle uintptr
+
+func fnSetWindowTitle(window *Window, title *byte) bool {
+	if addrSetWindowTitle == 0 {
+		missingSymbol("SDL_SetWindowTitle")
+	}
+	return uint8(call2(addrSetWindowTitle, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(title)))) != 0
+}
 
 // Set the title of a window.
 //
@@ -1758,7 +1982,14 @@ func SetWindowTitle(window *Window, title string) bool {
 	return fnSetWindowTitle(window, cstr(title))
 }
 
-var fnGetWindowTitle func(window *Window) *byte
+var addrGetWindowTitle uintptr
+
+func fnGetWindowTitle(window *Window) *byte {
+	if addrGetWindowTitle == 0 {
+		missingSymbol("SDL_GetWindowTitle")
+	}
+	return (*byte)(cptr(call1(addrGetWindowTitle, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get the title of a window.
 //
@@ -1776,7 +2007,14 @@ func GetWindowTitle(window *Window) string {
 	return GoString(fnGetWindowTitle(window))
 }
 
-var fnSetWindowIcon func(window *Window, icon *Surface) bool
+var addrSetWindowIcon uintptr
+
+func fnSetWindowIcon(window *Window, icon *Surface) bool {
+	if addrSetWindowIcon == 0 {
+		missingSymbol("SDL_SetWindowIcon")
+	}
+	return uint8(call2(addrSetWindowIcon, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(icon)))) != 0
+}
 
 // Set the icon for a window.
 //
@@ -1806,7 +2044,14 @@ func SetWindowIcon(window *Window, icon *Surface) bool {
 	return fnSetWindowIcon(window, icon)
 }
 
-var fnSetWindowPosition func(window *Window, x int32, y int32) bool
+var addrSetWindowPosition uintptr
+
+func fnSetWindowPosition(window *Window, x int32, y int32) bool {
+	if addrSetWindowPosition == 0 {
+		missingSymbol("SDL_SetWindowPosition")
+	}
+	return uint8(call3(addrSetWindowPosition, uintptr(unsafe.Pointer(window)), uintptr(x), uintptr(y))) != 0
+}
 
 // Request that the window's position be set.
 //
@@ -1847,7 +2092,14 @@ func SetWindowPosition(window *Window, x int32, y int32) bool {
 	return fnSetWindowPosition(window, x, y)
 }
 
-var fnGetWindowPosition func(window *Window, x *int32, y *int32) bool
+var addrGetWindowPosition uintptr
+
+func fnGetWindowPosition(window *Window, x *int32, y *int32) bool {
+	if addrGetWindowPosition == 0 {
+		missingSymbol("SDL_GetWindowPosition")
+	}
+	return uint8(call3(addrGetWindowPosition, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y)))) != 0
+}
 
 // Get the position of a window.
 //
@@ -1873,7 +2125,14 @@ func GetWindowPosition(window *Window, x *int32, y *int32) bool {
 	return fnGetWindowPosition(window, x, y)
 }
 
-var fnSetWindowSize func(window *Window, w int32, h int32) bool
+var addrSetWindowSize uintptr
+
+func fnSetWindowSize(window *Window, w int32, h int32) bool {
+	if addrSetWindowSize == 0 {
+		missingSymbol("SDL_SetWindowSize")
+	}
+	return uint8(call3(addrSetWindowSize, uintptr(unsafe.Pointer(window)), uintptr(w), uintptr(h))) != 0
+}
 
 // Request that the size of a window's client area be set.
 //
@@ -1911,7 +2170,14 @@ func SetWindowSize(window *Window, w int32, h int32) bool {
 	return fnSetWindowSize(window, w, h)
 }
 
-var fnGetWindowSize func(window *Window, w *int32, h *int32) bool
+var addrGetWindowSize uintptr
+
+func fnGetWindowSize(window *Window, w *int32, h *int32) bool {
+	if addrGetWindowSize == 0 {
+		missingSymbol("SDL_GetWindowSize")
+	}
+	return uint8(call3(addrGetWindowSize, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the size of a window's client area.
 //
@@ -1935,7 +2201,14 @@ func GetWindowSize(window *Window, w *int32, h *int32) bool {
 	return fnGetWindowSize(window, w, h)
 }
 
-var fnGetWindowSafeArea func(window *Window, rect *Rect) bool
+var addrGetWindowSafeArea uintptr
+
+func fnGetWindowSafeArea(window *Window, rect *Rect) bool {
+	if addrGetWindowSafeArea == 0 {
+		missingSymbol("SDL_GetWindowSafeArea")
+	}
+	return uint8(call2(addrGetWindowSafeArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the safe area for this window.
 //
@@ -2000,7 +2273,14 @@ func SetWindowAspectRatio(window *Window, min_aspect float32, max_aspect float32
 	return fnSetWindowAspectRatio(window, min_aspect, max_aspect)
 }
 
-var fnGetWindowAspectRatio func(window *Window, min_aspect *float32, max_aspect *float32) bool
+var addrGetWindowAspectRatio uintptr
+
+func fnGetWindowAspectRatio(window *Window, min_aspect *float32, max_aspect *float32) bool {
+	if addrGetWindowAspectRatio == 0 {
+		missingSymbol("SDL_GetWindowAspectRatio")
+	}
+	return uint8(call3(addrGetWindowAspectRatio, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(min_aspect)), uintptr(unsafe.Pointer(max_aspect)))) != 0
+}
 
 // Get the aspect ratio of a window's client area.
 //
@@ -2020,7 +2300,14 @@ func GetWindowAspectRatio(window *Window, min_aspect *float32, max_aspect *float
 	return fnGetWindowAspectRatio(window, min_aspect, max_aspect)
 }
 
-var fnGetWindowBordersSize func(window *Window, top *int32, left *int32, bottom *int32, right *int32) bool
+var addrGetWindowBordersSize uintptr
+
+func fnGetWindowBordersSize(window *Window, top *int32, left *int32, bottom *int32, right *int32) bool {
+	if addrGetWindowBordersSize == 0 {
+		missingSymbol("SDL_GetWindowBordersSize")
+	}
+	return uint8(call5(addrGetWindowBordersSize, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(top)), uintptr(unsafe.Pointer(left)), uintptr(unsafe.Pointer(bottom)), uintptr(unsafe.Pointer(right)))) != 0
+}
 
 // Get the size of a window's borders (decorations) around the client area.
 //
@@ -2055,7 +2342,14 @@ func GetWindowBordersSize(window *Window, top *int32, left *int32, bottom *int32
 	return fnGetWindowBordersSize(window, top, left, bottom, right)
 }
 
-var fnGetWindowSizeInPixels func(window *Window, w *int32, h *int32) bool
+var addrGetWindowSizeInPixels uintptr
+
+func fnGetWindowSizeInPixels(window *Window, w *int32, h *int32) bool {
+	if addrGetWindowSizeInPixels == 0 {
+		missingSymbol("SDL_GetWindowSizeInPixels")
+	}
+	return uint8(call3(addrGetWindowSizeInPixels, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the size of a window's client area, in pixels.
 //
@@ -2075,7 +2369,14 @@ func GetWindowSizeInPixels(window *Window, w *int32, h *int32) bool {
 	return fnGetWindowSizeInPixels(window, w, h)
 }
 
-var fnSetWindowMinimumSize func(window *Window, min_w int32, min_h int32) bool
+var addrSetWindowMinimumSize uintptr
+
+func fnSetWindowMinimumSize(window *Window, min_w int32, min_h int32) bool {
+	if addrSetWindowMinimumSize == 0 {
+		missingSymbol("SDL_SetWindowMinimumSize")
+	}
+	return uint8(call3(addrSetWindowMinimumSize, uintptr(unsafe.Pointer(window)), uintptr(min_w), uintptr(min_h))) != 0
+}
 
 // Set the minimum size of a window's client area.
 //
@@ -2095,7 +2396,14 @@ func SetWindowMinimumSize(window *Window, min_w int32, min_h int32) bool {
 	return fnSetWindowMinimumSize(window, min_w, min_h)
 }
 
-var fnGetWindowMinimumSize func(window *Window, w *int32, h *int32) bool
+var addrGetWindowMinimumSize uintptr
+
+func fnGetWindowMinimumSize(window *Window, w *int32, h *int32) bool {
+	if addrGetWindowMinimumSize == 0 {
+		missingSymbol("SDL_GetWindowMinimumSize")
+	}
+	return uint8(call3(addrGetWindowMinimumSize, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the minimum size of a window's client area.
 //
@@ -2115,7 +2423,14 @@ func GetWindowMinimumSize(window *Window, w *int32, h *int32) bool {
 	return fnGetWindowMinimumSize(window, w, h)
 }
 
-var fnSetWindowMaximumSize func(window *Window, max_w int32, max_h int32) bool
+var addrSetWindowMaximumSize uintptr
+
+func fnSetWindowMaximumSize(window *Window, max_w int32, max_h int32) bool {
+	if addrSetWindowMaximumSize == 0 {
+		missingSymbol("SDL_SetWindowMaximumSize")
+	}
+	return uint8(call3(addrSetWindowMaximumSize, uintptr(unsafe.Pointer(window)), uintptr(max_w), uintptr(max_h))) != 0
+}
 
 // Set the maximum size of a window's client area.
 //
@@ -2135,7 +2450,14 @@ func SetWindowMaximumSize(window *Window, max_w int32, max_h int32) bool {
 	return fnSetWindowMaximumSize(window, max_w, max_h)
 }
 
-var fnGetWindowMaximumSize func(window *Window, w *int32, h *int32) bool
+var addrGetWindowMaximumSize uintptr
+
+func fnGetWindowMaximumSize(window *Window, w *int32, h *int32) bool {
+	if addrGetWindowMaximumSize == 0 {
+		missingSymbol("SDL_GetWindowMaximumSize")
+	}
+	return uint8(call3(addrGetWindowMaximumSize, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(h)))) != 0
+}
 
 // Get the maximum size of a window's client area.
 //
@@ -2155,7 +2477,14 @@ func GetWindowMaximumSize(window *Window, w *int32, h *int32) bool {
 	return fnGetWindowMaximumSize(window, w, h)
 }
 
-var fnSetWindowBordered func(window *Window, bordered bool) bool
+var addrSetWindowBordered uintptr
+
+func fnSetWindowBordered(window *Window, bordered bool) bool {
+	if addrSetWindowBordered == 0 {
+		missingSymbol("SDL_SetWindowBordered")
+	}
+	return uint8(call2(addrSetWindowBordered, uintptr(unsafe.Pointer(window)), cbool(bordered))) != 0
+}
 
 // Set the border state of a window.
 //
@@ -2180,7 +2509,14 @@ func SetWindowBordered(window *Window, bordered bool) bool {
 	return fnSetWindowBordered(window, bordered)
 }
 
-var fnSetWindowResizable func(window *Window, resizable bool) bool
+var addrSetWindowResizable uintptr
+
+func fnSetWindowResizable(window *Window, resizable bool) bool {
+	if addrSetWindowResizable == 0 {
+		missingSymbol("SDL_SetWindowResizable")
+	}
+	return uint8(call2(addrSetWindowResizable, uintptr(unsafe.Pointer(window)), cbool(resizable))) != 0
+}
 
 // Set the user-resizable state of a window.
 //
@@ -2205,7 +2541,14 @@ func SetWindowResizable(window *Window, resizable bool) bool {
 	return fnSetWindowResizable(window, resizable)
 }
 
-var fnSetWindowAlwaysOnTop func(window *Window, on_top bool) bool
+var addrSetWindowAlwaysOnTop uintptr
+
+func fnSetWindowAlwaysOnTop(window *Window, on_top bool) bool {
+	if addrSetWindowAlwaysOnTop == 0 {
+		missingSymbol("SDL_SetWindowAlwaysOnTop")
+	}
+	return uint8(call2(addrSetWindowAlwaysOnTop, uintptr(unsafe.Pointer(window)), cbool(on_top))) != 0
+}
 
 // Set the window to always be above the others.
 //
@@ -2227,7 +2570,14 @@ func SetWindowAlwaysOnTop(window *Window, on_top bool) bool {
 	return fnSetWindowAlwaysOnTop(window, on_top)
 }
 
-var fnSetWindowFillDocument func(window *Window, fill bool) bool
+var addrSetWindowFillDocument uintptr
+
+func fnSetWindowFillDocument(window *Window, fill bool) bool {
+	if addrSetWindowFillDocument == 0 {
+		missingSymbol("SDL_SetWindowFillDocument")
+	}
+	return uint8(call2(addrSetWindowFillDocument, uintptr(unsafe.Pointer(window)), cbool(fill))) != 0
+}
 
 // Set the window to fill the current document space (Emscripten only).
 //
@@ -2261,7 +2611,14 @@ func SetWindowFillDocument(window *Window, fill bool) bool {
 	return fnSetWindowFillDocument(window, fill)
 }
 
-var fnShowWindow func(window *Window) bool
+var addrShowWindow uintptr
+
+func fnShowWindow(window *Window) bool {
+	if addrShowWindow == 0 {
+		missingSymbol("SDL_ShowWindow")
+	}
+	return uint8(call1(addrShowWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Show a window.
 //
@@ -2279,7 +2636,14 @@ func ShowWindow(window *Window) bool {
 	return fnShowWindow(window)
 }
 
-var fnHideWindow func(window *Window) bool
+var addrHideWindow uintptr
+
+func fnHideWindow(window *Window) bool {
+	if addrHideWindow == 0 {
+		missingSymbol("SDL_HideWindow")
+	}
+	return uint8(call1(addrHideWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Hide a window.
 //
@@ -2297,7 +2661,14 @@ func HideWindow(window *Window) bool {
 	return fnHideWindow(window)
 }
 
-var fnRaiseWindow func(window *Window) bool
+var addrRaiseWindow uintptr
+
+func fnRaiseWindow(window *Window) bool {
+	if addrRaiseWindow == 0 {
+		missingSymbol("SDL_RaiseWindow")
+	}
+	return uint8(call1(addrRaiseWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Request that a window be raised above other windows and gain the input
 // focus.
@@ -2320,7 +2691,14 @@ func RaiseWindow(window *Window) bool {
 	return fnRaiseWindow(window)
 }
 
-var fnMaximizeWindow func(window *Window) bool
+var addrMaximizeWindow uintptr
+
+func fnMaximizeWindow(window *Window) bool {
+	if addrMaximizeWindow == 0 {
+		missingSymbol("SDL_MaximizeWindow")
+	}
+	return uint8(call1(addrMaximizeWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Request that the window be made as large as possible.
 //
@@ -2355,7 +2733,14 @@ func MaximizeWindow(window *Window) bool {
 	return fnMaximizeWindow(window)
 }
 
-var fnMinimizeWindow func(window *Window) bool
+var addrMinimizeWindow uintptr
+
+func fnMinimizeWindow(window *Window) bool {
+	if addrMinimizeWindow == 0 {
+		missingSymbol("SDL_MinimizeWindow")
+	}
+	return uint8(call1(addrMinimizeWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Request that the window be minimized to an iconic representation.
 //
@@ -2385,7 +2770,14 @@ func MinimizeWindow(window *Window) bool {
 	return fnMinimizeWindow(window)
 }
 
-var fnRestoreWindow func(window *Window) bool
+var addrRestoreWindow uintptr
+
+func fnRestoreWindow(window *Window) bool {
+	if addrRestoreWindow == 0 {
+		missingSymbol("SDL_RestoreWindow")
+	}
+	return uint8(call1(addrRestoreWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Request that the size and position of a minimized or maximized window be
 // restored.
@@ -2416,7 +2808,14 @@ func RestoreWindow(window *Window) bool {
 	return fnRestoreWindow(window)
 }
 
-var fnSetWindowFullscreen func(window *Window, fullscreen bool) bool
+var addrSetWindowFullscreen uintptr
+
+func fnSetWindowFullscreen(window *Window, fullscreen bool) bool {
+	if addrSetWindowFullscreen == 0 {
+		missingSymbol("SDL_SetWindowFullscreen")
+	}
+	return uint8(call2(addrSetWindowFullscreen, uintptr(unsafe.Pointer(window)), cbool(fullscreen))) != 0
+}
 
 // Request that the window's fullscreen state be changed.
 //
@@ -2448,7 +2847,14 @@ func SetWindowFullscreen(window *Window, fullscreen bool) bool {
 	return fnSetWindowFullscreen(window, fullscreen)
 }
 
-var fnSyncWindow func(window *Window) bool
+var addrSyncWindow uintptr
+
+func fnSyncWindow(window *Window) bool {
+	if addrSyncWindow == 0 {
+		missingSymbol("SDL_SyncWindow")
+	}
+	return uint8(call1(addrSyncWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Block until any pending window state is finalized.
 //
@@ -2475,7 +2881,14 @@ func SyncWindow(window *Window) bool {
 	return fnSyncWindow(window)
 }
 
-var fnWindowHasSurface func(window *Window) bool
+var addrWindowHasSurface uintptr
+
+func fnWindowHasSurface(window *Window) bool {
+	if addrWindowHasSurface == 0 {
+		missingSymbol("SDL_WindowHasSurface")
+	}
+	return uint8(call1(addrWindowHasSurface, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Return whether the window has a surface associated with it.
 //
@@ -2493,7 +2906,14 @@ func WindowHasSurface(window *Window) bool {
 	return fnWindowHasSurface(window)
 }
 
-var fnGetWindowSurface func(window *Window) *Surface
+var addrGetWindowSurface uintptr
+
+func fnGetWindowSurface(window *Window) *Surface {
+	if addrGetWindowSurface == 0 {
+		missingSymbol("SDL_GetWindowSurface")
+	}
+	return (*Surface)(cptr(call1(addrGetWindowSurface, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get the SDL surface associated with the window.
 //
@@ -2522,7 +2942,14 @@ func GetWindowSurface(window *Window) *Surface {
 	return fnGetWindowSurface(window)
 }
 
-var fnSetWindowSurfaceVSync func(window *Window, vsync int32) bool
+var addrSetWindowSurfaceVSync uintptr
+
+func fnSetWindowSurfaceVSync(window *Window, vsync int32) bool {
+	if addrSetWindowSurfaceVSync == 0 {
+		missingSymbol("SDL_SetWindowSurfaceVSync")
+	}
+	return uint8(call2(addrSetWindowSurfaceVSync, uintptr(unsafe.Pointer(window)), uintptr(vsync))) != 0
+}
 
 // Toggle VSync for the window surface.
 //
@@ -2551,7 +2978,14 @@ func SetWindowSurfaceVSync(window *Window, vsync int32) bool {
 	return fnSetWindowSurfaceVSync(window, vsync)
 }
 
-var fnGetWindowSurfaceVSync func(window *Window, vsync *int32) bool
+var addrGetWindowSurfaceVSync uintptr
+
+func fnGetWindowSurfaceVSync(window *Window, vsync *int32) bool {
+	if addrGetWindowSurfaceVSync == 0 {
+		missingSymbol("SDL_GetWindowSurfaceVSync")
+	}
+	return uint8(call2(addrGetWindowSurfaceVSync, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(vsync)))) != 0
+}
 
 // Get VSync for the window surface.
 //
@@ -2570,7 +3004,14 @@ func GetWindowSurfaceVSync(window *Window, vsync *int32) bool {
 	return fnGetWindowSurfaceVSync(window, vsync)
 }
 
-var fnUpdateWindowSurface func(window *Window) bool
+var addrUpdateWindowSurface uintptr
+
+func fnUpdateWindowSurface(window *Window) bool {
+	if addrUpdateWindowSurface == 0 {
+		missingSymbol("SDL_UpdateWindowSurface")
+	}
+	return uint8(call1(addrUpdateWindowSurface, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Copy the window surface to the screen.
 //
@@ -2593,7 +3034,14 @@ func UpdateWindowSurface(window *Window) bool {
 	return fnUpdateWindowSurface(window)
 }
 
-var fnUpdateWindowSurfaceRects func(window *Window, rects *Rect, numrects int32) bool
+var addrUpdateWindowSurfaceRects uintptr
+
+func fnUpdateWindowSurfaceRects(window *Window, rects *Rect, numrects int32) bool {
+	if addrUpdateWindowSurfaceRects == 0 {
+		missingSymbol("SDL_UpdateWindowSurfaceRects")
+	}
+	return uint8(call3(addrUpdateWindowSurfaceRects, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rects)), uintptr(numrects))) != 0
+}
 
 // Copy areas of the window surface to the screen.
 //
@@ -2642,7 +3090,14 @@ func UpdateWindowSurfaceRectsSlice(window *Window, rects []Rect) bool {
 	return ret
 }
 
-var fnDestroyWindowSurface func(window *Window) bool
+var addrDestroyWindowSurface uintptr
+
+func fnDestroyWindowSurface(window *Window) bool {
+	if addrDestroyWindowSurface == 0 {
+		missingSymbol("SDL_DestroyWindowSurface")
+	}
+	return uint8(call1(addrDestroyWindowSurface, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Destroy the surface associated with the window.
 //
@@ -2660,7 +3115,14 @@ func DestroyWindowSurface(window *Window) bool {
 	return fnDestroyWindowSurface(window)
 }
 
-var fnSetWindowKeyboardGrab func(window *Window, grabbed bool) bool
+var addrSetWindowKeyboardGrab uintptr
+
+func fnSetWindowKeyboardGrab(window *Window, grabbed bool) bool {
+	if addrSetWindowKeyboardGrab == 0 {
+		missingSymbol("SDL_SetWindowKeyboardGrab")
+	}
+	return uint8(call2(addrSetWindowKeyboardGrab, uintptr(unsafe.Pointer(window)), cbool(grabbed))) != 0
+}
 
 // Set a window's keyboard grab mode.
 //
@@ -2695,7 +3157,14 @@ func SetWindowKeyboardGrab(window *Window, grabbed bool) bool {
 	return fnSetWindowKeyboardGrab(window, grabbed)
 }
 
-var fnSetWindowMouseGrab func(window *Window, grabbed bool) bool
+var addrSetWindowMouseGrab uintptr
+
+func fnSetWindowMouseGrab(window *Window, grabbed bool) bool {
+	if addrSetWindowMouseGrab == 0 {
+		missingSymbol("SDL_SetWindowMouseGrab")
+	}
+	return uint8(call2(addrSetWindowMouseGrab, uintptr(unsafe.Pointer(window)), cbool(grabbed))) != 0
+}
 
 // Set a window's mouse grab mode.
 //
@@ -2716,7 +3185,14 @@ func SetWindowMouseGrab(window *Window, grabbed bool) bool {
 	return fnSetWindowMouseGrab(window, grabbed)
 }
 
-var fnGetWindowKeyboardGrab func(window *Window) bool
+var addrGetWindowKeyboardGrab uintptr
+
+func fnGetWindowKeyboardGrab(window *Window) bool {
+	if addrGetWindowKeyboardGrab == 0 {
+		missingSymbol("SDL_GetWindowKeyboardGrab")
+	}
+	return uint8(call1(addrGetWindowKeyboardGrab, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Get a window's keyboard grab mode.
 //
@@ -2734,7 +3210,14 @@ func GetWindowKeyboardGrab(window *Window) bool {
 	return fnGetWindowKeyboardGrab(window)
 }
 
-var fnGetWindowMouseGrab func(window *Window) bool
+var addrGetWindowMouseGrab uintptr
+
+func fnGetWindowMouseGrab(window *Window) bool {
+	if addrGetWindowMouseGrab == 0 {
+		missingSymbol("SDL_GetWindowMouseGrab")
+	}
+	return uint8(call1(addrGetWindowMouseGrab, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Get a window's mouse grab mode.
 //
@@ -2752,7 +3235,14 @@ func GetWindowMouseGrab(window *Window) bool {
 	return fnGetWindowMouseGrab(window)
 }
 
-var fnGetGrabbedWindow func() *Window
+var addrGetGrabbedWindow uintptr
+
+func fnGetGrabbedWindow() *Window {
+	if addrGetGrabbedWindow == 0 {
+		missingSymbol("SDL_GetGrabbedWindow")
+	}
+	return (*Window)(cptr(call0(addrGetGrabbedWindow)))
+}
 
 // Get the window that currently has an input grab enabled.
 //
@@ -2767,7 +3257,14 @@ func GetGrabbedWindow() *Window {
 	return fnGetGrabbedWindow()
 }
 
-var fnSetWindowMouseRect func(window *Window, rect *Rect) bool
+var addrSetWindowMouseRect uintptr
+
+func fnSetWindowMouseRect(window *Window, rect *Rect) bool {
+	if addrSetWindowMouseRect == 0 {
+		missingSymbol("SDL_SetWindowMouseRect")
+	}
+	return uint8(call2(addrSetWindowMouseRect, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Confines the cursor to the specified area of a window.
 //
@@ -2789,7 +3286,14 @@ func SetWindowMouseRect(window *Window, rect *Rect) bool {
 	return fnSetWindowMouseRect(window, rect)
 }
 
-var fnGetWindowMouseRect func(window *Window) *Rect
+var addrGetWindowMouseRect uintptr
+
+func fnGetWindowMouseRect(window *Window) *Rect {
+	if addrGetWindowMouseRect == 0 {
+		missingSymbol("SDL_GetWindowMouseRect")
+	}
+	return (*Rect)(cptr(call1(addrGetWindowMouseRect, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get the mouse confinement rectangle of a window.
 //
@@ -2852,7 +3356,14 @@ func GetWindowOpacity(window *Window) float32 {
 	return fnGetWindowOpacity(window)
 }
 
-var fnSetWindowParent func(window *Window, parent *Window) bool
+var addrSetWindowParent uintptr
+
+func fnSetWindowParent(window *Window, parent *Window) bool {
+	if addrSetWindowParent == 0 {
+		missingSymbol("SDL_SetWindowParent")
+	}
+	return uint8(call2(addrSetWindowParent, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(parent)))) != 0
+}
 
 // Set the window as a child of a parent window.
 //
@@ -2889,7 +3400,14 @@ func SetWindowParent(window *Window, parent *Window) bool {
 	return fnSetWindowParent(window, parent)
 }
 
-var fnSetWindowModal func(window *Window, modal bool) bool
+var addrSetWindowModal uintptr
+
+func fnSetWindowModal(window *Window, modal bool) bool {
+	if addrSetWindowModal == 0 {
+		missingSymbol("SDL_SetWindowModal")
+	}
+	return uint8(call2(addrSetWindowModal, uintptr(unsafe.Pointer(window)), cbool(modal))) != 0
+}
 
 // Toggle the state of the window as modal.
 //
@@ -2911,7 +3429,14 @@ func SetWindowModal(window *Window, modal bool) bool {
 	return fnSetWindowModal(window, modal)
 }
 
-var fnSetWindowFocusable func(window *Window, focusable bool) bool
+var addrSetWindowFocusable uintptr
+
+func fnSetWindowFocusable(window *Window, focusable bool) bool {
+	if addrSetWindowFocusable == 0 {
+		missingSymbol("SDL_SetWindowFocusable")
+	}
+	return uint8(call2(addrSetWindowFocusable, uintptr(unsafe.Pointer(window)), cbool(focusable))) != 0
+}
 
 // Set whether the window may have input focus.
 //
@@ -2928,7 +3453,14 @@ func SetWindowFocusable(window *Window, focusable bool) bool {
 	return fnSetWindowFocusable(window, focusable)
 }
 
-var fnShowWindowSystemMenu func(window *Window, x int32, y int32) bool
+var addrShowWindowSystemMenu uintptr
+
+func fnShowWindowSystemMenu(window *Window, x int32, y int32) bool {
+	if addrShowWindowSystemMenu == 0 {
+		missingSymbol("SDL_ShowWindowSystemMenu")
+	}
+	return uint8(call3(addrShowWindowSystemMenu, uintptr(unsafe.Pointer(window)), uintptr(x), uintptr(y))) != 0
+}
 
 // Display the system-level window menu.
 //
@@ -2954,7 +3486,14 @@ func ShowWindowSystemMenu(window *Window, x int32, y int32) bool {
 	return fnShowWindowSystemMenu(window, x, y)
 }
 
-var fnSetWindowHitTest func(window *Window, callback HitTest, callback_data unsafe.Pointer) bool
+var addrSetWindowHitTest uintptr
+
+func fnSetWindowHitTest(window *Window, callback HitTest, callback_data unsafe.Pointer) bool {
+	if addrSetWindowHitTest == 0 {
+		missingSymbol("SDL_SetWindowHitTest")
+	}
+	return uint8(call3(addrSetWindowHitTest, uintptr(unsafe.Pointer(window)), uintptr(callback), uintptr(unsafe.Pointer(callback_data)))) != 0
+}
 
 // Provide a callback that decides if a window region has special properties.
 //
@@ -3001,7 +3540,14 @@ func SetWindowHitTest(window *Window, callback HitTest, callback_data unsafe.Poi
 	return fnSetWindowHitTest(window, callback, callback_data)
 }
 
-var fnSetWindowShape func(window *Window, shape *Surface) bool
+var addrSetWindowShape uintptr
+
+func fnSetWindowShape(window *Window, shape *Surface) bool {
+	if addrSetWindowShape == 0 {
+		missingSymbol("SDL_SetWindowShape")
+	}
+	return uint8(call2(addrSetWindowShape, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(shape)))) != 0
+}
 
 // Set the shape of a transparent window.
 //
@@ -3031,7 +3577,14 @@ func SetWindowShape(window *Window, shape *Surface) bool {
 	return fnSetWindowShape(window, shape)
 }
 
-var fnFlashWindow func(window *Window, operation FlashOperation) bool
+var addrFlashWindow uintptr
+
+func fnFlashWindow(window *Window, operation FlashOperation) bool {
+	if addrFlashWindow == 0 {
+		missingSymbol("SDL_FlashWindow")
+	}
+	return uint8(call2(addrFlashWindow, uintptr(unsafe.Pointer(window)), uintptr(operation))) != 0
+}
 
 // Request a window to demand attention from the user.
 //
@@ -3048,7 +3601,14 @@ func FlashWindow(window *Window, operation FlashOperation) bool {
 	return fnFlashWindow(window, operation)
 }
 
-var fnSetWindowProgressState func(window *Window, state ProgressState) bool
+var addrSetWindowProgressState uintptr
+
+func fnSetWindowProgressState(window *Window, state ProgressState) bool {
+	if addrSetWindowProgressState == 0 {
+		missingSymbol("SDL_SetWindowProgressState")
+	}
+	return uint8(call2(addrSetWindowProgressState, uintptr(unsafe.Pointer(window)), uintptr(state))) != 0
+}
 
 // Sets the state of the progress bar for the given window’s taskbar icon.
 //
@@ -3065,7 +3625,14 @@ func SetWindowProgressState(window *Window, state ProgressState) bool {
 	return fnSetWindowProgressState(window, state)
 }
 
-var fnGetWindowProgressState func(window *Window) ProgressState
+var addrGetWindowProgressState uintptr
+
+func fnGetWindowProgressState(window *Window) ProgressState {
+	if addrGetWindowProgressState == 0 {
+		missingSymbol("SDL_GetWindowProgressState")
+	}
+	return ProgressState(call1(addrGetWindowProgressState, uintptr(unsafe.Pointer(window))))
+}
 
 // Get the state of the progress bar for the given window’s taskbar icon.
 //
@@ -3114,7 +3681,14 @@ func GetWindowProgressValue(window *Window) float32 {
 	return fnGetWindowProgressValue(window)
 }
 
-var fnDestroyWindow func(window *Window)
+var addrDestroyWindow uintptr
+
+func fnDestroyWindow(window *Window) {
+	if addrDestroyWindow == 0 {
+		missingSymbol("SDL_DestroyWindow")
+	}
+	call1(addrDestroyWindow, uintptr(unsafe.Pointer(window)))
+}
 
 // Destroy a window.
 //
@@ -3137,7 +3711,14 @@ func DestroyWindow(window *Window) {
 	fnDestroyWindow(window)
 }
 
-var fnScreenSaverEnabled func() bool
+var addrScreenSaverEnabled uintptr
+
+func fnScreenSaverEnabled() bool {
+	if addrScreenSaverEnabled == 0 {
+		missingSymbol("SDL_ScreenSaverEnabled")
+	}
+	return uint8(call0(addrScreenSaverEnabled)) != 0
+}
 
 // Check whether the screensaver is currently enabled.
 //
@@ -3156,7 +3737,14 @@ func ScreenSaverEnabled() bool {
 	return fnScreenSaverEnabled()
 }
 
-var fnEnableScreenSaver func() bool
+var addrEnableScreenSaver uintptr
+
+func fnEnableScreenSaver() bool {
+	if addrEnableScreenSaver == 0 {
+		missingSymbol("SDL_EnableScreenSaver")
+	}
+	return uint8(call0(addrEnableScreenSaver)) != 0
+}
 
 // Allow the screen to be blanked by a screen saver.
 //
@@ -3171,7 +3759,14 @@ func EnableScreenSaver() bool {
 	return fnEnableScreenSaver()
 }
 
-var fnDisableScreenSaver func() bool
+var addrDisableScreenSaver uintptr
+
+func fnDisableScreenSaver() bool {
+	if addrDisableScreenSaver == 0 {
+		missingSymbol("SDL_DisableScreenSaver")
+	}
+	return uint8(call0(addrDisableScreenSaver)) != 0
+}
 
 // Prevent the screen from being blanked by a screen saver.
 //
@@ -3192,7 +3787,14 @@ func DisableScreenSaver() bool {
 	return fnDisableScreenSaver()
 }
 
-var fnGL_LoadLibrary func(path *byte) bool
+var addrGL_LoadLibrary uintptr
+
+func fnGL_LoadLibrary(path *byte) bool {
+	if addrGL_LoadLibrary == 0 {
+		missingSymbol("SDL_GL_LoadLibrary")
+	}
+	return uint8(call1(addrGL_LoadLibrary, uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Dynamically load an OpenGL library.
 //
@@ -3219,7 +3821,14 @@ func GL_LoadLibrary(path string) bool {
 	return fnGL_LoadLibrary(cstrNull(path))
 }
 
-var fnGL_GetProcAddress func(proc *byte) FunctionPointer
+var addrGL_GetProcAddress uintptr
+
+func fnGL_GetProcAddress(proc *byte) FunctionPointer {
+	if addrGL_GetProcAddress == 0 {
+		missingSymbol("SDL_GL_GetProcAddress")
+	}
+	return FunctionPointer(call1(addrGL_GetProcAddress, uintptr(unsafe.Pointer(proc))))
+}
 
 // Get an OpenGL function by name.
 //
@@ -3275,7 +3884,14 @@ func GL_GetProcAddress(proc string) FunctionPointer {
 	return fnGL_GetProcAddress(cstr(proc))
 }
 
-var fnEGL_GetProcAddress func(proc *byte) FunctionPointer
+var addrEGL_GetProcAddress uintptr
+
+func fnEGL_GetProcAddress(proc *byte) FunctionPointer {
+	if addrEGL_GetProcAddress == 0 {
+		missingSymbol("SDL_EGL_GetProcAddress")
+	}
+	return FunctionPointer(call1(addrEGL_GetProcAddress, uintptr(unsafe.Pointer(proc))))
+}
 
 // Get an EGL library function by name.
 //
@@ -3297,7 +3913,14 @@ func EGL_GetProcAddress(proc string) FunctionPointer {
 	return fnEGL_GetProcAddress(cstr(proc))
 }
 
-var fnGL_UnloadLibrary func()
+var addrGL_UnloadLibrary uintptr
+
+func fnGL_UnloadLibrary() {
+	if addrGL_UnloadLibrary == 0 {
+		missingSymbol("SDL_GL_UnloadLibrary")
+	}
+	call0(addrGL_UnloadLibrary)
+}
 
 // Unload the OpenGL library previously loaded by GL_LoadLibrary().
 //
@@ -3310,7 +3933,14 @@ func GL_UnloadLibrary() {
 	fnGL_UnloadLibrary()
 }
 
-var fnGL_ExtensionSupported func(extension *byte) bool
+var addrGL_ExtensionSupported uintptr
+
+func fnGL_ExtensionSupported(extension *byte) bool {
+	if addrGL_ExtensionSupported == 0 {
+		missingSymbol("SDL_GL_ExtensionSupported")
+	}
+	return uint8(call1(addrGL_ExtensionSupported, uintptr(unsafe.Pointer(extension)))) != 0
+}
 
 // Check if an OpenGL extension is supported for the current context.
 //
@@ -3337,7 +3967,14 @@ func GL_ExtensionSupported(extension string) bool {
 	return fnGL_ExtensionSupported(cstr(extension))
 }
 
-var fnGL_ResetAttributes func()
+var addrGL_ResetAttributes uintptr
+
+func fnGL_ResetAttributes() {
+	if addrGL_ResetAttributes == 0 {
+		missingSymbol("SDL_GL_ResetAttributes")
+	}
+	call0(addrGL_ResetAttributes)
+}
 
 // Reset all previously set OpenGL context attributes to their default values.
 //
@@ -3350,7 +3987,14 @@ func GL_ResetAttributes() {
 	fnGL_ResetAttributes()
 }
 
-var fnGL_SetAttribute func(attr GLAttr, value int32) bool
+var addrGL_SetAttribute uintptr
+
+func fnGL_SetAttribute(attr GLAttr, value int32) bool {
+	if addrGL_SetAttribute == 0 {
+		missingSymbol("SDL_GL_SetAttribute")
+	}
+	return uint8(call2(addrGL_SetAttribute, uintptr(attr), uintptr(value))) != 0
+}
 
 // Set an OpenGL window attribute before window creation.
 //
@@ -3374,7 +4018,14 @@ func GL_SetAttribute(attr GLAttr, value int32) bool {
 	return fnGL_SetAttribute(attr, value)
 }
 
-var fnGL_GetAttribute func(attr GLAttr, value *int32) bool
+var addrGL_GetAttribute uintptr
+
+func fnGL_GetAttribute(attr GLAttr, value *int32) bool {
+	if addrGL_GetAttribute == 0 {
+		missingSymbol("SDL_GL_GetAttribute")
+	}
+	return uint8(call2(addrGL_GetAttribute, uintptr(attr), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Get the actual value for an attribute from the current context.
 //
@@ -3393,7 +4044,14 @@ func GL_GetAttribute(attr GLAttr, value *int32) bool {
 	return fnGL_GetAttribute(attr, value)
 }
 
-var fnGL_CreateContext func(window *Window) GLContext
+var addrGL_CreateContext uintptr
+
+func fnGL_CreateContext(window *Window) GLContext {
+	if addrGL_CreateContext == 0 {
+		missingSymbol("SDL_GL_CreateContext")
+	}
+	return (GLContext)(cptr(call1(addrGL_CreateContext, uintptr(unsafe.Pointer(window)))))
+}
 
 // Create an OpenGL context for an OpenGL window, and make it current.
 //
@@ -3425,7 +4083,14 @@ func GL_CreateContext(window *Window) GLContext {
 	return fnGL_CreateContext(window)
 }
 
-var fnGL_MakeCurrent func(window *Window, context GLContext) bool
+var addrGL_MakeCurrent uintptr
+
+func fnGL_MakeCurrent(window *Window, context GLContext) bool {
+	if addrGL_MakeCurrent == 0 {
+		missingSymbol("SDL_GL_MakeCurrent")
+	}
+	return uint8(call2(addrGL_MakeCurrent, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(context)))) != 0
+}
 
 // Set up an OpenGL context for rendering into an OpenGL window.
 //
@@ -3446,7 +4111,14 @@ func GL_MakeCurrent(window *Window, context GLContext) bool {
 	return fnGL_MakeCurrent(window, context)
 }
 
-var fnGL_GetCurrentWindow func() *Window
+var addrGL_GetCurrentWindow uintptr
+
+func fnGL_GetCurrentWindow() *Window {
+	if addrGL_GetCurrentWindow == 0 {
+		missingSymbol("SDL_GL_GetCurrentWindow")
+	}
+	return (*Window)(cptr(call0(addrGL_GetCurrentWindow)))
+}
 
 // Get the currently active OpenGL window.
 //
@@ -3459,7 +4131,14 @@ func GL_GetCurrentWindow() *Window {
 	return fnGL_GetCurrentWindow()
 }
 
-var fnGL_GetCurrentContext func() GLContext
+var addrGL_GetCurrentContext uintptr
+
+func fnGL_GetCurrentContext() GLContext {
+	if addrGL_GetCurrentContext == 0 {
+		missingSymbol("SDL_GL_GetCurrentContext")
+	}
+	return (GLContext)(cptr(call0(addrGL_GetCurrentContext)))
+}
 
 // Get the currently active OpenGL context.
 //
@@ -3474,7 +4153,14 @@ func GL_GetCurrentContext() GLContext {
 	return fnGL_GetCurrentContext()
 }
 
-var fnEGL_GetCurrentDisplay func() EGLDisplay
+var addrEGL_GetCurrentDisplay uintptr
+
+func fnEGL_GetCurrentDisplay() EGLDisplay {
+	if addrEGL_GetCurrentDisplay == 0 {
+		missingSymbol("SDL_EGL_GetCurrentDisplay")
+	}
+	return (EGLDisplay)(cptr(call0(addrEGL_GetCurrentDisplay)))
+}
 
 // Get the currently active EGL display.
 //
@@ -3487,7 +4173,14 @@ func EGL_GetCurrentDisplay() EGLDisplay {
 	return fnEGL_GetCurrentDisplay()
 }
 
-var fnEGL_GetCurrentConfig func() EGLConfig
+var addrEGL_GetCurrentConfig uintptr
+
+func fnEGL_GetCurrentConfig() EGLConfig {
+	if addrEGL_GetCurrentConfig == 0 {
+		missingSymbol("SDL_EGL_GetCurrentConfig")
+	}
+	return (EGLConfig)(cptr(call0(addrEGL_GetCurrentConfig)))
+}
 
 // Get the currently active EGL config.
 //
@@ -3500,7 +4193,14 @@ func EGL_GetCurrentConfig() EGLConfig {
 	return fnEGL_GetCurrentConfig()
 }
 
-var fnEGL_GetWindowSurface func(window *Window) EGLSurface
+var addrEGL_GetWindowSurface uintptr
+
+func fnEGL_GetWindowSurface(window *Window) EGLSurface {
+	if addrEGL_GetWindowSurface == 0 {
+		missingSymbol("SDL_EGL_GetWindowSurface")
+	}
+	return (EGLSurface)(cptr(call1(addrEGL_GetWindowSurface, uintptr(unsafe.Pointer(window)))))
+}
 
 // Get the EGL surface associated with the window.
 //
@@ -3516,7 +4216,14 @@ func EGL_GetWindowSurface(window *Window) EGLSurface {
 	return fnEGL_GetWindowSurface(window)
 }
 
-var fnEGL_SetAttributeCallbacks func(platformAttribCallback EGLAttribArrayCallback, surfaceAttribCallback EGLIntArrayCallback, contextAttribCallback EGLIntArrayCallback, userdata unsafe.Pointer)
+var addrEGL_SetAttributeCallbacks uintptr
+
+func fnEGL_SetAttributeCallbacks(platformAttribCallback EGLAttribArrayCallback, surfaceAttribCallback EGLIntArrayCallback, contextAttribCallback EGLIntArrayCallback, userdata unsafe.Pointer) {
+	if addrEGL_SetAttributeCallbacks == 0 {
+		missingSymbol("SDL_EGL_SetAttributeCallbacks")
+	}
+	call4(addrEGL_SetAttributeCallbacks, uintptr(platformAttribCallback), uintptr(surfaceAttribCallback), uintptr(contextAttribCallback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Sets the callbacks for defining custom EGLAttrib arrays for EGL
 // initialization.
@@ -3540,7 +4247,14 @@ func EGL_SetAttributeCallbacks(platformAttribCallback EGLAttribArrayCallback, su
 	fnEGL_SetAttributeCallbacks(platformAttribCallback, surfaceAttribCallback, contextAttribCallback, userdata)
 }
 
-var fnGL_SetSwapInterval func(interval int32) bool
+var addrGL_SetSwapInterval uintptr
+
+func fnGL_SetSwapInterval(interval int32) bool {
+	if addrGL_SetSwapInterval == 0 {
+		missingSymbol("SDL_GL_SetSwapInterval")
+	}
+	return uint8(call1(addrGL_SetSwapInterval, uintptr(interval))) != 0
+}
 
 // Set the swap interval for the current OpenGL context.
 //
@@ -3573,7 +4287,14 @@ func GL_SetSwapInterval(interval int32) bool {
 	return fnGL_SetSwapInterval(interval)
 }
 
-var fnGL_GetSwapInterval func(interval *int32) bool
+var addrGL_GetSwapInterval uintptr
+
+func fnGL_GetSwapInterval(interval *int32) bool {
+	if addrGL_GetSwapInterval == 0 {
+		missingSymbol("SDL_GL_GetSwapInterval")
+	}
+	return uint8(call1(addrGL_GetSwapInterval, uintptr(unsafe.Pointer(interval)))) != 0
+}
 
 // Get the swap interval for the current OpenGL context.
 //
@@ -3594,7 +4315,14 @@ func GL_GetSwapInterval(interval *int32) bool {
 	return fnGL_GetSwapInterval(interval)
 }
 
-var fnGL_SwapWindow func(window *Window) bool
+var addrGL_SwapWindow uintptr
+
+func fnGL_SwapWindow(window *Window) bool {
+	if addrGL_SwapWindow == 0 {
+		missingSymbol("SDL_GL_SwapWindow")
+	}
+	return uint8(call1(addrGL_SwapWindow, uintptr(unsafe.Pointer(window)))) != 0
+}
 
 // Update a window with OpenGL rendering.
 //
@@ -3617,7 +4345,14 @@ func GL_SwapWindow(window *Window) bool {
 	return fnGL_SwapWindow(window)
 }
 
-var fnGL_DestroyContext func(context GLContext) bool
+var addrGL_DestroyContext uintptr
+
+func fnGL_DestroyContext(context GLContext) bool {
+	if addrGL_DestroyContext == 0 {
+		missingSymbol("SDL_GL_DestroyContext")
+	}
+	return uint8(call1(addrGL_DestroyContext, uintptr(unsafe.Pointer(context)))) != 0
+}
 
 // Delete an OpenGL context.
 //

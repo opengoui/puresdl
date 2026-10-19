@@ -4039,7 +4039,14 @@ const (
 	HINT_PEN_TOUCH_EVENTS = "SDL_PEN_TOUCH_EVENTS"
 )
 
-var fnSetHintWithPriority func(name *byte, value *byte, priority HintPriority) bool
+var addrSetHintWithPriority uintptr
+
+func fnSetHintWithPriority(name *byte, value *byte, priority HintPriority) bool {
+	if addrSetHintWithPriority == 0 {
+		missingSymbol("SDL_SetHintWithPriority")
+	}
+	return uint8(call3(addrSetHintWithPriority, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), uintptr(priority))) != 0
+}
 
 // Set a hint with a specific priority.
 //
@@ -4063,7 +4070,14 @@ func SetHintWithPriority(name string, value string, priority HintPriority) bool 
 	return fnSetHintWithPriority(cstr(name), cstr(value), priority)
 }
 
-var fnSetHint func(name *byte, value *byte) bool
+var addrSetHint uintptr
+
+func fnSetHint(name *byte, value *byte) bool {
+	if addrSetHint == 0 {
+		missingSymbol("SDL_SetHint")
+	}
+	return uint8(call2(addrSetHint, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Set a hint with normal priority.
 //
@@ -4086,7 +4100,14 @@ func SetHint(name string, value string) bool {
 	return fnSetHint(cstr(name), cstr(value))
 }
 
-var fnResetHint func(name *byte) bool
+var addrResetHint uintptr
+
+func fnResetHint(name *byte) bool {
+	if addrResetHint == 0 {
+		missingSymbol("SDL_ResetHint")
+	}
+	return uint8(call1(addrResetHint, uintptr(unsafe.Pointer(name)))) != 0
+}
 
 // Reset a hint to the default value.
 //
@@ -4108,7 +4129,14 @@ func ResetHint(name string) bool {
 	return fnResetHint(cstr(name))
 }
 
-var fnResetHints func()
+var addrResetHints uintptr
+
+func fnResetHints() {
+	if addrResetHints == 0 {
+		missingSymbol("SDL_ResetHints")
+	}
+	call0(addrResetHints)
+}
 
 // Reset all hints to the default values.
 //
@@ -4125,7 +4153,14 @@ func ResetHints() {
 	fnResetHints()
 }
 
-var fnGetHint func(name *byte) *byte
+var addrGetHint uintptr
+
+func fnGetHint(name *byte) *byte {
+	if addrGetHint == 0 {
+		missingSymbol("SDL_GetHint")
+	}
+	return (*byte)(cptr(call1(addrGetHint, uintptr(unsafe.Pointer(name)))))
+}
 
 // Get the value of a hint.
 //
@@ -4167,7 +4202,14 @@ func GetHintOK(name string) (string, bool) {
 	return GoString(p), true
 }
 
-var fnGetHintBoolean func(name *byte, default_value bool) bool
+var addrGetHintBoolean uintptr
+
+func fnGetHintBoolean(name *byte, default_value bool) bool {
+	if addrGetHintBoolean == 0 {
+		missingSymbol("SDL_GetHintBoolean")
+	}
+	return uint8(call2(addrGetHintBoolean, uintptr(unsafe.Pointer(name)), cbool(default_value))) != 0
+}
 
 // Get the boolean value of a hint variable.
 //
@@ -4186,7 +4228,14 @@ func GetHintBoolean(name string, default_value bool) bool {
 	return fnGetHintBoolean(cstr(name), default_value)
 }
 
-var fnAddHintCallback func(name *byte, callback HintCallback, userdata unsafe.Pointer) bool
+var addrAddHintCallback uintptr
+
+func fnAddHintCallback(name *byte, callback HintCallback, userdata unsafe.Pointer) bool {
+	if addrAddHintCallback == 0 {
+		missingSymbol("SDL_AddHintCallback")
+	}
+	return uint8(call3(addrAddHintCallback, uintptr(unsafe.Pointer(name)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Add a function to watch a particular hint.
 //
@@ -4211,7 +4260,14 @@ func AddHintCallback(name string, callback HintCallback, userdata unsafe.Pointer
 	return fnAddHintCallback(cstr(name), callback, userdata)
 }
 
-var fnRemoveHintCallback func(name *byte, callback HintCallback, userdata unsafe.Pointer)
+var addrRemoveHintCallback uintptr
+
+func fnRemoveHintCallback(name *byte, callback HintCallback, userdata unsafe.Pointer) {
+	if addrRemoveHintCallback == 0 {
+		missingSymbol("SDL_RemoveHintCallback")
+	}
+	call3(addrRemoveHintCallback, uintptr(unsafe.Pointer(name)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Remove a function watching a particular hint.
 //

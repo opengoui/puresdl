@@ -31,7 +31,14 @@ const (
 	VERSION = 0x2DD672
 )
 
-var fnGetVersion func() int32
+var addrGetVersion uintptr
+
+func fnGetVersion() int32 {
+	if addrGetVersion == 0 {
+		missingSymbol("SDL_GetVersion")
+	}
+	return int32(call0(addrGetVersion))
+}
 
 // Get the version of SDL that is linked against your program.
 //
@@ -53,7 +60,14 @@ func GetVersion() int32 {
 	return fnGetVersion()
 }
 
-var fnGetRevision func() *byte
+var addrGetRevision uintptr
+
+func fnGetRevision() *byte {
+	if addrGetRevision == 0 {
+		missingSymbol("SDL_GetRevision")
+	}
+	return (*byte)(cptr(call0(addrGetRevision)))
+}
 
 // Get the code revision of the SDL library that is linked against your
 // program.

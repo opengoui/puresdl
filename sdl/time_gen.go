@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // A structure holding a calendar date and time broken down into its
 // components.
 //
@@ -56,7 +58,14 @@ const (
 	TIME_FORMAT_12HR TimeFormat = 1
 )
 
-var fnGetDateTimeLocalePreferences func(dateFormat *DateFormat, timeFormat *TimeFormat) bool
+var addrGetDateTimeLocalePreferences uintptr
+
+func fnGetDateTimeLocalePreferences(dateFormat *DateFormat, timeFormat *TimeFormat) bool {
+	if addrGetDateTimeLocalePreferences == 0 {
+		missingSymbol("SDL_GetDateTimeLocalePreferences")
+	}
+	return uint8(call2(addrGetDateTimeLocalePreferences, uintptr(unsafe.Pointer(dateFormat)), uintptr(unsafe.Pointer(timeFormat)))) != 0
+}
 
 // Gets the current preferred date and time format for the system locale.
 //
@@ -78,7 +87,14 @@ func GetDateTimeLocalePreferences(dateFormat *DateFormat, timeFormat *TimeFormat
 	return fnGetDateTimeLocalePreferences(dateFormat, timeFormat)
 }
 
-var fnGetCurrentTime func(ticks *Time) bool
+var addrGetCurrentTime uintptr
+
+func fnGetCurrentTime(ticks *Time) bool {
+	if addrGetCurrentTime == 0 {
+		missingSymbol("SDL_GetCurrentTime")
+	}
+	return uint8(call1(addrGetCurrentTime, uintptr(unsafe.Pointer(ticks)))) != 0
+}
 
 // Gets the current value of the system realtime clock in nanoseconds since
 // Jan 1, 1970 in Universal Coordinated Time (UTC).
@@ -95,7 +111,14 @@ func GetCurrentTime(ticks *Time) bool {
 	return fnGetCurrentTime(ticks)
 }
 
-var fnTimeToDateTime func(ticks Time, dt *DateTime, localTime bool) bool
+var addrTimeToDateTime uintptr
+
+func fnTimeToDateTime(ticks Time, dt *DateTime, localTime bool) bool {
+	if addrTimeToDateTime == 0 {
+		missingSymbol("SDL_TimeToDateTime")
+	}
+	return uint8(call3(addrTimeToDateTime, uintptr(ticks), uintptr(unsafe.Pointer(dt)), cbool(localTime))) != 0
+}
 
 // Converts an Time in nanoseconds since the epoch to a calendar time in
 // the DateTime format.
@@ -114,7 +137,14 @@ func TimeToDateTime(ticks Time, dt *DateTime, localTime bool) bool {
 	return fnTimeToDateTime(ticks, dt, localTime)
 }
 
-var fnDateTimeToTime func(dt *DateTime, ticks *Time) bool
+var addrDateTimeToTime uintptr
+
+func fnDateTimeToTime(dt *DateTime, ticks *Time) bool {
+	if addrDateTimeToTime == 0 {
+		missingSymbol("SDL_DateTimeToTime")
+	}
+	return uint8(call2(addrDateTimeToTime, uintptr(unsafe.Pointer(dt)), uintptr(unsafe.Pointer(ticks)))) != 0
+}
 
 // Converts a calendar time to an Time in nanoseconds since the epoch.
 //
@@ -134,7 +164,14 @@ func DateTimeToTime(dt *DateTime, ticks *Time) bool {
 	return fnDateTimeToTime(dt, ticks)
 }
 
-var fnTimeToWindows func(ticks Time, dwLowDateTime *uint32, dwHighDateTime *uint32)
+var addrTimeToWindows uintptr
+
+func fnTimeToWindows(ticks Time, dwLowDateTime *uint32, dwHighDateTime *uint32) {
+	if addrTimeToWindows == 0 {
+		missingSymbol("SDL_TimeToWindows")
+	}
+	call3(addrTimeToWindows, uintptr(ticks), uintptr(unsafe.Pointer(dwLowDateTime)), uintptr(unsafe.Pointer(dwHighDateTime)))
+}
 
 // Converts an SDL time into a Windows FILETIME (100-nanosecond intervals
 // since January 1, 1601).
@@ -153,7 +190,14 @@ func TimeToWindows(ticks Time, dwLowDateTime *uint32, dwHighDateTime *uint32) {
 	fnTimeToWindows(ticks, dwLowDateTime, dwHighDateTime)
 }
 
-var fnTimeFromWindows func(dwLowDateTime uint32, dwHighDateTime uint32) Time
+var addrTimeFromWindows uintptr
+
+func fnTimeFromWindows(dwLowDateTime uint32, dwHighDateTime uint32) Time {
+	if addrTimeFromWindows == 0 {
+		missingSymbol("SDL_TimeFromWindows")
+	}
+	return Time(call2(addrTimeFromWindows, uintptr(dwLowDateTime), uintptr(dwHighDateTime)))
+}
 
 // Converts a Windows FILETIME (100-nanosecond intervals since January 1,
 // 1601) to an SDL time.
@@ -174,7 +218,14 @@ func TimeFromWindows(dwLowDateTime uint32, dwHighDateTime uint32) Time {
 	return fnTimeFromWindows(dwLowDateTime, dwHighDateTime)
 }
 
-var fnGetDaysInMonth func(year int32, month int32) int32
+var addrGetDaysInMonth uintptr
+
+func fnGetDaysInMonth(year int32, month int32) int32 {
+	if addrGetDaysInMonth == 0 {
+		missingSymbol("SDL_GetDaysInMonth")
+	}
+	return int32(call2(addrGetDaysInMonth, uintptr(year), uintptr(month)))
+}
 
 // Get the number of days in a month for a given year.
 //
@@ -191,7 +242,14 @@ func GetDaysInMonth(year int32, month int32) int32 {
 	return fnGetDaysInMonth(year, month)
 }
 
-var fnGetDayOfYear func(year int32, month int32, day int32) int32
+var addrGetDayOfYear uintptr
+
+func fnGetDayOfYear(year int32, month int32, day int32) int32 {
+	if addrGetDayOfYear == 0 {
+		missingSymbol("SDL_GetDayOfYear")
+	}
+	return int32(call3(addrGetDayOfYear, uintptr(year), uintptr(month), uintptr(day)))
+}
 
 // Get the day of year for a calendar date.
 //
@@ -209,7 +267,14 @@ func GetDayOfYear(year int32, month int32, day int32) int32 {
 	return fnGetDayOfYear(year, month, day)
 }
 
-var fnGetDayOfWeek func(year int32, month int32, day int32) int32
+var addrGetDayOfWeek uintptr
+
+func fnGetDayOfWeek(year int32, month int32, day int32) int32 {
+	if addrGetDayOfWeek == 0 {
+		missingSymbol("SDL_GetDayOfWeek")
+	}
+	return int32(call3(addrGetDayOfWeek, uintptr(year), uintptr(month), uintptr(day)))
+}
 
 // Get the day of week for a calendar date.
 //

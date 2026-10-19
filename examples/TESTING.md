@@ -103,6 +103,10 @@ go test ./examples/renderer/04-points -run TestXxx -update     # 重写该包 te
 
 - [ ] `storage/01-user`：点击窗口触发保存/读取：窗口应先变蓝，再变绿（成功）或红（失败）；检查用户存储目录里写入了文件；不要在不想污染用户目录时使用 `-autoclick`；在控制台/云存储平台上 `StorageReady` 可能延迟。
 
+### gpu（需要真实 GPU 与显示器）
+
+- [ ] `gpu/01-multi-window`：`go run ./examples/gpu/01-multi-window -stats`。三个窗口都显示围绕中心旋转的彩色粒子圆盘（加法混合，圆不随窗口宽高比变形）；鼠标移入窗口时圆盘跟随鼠标，移出后回到中心；标题与 `-stats` 输出显示帧率接近显示器刷新率；`work` 远小于一个刷新周期；关闭一个窗口后其余继续运行，关闭最后一个退出；`-present mailbox`/`immediate` 不受支持时打印回退到 vsync。窗口被其他窗口遮挡时 macOS 会节流呈现，测帧率前确保窗口在最前面。
+
 ## 测试数量与发现的缺陷汇总
 
 | 示例 | 测试数 | 发现的缺陷 |

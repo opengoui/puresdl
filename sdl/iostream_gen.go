@@ -150,7 +150,14 @@ func IOFromBytes(b []byte) *IOStream {
 	return s
 }
 
-var fnIOFromFile func(file *byte, mode *byte) *IOStream
+var addrIOFromFile uintptr
+
+func fnIOFromFile(file *byte, mode *byte) *IOStream {
+	if addrIOFromFile == 0 {
+		missingSymbol("SDL_IOFromFile")
+	}
+	return (*IOStream)(cptr(call2(addrIOFromFile, uintptr(unsafe.Pointer(file)), uintptr(unsafe.Pointer(mode)))))
+}
 
 // Use this function to create a new IOStream structure for reading from
 // and/or writing to a named file.
@@ -235,7 +242,14 @@ func IOFromFile(file string, mode string) *IOStream {
 	return fnIOFromFile(cstr(file), cstr(mode))
 }
 
-var fnIOFromMem func(mem unsafe.Pointer, size uint) *IOStream
+var addrIOFromMem uintptr
+
+func fnIOFromMem(mem unsafe.Pointer, size uint) *IOStream {
+	if addrIOFromMem == 0 {
+		missingSymbol("SDL_IOFromMem")
+	}
+	return (*IOStream)(cptr(call2(addrIOFromMem, uintptr(unsafe.Pointer(mem)), uintptr(size))))
+}
 
 // Use this function to prepare a read-write memory buffer for use with
 // IOStream.
@@ -281,7 +295,14 @@ func IOFromMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromMem(mem, size)
 }
 
-var fnIOFromConstMem func(mem unsafe.Pointer, size uint) *IOStream
+var addrIOFromConstMem uintptr
+
+func fnIOFromConstMem(mem unsafe.Pointer, size uint) *IOStream {
+	if addrIOFromConstMem == 0 {
+		missingSymbol("SDL_IOFromConstMem")
+	}
+	return (*IOStream)(cptr(call2(addrIOFromConstMem, uintptr(unsafe.Pointer(mem)), uintptr(size))))
+}
 
 // Use this function to prepare a read-only memory buffer for use with
 // IOStream.
@@ -329,7 +350,14 @@ func IOFromConstMem(mem unsafe.Pointer, size uint) *IOStream {
 	return fnIOFromConstMem(mem, size)
 }
 
-var fnIOFromDynamicMem func() *IOStream
+var addrIOFromDynamicMem uintptr
+
+func fnIOFromDynamicMem() *IOStream {
+	if addrIOFromDynamicMem == 0 {
+		missingSymbol("SDL_IOFromDynamicMem")
+	}
+	return (*IOStream)(cptr(call0(addrIOFromDynamicMem)))
+}
 
 // Use this function to create an IOStream that is backed by dynamically
 // allocated memory.
@@ -356,7 +384,14 @@ func IOFromDynamicMem() *IOStream {
 	return fnIOFromDynamicMem()
 }
 
-var fnOpenIO func(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream
+var addrOpenIO uintptr
+
+func fnOpenIO(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream {
+	if addrOpenIO == 0 {
+		missingSymbol("SDL_OpenIO")
+	}
+	return (*IOStream)(cptr(call2(addrOpenIO, uintptr(unsafe.Pointer(iface)), uintptr(unsafe.Pointer(userdata)))))
+}
 
 // Create a custom IOStream.
 //
@@ -385,7 +420,14 @@ func OpenIO(iface *IOStreamInterface, userdata unsafe.Pointer) *IOStream {
 	return fnOpenIO(iface, userdata)
 }
 
-var fnCloseIO func(context *IOStream) bool
+var addrCloseIO uintptr
+
+func fnCloseIO(context *IOStream) bool {
+	if addrCloseIO == 0 {
+		missingSymbol("SDL_CloseIO")
+	}
+	return uint8(call1(addrCloseIO, uintptr(unsafe.Pointer(context)))) != 0
+}
 
 // Close and free an allocated IOStream structure.
 //
@@ -420,7 +462,14 @@ func CloseIO(context *IOStream) bool {
 	return fnCloseIO(context)
 }
 
-var fnGetIOProperties func(context *IOStream) PropertiesID
+var addrGetIOProperties uintptr
+
+func fnGetIOProperties(context *IOStream) PropertiesID {
+	if addrGetIOProperties == 0 {
+		missingSymbol("SDL_GetIOProperties")
+	}
+	return PropertiesID(call1(addrGetIOProperties, uintptr(unsafe.Pointer(context))))
+}
 
 // Get the properties associated with an IOStream.
 //
@@ -436,7 +485,14 @@ func GetIOProperties(context *IOStream) PropertiesID {
 	return fnGetIOProperties(context)
 }
 
-var fnGetIOStatus func(context *IOStream) IOStatus
+var addrGetIOStatus uintptr
+
+func fnGetIOStatus(context *IOStream) IOStatus {
+	if addrGetIOStatus == 0 {
+		missingSymbol("SDL_GetIOStatus")
+	}
+	return IOStatus(call1(addrGetIOStatus, uintptr(unsafe.Pointer(context))))
+}
 
 // Query the stream status of an IOStream.
 //
@@ -460,7 +516,14 @@ func GetIOStatus(context *IOStream) IOStatus {
 	return fnGetIOStatus(context)
 }
 
-var fnGetIOSize func(context *IOStream) int64
+var addrGetIOSize uintptr
+
+func fnGetIOSize(context *IOStream) int64 {
+	if addrGetIOSize == 0 {
+		missingSymbol("SDL_GetIOSize")
+	}
+	return int64(call1(addrGetIOSize, uintptr(unsafe.Pointer(context))))
+}
 
 // Use this function to get the size of the data stream in an IOStream.
 //
@@ -476,7 +539,14 @@ func GetIOSize(context *IOStream) int64 {
 	return fnGetIOSize(context)
 }
 
-var fnSeekIO func(context *IOStream, offset int64, whence IOWhence) int64
+var addrSeekIO uintptr
+
+func fnSeekIO(context *IOStream, offset int64, whence IOWhence) int64 {
+	if addrSeekIO == 0 {
+		missingSymbol("SDL_SeekIO")
+	}
+	return int64(call3(addrSeekIO, uintptr(unsafe.Pointer(context)), uintptr(offset), uintptr(whence)))
+}
 
 // Seek within an IOStream data stream.
 //
@@ -506,7 +576,14 @@ func SeekIO(context *IOStream, offset int64, whence IOWhence) int64 {
 	return fnSeekIO(context, offset, whence)
 }
 
-var fnTellIO func(context *IOStream) int64
+var addrTellIO uintptr
+
+func fnTellIO(context *IOStream) int64 {
+	if addrTellIO == 0 {
+		missingSymbol("SDL_TellIO")
+	}
+	return int64(call1(addrTellIO, uintptr(unsafe.Pointer(context))))
+}
 
 // Determine the current read/write offset in an IOStream data stream.
 //
@@ -528,7 +605,14 @@ func TellIO(context *IOStream) int64 {
 	return fnTellIO(context)
 }
 
-var fnReadIO func(context *IOStream, ptr unsafe.Pointer, size uint) uint
+var addrReadIO uintptr
+
+func fnReadIO(context *IOStream, ptr unsafe.Pointer, size uint) uint {
+	if addrReadIO == 0 {
+		missingSymbol("SDL_ReadIO")
+	}
+	return uint(call3(addrReadIO, uintptr(unsafe.Pointer(context)), uintptr(unsafe.Pointer(ptr)), uintptr(size)))
+}
 
 // Read from a data source.
 //
@@ -595,7 +679,14 @@ func ReadIOSlice[T Number](context *IOStream, b []T) uint {
 	return ret
 }
 
-var fnWriteIO func(context *IOStream, ptr unsafe.Pointer, size uint) uint
+var addrWriteIO uintptr
+
+func fnWriteIO(context *IOStream, ptr unsafe.Pointer, size uint) uint {
+	if addrWriteIO == 0 {
+		missingSymbol("SDL_WriteIO")
+	}
+	return uint(call3(addrWriteIO, uintptr(unsafe.Pointer(context)), uintptr(unsafe.Pointer(ptr)), uintptr(size)))
+}
 
 // Write to an IOStream data stream.
 //
@@ -685,7 +776,14 @@ func IOprintf(context *IOStream, format string, args ...any) uint {
 	return fnIOprintf(context, cprintf(format, args))
 }
 
-var fnFlushIO func(context *IOStream) bool
+var addrFlushIO uintptr
+
+func fnFlushIO(context *IOStream) bool {
+	if addrFlushIO == 0 {
+		missingSymbol("SDL_FlushIO")
+	}
+	return uint8(call1(addrFlushIO, uintptr(unsafe.Pointer(context)))) != 0
+}
 
 // Flush any buffered data in the stream.
 //
@@ -707,7 +805,14 @@ func FlushIO(context *IOStream) bool {
 	return fnFlushIO(context)
 }
 
-var fnLoadFile_IO func(src *IOStream, datasize *uint, closeio bool) unsafe.Pointer
+var addrLoadFile_IO uintptr
+
+func fnLoadFile_IO(src *IOStream, datasize *uint, closeio bool) unsafe.Pointer {
+	if addrLoadFile_IO == 0 {
+		missingSymbol("SDL_LoadFile_IO")
+	}
+	return cptr(call3(addrLoadFile_IO, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(datasize)), cbool(closeio)))
+}
 
 // Load all the data from an SDL data stream.
 //
@@ -737,7 +842,14 @@ func LoadFile_IO(src *IOStream, closeio bool) []byte {
 	return copyFreeBytes(p, int(n))
 }
 
-var fnLoadFile func(file *byte, datasize *uint) unsafe.Pointer
+var addrLoadFile uintptr
+
+func fnLoadFile(file *byte, datasize *uint) unsafe.Pointer {
+	if addrLoadFile == 0 {
+		missingSymbol("SDL_LoadFile")
+	}
+	return cptr(call2(addrLoadFile, uintptr(unsafe.Pointer(file)), uintptr(unsafe.Pointer(datasize))))
+}
 
 // Load all the data from a file path.
 //
@@ -766,7 +878,14 @@ func LoadFile(file string) []byte {
 	return copyFreeBytes(p, int(n))
 }
 
-var fnSaveFile_IO func(src *IOStream, data unsafe.Pointer, datasize uint, closeio bool) bool
+var addrSaveFile_IO uintptr
+
+func fnSaveFile_IO(src *IOStream, data unsafe.Pointer, datasize uint, closeio bool) bool {
+	if addrSaveFile_IO == 0 {
+		missingSymbol("SDL_SaveFile_IO")
+	}
+	return uint8(call4(addrSaveFile_IO, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(data)), uintptr(datasize), cbool(closeio))) != 0
+}
 
 // Save all the data into an SDL data stream.
 //
@@ -787,7 +906,14 @@ func SaveFile_IO(src *IOStream, data unsafe.Pointer, datasize uint, closeio bool
 	return fnSaveFile_IO(src, data, datasize, closeio)
 }
 
-var fnSaveFile func(file *byte, data unsafe.Pointer, datasize uint) bool
+var addrSaveFile uintptr
+
+func fnSaveFile(file *byte, data unsafe.Pointer, datasize uint) bool {
+	if addrSaveFile == 0 {
+		missingSymbol("SDL_SaveFile")
+	}
+	return uint8(call3(addrSaveFile, uintptr(unsafe.Pointer(file)), uintptr(unsafe.Pointer(data)), uintptr(datasize))) != 0
+}
 
 // Save all the data into a file path.
 //
@@ -807,7 +933,14 @@ func SaveFile(file string, data unsafe.Pointer, datasize uint) bool {
 	return fnSaveFile(cstr(file), data, datasize)
 }
 
-var fnReadU8 func(src *IOStream, value *uint8) bool
+var addrReadU8 uintptr
+
+func fnReadU8(src *IOStream, value *uint8) bool {
+	if addrReadU8 == 0 {
+		missingSymbol("SDL_ReadU8")
+	}
+	return uint8(call2(addrReadU8, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read a byte from an IOStream.
 //
@@ -829,7 +962,14 @@ func ReadU8(src *IOStream, value *uint8) bool {
 	return fnReadU8(src, value)
 }
 
-var fnReadS8 func(src *IOStream, value *int8) bool
+var addrReadS8 uintptr
+
+func fnReadS8(src *IOStream, value *int8) bool {
+	if addrReadS8 == 0 {
+		missingSymbol("SDL_ReadS8")
+	}
+	return uint8(call2(addrReadS8, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read a signed byte from an IOStream.
 //
@@ -851,7 +991,14 @@ func ReadS8(src *IOStream, value *int8) bool {
 	return fnReadS8(src, value)
 }
 
-var fnReadU16LE func(src *IOStream, value *uint16) bool
+var addrReadU16LE uintptr
+
+func fnReadU16LE(src *IOStream, value *uint16) bool {
+	if addrReadU16LE == 0 {
+		missingSymbol("SDL_ReadU16LE")
+	}
+	return uint8(call2(addrReadU16LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 16 bits of little-endian data from an
 // IOStream and return in native format.
@@ -877,7 +1024,14 @@ func ReadU16LE(src *IOStream, value *uint16) bool {
 	return fnReadU16LE(src, value)
 }
 
-var fnReadS16LE func(src *IOStream, value *int16) bool
+var addrReadS16LE uintptr
+
+func fnReadS16LE(src *IOStream, value *int16) bool {
+	if addrReadS16LE == 0 {
+		missingSymbol("SDL_ReadS16LE")
+	}
+	return uint8(call2(addrReadS16LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 16 bits of little-endian data from an
 // IOStream and return in native format.
@@ -903,7 +1057,14 @@ func ReadS16LE(src *IOStream, value *int16) bool {
 	return fnReadS16LE(src, value)
 }
 
-var fnReadU16BE func(src *IOStream, value *uint16) bool
+var addrReadU16BE uintptr
+
+func fnReadU16BE(src *IOStream, value *uint16) bool {
+	if addrReadU16BE == 0 {
+		missingSymbol("SDL_ReadU16BE")
+	}
+	return uint8(call2(addrReadU16BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 16 bits of big-endian data from an IOStream
 // and return in native format.
@@ -929,7 +1090,14 @@ func ReadU16BE(src *IOStream, value *uint16) bool {
 	return fnReadU16BE(src, value)
 }
 
-var fnReadS16BE func(src *IOStream, value *int16) bool
+var addrReadS16BE uintptr
+
+func fnReadS16BE(src *IOStream, value *int16) bool {
+	if addrReadS16BE == 0 {
+		missingSymbol("SDL_ReadS16BE")
+	}
+	return uint8(call2(addrReadS16BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 16 bits of big-endian data from an IOStream
 // and return in native format.
@@ -955,7 +1123,14 @@ func ReadS16BE(src *IOStream, value *int16) bool {
 	return fnReadS16BE(src, value)
 }
 
-var fnReadU32LE func(src *IOStream, value *uint32) bool
+var addrReadU32LE uintptr
+
+func fnReadU32LE(src *IOStream, value *uint32) bool {
+	if addrReadU32LE == 0 {
+		missingSymbol("SDL_ReadU32LE")
+	}
+	return uint8(call2(addrReadU32LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 32 bits of little-endian data from an
 // IOStream and return in native format.
@@ -981,7 +1156,14 @@ func ReadU32LE(src *IOStream, value *uint32) bool {
 	return fnReadU32LE(src, value)
 }
 
-var fnReadS32LE func(src *IOStream, value *int32) bool
+var addrReadS32LE uintptr
+
+func fnReadS32LE(src *IOStream, value *int32) bool {
+	if addrReadS32LE == 0 {
+		missingSymbol("SDL_ReadS32LE")
+	}
+	return uint8(call2(addrReadS32LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 32 bits of little-endian data from an
 // IOStream and return in native format.
@@ -1007,7 +1189,14 @@ func ReadS32LE(src *IOStream, value *int32) bool {
 	return fnReadS32LE(src, value)
 }
 
-var fnReadU32BE func(src *IOStream, value *uint32) bool
+var addrReadU32BE uintptr
+
+func fnReadU32BE(src *IOStream, value *uint32) bool {
+	if addrReadU32BE == 0 {
+		missingSymbol("SDL_ReadU32BE")
+	}
+	return uint8(call2(addrReadU32BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 32 bits of big-endian data from an IOStream
 // and return in native format.
@@ -1033,7 +1222,14 @@ func ReadU32BE(src *IOStream, value *uint32) bool {
 	return fnReadU32BE(src, value)
 }
 
-var fnReadS32BE func(src *IOStream, value *int32) bool
+var addrReadS32BE uintptr
+
+func fnReadS32BE(src *IOStream, value *int32) bool {
+	if addrReadS32BE == 0 {
+		missingSymbol("SDL_ReadS32BE")
+	}
+	return uint8(call2(addrReadS32BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 32 bits of big-endian data from an IOStream
 // and return in native format.
@@ -1059,7 +1255,14 @@ func ReadS32BE(src *IOStream, value *int32) bool {
 	return fnReadS32BE(src, value)
 }
 
-var fnReadU64LE func(src *IOStream, value *uint64) bool
+var addrReadU64LE uintptr
+
+func fnReadU64LE(src *IOStream, value *uint64) bool {
+	if addrReadU64LE == 0 {
+		missingSymbol("SDL_ReadU64LE")
+	}
+	return uint8(call2(addrReadU64LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 64 bits of little-endian data from an
 // IOStream and return in native format.
@@ -1085,7 +1288,14 @@ func ReadU64LE(src *IOStream, value *uint64) bool {
 	return fnReadU64LE(src, value)
 }
 
-var fnReadS64LE func(src *IOStream, value *int64) bool
+var addrReadS64LE uintptr
+
+func fnReadS64LE(src *IOStream, value *int64) bool {
+	if addrReadS64LE == 0 {
+		missingSymbol("SDL_ReadS64LE")
+	}
+	return uint8(call2(addrReadS64LE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 64 bits of little-endian data from an
 // IOStream and return in native format.
@@ -1111,7 +1321,14 @@ func ReadS64LE(src *IOStream, value *int64) bool {
 	return fnReadS64LE(src, value)
 }
 
-var fnReadU64BE func(src *IOStream, value *uint64) bool
+var addrReadU64BE uintptr
+
+func fnReadU64BE(src *IOStream, value *uint64) bool {
+	if addrReadU64BE == 0 {
+		missingSymbol("SDL_ReadU64BE")
+	}
+	return uint8(call2(addrReadU64BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 64 bits of big-endian data from an IOStream
 // and return in native format.
@@ -1137,7 +1354,14 @@ func ReadU64BE(src *IOStream, value *uint64) bool {
 	return fnReadU64BE(src, value)
 }
 
-var fnReadS64BE func(src *IOStream, value *int64) bool
+var addrReadS64BE uintptr
+
+func fnReadS64BE(src *IOStream, value *int64) bool {
+	if addrReadS64BE == 0 {
+		missingSymbol("SDL_ReadS64BE")
+	}
+	return uint8(call2(addrReadS64BE, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Use this function to read 64 bits of big-endian data from an IOStream
 // and return in native format.
@@ -1163,7 +1387,14 @@ func ReadS64BE(src *IOStream, value *int64) bool {
 	return fnReadS64BE(src, value)
 }
 
-var fnWriteU8 func(dst *IOStream, value uint8) bool
+var addrWriteU8 uintptr
+
+func fnWriteU8(dst *IOStream, value uint8) bool {
+	if addrWriteU8 == 0 {
+		missingSymbol("SDL_WriteU8")
+	}
+	return uint8(call2(addrWriteU8, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write a byte to an IOStream.
 //
@@ -1180,7 +1411,14 @@ func WriteU8(dst *IOStream, value uint8) bool {
 	return fnWriteU8(dst, value)
 }
 
-var fnWriteS8 func(dst *IOStream, value int8) bool
+var addrWriteS8 uintptr
+
+func fnWriteS8(dst *IOStream, value int8) bool {
+	if addrWriteS8 == 0 {
+		missingSymbol("SDL_WriteS8")
+	}
+	return uint8(call2(addrWriteS8, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write a signed byte to an IOStream.
 //
@@ -1197,7 +1435,14 @@ func WriteS8(dst *IOStream, value int8) bool {
 	return fnWriteS8(dst, value)
 }
 
-var fnWriteU16LE func(dst *IOStream, value uint16) bool
+var addrWriteU16LE uintptr
+
+func fnWriteU16LE(dst *IOStream, value uint16) bool {
+	if addrWriteU16LE == 0 {
+		missingSymbol("SDL_WriteU16LE")
+	}
+	return uint8(call2(addrWriteU16LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 16 bits in native format to an IOStream as
 // little-endian data.
@@ -1219,7 +1464,14 @@ func WriteU16LE(dst *IOStream, value uint16) bool {
 	return fnWriteU16LE(dst, value)
 }
 
-var fnWriteS16LE func(dst *IOStream, value int16) bool
+var addrWriteS16LE uintptr
+
+func fnWriteS16LE(dst *IOStream, value int16) bool {
+	if addrWriteS16LE == 0 {
+		missingSymbol("SDL_WriteS16LE")
+	}
+	return uint8(call2(addrWriteS16LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 16 bits in native format to an IOStream as
 // little-endian data.
@@ -1241,7 +1493,14 @@ func WriteS16LE(dst *IOStream, value int16) bool {
 	return fnWriteS16LE(dst, value)
 }
 
-var fnWriteU16BE func(dst *IOStream, value uint16) bool
+var addrWriteU16BE uintptr
+
+func fnWriteU16BE(dst *IOStream, value uint16) bool {
+	if addrWriteU16BE == 0 {
+		missingSymbol("SDL_WriteU16BE")
+	}
+	return uint8(call2(addrWriteU16BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 16 bits in native format to an IOStream as
 // big-endian data.
@@ -1262,7 +1521,14 @@ func WriteU16BE(dst *IOStream, value uint16) bool {
 	return fnWriteU16BE(dst, value)
 }
 
-var fnWriteS16BE func(dst *IOStream, value int16) bool
+var addrWriteS16BE uintptr
+
+func fnWriteS16BE(dst *IOStream, value int16) bool {
+	if addrWriteS16BE == 0 {
+		missingSymbol("SDL_WriteS16BE")
+	}
+	return uint8(call2(addrWriteS16BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 16 bits in native format to an IOStream as
 // big-endian data.
@@ -1283,7 +1549,14 @@ func WriteS16BE(dst *IOStream, value int16) bool {
 	return fnWriteS16BE(dst, value)
 }
 
-var fnWriteU32LE func(dst *IOStream, value uint32) bool
+var addrWriteU32LE uintptr
+
+func fnWriteU32LE(dst *IOStream, value uint32) bool {
+	if addrWriteU32LE == 0 {
+		missingSymbol("SDL_WriteU32LE")
+	}
+	return uint8(call2(addrWriteU32LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 32 bits in native format to an IOStream as
 // little-endian data.
@@ -1305,7 +1578,14 @@ func WriteU32LE(dst *IOStream, value uint32) bool {
 	return fnWriteU32LE(dst, value)
 }
 
-var fnWriteS32LE func(dst *IOStream, value int32) bool
+var addrWriteS32LE uintptr
+
+func fnWriteS32LE(dst *IOStream, value int32) bool {
+	if addrWriteS32LE == 0 {
+		missingSymbol("SDL_WriteS32LE")
+	}
+	return uint8(call2(addrWriteS32LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 32 bits in native format to an IOStream as
 // little-endian data.
@@ -1327,7 +1607,14 @@ func WriteS32LE(dst *IOStream, value int32) bool {
 	return fnWriteS32LE(dst, value)
 }
 
-var fnWriteU32BE func(dst *IOStream, value uint32) bool
+var addrWriteU32BE uintptr
+
+func fnWriteU32BE(dst *IOStream, value uint32) bool {
+	if addrWriteU32BE == 0 {
+		missingSymbol("SDL_WriteU32BE")
+	}
+	return uint8(call2(addrWriteU32BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 32 bits in native format to an IOStream as
 // big-endian data.
@@ -1348,7 +1635,14 @@ func WriteU32BE(dst *IOStream, value uint32) bool {
 	return fnWriteU32BE(dst, value)
 }
 
-var fnWriteS32BE func(dst *IOStream, value int32) bool
+var addrWriteS32BE uintptr
+
+func fnWriteS32BE(dst *IOStream, value int32) bool {
+	if addrWriteS32BE == 0 {
+		missingSymbol("SDL_WriteS32BE")
+	}
+	return uint8(call2(addrWriteS32BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 32 bits in native format to an IOStream as
 // big-endian data.
@@ -1369,7 +1663,14 @@ func WriteS32BE(dst *IOStream, value int32) bool {
 	return fnWriteS32BE(dst, value)
 }
 
-var fnWriteU64LE func(dst *IOStream, value uint64) bool
+var addrWriteU64LE uintptr
+
+func fnWriteU64LE(dst *IOStream, value uint64) bool {
+	if addrWriteU64LE == 0 {
+		missingSymbol("SDL_WriteU64LE")
+	}
+	return uint8(call2(addrWriteU64LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 64 bits in native format to an IOStream as
 // little-endian data.
@@ -1391,7 +1692,14 @@ func WriteU64LE(dst *IOStream, value uint64) bool {
 	return fnWriteU64LE(dst, value)
 }
 
-var fnWriteS64LE func(dst *IOStream, value int64) bool
+var addrWriteS64LE uintptr
+
+func fnWriteS64LE(dst *IOStream, value int64) bool {
+	if addrWriteS64LE == 0 {
+		missingSymbol("SDL_WriteS64LE")
+	}
+	return uint8(call2(addrWriteS64LE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 64 bits in native format to an IOStream as
 // little-endian data.
@@ -1413,7 +1721,14 @@ func WriteS64LE(dst *IOStream, value int64) bool {
 	return fnWriteS64LE(dst, value)
 }
 
-var fnWriteU64BE func(dst *IOStream, value uint64) bool
+var addrWriteU64BE uintptr
+
+func fnWriteU64BE(dst *IOStream, value uint64) bool {
+	if addrWriteU64BE == 0 {
+		missingSymbol("SDL_WriteU64BE")
+	}
+	return uint8(call2(addrWriteU64BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 64 bits in native format to an IOStream as
 // big-endian data.
@@ -1434,7 +1749,14 @@ func WriteU64BE(dst *IOStream, value uint64) bool {
 	return fnWriteU64BE(dst, value)
 }
 
-var fnWriteS64BE func(dst *IOStream, value int64) bool
+var addrWriteS64BE uintptr
+
+func fnWriteS64BE(dst *IOStream, value int64) bool {
+	if addrWriteS64BE == 0 {
+		missingSymbol("SDL_WriteS64BE")
+	}
+	return uint8(call2(addrWriteS64BE, uintptr(unsafe.Pointer(dst)), uintptr(value))) != 0
+}
 
 // Use this function to write 64 bits in native format to an IOStream as
 // big-endian data.

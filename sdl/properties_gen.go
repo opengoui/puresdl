@@ -117,7 +117,14 @@ const (
 	PROP_NAME_STRING = "SDL.name"
 )
 
-var fnGetGlobalProperties func() PropertiesID
+var addrGetGlobalProperties uintptr
+
+func fnGetGlobalProperties() PropertiesID {
+	if addrGetGlobalProperties == 0 {
+		missingSymbol("SDL_GetGlobalProperties")
+	}
+	return PropertiesID(call0(addrGetGlobalProperties))
+}
 
 // Get the global SDL properties.
 //
@@ -130,7 +137,14 @@ func GetGlobalProperties() PropertiesID {
 	return fnGetGlobalProperties()
 }
 
-var fnCreateProperties func() PropertiesID
+var addrCreateProperties uintptr
+
+func fnCreateProperties() PropertiesID {
+	if addrCreateProperties == 0 {
+		missingSymbol("SDL_CreateProperties")
+	}
+	return PropertiesID(call0(addrCreateProperties))
+}
 
 // Create a group of properties.
 //
@@ -147,7 +161,14 @@ func CreateProperties() PropertiesID {
 	return fnCreateProperties()
 }
 
-var fnCopyProperties func(src PropertiesID, dst PropertiesID) bool
+var addrCopyProperties uintptr
+
+func fnCopyProperties(src PropertiesID, dst PropertiesID) bool {
+	if addrCopyProperties == 0 {
+		missingSymbol("SDL_CopyProperties")
+	}
+	return uint8(call2(addrCopyProperties, uintptr(src), uintptr(dst))) != 0
+}
 
 // Copy a group of properties.
 //
@@ -169,7 +190,14 @@ func CopyProperties(src PropertiesID, dst PropertiesID) bool {
 	return fnCopyProperties(src, dst)
 }
 
-var fnLockProperties func(props PropertiesID) bool
+var addrLockProperties uintptr
+
+func fnLockProperties(props PropertiesID) bool {
+	if addrLockProperties == 0 {
+		missingSymbol("SDL_LockProperties")
+	}
+	return uint8(call1(addrLockProperties, uintptr(props))) != 0
+}
 
 // Lock a group of properties.
 //
@@ -196,7 +224,14 @@ func LockProperties(props PropertiesID) bool {
 	return fnLockProperties(props)
 }
 
-var fnUnlockProperties func(props PropertiesID)
+var addrUnlockProperties uintptr
+
+func fnUnlockProperties(props PropertiesID) {
+	if addrUnlockProperties == 0 {
+		missingSymbol("SDL_UnlockProperties")
+	}
+	call1(addrUnlockProperties, uintptr(props))
+}
 
 // Unlock a group of properties.
 //
@@ -212,7 +247,14 @@ func UnlockProperties(props PropertiesID) {
 	fnUnlockProperties(props)
 }
 
-var fnSetPointerPropertyWithCleanup func(props PropertiesID, name *byte, value unsafe.Pointer, cleanup CleanupPropertyCallback, userdata unsafe.Pointer) bool
+var addrSetPointerPropertyWithCleanup uintptr
+
+func fnSetPointerPropertyWithCleanup(props PropertiesID, name *byte, value unsafe.Pointer, cleanup CleanupPropertyCallback, userdata unsafe.Pointer) bool {
+	if addrSetPointerPropertyWithCleanup == 0 {
+		missingSymbol("SDL_SetPointerPropertyWithCleanup")
+	}
+	return uint8(call5(addrSetPointerPropertyWithCleanup, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), uintptr(cleanup), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Set a pointer property in a group of properties with a cleanup function
 // that is called when the property is deleted.
@@ -245,7 +287,14 @@ func SetPointerPropertyWithCleanup(props PropertiesID, name string, value unsafe
 	return fnSetPointerPropertyWithCleanup(props, cstr(name), value, cleanup, userdata)
 }
 
-var fnSetPointerProperty func(props PropertiesID, name *byte, value unsafe.Pointer) bool
+var addrSetPointerProperty uintptr
+
+func fnSetPointerProperty(props PropertiesID, name *byte, value unsafe.Pointer) bool {
+	if addrSetPointerProperty == 0 {
+		missingSymbol("SDL_SetPointerProperty")
+	}
+	return uint8(call3(addrSetPointerProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Set a pointer property in a group of properties.
 //
@@ -267,7 +316,14 @@ func SetPointerProperty(props PropertiesID, name string, value unsafe.Pointer) b
 	return fnSetPointerProperty(props, cstr(name), value)
 }
 
-var fnSetStringProperty func(props PropertiesID, name *byte, value *byte) bool
+var addrSetStringProperty uintptr
+
+func fnSetStringProperty(props PropertiesID, name *byte, value *byte) bool {
+	if addrSetStringProperty == 0 {
+		missingSymbol("SDL_SetStringProperty")
+	}
+	return uint8(call3(addrSetStringProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)))) != 0
+}
 
 // Set a string property in a group of properties.
 //
@@ -292,7 +348,14 @@ func SetStringProperty(props PropertiesID, name string, value *string) bool {
 	return fnSetStringProperty(props, cstr(name), cstrPtr(value))
 }
 
-var fnSetNumberProperty func(props PropertiesID, name *byte, value int64) bool
+var addrSetNumberProperty uintptr
+
+func fnSetNumberProperty(props PropertiesID, name *byte, value int64) bool {
+	if addrSetNumberProperty == 0 {
+		missingSymbol("SDL_SetNumberProperty")
+	}
+	return uint8(call3(addrSetNumberProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(value))) != 0
+}
 
 // Set an integer property in a group of properties.
 //
@@ -332,7 +395,14 @@ func SetFloatProperty(props PropertiesID, name string, value float32) bool {
 	return fnSetFloatProperty(props, cstr(name), value)
 }
 
-var fnSetBooleanProperty func(props PropertiesID, name *byte, value bool) bool
+var addrSetBooleanProperty uintptr
+
+func fnSetBooleanProperty(props PropertiesID, name *byte, value bool) bool {
+	if addrSetBooleanProperty == 0 {
+		missingSymbol("SDL_SetBooleanProperty")
+	}
+	return uint8(call3(addrSetBooleanProperty, uintptr(props), uintptr(unsafe.Pointer(name)), cbool(value))) != 0
+}
 
 // Set a boolean property in a group of properties.
 //
@@ -352,7 +422,14 @@ func SetBooleanProperty(props PropertiesID, name string, value bool) bool {
 	return fnSetBooleanProperty(props, cstr(name), value)
 }
 
-var fnHasProperty func(props PropertiesID, name *byte) bool
+var addrHasProperty uintptr
+
+func fnHasProperty(props PropertiesID, name *byte) bool {
+	if addrHasProperty == 0 {
+		missingSymbol("SDL_HasProperty")
+	}
+	return uint8(call2(addrHasProperty, uintptr(props), uintptr(unsafe.Pointer(name)))) != 0
+}
 
 // Return whether a property exists in a group of properties.
 //
@@ -371,7 +448,14 @@ func HasProperty(props PropertiesID, name string) bool {
 	return fnHasProperty(props, cstr(name))
 }
 
-var fnGetPropertyType func(props PropertiesID, name *byte) PropertyType
+var addrGetPropertyType uintptr
+
+func fnGetPropertyType(props PropertiesID, name *byte) PropertyType {
+	if addrGetPropertyType == 0 {
+		missingSymbol("SDL_GetPropertyType")
+	}
+	return PropertyType(call2(addrGetPropertyType, uintptr(props), uintptr(unsafe.Pointer(name))))
+}
 
 // Get the type of a property in a group of properties.
 //
@@ -390,7 +474,14 @@ func GetPropertyType(props PropertiesID, name string) PropertyType {
 	return fnGetPropertyType(props, cstr(name))
 }
 
-var fnGetPointerProperty func(props PropertiesID, name *byte, default_value unsafe.Pointer) unsafe.Pointer
+var addrGetPointerProperty uintptr
+
+func fnGetPointerProperty(props PropertiesID, name *byte, default_value unsafe.Pointer) unsafe.Pointer {
+	if addrGetPointerProperty == 0 {
+		missingSymbol("SDL_GetPointerProperty")
+	}
+	return cptr(call3(addrGetPointerProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(default_value))))
+}
 
 // Get a pointer property from a group of properties.
 //
@@ -415,7 +506,14 @@ func GetPointerProperty(props PropertiesID, name string, default_value unsafe.Po
 	return fnGetPointerProperty(props, cstr(name), default_value)
 }
 
-var fnGetStringProperty func(props PropertiesID, name *byte, default_value *byte) *byte
+var addrGetStringProperty uintptr
+
+func fnGetStringProperty(props PropertiesID, name *byte, default_value *byte) *byte {
+	if addrGetStringProperty == 0 {
+		missingSymbol("SDL_GetStringProperty")
+	}
+	return (*byte)(cptr(call3(addrGetStringProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(default_value)))))
+}
 
 // Get a string property from a group of properties.
 //
@@ -435,7 +533,36 @@ func GetStringProperty(props PropertiesID, name string, default_value string) st
 	return GoString(fnGetStringProperty(props, cstr(name), cstr(default_value)))
 }
 
-var fnGetNumberProperty func(props PropertiesID, name *byte, default_value int64) int64
+var addrGetNumberProperty uintptr
+
+func fnGetNumberProperty(props PropertiesID, name *byte, default_value int64) int64 {
+	if addrGetNumberProperty == 0 {
+		missingSymbol("SDL_GetNumberProperty")
+	}
+	return int64(call3(addrGetNumberProperty, uintptr(props), uintptr(unsafe.Pointer(name)), uintptr(default_value)))
+}
+
+// Get a number property from a group of properties.
+//
+// You can use GetPropertyType() to query whether the property exists and
+// is a number property.
+//
+// Parameters:
+//   - props: the properties to query.
+//   - name: the name of the property to query.
+//   - default_value: the default value of the property.
+//
+// Returns: the value of the property, or `default_value` if it is not set or not a number property.
+//
+// Thread safety: It is safe to call this function from any thread.
+//
+// Since: SDL 3.2.0.
+//
+// See also: GetPropertyType, HasProperty, SetNumberProperty
+func GetNumberProperty(props PropertiesID, name string, default_value int64) int64 {
+	return fnGetNumberProperty(props, cstr(name), default_value)
+}
+
 var fnGetFloatProperty func(props PropertiesID, name *byte, default_value float32) float32
 
 // Get a floating point property from a group of properties.
@@ -459,7 +586,14 @@ func GetFloatProperty(props PropertiesID, name string, default_value float32) fl
 	return fnGetFloatProperty(props, cstr(name), default_value)
 }
 
-var fnGetBooleanProperty func(props PropertiesID, name *byte, default_value bool) bool
+var addrGetBooleanProperty uintptr
+
+func fnGetBooleanProperty(props PropertiesID, name *byte, default_value bool) bool {
+	if addrGetBooleanProperty == 0 {
+		missingSymbol("SDL_GetBooleanProperty")
+	}
+	return uint8(call3(addrGetBooleanProperty, uintptr(props), uintptr(unsafe.Pointer(name)), cbool(default_value))) != 0
+}
 
 // Get a boolean property from a group of properties.
 //
@@ -482,7 +616,14 @@ func GetBooleanProperty(props PropertiesID, name string, default_value bool) boo
 	return fnGetBooleanProperty(props, cstr(name), default_value)
 }
 
-var fnClearProperty func(props PropertiesID, name *byte) bool
+var addrClearProperty uintptr
+
+func fnClearProperty(props PropertiesID, name *byte) bool {
+	if addrClearProperty == 0 {
+		missingSymbol("SDL_ClearProperty")
+	}
+	return uint8(call2(addrClearProperty, uintptr(props), uintptr(unsafe.Pointer(name)))) != 0
+}
 
 // Clear a property from a group of properties.
 //
@@ -499,7 +640,14 @@ func ClearProperty(props PropertiesID, name string) bool {
 	return fnClearProperty(props, cstr(name))
 }
 
-var fnEnumerateProperties func(props PropertiesID, callback EnumeratePropertiesCallback, userdata unsafe.Pointer) bool
+var addrEnumerateProperties uintptr
+
+func fnEnumerateProperties(props PropertiesID, callback EnumeratePropertiesCallback, userdata unsafe.Pointer) bool {
+	if addrEnumerateProperties == 0 {
+		missingSymbol("SDL_EnumerateProperties")
+	}
+	return uint8(call3(addrEnumerateProperties, uintptr(props), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Enumerate the properties contained in a group of properties.
 //
@@ -520,7 +668,14 @@ func EnumerateProperties(props PropertiesID, callback EnumeratePropertiesCallbac
 	return fnEnumerateProperties(props, callback, userdata)
 }
 
-var fnDestroyProperties func(props PropertiesID)
+var addrDestroyProperties uintptr
+
+func fnDestroyProperties(props PropertiesID) {
+	if addrDestroyProperties == 0 {
+		missingSymbol("SDL_DestroyProperties")
+	}
+	call1(addrDestroyProperties, uintptr(props))
+}
 
 // Destroy a group of properties.
 //

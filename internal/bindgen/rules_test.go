@@ -127,8 +127,13 @@ func TestGeneratedHandWrittenWrappersAreSkipped(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The raw function is a variable for purego.RegisterFunc or, for a
+	// direct call, a function.
 	raw := false
 	for _, d := range file.Decls {
+		if fd, ok := d.(*ast.FuncDecl); ok {
+			raw = raw || fd.Name.Name == "fnSetScancodeName"
+		}
 		if gd, ok := d.(*ast.GenDecl); ok && gd.Tok == token.VAR {
 			for _, sp := range gd.Specs {
 				for _, n := range sp.(*ast.ValueSpec).Names {

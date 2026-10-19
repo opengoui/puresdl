@@ -268,13 +268,19 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		}
 		pubParams = append(pubParams, jen.Id(p.name).Add(p.pub))
 	}
-	rawFn := jen.Func().Params(rawParams...)
-	if rawRet != nil {
-		rawFn = rawFn.Add(rawRet)
-	}
 	fb := g.file(f.File)
-	fb.funcs = append(fb.funcs, jen.Var().Id(fnVar).Add(rawFn))
-	g.binds = append(g.binds, [2]string{fnVar, f.Name})
+	if directCall(f) {
+		addrVar := "addr" + n
+		g.emitDirect(fb, f, fnVar, addrVar, plans, rawParams, rawRet)
+		g.binds = append(g.binds, binding{goVar: addrVar, cName: f.Name, direct: true})
+	} else {
+		rawFn := jen.Func().Params(rawParams...)
+		if rawRet != nil {
+			rawFn = rawFn.Add(rawRet)
+		}
+		fb.funcs = append(fb.funcs, jen.Var().Id(fnVar).Add(rawFn))
+		g.binds = append(g.binds, binding{goVar: fnVar, cName: f.Name})
+	}
 	if handWritten[f.Name] {
 		return ""
 	}

@@ -139,7 +139,14 @@ const (
 	INIT_STATUS_UNINITIALIZING InitStatus = 3
 )
 
-var fnCreateMutex func() *Mutex
+var addrCreateMutex uintptr
+
+func fnCreateMutex() *Mutex {
+	if addrCreateMutex == 0 {
+		missingSymbol("SDL_CreateMutex")
+	}
+	return (*Mutex)(cptr(call0(addrCreateMutex)))
+}
 
 // Create a new mutex.
 //
@@ -161,7 +168,14 @@ func CreateMutex() *Mutex {
 	return fnCreateMutex()
 }
 
-var fnLockMutex func(mutex *Mutex)
+var addrLockMutex uintptr
+
+func fnLockMutex(mutex *Mutex) {
+	if addrLockMutex == 0 {
+		missingSymbol("SDL_LockMutex")
+	}
+	call1(addrLockMutex, uintptr(unsafe.Pointer(mutex)))
+}
 
 // Lock the mutex.
 //
@@ -189,7 +203,14 @@ func LockMutex(mutex *Mutex) {
 	fnLockMutex(mutex)
 }
 
-var fnTryLockMutex func(mutex *Mutex) bool
+var addrTryLockMutex uintptr
+
+func fnTryLockMutex(mutex *Mutex) bool {
+	if addrTryLockMutex == 0 {
+		missingSymbol("SDL_TryLockMutex")
+	}
+	return uint8(call1(addrTryLockMutex, uintptr(unsafe.Pointer(mutex)))) != 0
+}
 
 // Try to lock a mutex without blocking.
 //
@@ -215,7 +236,14 @@ func TryLockMutex(mutex *Mutex) bool {
 	return fnTryLockMutex(mutex)
 }
 
-var fnUnlockMutex func(mutex *Mutex)
+var addrUnlockMutex uintptr
+
+func fnUnlockMutex(mutex *Mutex) {
+	if addrUnlockMutex == 0 {
+		missingSymbol("SDL_UnlockMutex")
+	}
+	call1(addrUnlockMutex, uintptr(unsafe.Pointer(mutex)))
+}
 
 // Unlock the mutex.
 //
@@ -238,7 +266,14 @@ func UnlockMutex(mutex *Mutex) {
 	fnUnlockMutex(mutex)
 }
 
-var fnDestroyMutex func(mutex *Mutex)
+var addrDestroyMutex uintptr
+
+func fnDestroyMutex(mutex *Mutex) {
+	if addrDestroyMutex == 0 {
+		missingSymbol("SDL_DestroyMutex")
+	}
+	call1(addrDestroyMutex, uintptr(unsafe.Pointer(mutex)))
+}
 
 // Destroy a mutex created with CreateMutex().
 //
@@ -260,7 +295,14 @@ func DestroyMutex(mutex *Mutex) {
 	fnDestroyMutex(mutex)
 }
 
-var fnCreateRWLock func() *RWLock
+var addrCreateRWLock uintptr
+
+func fnCreateRWLock() *RWLock {
+	if addrCreateRWLock == 0 {
+		missingSymbol("SDL_CreateRWLock")
+	}
+	return (*RWLock)(cptr(call0(addrCreateRWLock)))
+}
 
 // Create a new read/write lock.
 //
@@ -300,7 +342,14 @@ func CreateRWLock() *RWLock {
 	return fnCreateRWLock()
 }
 
-var fnLockRWLockForReading func(rwlock *RWLock)
+var addrLockRWLockForReading uintptr
+
+func fnLockRWLockForReading(rwlock *RWLock) {
+	if addrLockRWLockForReading == 0 {
+		missingSymbol("SDL_LockRWLockForReading")
+	}
+	call1(addrLockRWLockForReading, uintptr(unsafe.Pointer(rwlock)))
+}
 
 // Lock the read/write lock for _read only_ operations.
 //
@@ -340,7 +389,14 @@ func LockRWLockForReading(rwlock *RWLock) {
 	fnLockRWLockForReading(rwlock)
 }
 
-var fnLockRWLockForWriting func(rwlock *RWLock)
+var addrLockRWLockForWriting uintptr
+
+func fnLockRWLockForWriting(rwlock *RWLock) {
+	if addrLockRWLockForWriting == 0 {
+		missingSymbol("SDL_LockRWLockForWriting")
+	}
+	call1(addrLockRWLockForWriting, uintptr(unsafe.Pointer(rwlock)))
+}
 
 // Lock the read/write lock for _write_ operations.
 //
@@ -374,7 +430,14 @@ func LockRWLockForWriting(rwlock *RWLock) {
 	fnLockRWLockForWriting(rwlock)
 }
 
-var fnTryLockRWLockForReading func(rwlock *RWLock) bool
+var addrTryLockRWLockForReading uintptr
+
+func fnTryLockRWLockForReading(rwlock *RWLock) bool {
+	if addrTryLockRWLockForReading == 0 {
+		missingSymbol("SDL_TryLockRWLockForReading")
+	}
+	return uint8(call1(addrTryLockRWLockForReading, uintptr(unsafe.Pointer(rwlock)))) != 0
+}
 
 // Try to lock a read/write lock _for reading_ without blocking.
 //
@@ -403,7 +466,14 @@ func TryLockRWLockForReading(rwlock *RWLock) bool {
 	return fnTryLockRWLockForReading(rwlock)
 }
 
-var fnTryLockRWLockForWriting func(rwlock *RWLock) bool
+var addrTryLockRWLockForWriting uintptr
+
+func fnTryLockRWLockForWriting(rwlock *RWLock) bool {
+	if addrTryLockRWLockForWriting == 0 {
+		missingSymbol("SDL_TryLockRWLockForWriting")
+	}
+	return uint8(call1(addrTryLockRWLockForWriting, uintptr(unsafe.Pointer(rwlock)))) != 0
+}
 
 // Try to lock a read/write lock _for writing_ without blocking.
 //
@@ -437,7 +507,14 @@ func TryLockRWLockForWriting(rwlock *RWLock) bool {
 	return fnTryLockRWLockForWriting(rwlock)
 }
 
-var fnUnlockRWLock func(rwlock *RWLock)
+var addrUnlockRWLock uintptr
+
+func fnUnlockRWLock(rwlock *RWLock) {
+	if addrUnlockRWLock == 0 {
+		missingSymbol("SDL_UnlockRWLock")
+	}
+	call1(addrUnlockRWLock, uintptr(unsafe.Pointer(rwlock)))
+}
 
 // Unlock the read/write lock.
 //
@@ -464,7 +541,14 @@ func UnlockRWLock(rwlock *RWLock) {
 	fnUnlockRWLock(rwlock)
 }
 
-var fnDestroyRWLock func(rwlock *RWLock)
+var addrDestroyRWLock uintptr
+
+func fnDestroyRWLock(rwlock *RWLock) {
+	if addrDestroyRWLock == 0 {
+		missingSymbol("SDL_DestroyRWLock")
+	}
+	call1(addrDestroyRWLock, uintptr(unsafe.Pointer(rwlock)))
+}
 
 // Destroy a read/write lock created with CreateRWLock().
 //
@@ -486,7 +570,14 @@ func DestroyRWLock(rwlock *RWLock) {
 	fnDestroyRWLock(rwlock)
 }
 
-var fnCreateSemaphore func(initial_value uint32) *Semaphore
+var addrCreateSemaphore uintptr
+
+func fnCreateSemaphore(initial_value uint32) *Semaphore {
+	if addrCreateSemaphore == 0 {
+		missingSymbol("SDL_CreateSemaphore")
+	}
+	return (*Semaphore)(cptr(call1(addrCreateSemaphore, uintptr(initial_value))))
+}
 
 // Create a semaphore.
 //
@@ -510,7 +601,14 @@ func CreateSemaphore(initial_value uint32) *Semaphore {
 	return fnCreateSemaphore(initial_value)
 }
 
-var fnDestroySemaphore func(sem *Semaphore)
+var addrDestroySemaphore uintptr
+
+func fnDestroySemaphore(sem *Semaphore) {
+	if addrDestroySemaphore == 0 {
+		missingSymbol("SDL_DestroySemaphore")
+	}
+	call1(addrDestroySemaphore, uintptr(unsafe.Pointer(sem)))
+}
 
 // Destroy a semaphore.
 //
@@ -529,7 +627,14 @@ func DestroySemaphore(sem *Semaphore) {
 	fnDestroySemaphore(sem)
 }
 
-var fnWaitSemaphore func(sem *Semaphore)
+var addrWaitSemaphore uintptr
+
+func fnWaitSemaphore(sem *Semaphore) {
+	if addrWaitSemaphore == 0 {
+		missingSymbol("SDL_WaitSemaphore")
+	}
+	call1(addrWaitSemaphore, uintptr(unsafe.Pointer(sem)))
+}
 
 // Wait until a semaphore has a positive value and then decrements it.
 //
@@ -552,7 +657,14 @@ func WaitSemaphore(sem *Semaphore) {
 	fnWaitSemaphore(sem)
 }
 
-var fnTryWaitSemaphore func(sem *Semaphore) bool
+var addrTryWaitSemaphore uintptr
+
+func fnTryWaitSemaphore(sem *Semaphore) bool {
+	if addrTryWaitSemaphore == 0 {
+		missingSymbol("SDL_TryWaitSemaphore")
+	}
+	return uint8(call1(addrTryWaitSemaphore, uintptr(unsafe.Pointer(sem)))) != 0
+}
 
 // See if a semaphore has a positive value and decrement it if it does.
 //
@@ -575,7 +687,14 @@ func TryWaitSemaphore(sem *Semaphore) bool {
 	return fnTryWaitSemaphore(sem)
 }
 
-var fnWaitSemaphoreTimeout func(sem *Semaphore, timeoutMS int32) bool
+var addrWaitSemaphoreTimeout uintptr
+
+func fnWaitSemaphoreTimeout(sem *Semaphore, timeoutMS int32) bool {
+	if addrWaitSemaphoreTimeout == 0 {
+		missingSymbol("SDL_WaitSemaphoreTimeout")
+	}
+	return uint8(call2(addrWaitSemaphoreTimeout, uintptr(unsafe.Pointer(sem)), uintptr(timeoutMS))) != 0
+}
 
 // Wait until a semaphore has a positive value and then decrements it.
 //
@@ -598,7 +717,14 @@ func WaitSemaphoreTimeout(sem *Semaphore, timeoutMS int32) bool {
 	return fnWaitSemaphoreTimeout(sem, timeoutMS)
 }
 
-var fnSignalSemaphore func(sem *Semaphore)
+var addrSignalSemaphore uintptr
+
+func fnSignalSemaphore(sem *Semaphore) {
+	if addrSignalSemaphore == 0 {
+		missingSymbol("SDL_SignalSemaphore")
+	}
+	call1(addrSignalSemaphore, uintptr(unsafe.Pointer(sem)))
+}
 
 // Atomically increment a semaphore's value and wake waiting threads.
 //
@@ -614,7 +740,14 @@ func SignalSemaphore(sem *Semaphore) {
 	fnSignalSemaphore(sem)
 }
 
-var fnGetSemaphoreValue func(sem *Semaphore) uint32
+var addrGetSemaphoreValue uintptr
+
+func fnGetSemaphoreValue(sem *Semaphore) uint32 {
+	if addrGetSemaphoreValue == 0 {
+		missingSymbol("SDL_GetSemaphoreValue")
+	}
+	return uint32(call1(addrGetSemaphoreValue, uintptr(unsafe.Pointer(sem))))
+}
 
 // Get the current value of a semaphore.
 //
@@ -630,7 +763,14 @@ func GetSemaphoreValue(sem *Semaphore) uint32 {
 	return fnGetSemaphoreValue(sem)
 }
 
-var fnCreateCondition func() *Condition
+var addrCreateCondition uintptr
+
+func fnCreateCondition() *Condition {
+	if addrCreateCondition == 0 {
+		missingSymbol("SDL_CreateCondition")
+	}
+	return (*Condition)(cptr(call0(addrCreateCondition)))
+}
 
 // Create a condition variable.
 //
@@ -645,7 +785,14 @@ func CreateCondition() *Condition {
 	return fnCreateCondition()
 }
 
-var fnDestroyCondition func(cond *Condition)
+var addrDestroyCondition uintptr
+
+func fnDestroyCondition(cond *Condition) {
+	if addrDestroyCondition == 0 {
+		missingSymbol("SDL_DestroyCondition")
+	}
+	call1(addrDestroyCondition, uintptr(unsafe.Pointer(cond)))
+}
 
 // Destroy a condition variable.
 //
@@ -661,7 +808,14 @@ func DestroyCondition(cond *Condition) {
 	fnDestroyCondition(cond)
 }
 
-var fnSignalCondition func(cond *Condition)
+var addrSignalCondition uintptr
+
+func fnSignalCondition(cond *Condition) {
+	if addrSignalCondition == 0 {
+		missingSymbol("SDL_SignalCondition")
+	}
+	call1(addrSignalCondition, uintptr(unsafe.Pointer(cond)))
+}
 
 // Restart one of the threads that are waiting on the condition variable.
 //
@@ -677,7 +831,14 @@ func SignalCondition(cond *Condition) {
 	fnSignalCondition(cond)
 }
 
-var fnBroadcastCondition func(cond *Condition)
+var addrBroadcastCondition uintptr
+
+func fnBroadcastCondition(cond *Condition) {
+	if addrBroadcastCondition == 0 {
+		missingSymbol("SDL_BroadcastCondition")
+	}
+	call1(addrBroadcastCondition, uintptr(unsafe.Pointer(cond)))
+}
 
 // Restart all threads that are waiting on the condition variable.
 //
@@ -693,7 +854,14 @@ func BroadcastCondition(cond *Condition) {
 	fnBroadcastCondition(cond)
 }
 
-var fnWaitCondition func(cond *Condition, mutex *Mutex)
+var addrWaitCondition uintptr
+
+func fnWaitCondition(cond *Condition, mutex *Mutex) {
+	if addrWaitCondition == 0 {
+		missingSymbol("SDL_WaitCondition")
+	}
+	call2(addrWaitCondition, uintptr(unsafe.Pointer(cond)), uintptr(unsafe.Pointer(mutex)))
+}
 
 // Wait until a condition variable is signaled.
 //
@@ -722,7 +890,14 @@ func WaitCondition(cond *Condition, mutex *Mutex) {
 	fnWaitCondition(cond, mutex)
 }
 
-var fnWaitConditionTimeout func(cond *Condition, mutex *Mutex, timeoutMS int32) bool
+var addrWaitConditionTimeout uintptr
+
+func fnWaitConditionTimeout(cond *Condition, mutex *Mutex, timeoutMS int32) bool {
+	if addrWaitConditionTimeout == 0 {
+		missingSymbol("SDL_WaitConditionTimeout")
+	}
+	return uint8(call3(addrWaitConditionTimeout, uintptr(unsafe.Pointer(cond)), uintptr(unsafe.Pointer(mutex)), uintptr(timeoutMS))) != 0
+}
 
 // Wait until a condition variable is signaled or a certain time has passed.
 //
@@ -752,7 +927,14 @@ func WaitConditionTimeout(cond *Condition, mutex *Mutex, timeoutMS int32) bool {
 	return fnWaitConditionTimeout(cond, mutex, timeoutMS)
 }
 
-var fnShouldInit func(state *InitState) bool
+var addrShouldInit uintptr
+
+func fnShouldInit(state *InitState) bool {
+	if addrShouldInit == 0 {
+		missingSymbol("SDL_ShouldInit")
+	}
+	return uint8(call1(addrShouldInit, uintptr(unsafe.Pointer(state)))) != 0
+}
 
 // Return whether initialization should be done.
 //
@@ -778,7 +960,14 @@ func ShouldInit(state *InitState) bool {
 	return fnShouldInit(state)
 }
 
-var fnShouldQuit func(state *InitState) bool
+var addrShouldQuit uintptr
+
+func fnShouldQuit(state *InitState) bool {
+	if addrShouldQuit == 0 {
+		missingSymbol("SDL_ShouldQuit")
+	}
+	return uint8(call1(addrShouldQuit, uintptr(unsafe.Pointer(state)))) != 0
+}
 
 // Return whether cleanup should be done.
 //
@@ -802,7 +991,14 @@ func ShouldQuit(state *InitState) bool {
 	return fnShouldQuit(state)
 }
 
-var fnSetInitialized func(state *InitState, initialized bool)
+var addrSetInitialized uintptr
+
+func fnSetInitialized(state *InitState, initialized bool) {
+	if addrSetInitialized == 0 {
+		missingSymbol("SDL_SetInitialized")
+	}
+	call2(addrSetInitialized, uintptr(unsafe.Pointer(state)), cbool(initialized))
+}
 
 // Finish an initialization state transition.
 //

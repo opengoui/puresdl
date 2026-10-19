@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // The opaque structure used to identify an opened SDL camera.
 //
 // Since: SDL 3.2.0.
@@ -69,7 +71,14 @@ const (
 	CAMERA_PERMISSION_STATE_APPROVED CameraPermissionState = 1
 )
 
-var fnGetNumCameraDrivers func() int32
+var addrGetNumCameraDrivers uintptr
+
+func fnGetNumCameraDrivers() int32 {
+	if addrGetNumCameraDrivers == 0 {
+		missingSymbol("SDL_GetNumCameraDrivers")
+	}
+	return int32(call0(addrGetNumCameraDrivers))
+}
 
 // Use this function to get the number of built-in camera drivers.
 //
@@ -94,7 +103,14 @@ func GetNumCameraDrivers() int32 {
 	return fnGetNumCameraDrivers()
 }
 
-var fnGetCameraDriver func(index int32) *byte
+var addrGetCameraDriver uintptr
+
+func fnGetCameraDriver(index int32) *byte {
+	if addrGetCameraDriver == 0 {
+		missingSymbol("SDL_GetCameraDriver")
+	}
+	return (*byte)(cptr(call1(addrGetCameraDriver, uintptr(index))))
+}
 
 // Use this function to get the name of a built in camera driver.
 //
@@ -120,7 +136,14 @@ func GetCameraDriver(index int32) string {
 	return GoString(fnGetCameraDriver(index))
 }
 
-var fnGetCurrentCameraDriver func() *byte
+var addrGetCurrentCameraDriver uintptr
+
+func fnGetCurrentCameraDriver() *byte {
+	if addrGetCurrentCameraDriver == 0 {
+		missingSymbol("SDL_GetCurrentCameraDriver")
+	}
+	return (*byte)(cptr(call0(addrGetCurrentCameraDriver)))
+}
 
 // Get the name of the current camera driver.
 //
@@ -137,7 +160,14 @@ func GetCurrentCameraDriver() string {
 	return GoString(fnGetCurrentCameraDriver())
 }
 
-var fnGetCameras func(count *int32) *CameraID
+var addrGetCameras uintptr
+
+func fnGetCameras(count *int32) *CameraID {
+	if addrGetCameras == 0 {
+		missingSymbol("SDL_GetCameras")
+	}
+	return (*CameraID)(cptr(call1(addrGetCameras, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected camera devices.
 //
@@ -159,7 +189,14 @@ func GetCameras() []CameraID {
 	return copyFree(p, int(n))
 }
 
-var fnGetCameraSupportedFormats func(instance_id CameraID, count *int32) **CameraSpec
+var addrGetCameraSupportedFormats uintptr
+
+func fnGetCameraSupportedFormats(instance_id CameraID, count *int32) **CameraSpec {
+	if addrGetCameraSupportedFormats == 0 {
+		missingSymbol("SDL_GetCameraSupportedFormats")
+	}
+	return (**CameraSpec)(cptr(call2(addrGetCameraSupportedFormats, uintptr(instance_id), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the list of native formats/sizes a camera supports.
 //
@@ -201,7 +238,14 @@ func GetCameraSupportedFormats(instance_id CameraID) []CameraSpec {
 	return copyFreeDeref(p, int(n))
 }
 
-var fnGetCameraName func(instance_id CameraID) *byte
+var addrGetCameraName uintptr
+
+func fnGetCameraName(instance_id CameraID) *byte {
+	if addrGetCameraName == 0 {
+		missingSymbol("SDL_GetCameraName")
+	}
+	return (*byte)(cptr(call1(addrGetCameraName, uintptr(instance_id))))
+}
 
 // Get the human-readable device name for a camera.
 //
@@ -219,7 +263,14 @@ func GetCameraName(instance_id CameraID) string {
 	return GoString(fnGetCameraName(instance_id))
 }
 
-var fnGetCameraPosition func(instance_id CameraID) CameraPosition
+var addrGetCameraPosition uintptr
+
+func fnGetCameraPosition(instance_id CameraID) CameraPosition {
+	if addrGetCameraPosition == 0 {
+		missingSymbol("SDL_GetCameraPosition")
+	}
+	return CameraPosition(call1(addrGetCameraPosition, uintptr(instance_id)))
+}
 
 // Get the position of the camera in relation to the system.
 //
@@ -242,7 +293,14 @@ func GetCameraPosition(instance_id CameraID) CameraPosition {
 	return fnGetCameraPosition(instance_id)
 }
 
-var fnOpenCamera func(instance_id CameraID, spec *CameraSpec) *Camera
+var addrOpenCamera uintptr
+
+func fnOpenCamera(instance_id CameraID, spec *CameraSpec) *Camera {
+	if addrOpenCamera == 0 {
+		missingSymbol("SDL_OpenCamera")
+	}
+	return (*Camera)(cptr(call2(addrOpenCamera, uintptr(instance_id), uintptr(unsafe.Pointer(spec)))))
+}
 
 // Open a video recording device (a "camera").
 //
@@ -290,7 +348,14 @@ func OpenCamera(instance_id CameraID, spec *CameraSpec) *Camera {
 	return fnOpenCamera(instance_id, spec)
 }
 
-var fnGetCameraPermissionState func(camera *Camera) CameraPermissionState
+var addrGetCameraPermissionState uintptr
+
+func fnGetCameraPermissionState(camera *Camera) CameraPermissionState {
+	if addrGetCameraPermissionState == 0 {
+		missingSymbol("SDL_GetCameraPermissionState")
+	}
+	return CameraPermissionState(call1(addrGetCameraPermissionState, uintptr(unsafe.Pointer(camera))))
+}
 
 // Query if camera access has been approved by the user.
 //
@@ -326,7 +391,14 @@ func GetCameraPermissionState(camera *Camera) CameraPermissionState {
 	return fnGetCameraPermissionState(camera)
 }
 
-var fnGetCameraID func(camera *Camera) CameraID
+var addrGetCameraID uintptr
+
+func fnGetCameraID(camera *Camera) CameraID {
+	if addrGetCameraID == 0 {
+		missingSymbol("SDL_GetCameraID")
+	}
+	return CameraID(call1(addrGetCameraID, uintptr(unsafe.Pointer(camera))))
+}
 
 // Get the instance ID of an opened camera.
 //
@@ -344,7 +416,14 @@ func GetCameraID(camera *Camera) CameraID {
 	return fnGetCameraID(camera)
 }
 
-var fnGetCameraProperties func(camera *Camera) PropertiesID
+var addrGetCameraProperties uintptr
+
+func fnGetCameraProperties(camera *Camera) PropertiesID {
+	if addrGetCameraProperties == 0 {
+		missingSymbol("SDL_GetCameraProperties")
+	}
+	return PropertiesID(call1(addrGetCameraProperties, uintptr(unsafe.Pointer(camera))))
+}
 
 // Get the properties associated with an opened camera.
 //
@@ -360,7 +439,14 @@ func GetCameraProperties(camera *Camera) PropertiesID {
 	return fnGetCameraProperties(camera)
 }
 
-var fnGetCameraFormat func(camera *Camera, spec *CameraSpec) bool
+var addrGetCameraFormat uintptr
+
+func fnGetCameraFormat(camera *Camera, spec *CameraSpec) bool {
+	if addrGetCameraFormat == 0 {
+		missingSymbol("SDL_GetCameraFormat")
+	}
+	return uint8(call2(addrGetCameraFormat, uintptr(unsafe.Pointer(camera)), uintptr(unsafe.Pointer(spec)))) != 0
+}
 
 // Get the spec that a camera is using when generating images.
 //
@@ -389,7 +475,14 @@ func GetCameraFormat(camera *Camera, spec *CameraSpec) bool {
 	return fnGetCameraFormat(camera, spec)
 }
 
-var fnAcquireCameraFrame func(camera *Camera, timestampNS *uint64) *Surface
+var addrAcquireCameraFrame uintptr
+
+func fnAcquireCameraFrame(camera *Camera, timestampNS *uint64) *Surface {
+	if addrAcquireCameraFrame == 0 {
+		missingSymbol("SDL_AcquireCameraFrame")
+	}
+	return (*Surface)(cptr(call2(addrAcquireCameraFrame, uintptr(unsafe.Pointer(camera)), uintptr(unsafe.Pointer(timestampNS)))))
+}
 
 // Acquire a frame.
 //
@@ -434,7 +527,14 @@ func AcquireCameraFrame(camera *Camera, timestampNS *uint64) *Surface {
 	return fnAcquireCameraFrame(camera, timestampNS)
 }
 
-var fnReleaseCameraFrame func(camera *Camera, frame *Surface)
+var addrReleaseCameraFrame uintptr
+
+func fnReleaseCameraFrame(camera *Camera, frame *Surface) {
+	if addrReleaseCameraFrame == 0 {
+		missingSymbol("SDL_ReleaseCameraFrame")
+	}
+	call2(addrReleaseCameraFrame, uintptr(unsafe.Pointer(camera)), uintptr(unsafe.Pointer(frame)))
+}
 
 // Release a frame of video acquired from a camera.
 //
@@ -465,7 +565,14 @@ func ReleaseCameraFrame(camera *Camera, frame *Surface) {
 	fnReleaseCameraFrame(camera, frame)
 }
 
-var fnCloseCamera func(camera *Camera)
+var addrCloseCamera uintptr
+
+func fnCloseCamera(camera *Camera) {
+	if addrCloseCamera == 0 {
+		missingSymbol("SDL_CloseCamera")
+	}
+	call1(addrCloseCamera, uintptr(unsafe.Pointer(camera)))
+}
 
 // Use this function to shut down camera processing and close the camera
 // device.

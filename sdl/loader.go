@@ -18,8 +18,9 @@ const LibraryEnv = "SDL3_LIBRARY"
 // Call [Load] explicitly to load SDL after setting it.
 const AutoLoadDisabledEnv = "SDL3_NO_AUTO_LOAD"
 
-// Loader state is guarded by loadMu. symbols is read without the lock only
-// while SDL calls are running; [Load] must not switch libraries concurrently.
+// Loader state is guarded by loadMu. The bound function variables and
+// addresses that bindAll sets are read without the lock while SDL calls are
+// running; [Load] must not switch libraries concurrently.
 var (
 	loadMu  sync.Mutex
 	loadErr error
@@ -28,7 +29,6 @@ var (
 	// loadedPath is the candidate (path or bare name) that opened handle.
 	loadedPath string
 	missing    = map[string]struct{}{}
-	symbols    = map[string]uintptr{}
 )
 
 // ErrNotLoaded is returned by [LoadError] when the shared library has not
@@ -96,7 +96,6 @@ func Load(path string) error {
 	}
 	handle, loadedPath = h, from
 	clear(missing)
-	clear(symbols)
 	bindAll()
 	loaded, loadErr = true, nil
 	return nil
@@ -173,7 +172,6 @@ func Available(symbol string) bool {
 // when called, so older SDL3 releases still work for the APIs they have.
 func register(fptr any, symbol string) {
 	addr, err := lookup(handle, symbol)
-	symbols[symbol] = addr
 	if err != nil || addr == 0 {
 		missing[symbol] = struct{}{}
 		fn := reflect.ValueOf(fptr).Elem()
@@ -183,6 +181,18 @@ func register(fptr any, symbol string) {
 		return
 	}
 	bindFunc(fptr, addr)
+}
+
+// registerAddr stores the address of the C function symbol for a generated
+// direct-call function, which calls it through call0 ... call8. A missing
+// symbol stores 0, and the function panics with [missingSymbol] when called.
+func registerAddr(addr *uintptr, symbol string) {
+	a, err := lookup(handle, symbol)
+	if err != nil || a == 0 {
+		missing[symbol] = struct{}{}
+		a = 0
+	}
+	*addr = a
 }
 
 // CString returns a NUL-terminated copy of s suitable for parameters that

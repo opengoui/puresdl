@@ -84,7 +84,14 @@ const (
 	LOG_CATEGORY_CUSTOM      LogCategory = 19
 )
 
-var fnSetLogPriorities func(priority LogPriority)
+var addrSetLogPriorities uintptr
+
+func fnSetLogPriorities(priority LogPriority) {
+	if addrSetLogPriorities == 0 {
+		missingSymbol("SDL_SetLogPriorities")
+	}
+	call1(addrSetLogPriorities, uintptr(priority))
+}
 
 // Set the priority of all log categories.
 //
@@ -100,7 +107,14 @@ func SetLogPriorities(priority LogPriority) {
 	fnSetLogPriorities(priority)
 }
 
-var fnSetLogPriority func(category int32, priority LogPriority)
+var addrSetLogPriority uintptr
+
+func fnSetLogPriority(category int32, priority LogPriority) {
+	if addrSetLogPriority == 0 {
+		missingSymbol("SDL_SetLogPriority")
+	}
+	call2(addrSetLogPriority, uintptr(category), uintptr(priority))
+}
 
 // Set the priority of a particular log category.
 //
@@ -117,7 +131,14 @@ func SetLogPriority(category int32, priority LogPriority) {
 	fnSetLogPriority(category, priority)
 }
 
-var fnGetLogPriority func(category int32) LogPriority
+var addrGetLogPriority uintptr
+
+func fnGetLogPriority(category int32) LogPriority {
+	if addrGetLogPriority == 0 {
+		missingSymbol("SDL_GetLogPriority")
+	}
+	return LogPriority(call1(addrGetLogPriority, uintptr(category)))
+}
 
 // Get the priority of a particular log category.
 //
@@ -135,7 +156,14 @@ func GetLogPriority(category int32) LogPriority {
 	return fnGetLogPriority(category)
 }
 
-var fnResetLogPriorities func()
+var addrResetLogPriorities uintptr
+
+func fnResetLogPriorities() {
+	if addrResetLogPriorities == 0 {
+		missingSymbol("SDL_ResetLogPriorities")
+	}
+	call0(addrResetLogPriorities)
+}
 
 // Reset all priorities to default.
 //
@@ -150,7 +178,14 @@ func ResetLogPriorities() {
 	fnResetLogPriorities()
 }
 
-var fnSetLogPriorityPrefix func(priority LogPriority, prefix *byte) bool
+var addrSetLogPriorityPrefix uintptr
+
+func fnSetLogPriorityPrefix(priority LogPriority, prefix *byte) bool {
+	if addrSetLogPriorityPrefix == 0 {
+		missingSymbol("SDL_SetLogPriorityPrefix")
+	}
+	return uint8(call2(addrSetLogPriorityPrefix, uintptr(priority), uintptr(unsafe.Pointer(prefix)))) != 0
+}
 
 // Set the text prepended to log messages of a given priority.
 //
@@ -358,7 +393,14 @@ func LogMessage(category int32, priority LogPriority, format string, args ...any
 	fnLogMessage(category, priority, cprintf(format, args))
 }
 
-var fnGetDefaultLogOutputFunction func() LogOutputFunction
+var addrGetDefaultLogOutputFunction uintptr
+
+func fnGetDefaultLogOutputFunction() LogOutputFunction {
+	if addrGetDefaultLogOutputFunction == 0 {
+		missingSymbol("SDL_GetDefaultLogOutputFunction")
+	}
+	return LogOutputFunction(call0(addrGetDefaultLogOutputFunction))
+}
 
 // Get the default log output function.
 //
@@ -373,7 +415,14 @@ func GetDefaultLogOutputFunction() LogOutputFunction {
 	return fnGetDefaultLogOutputFunction()
 }
 
-var fnGetLogOutputFunction func(callback *LogOutputFunction, userdata *unsafe.Pointer)
+var addrGetLogOutputFunction uintptr
+
+func fnGetLogOutputFunction(callback *LogOutputFunction, userdata *unsafe.Pointer) {
+	if addrGetLogOutputFunction == 0 {
+		missingSymbol("SDL_GetLogOutputFunction")
+	}
+	call2(addrGetLogOutputFunction, uintptr(unsafe.Pointer(callback)), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Get the current log output function.
 //
@@ -392,7 +441,14 @@ func GetLogOutputFunction(callback *LogOutputFunction, userdata *unsafe.Pointer)
 	fnGetLogOutputFunction(callback, userdata)
 }
 
-var fnSetLogOutputFunction func(callback LogOutputFunction, userdata unsafe.Pointer)
+var addrSetLogOutputFunction uintptr
+
+func fnSetLogOutputFunction(callback LogOutputFunction, userdata unsafe.Pointer) {
+	if addrSetLogOutputFunction == 0 {
+		missingSymbol("SDL_SetLogOutputFunction")
+	}
+	call2(addrSetLogOutputFunction, uintptr(callback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Replace the default log output function with one of your own.
 //

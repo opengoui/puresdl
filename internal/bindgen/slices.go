@@ -195,11 +195,7 @@ func (g *gen) emitSlice(f *ir.Function, sf *sliceForm, plans []argPlan, name, fn
 		}
 	}
 	s := jen.Id(ptr.name)
-	callName := fnVar
-	if fast, ok := fastSliceCalls[f.Name]; ok {
-		callName = fast
-	}
-	call := jen.Id(callName).Call(args...)
+	call := jen.Id(fnVar).Call(args...)
 	body := []jen.Code{
 		jen.If(jen.Len(s).Op("==").Lit(0)).Block(jen.Return(empty...)),
 		jen.If(jen.Op("!").Id("fitsInt32").Call(jen.Len(s), jen.Lit(sliceName))).Block(fail...),

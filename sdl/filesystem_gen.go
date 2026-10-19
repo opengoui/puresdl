@@ -166,7 +166,14 @@ const (
 	GLOB_CASEINSENSITIVE GlobFlags = 1
 )
 
-var fnGetBasePath func() *byte
+var addrGetBasePath uintptr
+
+func fnGetBasePath() *byte {
+	if addrGetBasePath == 0 {
+		missingSymbol("SDL_GetBasePath")
+	}
+	return (*byte)(cptr(call0(addrGetBasePath)))
+}
 
 // Get the directory where the application was run from.
 //
@@ -211,7 +218,14 @@ func GetBasePath() string {
 	return GoString(fnGetBasePath())
 }
 
-var fnGetPrefPath func(org *byte, app *byte) *byte
+var addrGetPrefPath uintptr
+
+func fnGetPrefPath(org *byte, app *byte) *byte {
+	if addrGetPrefPath == 0 {
+		missingSymbol("SDL_GetPrefPath")
+	}
+	return (*byte)(cptr(call2(addrGetPrefPath, uintptr(unsafe.Pointer(org)), uintptr(unsafe.Pointer(app)))))
+}
 
 // Get the user-and-app-specific path where files can be written.
 //
@@ -281,7 +295,14 @@ func GetPrefPath(org string, app string) string {
 	return s
 }
 
-var fnGetUserFolder func(folder Folder) *byte
+var addrGetUserFolder uintptr
+
+func fnGetUserFolder(folder Folder) *byte {
+	if addrGetUserFolder == 0 {
+		missingSymbol("SDL_GetUserFolder")
+	}
+	return (*byte)(cptr(call1(addrGetUserFolder, uintptr(folder))))
+}
 
 // Finds the most suitable user folder for a specific purpose.
 //
@@ -311,7 +332,14 @@ func GetUserFolder(folder Folder) string {
 	return GoString(fnGetUserFolder(folder))
 }
 
-var fnCreateDirectory func(path *byte) bool
+var addrCreateDirectory uintptr
+
+func fnCreateDirectory(path *byte) bool {
+	if addrCreateDirectory == 0 {
+		missingSymbol("SDL_CreateDirectory")
+	}
+	return uint8(call1(addrCreateDirectory, uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Create a directory, and any missing parent directories.
 //
@@ -332,7 +360,14 @@ func CreateDirectory(path string) bool {
 	return fnCreateDirectory(cstr(path))
 }
 
-var fnEnumerateDirectory func(path *byte, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool
+var addrEnumerateDirectory uintptr
+
+func fnEnumerateDirectory(path *byte, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool {
+	if addrEnumerateDirectory == 0 {
+		missingSymbol("SDL_EnumerateDirectory")
+	}
+	return uint8(call3(addrEnumerateDirectory, uintptr(unsafe.Pointer(path)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Enumerate a directory through a callback function.
 //
@@ -360,7 +395,14 @@ func EnumerateDirectory(path string, callback EnumerateDirectoryCallback, userda
 	return fnEnumerateDirectory(cstr(path), callback, userdata)
 }
 
-var fnRemovePath func(path *byte) bool
+var addrRemovePath uintptr
+
+func fnRemovePath(path *byte) bool {
+	if addrRemovePath == 0 {
+		missingSymbol("SDL_RemovePath")
+	}
+	return uint8(call1(addrRemovePath, uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Remove a file or an empty directory.
 //
@@ -379,7 +421,14 @@ func RemovePath(path string) bool {
 	return fnRemovePath(cstr(path))
 }
 
-var fnRenamePath func(oldpath *byte, newpath *byte) bool
+var addrRenamePath uintptr
+
+func fnRenamePath(oldpath *byte, newpath *byte) bool {
+	if addrRenamePath == 0 {
+		missingSymbol("SDL_RenamePath")
+	}
+	return uint8(call2(addrRenamePath, uintptr(unsafe.Pointer(oldpath)), uintptr(unsafe.Pointer(newpath)))) != 0
+}
 
 // Rename a file or directory.
 //
@@ -407,7 +456,14 @@ func RenamePath(oldpath string, newpath string) bool {
 	return fnRenamePath(cstr(oldpath), cstr(newpath))
 }
 
-var fnCopyFile func(oldpath *byte, newpath *byte) bool
+var addrCopyFile uintptr
+
+func fnCopyFile(oldpath *byte, newpath *byte) bool {
+	if addrCopyFile == 0 {
+		missingSymbol("SDL_CopyFile")
+	}
+	return uint8(call2(addrCopyFile, uintptr(unsafe.Pointer(oldpath)), uintptr(unsafe.Pointer(newpath)))) != 0
+}
 
 // Copy a file.
 //
@@ -452,7 +508,14 @@ func CopyFile(oldpath string, newpath string) bool {
 	return fnCopyFile(cstr(oldpath), cstr(newpath))
 }
 
-var fnGetPathInfo func(path *byte, info *PathInfo) bool
+var addrGetPathInfo uintptr
+
+func fnGetPathInfo(path *byte, info *PathInfo) bool {
+	if addrGetPathInfo == 0 {
+		missingSymbol("SDL_GetPathInfo")
+	}
+	return uint8(call2(addrGetPathInfo, uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(info)))) != 0
+}
 
 // Get information about a filesystem path.
 //
@@ -473,7 +536,14 @@ func GetPathInfo(path string, info *PathInfo) bool {
 	return fnGetPathInfo(cstr(path), info)
 }
 
-var fnGlobDirectory func(path *byte, pattern *byte, flags GlobFlags, count *int32) **byte
+var addrGlobDirectory uintptr
+
+func fnGlobDirectory(path *byte, pattern *byte, flags GlobFlags, count *int32) **byte {
+	if addrGlobDirectory == 0 {
+		missingSymbol("SDL_GlobDirectory")
+	}
+	return (**byte)(cptr(call4(addrGlobDirectory, uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(pattern)), uintptr(flags), uintptr(unsafe.Pointer(count)))))
+}
 
 // Enumerate a directory tree, filtered by pattern, and return a list.
 //
@@ -512,7 +582,14 @@ func GlobDirectory(path string, pattern string, flags GlobFlags) []string {
 	return copyFreeStrings(p, int(n))
 }
 
-var fnGetCurrentDirectory func() *byte
+var addrGetCurrentDirectory uintptr
+
+func fnGetCurrentDirectory() *byte {
+	if addrGetCurrentDirectory == 0 {
+		missingSymbol("SDL_GetCurrentDirectory")
+	}
+	return (*byte)(cptr(call0(addrGetCurrentDirectory)))
+}
 
 // Get what the system believes is the "current working directory."
 //

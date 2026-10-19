@@ -88,7 +88,14 @@ const (
 	NULL_WHILE_LOOP_CONDITION = 0
 )
 
-var fnReportAssertion func(data *AssertData, func_ *byte, file *byte, line int32) AssertState
+var addrReportAssertion uintptr
+
+func fnReportAssertion(data *AssertData, func_ *byte, file *byte, line int32) AssertState {
+	if addrReportAssertion == 0 {
+		missingSymbol("SDL_ReportAssertion")
+	}
+	return AssertState(call4(addrReportAssertion, uintptr(unsafe.Pointer(data)), uintptr(unsafe.Pointer(func_)), uintptr(unsafe.Pointer(file)), uintptr(line)))
+}
 
 // Never call this directly.
 //
@@ -109,7 +116,14 @@ func ReportAssertion(data *AssertData, func_ string, file string, line int32) As
 	return fnReportAssertion(data, cstr(func_), cstr(file), line)
 }
 
-var fnSetAssertionHandler func(handler AssertionHandler, userdata unsafe.Pointer)
+var addrSetAssertionHandler uintptr
+
+func fnSetAssertionHandler(handler AssertionHandler, userdata unsafe.Pointer) {
+	if addrSetAssertionHandler == 0 {
+		missingSymbol("SDL_SetAssertionHandler")
+	}
+	call2(addrSetAssertionHandler, uintptr(handler), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Set an application-defined assertion handler.
 //
@@ -138,7 +152,14 @@ func SetAssertionHandler(handler AssertionHandler, userdata unsafe.Pointer) {
 	fnSetAssertionHandler(handler, userdata)
 }
 
-var fnGetDefaultAssertionHandler func() AssertionHandler
+var addrGetDefaultAssertionHandler uintptr
+
+func fnGetDefaultAssertionHandler() AssertionHandler {
+	if addrGetDefaultAssertionHandler == 0 {
+		missingSymbol("SDL_GetDefaultAssertionHandler")
+	}
+	return AssertionHandler(call0(addrGetDefaultAssertionHandler))
+}
 
 // Get the default assertion handler.
 //
@@ -158,7 +179,14 @@ func GetDefaultAssertionHandler() AssertionHandler {
 	return fnGetDefaultAssertionHandler()
 }
 
-var fnGetAssertionHandler func(puserdata *unsafe.Pointer) AssertionHandler
+var addrGetAssertionHandler uintptr
+
+func fnGetAssertionHandler(puserdata *unsafe.Pointer) AssertionHandler {
+	if addrGetAssertionHandler == 0 {
+		missingSymbol("SDL_GetAssertionHandler")
+	}
+	return AssertionHandler(call1(addrGetAssertionHandler, uintptr(unsafe.Pointer(puserdata))))
+}
 
 // Get the current assertion handler.
 //
@@ -186,7 +214,14 @@ func GetAssertionHandler(puserdata *unsafe.Pointer) AssertionHandler {
 	return fnGetAssertionHandler(puserdata)
 }
 
-var fnGetAssertionReport func() *AssertData
+var addrGetAssertionReport uintptr
+
+func fnGetAssertionReport() *AssertData {
+	if addrGetAssertionReport == 0 {
+		missingSymbol("SDL_GetAssertionReport")
+	}
+	return (*AssertData)(cptr(call0(addrGetAssertionReport)))
+}
 
 // Get a list of all assertion failures.
 //
@@ -215,7 +250,14 @@ func GetAssertionReport() *AssertData {
 	return fnGetAssertionReport()
 }
 
-var fnResetAssertionReport func()
+var addrResetAssertionReport uintptr
+
+func fnResetAssertionReport() {
+	if addrResetAssertionReport == 0 {
+		missingSymbol("SDL_ResetAssertionReport")
+	}
+	call0(addrResetAssertionReport)
+}
 
 // Clear the list of all assertion failures.
 //

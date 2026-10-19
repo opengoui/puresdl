@@ -2,7 +2,14 @@
 
 package sdl
 
-var fnGetPlatform func() *byte
+var addrGetPlatform uintptr
+
+func fnGetPlatform() *byte {
+	if addrGetPlatform == 0 {
+		missingSymbol("SDL_GetPlatform")
+	}
+	return (*byte)(cptr(call0(addrGetPlatform)))
+}
 
 // Get the name of the platform.
 //

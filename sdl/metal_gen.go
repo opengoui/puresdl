@@ -9,7 +9,14 @@ import "unsafe"
 // Since: SDL 3.2.0.
 type MetalView unsafe.Pointer
 
-var fnMetal_CreateView func(window *Window) MetalView
+var addrMetal_CreateView uintptr
+
+func fnMetal_CreateView(window *Window) MetalView {
+	if addrMetal_CreateView == 0 {
+		missingSymbol("SDL_Metal_CreateView")
+	}
+	return (MetalView)(cptr(call1(addrMetal_CreateView, uintptr(unsafe.Pointer(window)))))
+}
 
 // Create a CAMetalLayer-backed NSView/UIView and attach it to the specified
 // window.
@@ -34,7 +41,14 @@ func Metal_CreateView(window *Window) MetalView {
 	return fnMetal_CreateView(window)
 }
 
-var fnMetal_DestroyView func(view MetalView)
+var addrMetal_DestroyView uintptr
+
+func fnMetal_DestroyView(view MetalView) {
+	if addrMetal_DestroyView == 0 {
+		missingSymbol("SDL_Metal_DestroyView")
+	}
+	call1(addrMetal_DestroyView, uintptr(unsafe.Pointer(view)))
+}
 
 // Destroy an existing MetalView object.
 //
@@ -53,7 +67,14 @@ func Metal_DestroyView(view MetalView) {
 	fnMetal_DestroyView(view)
 }
 
-var fnMetal_GetLayer func(view MetalView) unsafe.Pointer
+var addrMetal_GetLayer uintptr
+
+func fnMetal_GetLayer(view MetalView) unsafe.Pointer {
+	if addrMetal_GetLayer == 0 {
+		missingSymbol("SDL_Metal_GetLayer")
+	}
+	return cptr(call1(addrMetal_GetLayer, uintptr(unsafe.Pointer(view))))
+}
 
 // Get a pointer to the backing CAMetalLayer for the given view.
 //

@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // The basic state for the system's power supply.
 //
 // These are results returned by GetPowerInfo().
@@ -24,7 +26,14 @@ const (
 	POWERSTATE_CHARGED PowerState = 4
 )
 
-var fnGetPowerInfo func(seconds *int32, percent *int32) PowerState
+var addrGetPowerInfo uintptr
+
+func fnGetPowerInfo(seconds *int32, percent *int32) PowerState {
+	if addrGetPowerInfo == 0 {
+		missingSymbol("SDL_GetPowerInfo")
+	}
+	return PowerState(call2(addrGetPowerInfo, uintptr(unsafe.Pointer(seconds)), uintptr(unsafe.Pointer(percent))))
+}
 
 // Get the current power supply details.
 //

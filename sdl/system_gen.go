@@ -96,7 +96,14 @@ const (
 	SANDBOX_MACOS             Sandbox = 4
 )
 
-var fnSetX11EventHook func(callback X11EventHook, userdata unsafe.Pointer)
+var addrSetX11EventHook uintptr
+
+func fnSetX11EventHook(callback X11EventHook, userdata unsafe.Pointer) {
+	if addrSetX11EventHook == 0 {
+		missingSymbol("SDL_SetX11EventHook")
+	}
+	call2(addrSetX11EventHook, uintptr(callback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Set a callback for every X11 event.
 //
@@ -116,7 +123,14 @@ func SetX11EventHook(callback X11EventHook, userdata unsafe.Pointer) {
 	fnSetX11EventHook(callback, userdata)
 }
 
-var fnIsTablet func() bool
+var addrIsTablet uintptr
+
+func fnIsTablet() bool {
+	if addrIsTablet == 0 {
+		missingSymbol("SDL_IsTablet")
+	}
+	return uint8(call0(addrIsTablet)) != 0
+}
 
 // Query if the current device is a tablet.
 //
@@ -131,7 +145,14 @@ func IsTablet() bool {
 	return fnIsTablet()
 }
 
-var fnIsTV func() bool
+var addrIsTV uintptr
+
+func fnIsTV() bool {
+	if addrIsTV == 0 {
+		missingSymbol("SDL_IsTV")
+	}
+	return uint8(call0(addrIsTV)) != 0
+}
 
 // Query if the current device is a TV.
 //
@@ -146,7 +167,14 @@ func IsTV() bool {
 	return fnIsTV()
 }
 
-var fnGetSandbox func() Sandbox
+var addrGetSandbox uintptr
+
+func fnGetSandbox() Sandbox {
+	if addrGetSandbox == 0 {
+		missingSymbol("SDL_GetSandbox")
+	}
+	return Sandbox(call0(addrGetSandbox))
+}
 
 // Get the application sandbox environment, if any.
 //
@@ -157,7 +185,14 @@ func GetSandbox() Sandbox {
 	return fnGetSandbox()
 }
 
-var fnOnApplicationWillTerminate func()
+var addrOnApplicationWillTerminate uintptr
+
+func fnOnApplicationWillTerminate() {
+	if addrOnApplicationWillTerminate == 0 {
+		missingSymbol("SDL_OnApplicationWillTerminate")
+	}
+	call0(addrOnApplicationWillTerminate)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationWillTerminate.
@@ -176,7 +211,14 @@ func OnApplicationWillTerminate() {
 	fnOnApplicationWillTerminate()
 }
 
-var fnOnApplicationDidReceiveMemoryWarning func()
+var addrOnApplicationDidReceiveMemoryWarning uintptr
+
+func fnOnApplicationDidReceiveMemoryWarning() {
+	if addrOnApplicationDidReceiveMemoryWarning == 0 {
+		missingSymbol("SDL_OnApplicationDidReceiveMemoryWarning")
+	}
+	call0(addrOnApplicationDidReceiveMemoryWarning)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationDidReceiveMemoryWarning.
@@ -195,7 +237,14 @@ func OnApplicationDidReceiveMemoryWarning() {
 	fnOnApplicationDidReceiveMemoryWarning()
 }
 
-var fnOnApplicationWillEnterBackground func()
+var addrOnApplicationWillEnterBackground uintptr
+
+func fnOnApplicationWillEnterBackground() {
+	if addrOnApplicationWillEnterBackground == 0 {
+		missingSymbol("SDL_OnApplicationWillEnterBackground")
+	}
+	call0(addrOnApplicationWillEnterBackground)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationWillResignActive.
@@ -214,7 +263,14 @@ func OnApplicationWillEnterBackground() {
 	fnOnApplicationWillEnterBackground()
 }
 
-var fnOnApplicationDidEnterBackground func()
+var addrOnApplicationDidEnterBackground uintptr
+
+func fnOnApplicationDidEnterBackground() {
+	if addrOnApplicationDidEnterBackground == 0 {
+		missingSymbol("SDL_OnApplicationDidEnterBackground")
+	}
+	call0(addrOnApplicationDidEnterBackground)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationDidEnterBackground.
@@ -233,7 +289,14 @@ func OnApplicationDidEnterBackground() {
 	fnOnApplicationDidEnterBackground()
 }
 
-var fnOnApplicationWillEnterForeground func()
+var addrOnApplicationWillEnterForeground uintptr
+
+func fnOnApplicationWillEnterForeground() {
+	if addrOnApplicationWillEnterForeground == 0 {
+		missingSymbol("SDL_OnApplicationWillEnterForeground")
+	}
+	call0(addrOnApplicationWillEnterForeground)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationWillEnterForeground.
@@ -252,7 +315,14 @@ func OnApplicationWillEnterForeground() {
 	fnOnApplicationWillEnterForeground()
 }
 
-var fnOnApplicationDidEnterForeground func()
+var addrOnApplicationDidEnterForeground uintptr
+
+func fnOnApplicationDidEnterForeground() {
+	if addrOnApplicationDidEnterForeground == 0 {
+		missingSymbol("SDL_OnApplicationDidEnterForeground")
+	}
+	call0(addrOnApplicationDidEnterForeground)
+}
 
 // Let iOS apps with external event handling report
 // onApplicationDidBecomeActive.
@@ -271,7 +341,14 @@ func OnApplicationDidEnterForeground() {
 	fnOnApplicationDidEnterForeground()
 }
 
-var fnSetLinuxThreadPriority func(threadID int64, priority int32) bool
+var addrSetLinuxThreadPriority uintptr
+
+func fnSetLinuxThreadPriority(threadID int64, priority int32) bool {
+	if addrSetLinuxThreadPriority == 0 {
+		missingSymbol("SDL_SetLinuxThreadPriority")
+	}
+	return uint8(call2(addrSetLinuxThreadPriority, uintptr(threadID), uintptr(priority))) != 0
+}
 
 // Sets the UNIX nice value for a thread.
 //
@@ -292,7 +369,14 @@ func SetLinuxThreadPriority(threadID int64, priority int32) bool {
 	return fnSetLinuxThreadPriority(threadID, priority)
 }
 
-var fnSetLinuxThreadPriorityAndPolicy func(threadID int64, sdlPriority int32, schedPolicy int32) bool
+var addrSetLinuxThreadPriorityAndPolicy uintptr
+
+func fnSetLinuxThreadPriorityAndPolicy(threadID int64, sdlPriority int32, schedPolicy int32) bool {
+	if addrSetLinuxThreadPriorityAndPolicy == 0 {
+		missingSymbol("SDL_SetLinuxThreadPriorityAndPolicy")
+	}
+	return uint8(call3(addrSetLinuxThreadPriorityAndPolicy, uintptr(threadID), uintptr(sdlPriority), uintptr(schedPolicy))) != 0
+}
 
 // Sets the priority (not nice level) and scheduling policy for a thread.
 //
@@ -314,7 +398,14 @@ func SetLinuxThreadPriorityAndPolicy(threadID int64, sdlPriority int32, schedPol
 	return fnSetLinuxThreadPriorityAndPolicy(threadID, sdlPriority, schedPolicy)
 }
 
-var fnSetWindowsMessageHook func(callback WindowsMessageHook, userdata unsafe.Pointer)
+var addrSetWindowsMessageHook uintptr
+
+func fnSetWindowsMessageHook(callback WindowsMessageHook, userdata unsafe.Pointer) {
+	if addrSetWindowsMessageHook == 0 {
+		missingSymbol("SDL_SetWindowsMessageHook")
+	}
+	call2(addrSetWindowsMessageHook, uintptr(callback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Set a callback for every Windows message, run before TranslateMessage().
 //
@@ -337,7 +428,14 @@ func SetWindowsMessageHook(callback WindowsMessageHook, userdata unsafe.Pointer)
 	fnSetWindowsMessageHook(callback, userdata)
 }
 
-var fnGetDirect3D9AdapterIndex func(displayID DisplayID) int32
+var addrGetDirect3D9AdapterIndex uintptr
+
+func fnGetDirect3D9AdapterIndex(displayID DisplayID) int32 {
+	if addrGetDirect3D9AdapterIndex == 0 {
+		missingSymbol("SDL_GetDirect3D9AdapterIndex")
+	}
+	return int32(call1(addrGetDirect3D9AdapterIndex, uintptr(displayID)))
+}
 
 // Get the D3D9 adapter index that matches the specified display.
 //
@@ -356,7 +454,14 @@ func GetDirect3D9AdapterIndex(displayID DisplayID) int32 {
 	return fnGetDirect3D9AdapterIndex(displayID)
 }
 
-var fnGetDXGIOutputInfo func(displayID DisplayID, adapterIndex *int32, outputIndex *int32) bool
+var addrGetDXGIOutputInfo uintptr
+
+func fnGetDXGIOutputInfo(displayID DisplayID, adapterIndex *int32, outputIndex *int32) bool {
+	if addrGetDXGIOutputInfo == 0 {
+		missingSymbol("SDL_GetDXGIOutputInfo")
+	}
+	return uint8(call3(addrGetDXGIOutputInfo, uintptr(displayID), uintptr(unsafe.Pointer(adapterIndex)), uintptr(unsafe.Pointer(outputIndex)))) != 0
+}
 
 // Get the DXGI Adapter and Output indices for the specified display.
 //

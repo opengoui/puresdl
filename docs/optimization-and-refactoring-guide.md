@@ -2,7 +2,7 @@
 
 > 本文档基于对 [puresdl](file:///Users/tbxark/Repos/opengoui/puresdl) 项目全貌（生成器架构、Purego 运行时内存模型、API 封装模式及测试/CI 体系）的系统性代码审查编制。针对该项目作为 **OpenGoUI 底层基石**（核心诉求：1:1 C ABI 精度、极致性能与零堆分配、内存确定性、轻量透明直通）的定位，提供长效演进与重构参考。
 
-> **实施状态（2026-10-15）**：文件对话框只按 SDL 文档保留筛选器指针；`GetError` 已说明 OS 线程本地语义；NUL 结尾字符串和属性整数查询热路径已优化；renderer slice 绘制已绕过反射桥；clang ABI 目标覆盖 Linux 与 Windows ARM64；常量类型守卫、严格 CI ABI 检查和基准已加入。对应基准与剩余可选 Raw API 方案见下文。
+> **实施状态（2026-10-15）**：文件对话框只按 SDL 文档保留筛选器指针；`GetError` 已说明 OS 线程本地语义；NUL 结尾字符串热路径已优化；生成器对所有单字寄存器签名（整数/枚举/bool/指针、≤8 参数，约 1050 个函数）生成零分配直接调用，取代原先 5 个手写 `SyscallN` 快速路径（2026-10-19，见 architecture.md“函数包装规则”）；clang ABI 目标覆盖 Linux 与 Windows ARM64；常量类型守卫、严格 CI ABI 检查和基准已加入。对应基准与剩余可选 Raw API 方案见下文。
 
 ---
 
@@ -168,7 +168,7 @@ func CheckBool(ok bool) error {
 ### 1. 属性查询与 Hints 的“零拷贝 NUL 结尾嗅探”
 
 #### 原始瓶颈与当前结果
-原始 [`cstr`](file:///Users/tbxark/Repos/opengoui/puresdl/sdl/loader.go) 对每个字符串都调用 `CString` 并分配 NUL 结尾副本。现在已先检查末尾字节：NUL 结尾字符串直接经 `unsafe.StringData` 传入 SDL，其他字符串仍复制。`GetNumberProperty` 使用 `SyscallN` 和复用参数槽，绕过函数反射调用分配。
+原始 [`cstr`](file:///Users/tbxark/Repos/opengoui/puresdl/sdl/loader.go) 对每个字符串都调用 `CString` 并分配 NUL 结尾副本。现在已先检查末尾字节：NUL 结尾字符串直接经 `unsafe.StringData` 传入 SDL，其他字符串仍复制。`GetNumberProperty` 与其他单字寄存器签名的函数一样由生成的直接调用（`sdl/call.go` 的 `call0 … call8`）绕过函数反射调用分配。
 
 本机 Apple M1 Pro 基准中，NUL 结尾属性名为 `0 B/op, 0 allocs/op`；普通字符串仍为 `32 B/op, 1 alloc/op`。调用方可把频繁使用的名称缓存成 NUL 结尾字符串。
 
@@ -201,7 +201,7 @@ func cstrNull(s string) *byte {
 }
 ```
 
-`RenderPointsSlice`、`RenderLinesSlice`、`RenderRectsSlice` 和 `RenderFillRectsSlice` 也改为经 `SyscallN` 直连 SDL，避免 `purego.RegisterFunc` 的反射包装。`BenchmarkRenderPointsSlice` 从原先约 `88 B/op, 3 allocs/op, 4.4 µs/op` 降至连续 5 轮 `0 B/op, 0 allocs/op`，耗时中位数约 `311 ns/op`。
+`RenderPointsSlice`、`RenderLinesSlice`、`RenderRectsSlice` 和 `RenderFillRectsSlice` 底层的 `fnRender*` 同样是生成的直接调用，避免 `purego.RegisterFunc` 的反射包装。`BenchmarkRenderPointsSlice` 从原先约 `88 B/op, 3 allocs/op, 4.4 µs/op` 降至连续 5 轮 `0 B/op, 0 allocs/op`，耗时中位数约 `311 ns/op`。
 
 #### 配合代码生成器的属性常量优化
 在 [`internal/bindgen/funcs.go`](file:///Users/tbxark/Repos/opengoui/puresdl/internal/bindgen/funcs.go) 或 [`internal/bindgen/policy.go`](file:///Users/tbxark/Repos/opengoui/puresdl/internal/bindgen/policy.go) 中，对 `PROP_*` 和 `HINT_*` 常量生成末尾带 `\x00` 的版本，例如：

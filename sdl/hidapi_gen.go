@@ -2,6 +2,8 @@
 
 package sdl
 
+import "unsafe"
+
 // An opaque handle representing an open HID device.
 //
 // Since: SDL 3.2.0.
@@ -82,7 +84,14 @@ const (
 	PROP_HIDAPI_LIBUSB_DEVICE_HANDLE_POINTER = "SDL.hidapi.libusb.device.handle"
 )
 
-var fnHIDInit func() int32
+var addrHIDInit uintptr
+
+func fnHIDInit() int32 {
+	if addrHIDInit == 0 {
+		missingSymbol("SDL_hid_init")
+	}
+	return int32(call0(addrHIDInit))
+}
 
 // Initialize the HIDAPI library.
 //
@@ -103,7 +112,14 @@ func HIDInit() int32 {
 	return fnHIDInit()
 }
 
-var fnHIDExit func() int32
+var addrHIDExit uintptr
+
+func fnHIDExit() int32 {
+	if addrHIDExit == 0 {
+		missingSymbol("SDL_hid_exit")
+	}
+	return int32(call0(addrHIDExit))
+}
 
 // Finalize the HIDAPI library.
 //
@@ -119,7 +135,14 @@ func HIDExit() int32 {
 	return fnHIDExit()
 }
 
-var fnHIDDeviceChangeCount func() uint32
+var addrHIDDeviceChangeCount uintptr
+
+func fnHIDDeviceChangeCount() uint32 {
+	if addrHIDDeviceChangeCount == 0 {
+		missingSymbol("SDL_hid_device_change_count")
+	}
+	return uint32(call0(addrHIDDeviceChangeCount))
+}
 
 // Check to see if devices may have been added or removed.
 //
@@ -141,7 +164,14 @@ func HIDDeviceChangeCount() uint32 {
 	return fnHIDDeviceChangeCount()
 }
 
-var fnHIDEnumerate func(vendor_id uint16, product_id uint16) *HIDDeviceInfo
+var addrHIDEnumerate uintptr
+
+func fnHIDEnumerate(vendor_id uint16, product_id uint16) *HIDDeviceInfo {
+	if addrHIDEnumerate == 0 {
+		missingSymbol("SDL_hid_enumerate")
+	}
+	return (*HIDDeviceInfo)(cptr(call2(addrHIDEnumerate, uintptr(vendor_id), uintptr(product_id))))
+}
 
 // Enumerate the HID Devices.
 //
@@ -168,7 +198,14 @@ func HIDEnumerate(vendor_id uint16, product_id uint16) *HIDDeviceInfo {
 	return fnHIDEnumerate(vendor_id, product_id)
 }
 
-var fnHIDFreeEnumeration func(devs *HIDDeviceInfo)
+var addrHIDFreeEnumeration uintptr
+
+func fnHIDFreeEnumeration(devs *HIDDeviceInfo) {
+	if addrHIDFreeEnumeration == 0 {
+		missingSymbol("SDL_hid_free_enumeration")
+	}
+	call1(addrHIDFreeEnumeration, uintptr(unsafe.Pointer(devs)))
+}
 
 // Free an enumeration linked list.
 //
@@ -182,7 +219,14 @@ func HIDFreeEnumeration(devs *HIDDeviceInfo) {
 	fnHIDFreeEnumeration(devs)
 }
 
-var fnHIDOpen func(vendor_id uint16, product_id uint16, serial_number *Wchar) *HIDDevice
+var addrHIDOpen uintptr
+
+func fnHIDOpen(vendor_id uint16, product_id uint16, serial_number *Wchar) *HIDDevice {
+	if addrHIDOpen == 0 {
+		missingSymbol("SDL_hid_open")
+	}
+	return (*HIDDevice)(cptr(call3(addrHIDOpen, uintptr(vendor_id), uintptr(product_id), uintptr(unsafe.Pointer(serial_number)))))
+}
 
 // Open a HID device using a Vendor ID (VID), Product ID (PID) and optionally
 // a serial number.
@@ -204,7 +248,14 @@ func HIDOpen(vendor_id uint16, product_id uint16, serial_number string) *HIDDevi
 	return fnHIDOpen(vendor_id, product_id, wcstrNull(serial_number))
 }
 
-var fnHIDOpenPath func(path *byte) *HIDDevice
+var addrHIDOpenPath uintptr
+
+func fnHIDOpenPath(path *byte) *HIDDevice {
+	if addrHIDOpenPath == 0 {
+		missingSymbol("SDL_hid_open_path")
+	}
+	return (*HIDDevice)(cptr(call1(addrHIDOpenPath, uintptr(unsafe.Pointer(path)))))
+}
 
 // Open a HID device by its path name.
 //
@@ -221,7 +272,14 @@ func HIDOpenPath(path string) *HIDDevice {
 	return fnHIDOpenPath(cstr(path))
 }
 
-var fnHIDGetProperties func(dev *HIDDevice) PropertiesID
+var addrHIDGetProperties uintptr
+
+func fnHIDGetProperties(dev *HIDDevice) PropertiesID {
+	if addrHIDGetProperties == 0 {
+		missingSymbol("SDL_hid_get_properties")
+	}
+	return PropertiesID(call1(addrHIDGetProperties, uintptr(unsafe.Pointer(dev))))
+}
 
 // Get the properties associated with an HIDDevice.
 //
@@ -240,7 +298,14 @@ func HIDGetProperties(dev *HIDDevice) PropertiesID {
 	return fnHIDGetProperties(dev)
 }
 
-var fnHIDWrite func(dev *HIDDevice, data *uint8, length uint) int32
+var addrHIDWrite uintptr
+
+func fnHIDWrite(dev *HIDDevice, data *uint8, length uint) int32 {
+	if addrHIDWrite == 0 {
+		missingSymbol("SDL_hid_write")
+	}
+	return int32(call3(addrHIDWrite, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length)))
+}
 
 // Write an Output report to a HID device.
 //
@@ -269,7 +334,14 @@ func HIDWrite(dev *HIDDevice, data *uint8, length uint) int32 {
 	return fnHIDWrite(dev, data, length)
 }
 
-var fnHIDReadTimeout func(dev *HIDDevice, data *uint8, length uint, milliseconds int32) int32
+var addrHIDReadTimeout uintptr
+
+func fnHIDReadTimeout(dev *HIDDevice, data *uint8, length uint, milliseconds int32) int32 {
+	if addrHIDReadTimeout == 0 {
+		missingSymbol("SDL_hid_read_timeout")
+	}
+	return int32(call4(addrHIDReadTimeout, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length), uintptr(milliseconds)))
+}
 
 // Read an Input report from a HID device with timeout.
 //
@@ -290,7 +362,14 @@ func HIDReadTimeout(dev *HIDDevice, data *uint8, length uint, milliseconds int32
 	return fnHIDReadTimeout(dev, data, length, milliseconds)
 }
 
-var fnHIDRead func(dev *HIDDevice, data *uint8, length uint) int32
+var addrHIDRead uintptr
+
+func fnHIDRead(dev *HIDDevice, data *uint8, length uint) int32 {
+	if addrHIDRead == 0 {
+		missingSymbol("SDL_hid_read")
+	}
+	return int32(call3(addrHIDRead, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length)))
+}
 
 // Read an Input report from a HID device.
 //
@@ -310,7 +389,14 @@ func HIDRead(dev *HIDDevice, data *uint8, length uint) int32 {
 	return fnHIDRead(dev, data, length)
 }
 
-var fnHIDSetNonblocking func(dev *HIDDevice, nonblock int32) int32
+var addrHIDSetNonblocking uintptr
+
+func fnHIDSetNonblocking(dev *HIDDevice, nonblock int32) int32 {
+	if addrHIDSetNonblocking == 0 {
+		missingSymbol("SDL_hid_set_nonblocking")
+	}
+	return int32(call2(addrHIDSetNonblocking, uintptr(unsafe.Pointer(dev)), uintptr(nonblock)))
+}
 
 // Set the device handle to be non-blocking.
 //
@@ -331,7 +417,14 @@ func HIDSetNonblocking(dev *HIDDevice, nonblock int32) int32 {
 	return fnHIDSetNonblocking(dev, nonblock)
 }
 
-var fnHIDSendFeatureReport func(dev *HIDDevice, data *uint8, length uint) int32
+var addrHIDSendFeatureReport uintptr
+
+func fnHIDSendFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	if addrHIDSendFeatureReport == 0 {
+		missingSymbol("SDL_hid_send_feature_report")
+	}
+	return int32(call3(addrHIDSendFeatureReport, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length)))
+}
 
 // Send a Feature report to the device.
 //
@@ -357,7 +450,14 @@ func HIDSendFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
 	return fnHIDSendFeatureReport(dev, data, length)
 }
 
-var fnHIDGetFeatureReport func(dev *HIDDevice, data *uint8, length uint) int32
+var addrHIDGetFeatureReport uintptr
+
+func fnHIDGetFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	if addrHIDGetFeatureReport == 0 {
+		missingSymbol("SDL_hid_get_feature_report")
+	}
+	return int32(call3(addrHIDGetFeatureReport, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length)))
+}
 
 // Get a feature report from a HID device.
 //
@@ -378,7 +478,14 @@ func HIDGetFeatureReport(dev *HIDDevice, data *uint8, length uint) int32 {
 	return fnHIDGetFeatureReport(dev, data, length)
 }
 
-var fnHIDGetInputReport func(dev *HIDDevice, data *uint8, length uint) int32
+var addrHIDGetInputReport uintptr
+
+func fnHIDGetInputReport(dev *HIDDevice, data *uint8, length uint) int32 {
+	if addrHIDGetInputReport == 0 {
+		missingSymbol("SDL_hid_get_input_report")
+	}
+	return int32(call3(addrHIDGetInputReport, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(data)), uintptr(length)))
+}
 
 // Get an input report from a HID device.
 //
@@ -399,7 +506,14 @@ func HIDGetInputReport(dev *HIDDevice, data *uint8, length uint) int32 {
 	return fnHIDGetInputReport(dev, data, length)
 }
 
-var fnHIDClose func(dev *HIDDevice) int32
+var addrHIDClose uintptr
+
+func fnHIDClose(dev *HIDDevice) int32 {
+	if addrHIDClose == 0 {
+		missingSymbol("SDL_hid_close")
+	}
+	return int32(call1(addrHIDClose, uintptr(unsafe.Pointer(dev))))
+}
 
 // Close a HID device.
 //
@@ -413,7 +527,14 @@ func HIDClose(dev *HIDDevice) int32 {
 	return fnHIDClose(dev)
 }
 
-var fnHIDGetManufacturerString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+var addrHIDGetManufacturerString uintptr
+
+func fnHIDGetManufacturerString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	if addrHIDGetManufacturerString == 0 {
+		missingSymbol("SDL_hid_get_manufacturer_string")
+	}
+	return int32(call3(addrHIDGetManufacturerString, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(string_)), uintptr(maxlen)))
+}
 
 // Get The Manufacturer String from a HID device.
 //
@@ -429,7 +550,14 @@ func HIDGetManufacturerString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
 	return fnHIDGetManufacturerString(dev, string_, maxlen)
 }
 
-var fnHIDGetProductString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+var addrHIDGetProductString uintptr
+
+func fnHIDGetProductString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	if addrHIDGetProductString == 0 {
+		missingSymbol("SDL_hid_get_product_string")
+	}
+	return int32(call3(addrHIDGetProductString, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(string_)), uintptr(maxlen)))
+}
 
 // Get The Product String from a HID device.
 //
@@ -445,7 +573,14 @@ func HIDGetProductString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
 	return fnHIDGetProductString(dev, string_, maxlen)
 }
 
-var fnHIDGetSerialNumberString func(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
+var addrHIDGetSerialNumberString uintptr
+
+func fnHIDGetSerialNumberString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32 {
+	if addrHIDGetSerialNumberString == 0 {
+		missingSymbol("SDL_hid_get_serial_number_string")
+	}
+	return int32(call3(addrHIDGetSerialNumberString, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(string_)), uintptr(maxlen)))
+}
 
 // Get The Serial Number String from a HID device.
 //
@@ -461,7 +596,14 @@ func HIDGetSerialNumberString(dev *HIDDevice, string_ *Wchar, maxlen uint) int32
 	return fnHIDGetSerialNumberString(dev, string_, maxlen)
 }
 
-var fnHIDGetIndexedString func(dev *HIDDevice, string_index int32, string_ *Wchar, maxlen uint) int32
+var addrHIDGetIndexedString uintptr
+
+func fnHIDGetIndexedString(dev *HIDDevice, string_index int32, string_ *Wchar, maxlen uint) int32 {
+	if addrHIDGetIndexedString == 0 {
+		missingSymbol("SDL_hid_get_indexed_string")
+	}
+	return int32(call4(addrHIDGetIndexedString, uintptr(unsafe.Pointer(dev)), uintptr(string_index), uintptr(unsafe.Pointer(string_)), uintptr(maxlen)))
+}
 
 // Get a string from a HID device, based on its string index.
 //
@@ -478,7 +620,14 @@ func HIDGetIndexedString(dev *HIDDevice, string_index int32, string_ *Wchar, max
 	return fnHIDGetIndexedString(dev, string_index, string_, maxlen)
 }
 
-var fnHIDGetDeviceInfo func(dev *HIDDevice) *HIDDeviceInfo
+var addrHIDGetDeviceInfo uintptr
+
+func fnHIDGetDeviceInfo(dev *HIDDevice) *HIDDeviceInfo {
+	if addrHIDGetDeviceInfo == 0 {
+		missingSymbol("SDL_hid_get_device_info")
+	}
+	return (*HIDDeviceInfo)(cptr(call1(addrHIDGetDeviceInfo, uintptr(unsafe.Pointer(dev)))))
+}
 
 // Get the device info from a HID device.
 //
@@ -492,7 +641,14 @@ func HIDGetDeviceInfo(dev *HIDDevice) *HIDDeviceInfo {
 	return fnHIDGetDeviceInfo(dev)
 }
 
-var fnHIDGetReportDescriptor func(dev *HIDDevice, buf *uint8, buf_size uint) int32
+var addrHIDGetReportDescriptor uintptr
+
+func fnHIDGetReportDescriptor(dev *HIDDevice, buf *uint8, buf_size uint) int32 {
+	if addrHIDGetReportDescriptor == 0 {
+		missingSymbol("SDL_hid_get_report_descriptor")
+	}
+	return int32(call3(addrHIDGetReportDescriptor, uintptr(unsafe.Pointer(dev)), uintptr(unsafe.Pointer(buf)), uintptr(buf_size)))
+}
 
 // Get a report descriptor from a HID device.
 //
@@ -511,7 +667,14 @@ func HIDGetReportDescriptor(dev *HIDDevice, buf *uint8, buf_size uint) int32 {
 	return fnHIDGetReportDescriptor(dev, buf, buf_size)
 }
 
-var fnHIDBleScan func(active bool)
+var addrHIDBleScan uintptr
+
+func fnHIDBleScan(active bool) {
+	if addrHIDBleScan == 0 {
+		missingSymbol("SDL_hid_ble_scan")
+	}
+	call1(addrHIDBleScan, cbool(active))
+}
 
 // Start or stop a BLE scan on iOS and tvOS to pair Steam Controllers.
 //

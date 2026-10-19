@@ -88,6 +88,12 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy SDL_CAMERA_DRIVER=dummy \
   go run ./examples/renderer/01-clear -frames 30
 ```
 
+[`examples/gpu/01-multi-window`](examples/gpu/01-multi-window/main.go) is specific to puresdl: one SDL GPU device drives several windows, worker goroutines build each window's vertices in parallel, and only the main goroutine touches windows, swapchains and command buffers, as SDL requires:
+
+```bash
+go run ./examples/gpu/01-multi-window -windows 3 -stats
+```
+
 See [examples/TESTING.md](examples/TESTING.md) for the example test and manual review checklist.
 
 ## API conventions

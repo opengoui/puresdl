@@ -134,7 +134,14 @@ const (
 	PROP_THREAD_CREATE_STACKSIZE_NUMBER       = "SDL.thread.create.stacksize"
 )
 
-var fnCreateThreadRuntime func(fn ThreadFunction, name *byte, data unsafe.Pointer, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread
+var addrCreateThreadRuntime uintptr
+
+func fnCreateThreadRuntime(fn ThreadFunction, name *byte, data unsafe.Pointer, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread {
+	if addrCreateThreadRuntime == 0 {
+		missingSymbol("SDL_CreateThreadRuntime")
+	}
+	return (*Thread)(cptr(call5(addrCreateThreadRuntime, uintptr(fn), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(data)), uintptr(pfnBeginThread), uintptr(pfnEndThread))))
+}
 
 // The actual entry point for CreateThread.
 //
@@ -154,7 +161,14 @@ func CreateThreadRuntime(fn ThreadFunction, name string, data unsafe.Pointer, pf
 	return fnCreateThreadRuntime(fn, cstr(name), data, pfnBeginThread, pfnEndThread)
 }
 
-var fnCreateThreadWithPropertiesRuntime func(props PropertiesID, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread
+var addrCreateThreadWithPropertiesRuntime uintptr
+
+func fnCreateThreadWithPropertiesRuntime(props PropertiesID, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread {
+	if addrCreateThreadWithPropertiesRuntime == 0 {
+		missingSymbol("SDL_CreateThreadWithPropertiesRuntime")
+	}
+	return (*Thread)(cptr(call3(addrCreateThreadWithPropertiesRuntime, uintptr(props), uintptr(pfnBeginThread), uintptr(pfnEndThread))))
+}
 
 // The actual entry point for CreateThreadWithProperties.
 //
@@ -172,7 +186,14 @@ func CreateThreadWithPropertiesRuntime(props PropertiesID, pfnBeginThread Functi
 	return fnCreateThreadWithPropertiesRuntime(props, pfnBeginThread, pfnEndThread)
 }
 
-var fnGetThreadName func(thread *Thread) *byte
+var addrGetThreadName uintptr
+
+func fnGetThreadName(thread *Thread) *byte {
+	if addrGetThreadName == 0 {
+		missingSymbol("SDL_GetThreadName")
+	}
+	return (*byte)(cptr(call1(addrGetThreadName, uintptr(unsafe.Pointer(thread)))))
+}
 
 // Get the thread name as it was specified in CreateThread().
 //
@@ -188,7 +209,14 @@ func GetThreadName(thread *Thread) string {
 	return GoString(fnGetThreadName(thread))
 }
 
-var fnGetCurrentThreadID func() ThreadID
+var addrGetCurrentThreadID uintptr
+
+func fnGetCurrentThreadID() ThreadID {
+	if addrGetCurrentThreadID == 0 {
+		missingSymbol("SDL_GetCurrentThreadID")
+	}
+	return ThreadID(call0(addrGetCurrentThreadID))
+}
 
 // Get the thread identifier for the current thread.
 //
@@ -210,7 +238,14 @@ func GetCurrentThreadID() ThreadID {
 	return fnGetCurrentThreadID()
 }
 
-var fnGetThreadID func(thread *Thread) ThreadID
+var addrGetThreadID uintptr
+
+func fnGetThreadID(thread *Thread) ThreadID {
+	if addrGetThreadID == 0 {
+		missingSymbol("SDL_GetThreadID")
+	}
+	return ThreadID(call1(addrGetThreadID, uintptr(unsafe.Pointer(thread))))
+}
 
 // Get the thread identifier for the specified thread.
 //
@@ -232,7 +267,14 @@ func GetThreadID(thread *Thread) ThreadID {
 	return fnGetThreadID(thread)
 }
 
-var fnSetCurrentThreadPriority func(priority ThreadPriority) bool
+var addrSetCurrentThreadPriority uintptr
+
+func fnSetCurrentThreadPriority(priority ThreadPriority) bool {
+	if addrSetCurrentThreadPriority == 0 {
+		missingSymbol("SDL_SetCurrentThreadPriority")
+	}
+	return uint8(call1(addrSetCurrentThreadPriority, uintptr(priority))) != 0
+}
 
 // Set the priority for the current thread.
 //
@@ -252,7 +294,14 @@ func SetCurrentThreadPriority(priority ThreadPriority) bool {
 	return fnSetCurrentThreadPriority(priority)
 }
 
-var fnWaitThread func(thread *Thread, status *int32)
+var addrWaitThread uintptr
+
+func fnWaitThread(thread *Thread, status *int32) {
+	if addrWaitThread == 0 {
+		missingSymbol("SDL_WaitThread")
+	}
+	call2(addrWaitThread, uintptr(unsafe.Pointer(thread)), uintptr(unsafe.Pointer(status)))
+}
 
 // Wait for a thread to finish.
 //
@@ -288,7 +337,14 @@ func WaitThread(thread *Thread, status *int32) {
 	fnWaitThread(thread, status)
 }
 
-var fnGetThreadState func(thread *Thread) ThreadState
+var addrGetThreadState uintptr
+
+func fnGetThreadState(thread *Thread) ThreadState {
+	if addrGetThreadState == 0 {
+		missingSymbol("SDL_GetThreadState")
+	}
+	return ThreadState(call1(addrGetThreadState, uintptr(unsafe.Pointer(thread))))
+}
 
 // Get the current state of a thread.
 //
@@ -306,7 +362,14 @@ func GetThreadState(thread *Thread) ThreadState {
 	return fnGetThreadState(thread)
 }
 
-var fnDetachThread func(thread *Thread)
+var addrDetachThread uintptr
+
+func fnDetachThread(thread *Thread) {
+	if addrDetachThread == 0 {
+		missingSymbol("SDL_DetachThread")
+	}
+	call1(addrDetachThread, uintptr(unsafe.Pointer(thread)))
+}
 
 // Let a thread clean up on exit without intervention.
 //
@@ -345,7 +408,14 @@ func DetachThread(thread *Thread) {
 	fnDetachThread(thread)
 }
 
-var fnGetTLS func(id *TLSID) unsafe.Pointer
+var addrGetTLS uintptr
+
+func fnGetTLS(id *TLSID) unsafe.Pointer {
+	if addrGetTLS == 0 {
+		missingSymbol("SDL_GetTLS")
+	}
+	return cptr(call1(addrGetTLS, uintptr(unsafe.Pointer(id))))
+}
 
 // Get the current thread's value associated with a thread local storage ID.
 //
@@ -363,7 +433,14 @@ func GetTLS(id *TLSID) unsafe.Pointer {
 	return fnGetTLS(id)
 }
 
-var fnSetTLS func(id *TLSID, value unsafe.Pointer, destructor TLSDestructorCallback) bool
+var addrSetTLS uintptr
+
+func fnSetTLS(id *TLSID, value unsafe.Pointer, destructor TLSDestructorCallback) bool {
+	if addrSetTLS == 0 {
+		missingSymbol("SDL_SetTLS")
+	}
+	return uint8(call3(addrSetTLS, uintptr(unsafe.Pointer(id)), uintptr(unsafe.Pointer(value)), uintptr(destructor))) != 0
+}
 
 // Set the current thread's value associated with a thread local storage ID.
 //
@@ -395,7 +472,14 @@ func SetTLS(id *TLSID, value unsafe.Pointer, destructor TLSDestructorCallback) b
 	return fnSetTLS(id, value, destructor)
 }
 
-var fnCleanupTLS func()
+var addrCleanupTLS uintptr
+
+func fnCleanupTLS() {
+	if addrCleanupTLS == 0 {
+		missingSymbol("SDL_CleanupTLS")
+	}
+	call0(addrCleanupTLS)
+}
 
 // Cleanup all TLS data for this thread.
 //

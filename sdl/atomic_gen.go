@@ -75,7 +75,14 @@ type AtomicU32 struct {
 // emulated because they are used in the atomic emulation code.
 type SpinLock int32
 
-var fnTryLockSpinlock func(lock *SpinLock) bool
+var addrTryLockSpinlock uintptr
+
+func fnTryLockSpinlock(lock *SpinLock) bool {
+	if addrTryLockSpinlock == 0 {
+		missingSymbol("SDL_TryLockSpinlock")
+	}
+	return uint8(call1(addrTryLockSpinlock, uintptr(unsafe.Pointer(lock)))) != 0
+}
 
 // Try to lock a spin lock by setting it to a non-zero value.
 //
@@ -96,7 +103,14 @@ func TryLockSpinlock(lock *SpinLock) bool {
 	return fnTryLockSpinlock(lock)
 }
 
-var fnLockSpinlock func(lock *SpinLock)
+var addrLockSpinlock uintptr
+
+func fnLockSpinlock(lock *SpinLock) {
+	if addrLockSpinlock == 0 {
+		missingSymbol("SDL_LockSpinlock")
+	}
+	call1(addrLockSpinlock, uintptr(unsafe.Pointer(lock)))
+}
 
 // Lock a spin lock by setting it to a non-zero value.
 //
@@ -115,7 +129,14 @@ func LockSpinlock(lock *SpinLock) {
 	fnLockSpinlock(lock)
 }
 
-var fnUnlockSpinlock func(lock *SpinLock)
+var addrUnlockSpinlock uintptr
+
+func fnUnlockSpinlock(lock *SpinLock) {
+	if addrUnlockSpinlock == 0 {
+		missingSymbol("SDL_UnlockSpinlock")
+	}
+	call1(addrUnlockSpinlock, uintptr(unsafe.Pointer(lock)))
+}
 
 // Unlock a spin lock by setting it to 0.
 //
@@ -136,7 +157,14 @@ func UnlockSpinlock(lock *SpinLock) {
 	fnUnlockSpinlock(lock)
 }
 
-var fnMemoryBarrierReleaseFunction func()
+var addrMemoryBarrierReleaseFunction uintptr
+
+func fnMemoryBarrierReleaseFunction() {
+	if addrMemoryBarrierReleaseFunction == 0 {
+		missingSymbol("SDL_MemoryBarrierReleaseFunction")
+	}
+	call0(addrMemoryBarrierReleaseFunction)
+}
 
 // Insert a memory release barrier (function version).
 //
@@ -156,7 +184,14 @@ func MemoryBarrierReleaseFunction() {
 	fnMemoryBarrierReleaseFunction()
 }
 
-var fnMemoryBarrierAcquireFunction func()
+var addrMemoryBarrierAcquireFunction uintptr
+
+func fnMemoryBarrierAcquireFunction() {
+	if addrMemoryBarrierAcquireFunction == 0 {
+		missingSymbol("SDL_MemoryBarrierAcquireFunction")
+	}
+	call0(addrMemoryBarrierAcquireFunction)
+}
 
 // Insert a memory acquire barrier (function version).
 //
@@ -176,7 +211,14 @@ func MemoryBarrierAcquireFunction() {
 	fnMemoryBarrierAcquireFunction()
 }
 
-var fnCompareAndSwapAtomicInt func(a *AtomicInt, oldval int32, newval int32) bool
+var addrCompareAndSwapAtomicInt uintptr
+
+func fnCompareAndSwapAtomicInt(a *AtomicInt, oldval int32, newval int32) bool {
+	if addrCompareAndSwapAtomicInt == 0 {
+		missingSymbol("SDL_CompareAndSwapAtomicInt")
+	}
+	return uint8(call3(addrCompareAndSwapAtomicInt, uintptr(unsafe.Pointer(a)), uintptr(oldval), uintptr(newval))) != 0
+}
 
 // Set an atomic variable to a new value if it is currently an old value.
 //
@@ -199,7 +241,14 @@ func CompareAndSwapAtomicInt(a *AtomicInt, oldval int32, newval int32) bool {
 	return fnCompareAndSwapAtomicInt(a, oldval, newval)
 }
 
-var fnSetAtomicInt func(a *AtomicInt, v int32) int32
+var addrSetAtomicInt uintptr
+
+func fnSetAtomicInt(a *AtomicInt, v int32) int32 {
+	if addrSetAtomicInt == 0 {
+		missingSymbol("SDL_SetAtomicInt")
+	}
+	return int32(call2(addrSetAtomicInt, uintptr(unsafe.Pointer(a)), uintptr(v)))
+}
 
 // Set an atomic variable to a value.
 //
@@ -223,7 +272,14 @@ func SetAtomicInt(a *AtomicInt, v int32) int32 {
 	return fnSetAtomicInt(a, v)
 }
 
-var fnGetAtomicInt func(a *AtomicInt) int32
+var addrGetAtomicInt uintptr
+
+func fnGetAtomicInt(a *AtomicInt) int32 {
+	if addrGetAtomicInt == 0 {
+		missingSymbol("SDL_GetAtomicInt")
+	}
+	return int32(call1(addrGetAtomicInt, uintptr(unsafe.Pointer(a))))
+}
 
 // Get the value of an atomic variable.
 //
@@ -244,7 +300,14 @@ func GetAtomicInt(a *AtomicInt) int32 {
 	return fnGetAtomicInt(a)
 }
 
-var fnAddAtomicInt func(a *AtomicInt, v int32) int32
+var addrAddAtomicInt uintptr
+
+func fnAddAtomicInt(a *AtomicInt, v int32) int32 {
+	if addrAddAtomicInt == 0 {
+		missingSymbol("SDL_AddAtomicInt")
+	}
+	return int32(call2(addrAddAtomicInt, uintptr(unsafe.Pointer(a)), uintptr(v)))
+}
 
 // Add to an atomic variable.
 //
@@ -268,7 +331,14 @@ func AddAtomicInt(a *AtomicInt, v int32) int32 {
 	return fnAddAtomicInt(a, v)
 }
 
-var fnCompareAndSwapAtomicU32 func(a *AtomicU32, oldval uint32, newval uint32) bool
+var addrCompareAndSwapAtomicU32 uintptr
+
+func fnCompareAndSwapAtomicU32(a *AtomicU32, oldval uint32, newval uint32) bool {
+	if addrCompareAndSwapAtomicU32 == 0 {
+		missingSymbol("SDL_CompareAndSwapAtomicU32")
+	}
+	return uint8(call3(addrCompareAndSwapAtomicU32, uintptr(unsafe.Pointer(a)), uintptr(oldval), uintptr(newval))) != 0
+}
 
 // Set an atomic variable to a new value if it is currently an old value.
 //
@@ -291,7 +361,14 @@ func CompareAndSwapAtomicU32(a *AtomicU32, oldval uint32, newval uint32) bool {
 	return fnCompareAndSwapAtomicU32(a, oldval, newval)
 }
 
-var fnSetAtomicU32 func(a *AtomicU32, v uint32) uint32
+var addrSetAtomicU32 uintptr
+
+func fnSetAtomicU32(a *AtomicU32, v uint32) uint32 {
+	if addrSetAtomicU32 == 0 {
+		missingSymbol("SDL_SetAtomicU32")
+	}
+	return uint32(call2(addrSetAtomicU32, uintptr(unsafe.Pointer(a)), uintptr(v)))
+}
 
 // Set an atomic variable to a value.
 //
@@ -315,7 +392,14 @@ func SetAtomicU32(a *AtomicU32, v uint32) uint32 {
 	return fnSetAtomicU32(a, v)
 }
 
-var fnGetAtomicU32 func(a *AtomicU32) uint32
+var addrGetAtomicU32 uintptr
+
+func fnGetAtomicU32(a *AtomicU32) uint32 {
+	if addrGetAtomicU32 == 0 {
+		missingSymbol("SDL_GetAtomicU32")
+	}
+	return uint32(call1(addrGetAtomicU32, uintptr(unsafe.Pointer(a))))
+}
 
 // Get the value of an atomic variable.
 //
@@ -336,7 +420,14 @@ func GetAtomicU32(a *AtomicU32) uint32 {
 	return fnGetAtomicU32(a)
 }
 
-var fnAddAtomicU32 func(a *AtomicU32, v int32) uint32
+var addrAddAtomicU32 uintptr
+
+func fnAddAtomicU32(a *AtomicU32, v int32) uint32 {
+	if addrAddAtomicU32 == 0 {
+		missingSymbol("SDL_AddAtomicU32")
+	}
+	return uint32(call2(addrAddAtomicU32, uintptr(unsafe.Pointer(a)), uintptr(v)))
+}
 
 // Add to an atomic variable.
 //
@@ -358,7 +449,14 @@ func AddAtomicU32(a *AtomicU32, v int32) uint32 {
 	return fnAddAtomicU32(a, v)
 }
 
-var fnCompareAndSwapAtomicPointer func(a *unsafe.Pointer, oldval unsafe.Pointer, newval unsafe.Pointer) bool
+var addrCompareAndSwapAtomicPointer uintptr
+
+func fnCompareAndSwapAtomicPointer(a *unsafe.Pointer, oldval unsafe.Pointer, newval unsafe.Pointer) bool {
+	if addrCompareAndSwapAtomicPointer == 0 {
+		missingSymbol("SDL_CompareAndSwapAtomicPointer")
+	}
+	return uint8(call3(addrCompareAndSwapAtomicPointer, uintptr(unsafe.Pointer(a)), uintptr(unsafe.Pointer(oldval)), uintptr(unsafe.Pointer(newval)))) != 0
+}
 
 // Set a pointer to a new value if it is currently an old value.
 //
@@ -381,7 +479,14 @@ func CompareAndSwapAtomicPointer(a *unsafe.Pointer, oldval unsafe.Pointer, newva
 	return fnCompareAndSwapAtomicPointer(a, oldval, newval)
 }
 
-var fnSetAtomicPointer func(a *unsafe.Pointer, v unsafe.Pointer) unsafe.Pointer
+var addrSetAtomicPointer uintptr
+
+func fnSetAtomicPointer(a *unsafe.Pointer, v unsafe.Pointer) unsafe.Pointer {
+	if addrSetAtomicPointer == 0 {
+		missingSymbol("SDL_SetAtomicPointer")
+	}
+	return cptr(call2(addrSetAtomicPointer, uintptr(unsafe.Pointer(a)), uintptr(unsafe.Pointer(v))))
+}
 
 // Set a pointer to a value atomically.
 //
@@ -403,7 +508,14 @@ func SetAtomicPointer(a *unsafe.Pointer, v unsafe.Pointer) unsafe.Pointer {
 	return fnSetAtomicPointer(a, v)
 }
 
-var fnGetAtomicPointer func(a *unsafe.Pointer) unsafe.Pointer
+var addrGetAtomicPointer uintptr
+
+func fnGetAtomicPointer(a *unsafe.Pointer) unsafe.Pointer {
+	if addrGetAtomicPointer == 0 {
+		missingSymbol("SDL_GetAtomicPointer")
+	}
+	return cptr(call1(addrGetAtomicPointer, uintptr(unsafe.Pointer(a))))
+}
 
 // Get the value of a pointer atomically.
 //

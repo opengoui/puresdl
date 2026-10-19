@@ -32,7 +32,14 @@ func SetError(format string, args ...any) bool {
 	return fnSetError(cprintf(format, args))
 }
 
-var fnOutOfMemory func() bool
+var addrOutOfMemory uintptr
+
+func fnOutOfMemory() bool {
+	if addrOutOfMemory == 0 {
+		missingSymbol("SDL_OutOfMemory")
+	}
+	return uint8(call0(addrOutOfMemory)) != 0
+}
 
 // Set an error indicating that memory allocation failed.
 //
@@ -47,7 +54,14 @@ func OutOfMemory() bool {
 	return fnOutOfMemory()
 }
 
-var fnGetError func() *byte
+var addrGetError uintptr
+
+func fnGetError() *byte {
+	if addrGetError == 0 {
+		missingSymbol("SDL_GetError")
+	}
+	return (*byte)(cptr(call0(addrGetError)))
+}
 
 // Retrieve a message about the last error that occurred on the current
 // thread.
@@ -85,7 +99,14 @@ func GetError() string {
 	return GoString(fnGetError())
 }
 
-var fnClearError func() bool
+var addrClearError uintptr
+
+func fnClearError() bool {
+	if addrClearError == 0 {
+		missingSymbol("SDL_ClearError")
+	}
+	return uint8(call0(addrClearError)) != 0
+}
 
 // Clear any previous error message for this thread.
 //

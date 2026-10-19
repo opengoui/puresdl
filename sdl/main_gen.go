@@ -32,7 +32,14 @@ func NewMainFunc(fn func(argc int32, argv **byte) int32) MainFunc {
 	return MainFunc(purego.NewCallback(fn))
 }
 
-var fnSetMainReady func()
+var addrSetMainReady uintptr
+
+func fnSetMainReady() {
+	if addrSetMainReady == 0 {
+		missingSymbol("SDL_SetMainReady")
+	}
+	call0(addrSetMainReady)
+}
 
 // Circumvent failure of Init() when not using Main() as an entry
 // point.
@@ -51,7 +58,14 @@ func SetMainReady() {
 	fnSetMainReady()
 }
 
-var fnRunApp func(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Pointer) int32
+var addrRunApp uintptr
+
+func fnRunApp(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Pointer) int32 {
+	if addrRunApp == 0 {
+		missingSymbol("SDL_RunApp")
+	}
+	return int32(call4(addrRunApp, uintptr(argc), uintptr(unsafe.Pointer(argv)), uintptr(mainFunction), uintptr(unsafe.Pointer(reserved))))
+}
 
 // Initializes and launches an SDL application, by doing platform-specific
 // initialization before calling your mainFunction and cleanups after it
@@ -80,7 +94,14 @@ func RunApp(argc int32, argv **byte, mainFunction MainFunc, reserved unsafe.Poin
 	return fnRunApp(argc, argv, mainFunction, reserved)
 }
 
-var fnEnterAppMainCallbacks func(argc int32, argv **byte, appinit AppInit_func, appiter AppIterate_func, appevent AppEvent_func, appquit AppQuit_func) int32
+var addrEnterAppMainCallbacks uintptr
+
+func fnEnterAppMainCallbacks(argc int32, argv **byte, appinit AppInit_func, appiter AppIterate_func, appevent AppEvent_func, appquit AppQuit_func) int32 {
+	if addrEnterAppMainCallbacks == 0 {
+		missingSymbol("SDL_EnterAppMainCallbacks")
+	}
+	return int32(call6(addrEnterAppMainCallbacks, uintptr(argc), uintptr(unsafe.Pointer(argv)), uintptr(appinit), uintptr(appiter), uintptr(appevent), uintptr(appquit)))
+}
 
 // An entry point for SDL's use in `SDL_MAIN_USE_CALLBACKS`.
 //
@@ -110,7 +131,14 @@ func EnterAppMainCallbacks(argc int32, argv **byte, appinit AppInit_func, appite
 	return fnEnterAppMainCallbacks(argc, argv, appinit, appiter, appevent, appquit)
 }
 
-var fnGDKSuspendComplete func()
+var addrGDKSuspendComplete uintptr
+
+func fnGDKSuspendComplete() {
+	if addrGDKSuspendComplete == 0 {
+		missingSymbol("SDL_GDKSuspendComplete")
+	}
+	call0(addrGDKSuspendComplete)
+}
 
 // Callback from the application to let the suspend continue.
 //
@@ -138,7 +166,14 @@ func GDKSuspendComplete() {
 	fnGDKSuspendComplete()
 }
 
-var fnRegisterApp func(name *byte, style uint32, hInst unsafe.Pointer) bool
+var addrRegisterApp uintptr
+
+func fnRegisterApp(name *byte, style uint32, hInst unsafe.Pointer) bool {
+	if addrRegisterApp == 0 {
+		missingSymbol("SDL_RegisterApp")
+	}
+	return uint8(call3(addrRegisterApp, uintptr(unsafe.Pointer(name)), uintptr(style), uintptr(unsafe.Pointer(hInst)))) != 0
+}
 
 // Register a win32 window class for SDL's use.
 //
@@ -171,7 +206,14 @@ func RegisterApp(name string, style uint32, hInst unsafe.Pointer) bool {
 	return fnRegisterApp(cstrNull(name), style, hInst)
 }
 
-var fnUnregisterApp func()
+var addrUnregisterApp uintptr
+
+func fnUnregisterApp() {
+	if addrUnregisterApp == 0 {
+		missingSymbol("SDL_UnregisterApp")
+	}
+	call0(addrUnregisterApp)
+}
 
 // Deregister the win32 window class from an RegisterApp call.
 //

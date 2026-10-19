@@ -84,7 +84,12 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 
 ### 函数包装规则（`funcs.go`）
 
-每个 C 函数生成一个未导出的 `var fnXxx func(...)`（原始签名，由 `bindAll` 在加载库后 `register` 绑定）和一个导出的包装函数：
+每个 C 函数生成一个未导出的原始函数 `fnXxx`（原始签名）和一个导出的包装函数。原始函数有两种形式（`direct.go`）：
+
+- **直接调用**：参数与返回值都是单个整数字（整数、枚举、`bool`、数据指针、函数指针），参数不超过 8 个，且不是变参函数时，`fnXxx` 是普通 Go 函数，经手写的 `call0 … call8`（`sdl/call.go`）用 `purego.SyscallN` 调用 `addrXxx` 处的符号；`bindAll` 用 `registerAddr` 填写地址，符号缺失时地址为 0，调用时 `missingSymbol` panic。参数转换：`bool` → `cbool`，数据指针 → `uintptr(unsafe.Pointer(p))`，其余 → `uintptr(x)`；返回值：`bool` 只看低 8 位（`uint8(r) != 0`，C ABI 只定义低字节），指针经 `cptr`，整数直接转换。`callN` 带 `//go:uintptrescapes`：调用表达式里由指针转换来的实参会被移到堆上并在调用期间保活（与 `SyscallN` 相同的规则），实参再拷进池化数组，所以不分配。8 个参数的上限保证所有实参都走寄存器：Apple arm64 按自然尺寸紧凑排列栈上实参，`SyscallN` 不处理。约 1050 个函数走这条路径，单次调用约 80–130 ns、零分配（反射路径约 200–290 ns、2–4 次分配）。
+- **RegisterFunc**：含浮点参数或返回值、按值传递结构体（含 `SDL_GUID`）、超过 8 个参数的函数仍生成 `var fnXxx func(...)`，由 `bindAll` 用 `register` 交给 `purego.RegisterFunc`。
+
+两种形式签名相同，各类包装规则统一调用 `fnXxx(...)`，不关心它是哪一种。包装规则：
 
 - `const char *` 参数 → `string`，用 `cstr` 转成以 NUL 结尾的拷贝；`\param` 文档里出现 `NULL` 时必须在 `policy.go: nullParams` 里分类（未分类则生成失败）：NULL 只表示默认值的用 `cstrNull`（空串传 NULL，文档加注）；NULL 与空串语义不同的（`distinct`）参数公开类型为 `*string`，用 `cstrPtr`（`nil` → NULL，`sdl.Ptr("")` → 空串）。`nullParams` 条目设 `valueForm` 时另生成 `<Name>Value`（该参数改为普通 `string`），再设 `clearForm` 时生成去掉该参数、传 `nil` 的清除函数（如 `SetAppMetadataPropertyValue` / `ClearAppMetadataProperty`）。`ClearByNullParams` 会列出文档写 "NULL to clear/remove/unset/delete" 却不是 `distinct` 的参数，bindgen 测试用白名单强制逐个评审。
 - `char *` / `const char *` 返回 → 拷贝成 `string`（`GoString`，NULL 变 `""`）；`\returns` 提到 NULL 的结果同样必须在 `nullDistinctResults`（NULL 表示“未设置”，额外生成 `<Name>OK` 返回 `(string, bool)`，原函数不变）或 `nullFailureResults`（仅表示失败/无此项，`""` 足够）中分类。`CheckNullPolicy` 会在 `Generate` 和 `internal/bindgen` 测试里校验分类表既不缺项也无过期项；文档里提到 `SDL_free` 的非 const 返回值，拷贝后调用 `Free`。
@@ -97,7 +102,7 @@ sdl/*_gen.go  bind_gen.go  layout_gen_test.go
 
 ### 加载与缺失符号（手写，`sdl/loader*.go`）
 
-`register(fptr, symbol)` 用 `Dlsym`（Windows 用 `syscall.GetProcAddress`）找符号；找不到则安装一个会 panic 并给出明确信息的桩函数，并记录到 `missing`，`Available()` 据此回答。这样用较新 release 头文件生成的绑定也能在较旧的动态库上加载。当加载的库版本恰好等于 `SDL_VERSION` 时，`sdl/abi_test.go` 要求 `allBindings()` 的每个符号都存在（SDL 的 dynapi 表在所有平台导出全部函数），用来发现头文件与库之间的漂移。
+`register(fptr, symbol)`（RegisterFunc 形式）与 `registerAddr(&addr, symbol)`（直接调用形式）用 `Dlsym`（Windows 用 `syscall.GetProcAddress`）找符号；找不到则安装一个会 panic 并给出明确信息的桩函数，并记录到 `missing`，`Available()` 据此回答。这样用较新 release 头文件生成的绑定也能在较旧的动态库上加载。当加载的库版本恰好等于 `SDL_VERSION` 时，`sdl/abi_test.go` 要求 `allBindings()` 的每个符号都存在（SDL 的 dynapi 表在所有平台导出全部函数），用来发现头文件与库之间的漂移。
 
 ### 回调（`decls.go: emitCallback`）
 

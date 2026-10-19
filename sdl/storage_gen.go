@@ -47,7 +47,14 @@ type StorageInterface struct {
 	SpaceRemaining uintptr
 }
 
-var fnOpenTitleStorage func(override *byte, props PropertiesID) *Storage
+var addrOpenTitleStorage uintptr
+
+func fnOpenTitleStorage(override *byte, props PropertiesID) *Storage {
+	if addrOpenTitleStorage == 0 {
+		missingSymbol("SDL_OpenTitleStorage")
+	}
+	return (*Storage)(cptr(call2(addrOpenTitleStorage, uintptr(unsafe.Pointer(override)), uintptr(props))))
+}
 
 // Opens up a read-only container for the application's filesystem.
 //
@@ -70,7 +77,14 @@ func OpenTitleStorage(override *string, props PropertiesID) *Storage {
 	return fnOpenTitleStorage(cstrPtr(override), props)
 }
 
-var fnOpenUserStorage func(org *byte, app *byte, props PropertiesID) *Storage
+var addrOpenUserStorage uintptr
+
+func fnOpenUserStorage(org *byte, app *byte, props PropertiesID) *Storage {
+	if addrOpenUserStorage == 0 {
+		missingSymbol("SDL_OpenUserStorage")
+	}
+	return (*Storage)(cptr(call3(addrOpenUserStorage, uintptr(unsafe.Pointer(org)), uintptr(unsafe.Pointer(app)), uintptr(props))))
+}
 
 // Opens up a container for a user's unique read/write filesystem.
 //
@@ -93,7 +107,14 @@ func OpenUserStorage(org string, app string, props PropertiesID) *Storage {
 	return fnOpenUserStorage(cstr(org), cstr(app), props)
 }
 
-var fnOpenFileStorage func(path *byte) *Storage
+var addrOpenFileStorage uintptr
+
+func fnOpenFileStorage(path *byte) *Storage {
+	if addrOpenFileStorage == 0 {
+		missingSymbol("SDL_OpenFileStorage")
+	}
+	return (*Storage)(cptr(call1(addrOpenFileStorage, uintptr(unsafe.Pointer(path)))))
+}
 
 // Opens up a container for local filesystem storage.
 //
@@ -115,7 +136,14 @@ func OpenFileStorage(path string) *Storage {
 	return fnOpenFileStorage(cstrNull(path))
 }
 
-var fnOpenStorage func(iface *StorageInterface, userdata unsafe.Pointer) *Storage
+var addrOpenStorage uintptr
+
+func fnOpenStorage(iface *StorageInterface, userdata unsafe.Pointer) *Storage {
+	if addrOpenStorage == 0 {
+		missingSymbol("SDL_OpenStorage")
+	}
+	return (*Storage)(cptr(call2(addrOpenStorage, uintptr(unsafe.Pointer(iface)), uintptr(unsafe.Pointer(userdata)))))
+}
 
 // Opens up a container using a client-provided storage interface.
 //
@@ -142,7 +170,14 @@ func OpenStorage(iface *StorageInterface, userdata unsafe.Pointer) *Storage {
 	return fnOpenStorage(iface, userdata)
 }
 
-var fnCloseStorage func(storage *Storage) bool
+var addrCloseStorage uintptr
+
+func fnCloseStorage(storage *Storage) bool {
+	if addrCloseStorage == 0 {
+		missingSymbol("SDL_CloseStorage")
+	}
+	return uint8(call1(addrCloseStorage, uintptr(unsafe.Pointer(storage)))) != 0
+}
 
 // Closes and frees a storage container.
 //
@@ -158,7 +193,14 @@ func CloseStorage(storage *Storage) bool {
 	return fnCloseStorage(storage)
 }
 
-var fnStorageReady func(storage *Storage) bool
+var addrStorageReady uintptr
+
+func fnStorageReady(storage *Storage) bool {
+	if addrStorageReady == 0 {
+		missingSymbol("SDL_StorageReady")
+	}
+	return uint8(call1(addrStorageReady, uintptr(unsafe.Pointer(storage)))) != 0
+}
 
 // Checks if the storage container is ready to use.
 //
@@ -177,7 +219,14 @@ func StorageReady(storage *Storage) bool {
 	return fnStorageReady(storage)
 }
 
-var fnGetStorageFileSize func(storage *Storage, path *byte, length *uint64) bool
+var addrGetStorageFileSize uintptr
+
+func fnGetStorageFileSize(storage *Storage, path *byte, length *uint64) bool {
+	if addrGetStorageFileSize == 0 {
+		missingSymbol("SDL_GetStorageFileSize")
+	}
+	return uint8(call3(addrGetStorageFileSize, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(length)))) != 0
+}
 
 // Query the size of a file within a storage container.
 //
@@ -195,7 +244,14 @@ func GetStorageFileSize(storage *Storage, path string, length *uint64) bool {
 	return fnGetStorageFileSize(storage, cstr(path), length)
 }
 
-var fnReadStorageFile func(storage *Storage, path *byte, destination unsafe.Pointer, length uint64) bool
+var addrReadStorageFile uintptr
+
+func fnReadStorageFile(storage *Storage, path *byte, destination unsafe.Pointer, length uint64) bool {
+	if addrReadStorageFile == 0 {
+		missingSymbol("SDL_ReadStorageFile")
+	}
+	return uint8(call4(addrReadStorageFile, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(destination)), uintptr(length))) != 0
+}
 
 // Synchronously read a file from a storage container into a client-provided
 // buffer.
@@ -257,7 +313,14 @@ func ReadStorageFileSlice[T Number](storage *Storage, path string, b []T) bool {
 	return ret
 }
 
-var fnWriteStorageFile func(storage *Storage, path *byte, source unsafe.Pointer, length uint64) bool
+var addrWriteStorageFile uintptr
+
+func fnWriteStorageFile(storage *Storage, path *byte, source unsafe.Pointer, length uint64) bool {
+	if addrWriteStorageFile == 0 {
+		missingSymbol("SDL_WriteStorageFile")
+	}
+	return uint8(call4(addrWriteStorageFile, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(source)), uintptr(length))) != 0
+}
 
 // Synchronously write a file from client memory into a storage container.
 //
@@ -310,7 +373,14 @@ func WriteStorageFileSlice[T Number](storage *Storage, path string, b []T) bool 
 	return ret
 }
 
-var fnCreateStorageDirectory func(storage *Storage, path *byte) bool
+var addrCreateStorageDirectory uintptr
+
+func fnCreateStorageDirectory(storage *Storage, path *byte) bool {
+	if addrCreateStorageDirectory == 0 {
+		missingSymbol("SDL_CreateStorageDirectory")
+	}
+	return uint8(call2(addrCreateStorageDirectory, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Create a directory in a writable storage container.
 //
@@ -327,7 +397,14 @@ func CreateStorageDirectory(storage *Storage, path string) bool {
 	return fnCreateStorageDirectory(storage, cstr(path))
 }
 
-var fnEnumerateStorageDirectory func(storage *Storage, path *byte, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool
+var addrEnumerateStorageDirectory uintptr
+
+func fnEnumerateStorageDirectory(storage *Storage, path *byte, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool {
+	if addrEnumerateStorageDirectory == 0 {
+		missingSymbol("SDL_EnumerateStorageDirectory")
+	}
+	return uint8(call4(addrEnumerateStorageDirectory, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Enumerate a directory in a storage container through a callback function.
 //
@@ -361,7 +438,14 @@ func EnumerateStorageDirectory(storage *Storage, path string, callback Enumerate
 	return fnEnumerateStorageDirectory(storage, cstrNull(path), callback, userdata)
 }
 
-var fnRemoveStoragePath func(storage *Storage, path *byte) bool
+var addrRemoveStoragePath uintptr
+
+func fnRemoveStoragePath(storage *Storage, path *byte) bool {
+	if addrRemoveStoragePath == 0 {
+		missingSymbol("SDL_RemoveStoragePath")
+	}
+	return uint8(call2(addrRemoveStoragePath, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)))) != 0
+}
 
 // Remove a file or an empty directory in a writable storage container.
 //
@@ -378,7 +462,14 @@ func RemoveStoragePath(storage *Storage, path string) bool {
 	return fnRemoveStoragePath(storage, cstr(path))
 }
 
-var fnRenameStoragePath func(storage *Storage, oldpath *byte, newpath *byte) bool
+var addrRenameStoragePath uintptr
+
+func fnRenameStoragePath(storage *Storage, oldpath *byte, newpath *byte) bool {
+	if addrRenameStoragePath == 0 {
+		missingSymbol("SDL_RenameStoragePath")
+	}
+	return uint8(call3(addrRenameStoragePath, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(oldpath)), uintptr(unsafe.Pointer(newpath)))) != 0
+}
 
 // Rename a file or directory in a writable storage container.
 //
@@ -396,7 +487,14 @@ func RenameStoragePath(storage *Storage, oldpath string, newpath string) bool {
 	return fnRenameStoragePath(storage, cstr(oldpath), cstr(newpath))
 }
 
-var fnCopyStorageFile func(storage *Storage, oldpath *byte, newpath *byte) bool
+var addrCopyStorageFile uintptr
+
+func fnCopyStorageFile(storage *Storage, oldpath *byte, newpath *byte) bool {
+	if addrCopyStorageFile == 0 {
+		missingSymbol("SDL_CopyStorageFile")
+	}
+	return uint8(call3(addrCopyStorageFile, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(oldpath)), uintptr(unsafe.Pointer(newpath)))) != 0
+}
 
 // Copy a file in a writable storage container.
 //
@@ -414,7 +512,14 @@ func CopyStorageFile(storage *Storage, oldpath string, newpath string) bool {
 	return fnCopyStorageFile(storage, cstr(oldpath), cstr(newpath))
 }
 
-var fnGetStoragePathInfo func(storage *Storage, path *byte, info *PathInfo) bool
+var addrGetStoragePathInfo uintptr
+
+func fnGetStoragePathInfo(storage *Storage, path *byte, info *PathInfo) bool {
+	if addrGetStoragePathInfo == 0 {
+		missingSymbol("SDL_GetStoragePathInfo")
+	}
+	return uint8(call3(addrGetStoragePathInfo, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(info)))) != 0
+}
 
 // Get information about a filesystem path in a storage container.
 //
@@ -432,7 +537,14 @@ func GetStoragePathInfo(storage *Storage, path string, info *PathInfo) bool {
 	return fnGetStoragePathInfo(storage, cstr(path), info)
 }
 
-var fnGetStorageSpaceRemaining func(storage *Storage) uint64
+var addrGetStorageSpaceRemaining uintptr
+
+func fnGetStorageSpaceRemaining(storage *Storage) uint64 {
+	if addrGetStorageSpaceRemaining == 0 {
+		missingSymbol("SDL_GetStorageSpaceRemaining")
+	}
+	return uint64(call1(addrGetStorageSpaceRemaining, uintptr(unsafe.Pointer(storage))))
+}
 
 // Queries the remaining space in a storage container.
 //
@@ -448,7 +560,14 @@ func GetStorageSpaceRemaining(storage *Storage) uint64 {
 	return fnGetStorageSpaceRemaining(storage)
 }
 
-var fnGlobStorageDirectory func(storage *Storage, path *byte, pattern *byte, flags GlobFlags, count *int32) **byte
+var addrGlobStorageDirectory uintptr
+
+func fnGlobStorageDirectory(storage *Storage, path *byte, pattern *byte, flags GlobFlags, count *int32) **byte {
+	if addrGlobStorageDirectory == 0 {
+		missingSymbol("SDL_GlobStorageDirectory")
+	}
+	return (**byte)(cptr(call5(addrGlobStorageDirectory, uintptr(unsafe.Pointer(storage)), uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(pattern)), uintptr(flags), uintptr(unsafe.Pointer(count)))))
+}
 
 // Enumerate a directory tree, filtered by pattern, and return a list.
 //

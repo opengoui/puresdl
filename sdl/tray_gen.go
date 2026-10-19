@@ -77,7 +77,14 @@ const (
 	TRAYENTRY_CHECKED TrayEntryFlags = 0x40000000
 )
 
-var fnCreateTray func(icon *Surface, tooltip *byte) *Tray
+var addrCreateTray uintptr
+
+func fnCreateTray(icon *Surface, tooltip *byte) *Tray {
+	if addrCreateTray == 0 {
+		missingSymbol("SDL_CreateTray")
+	}
+	return (*Tray)(cptr(call2(addrCreateTray, uintptr(unsafe.Pointer(icon)), uintptr(unsafe.Pointer(tooltip)))))
+}
 
 // Create an icon to be placed in the operating system's tray, or equivalent.
 //
@@ -104,7 +111,14 @@ func CreateTray(icon *Surface, tooltip string) *Tray {
 	return fnCreateTray(icon, cstrNull(tooltip))
 }
 
-var fnSetTrayIcon func(tray *Tray, icon *Surface)
+var addrSetTrayIcon uintptr
+
+func fnSetTrayIcon(tray *Tray, icon *Surface) {
+	if addrSetTrayIcon == 0 {
+		missingSymbol("SDL_SetTrayIcon")
+	}
+	call2(addrSetTrayIcon, uintptr(unsafe.Pointer(tray)), uintptr(unsafe.Pointer(icon)))
+}
 
 // Updates the system tray icon's icon.
 //
@@ -121,7 +135,14 @@ func SetTrayIcon(tray *Tray, icon *Surface) {
 	fnSetTrayIcon(tray, icon)
 }
 
-var fnSetTrayTooltip func(tray *Tray, tooltip *byte)
+var addrSetTrayTooltip uintptr
+
+func fnSetTrayTooltip(tray *Tray, tooltip *byte) {
+	if addrSetTrayTooltip == 0 {
+		missingSymbol("SDL_SetTrayTooltip")
+	}
+	call2(addrSetTrayTooltip, uintptr(unsafe.Pointer(tray)), uintptr(unsafe.Pointer(tooltip)))
+}
 
 // Updates the system tray icon's tooltip.
 //
@@ -140,7 +161,14 @@ func SetTrayTooltip(tray *Tray, tooltip string) {
 	fnSetTrayTooltip(tray, cstrNull(tooltip))
 }
 
-var fnCreateTrayMenu func(tray *Tray) *TrayMenu
+var addrCreateTrayMenu uintptr
+
+func fnCreateTrayMenu(tray *Tray) *TrayMenu {
+	if addrCreateTrayMenu == 0 {
+		missingSymbol("SDL_CreateTrayMenu")
+	}
+	return (*TrayMenu)(cptr(call1(addrCreateTrayMenu, uintptr(unsafe.Pointer(tray)))))
+}
 
 // Create a menu for a system tray.
 //
@@ -165,7 +193,14 @@ func CreateTrayMenu(tray *Tray) *TrayMenu {
 	return fnCreateTrayMenu(tray)
 }
 
-var fnCreateTraySubmenu func(entry *TrayEntry) *TrayMenu
+var addrCreateTraySubmenu uintptr
+
+func fnCreateTraySubmenu(entry *TrayEntry) *TrayMenu {
+	if addrCreateTraySubmenu == 0 {
+		missingSymbol("SDL_CreateTraySubmenu")
+	}
+	return (*TrayMenu)(cptr(call1(addrCreateTraySubmenu, uintptr(unsafe.Pointer(entry)))))
+}
 
 // Create a submenu for a system tray entry.
 //
@@ -190,7 +225,14 @@ func CreateTraySubmenu(entry *TrayEntry) *TrayMenu {
 	return fnCreateTraySubmenu(entry)
 }
 
-var fnGetTrayMenu func(tray *Tray) *TrayMenu
+var addrGetTrayMenu uintptr
+
+func fnGetTrayMenu(tray *Tray) *TrayMenu {
+	if addrGetTrayMenu == 0 {
+		missingSymbol("SDL_GetTrayMenu")
+	}
+	return (*TrayMenu)(cptr(call1(addrGetTrayMenu, uintptr(unsafe.Pointer(tray)))))
+}
 
 // Gets a previously created tray menu.
 //
@@ -216,7 +258,14 @@ func GetTrayMenu(tray *Tray) *TrayMenu {
 	return fnGetTrayMenu(tray)
 }
 
-var fnGetTraySubmenu func(entry *TrayEntry) *TrayMenu
+var addrGetTraySubmenu uintptr
+
+func fnGetTraySubmenu(entry *TrayEntry) *TrayMenu {
+	if addrGetTraySubmenu == 0 {
+		missingSymbol("SDL_GetTraySubmenu")
+	}
+	return (*TrayMenu)(cptr(call1(addrGetTraySubmenu, uintptr(unsafe.Pointer(entry)))))
+}
 
 // Gets a previously created tray entry submenu.
 //
@@ -242,7 +291,14 @@ func GetTraySubmenu(entry *TrayEntry) *TrayMenu {
 	return fnGetTraySubmenu(entry)
 }
 
-var fnGetTrayEntries func(menu *TrayMenu, count *int32) **TrayEntry
+var addrGetTrayEntries uintptr
+
+func fnGetTrayEntries(menu *TrayMenu, count *int32) **TrayEntry {
+	if addrGetTrayEntries == 0 {
+		missingSymbol("SDL_GetTrayEntries")
+	}
+	return (**TrayEntry)(cptr(call2(addrGetTrayEntries, uintptr(unsafe.Pointer(menu)), uintptr(unsafe.Pointer(count)))))
+}
 
 // Returns a list of entries in the menu, in order.
 //
@@ -261,7 +317,14 @@ func GetTrayEntries(menu *TrayMenu, count *int32) **TrayEntry {
 	return fnGetTrayEntries(menu, count)
 }
 
-var fnRemoveTrayEntry func(entry *TrayEntry)
+var addrRemoveTrayEntry uintptr
+
+func fnRemoveTrayEntry(entry *TrayEntry) {
+	if addrRemoveTrayEntry == 0 {
+		missingSymbol("SDL_RemoveTrayEntry")
+	}
+	call1(addrRemoveTrayEntry, uintptr(unsafe.Pointer(entry)))
+}
 
 // Removes a tray entry.
 //
@@ -277,7 +340,14 @@ func RemoveTrayEntry(entry *TrayEntry) {
 	fnRemoveTrayEntry(entry)
 }
 
-var fnInsertTrayEntryAt func(menu *TrayMenu, pos int32, label *byte, flags TrayEntryFlags) *TrayEntry
+var addrInsertTrayEntryAt uintptr
+
+func fnInsertTrayEntryAt(menu *TrayMenu, pos int32, label *byte, flags TrayEntryFlags) *TrayEntry {
+	if addrInsertTrayEntryAt == 0 {
+		missingSymbol("SDL_InsertTrayEntryAt")
+	}
+	return (*TrayEntry)(cptr(call4(addrInsertTrayEntryAt, uintptr(unsafe.Pointer(menu)), uintptr(pos), uintptr(unsafe.Pointer(label)), uintptr(flags))))
+}
 
 // Insert a tray entry at a given position.
 //
@@ -305,7 +375,14 @@ func InsertTrayEntryAt(menu *TrayMenu, pos int32, label *string, flags TrayEntry
 	return fnInsertTrayEntryAt(menu, pos, cstrPtr(label), flags)
 }
 
-var fnSetTrayEntryLabel func(entry *TrayEntry, label *byte)
+var addrSetTrayEntryLabel uintptr
+
+func fnSetTrayEntryLabel(entry *TrayEntry, label *byte) {
+	if addrSetTrayEntryLabel == 0 {
+		missingSymbol("SDL_SetTrayEntryLabel")
+	}
+	call2(addrSetTrayEntryLabel, uintptr(unsafe.Pointer(entry)), uintptr(unsafe.Pointer(label)))
+}
 
 // Sets the label of an entry.
 //
@@ -327,7 +404,14 @@ func SetTrayEntryLabel(entry *TrayEntry, label string) {
 	fnSetTrayEntryLabel(entry, cstr(label))
 }
 
-var fnGetTrayEntryLabel func(entry *TrayEntry) *byte
+var addrGetTrayEntryLabel uintptr
+
+func fnGetTrayEntryLabel(entry *TrayEntry) *byte {
+	if addrGetTrayEntryLabel == 0 {
+		missingSymbol("SDL_GetTrayEntryLabel")
+	}
+	return (*byte)(cptr(call1(addrGetTrayEntryLabel, uintptr(unsafe.Pointer(entry)))))
+}
 
 // Gets the label of an entry.
 //
@@ -347,7 +431,14 @@ func GetTrayEntryLabel(entry *TrayEntry) string {
 	return GoString(fnGetTrayEntryLabel(entry))
 }
 
-var fnSetTrayEntryChecked func(entry *TrayEntry, checked bool)
+var addrSetTrayEntryChecked uintptr
+
+func fnSetTrayEntryChecked(entry *TrayEntry, checked bool) {
+	if addrSetTrayEntryChecked == 0 {
+		missingSymbol("SDL_SetTrayEntryChecked")
+	}
+	call2(addrSetTrayEntryChecked, uintptr(unsafe.Pointer(entry)), cbool(checked))
+}
 
 // Sets whether or not an entry is checked.
 //
@@ -366,7 +457,14 @@ func SetTrayEntryChecked(entry *TrayEntry, checked bool) {
 	fnSetTrayEntryChecked(entry, checked)
 }
 
-var fnGetTrayEntryChecked func(entry *TrayEntry) bool
+var addrGetTrayEntryChecked uintptr
+
+func fnGetTrayEntryChecked(entry *TrayEntry) bool {
+	if addrGetTrayEntryChecked == 0 {
+		missingSymbol("SDL_GetTrayEntryChecked")
+	}
+	return uint8(call1(addrGetTrayEntryChecked, uintptr(unsafe.Pointer(entry)))) != 0
+}
 
 // Gets whether or not an entry is checked.
 //
@@ -386,7 +484,14 @@ func GetTrayEntryChecked(entry *TrayEntry) bool {
 	return fnGetTrayEntryChecked(entry)
 }
 
-var fnSetTrayEntryEnabled func(entry *TrayEntry, enabled bool)
+var addrSetTrayEntryEnabled uintptr
+
+func fnSetTrayEntryEnabled(entry *TrayEntry, enabled bool) {
+	if addrSetTrayEntryEnabled == 0 {
+		missingSymbol("SDL_SetTrayEntryEnabled")
+	}
+	call2(addrSetTrayEntryEnabled, uintptr(unsafe.Pointer(entry)), cbool(enabled))
+}
 
 // Sets whether or not an entry is enabled.
 //
@@ -403,7 +508,14 @@ func SetTrayEntryEnabled(entry *TrayEntry, enabled bool) {
 	fnSetTrayEntryEnabled(entry, enabled)
 }
 
-var fnGetTrayEntryEnabled func(entry *TrayEntry) bool
+var addrGetTrayEntryEnabled uintptr
+
+func fnGetTrayEntryEnabled(entry *TrayEntry) bool {
+	if addrGetTrayEntryEnabled == 0 {
+		missingSymbol("SDL_GetTrayEntryEnabled")
+	}
+	return uint8(call1(addrGetTrayEntryEnabled, uintptr(unsafe.Pointer(entry)))) != 0
+}
 
 // Gets whether or not an entry is enabled.
 //
@@ -421,7 +533,14 @@ func GetTrayEntryEnabled(entry *TrayEntry) bool {
 	return fnGetTrayEntryEnabled(entry)
 }
 
-var fnSetTrayEntryCallback func(entry *TrayEntry, callback TrayCallback, userdata unsafe.Pointer)
+var addrSetTrayEntryCallback uintptr
+
+func fnSetTrayEntryCallback(entry *TrayEntry, callback TrayCallback, userdata unsafe.Pointer) {
+	if addrSetTrayEntryCallback == 0 {
+		missingSymbol("SDL_SetTrayEntryCallback")
+	}
+	call3(addrSetTrayEntryCallback, uintptr(unsafe.Pointer(entry)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))
+}
 
 // Sets a callback to be invoked when the entry is selected.
 //
@@ -441,7 +560,14 @@ func SetTrayEntryCallback(entry *TrayEntry, callback TrayCallback, userdata unsa
 	fnSetTrayEntryCallback(entry, callback, userdata)
 }
 
-var fnClickTrayEntry func(entry *TrayEntry)
+var addrClickTrayEntry uintptr
+
+func fnClickTrayEntry(entry *TrayEntry) {
+	if addrClickTrayEntry == 0 {
+		missingSymbol("SDL_ClickTrayEntry")
+	}
+	call1(addrClickTrayEntry, uintptr(unsafe.Pointer(entry)))
+}
 
 // Simulate a click on a tray entry.
 //
@@ -455,7 +581,14 @@ func ClickTrayEntry(entry *TrayEntry) {
 	fnClickTrayEntry(entry)
 }
 
-var fnDestroyTray func(tray *Tray)
+var addrDestroyTray uintptr
+
+func fnDestroyTray(tray *Tray) {
+	if addrDestroyTray == 0 {
+		missingSymbol("SDL_DestroyTray")
+	}
+	call1(addrDestroyTray, uintptr(unsafe.Pointer(tray)))
+}
 
 // Destroys a tray object.
 //
@@ -473,7 +606,14 @@ func DestroyTray(tray *Tray) {
 	fnDestroyTray(tray)
 }
 
-var fnGetTrayEntryParent func(entry *TrayEntry) *TrayMenu
+var addrGetTrayEntryParent uintptr
+
+func fnGetTrayEntryParent(entry *TrayEntry) *TrayMenu {
+	if addrGetTrayEntryParent == 0 {
+		missingSymbol("SDL_GetTrayEntryParent")
+	}
+	return (*TrayMenu)(cptr(call1(addrGetTrayEntryParent, uintptr(unsafe.Pointer(entry)))))
+}
 
 // Gets the menu containing a certain tray entry.
 //
@@ -491,7 +631,14 @@ func GetTrayEntryParent(entry *TrayEntry) *TrayMenu {
 	return fnGetTrayEntryParent(entry)
 }
 
-var fnGetTrayMenuParentEntry func(menu *TrayMenu) *TrayEntry
+var addrGetTrayMenuParentEntry uintptr
+
+func fnGetTrayMenuParentEntry(menu *TrayMenu) *TrayEntry {
+	if addrGetTrayMenuParentEntry == 0 {
+		missingSymbol("SDL_GetTrayMenuParentEntry")
+	}
+	return (*TrayEntry)(cptr(call1(addrGetTrayMenuParentEntry, uintptr(unsafe.Pointer(menu)))))
+}
 
 // Gets the entry for which the menu is a submenu, if the current menu is a
 // submenu.
@@ -513,7 +660,14 @@ func GetTrayMenuParentEntry(menu *TrayMenu) *TrayEntry {
 	return fnGetTrayMenuParentEntry(menu)
 }
 
-var fnGetTrayMenuParentTray func(menu *TrayMenu) *Tray
+var addrGetTrayMenuParentTray uintptr
+
+func fnGetTrayMenuParentTray(menu *TrayMenu) *Tray {
+	if addrGetTrayMenuParentTray == 0 {
+		missingSymbol("SDL_GetTrayMenuParentTray")
+	}
+	return (*Tray)(cptr(call1(addrGetTrayMenuParentTray, uintptr(unsafe.Pointer(menu)))))
+}
 
 // Gets the tray for which this menu is the first-level menu, if the current
 // menu isn't a submenu.
@@ -535,7 +689,14 @@ func GetTrayMenuParentTray(menu *TrayMenu) *Tray {
 	return fnGetTrayMenuParentTray(menu)
 }
 
-var fnUpdateTrays func()
+var addrUpdateTrays uintptr
+
+func fnUpdateTrays() {
+	if addrUpdateTrays == 0 {
+		missingSymbol("SDL_UpdateTrays")
+	}
+	call0(addrUpdateTrays)
+}
 
 // Update the trays.
 //

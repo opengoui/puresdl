@@ -124,7 +124,8 @@ func TestNullPolicyCoversHeaders(t *testing.T) {
 	seen := false
 	for _, d := range dialog.Decls {
 		fd, ok := d.(*ast.FuncDecl)
-		if !ok {
+		// Direct-call raw functions (fn<Name>) take the C *byte by design.
+		if !ok || strings.HasPrefix(fd.Name.Name, "fn") {
 			continue
 		}
 		for _, fld := range fd.Type.Params.List {

@@ -489,7 +489,14 @@ const (
 	ALPHA_TRANSPARENT_FLOAT = 0.0
 )
 
-var fnGetPixelFormatName func(format PixelFormat) *byte
+var addrGetPixelFormatName uintptr
+
+func fnGetPixelFormatName(format PixelFormat) *byte {
+	if addrGetPixelFormatName == 0 {
+		missingSymbol("SDL_GetPixelFormatName")
+	}
+	return (*byte)(cptr(call1(addrGetPixelFormatName, uintptr(format))))
+}
 
 // Get the human readable name of a pixel format.
 //
@@ -505,7 +512,14 @@ func GetPixelFormatName(format PixelFormat) string {
 	return GoString(fnGetPixelFormatName(format))
 }
 
-var fnGetMasksForPixelFormat func(format PixelFormat, bpp *int32, Rmask *uint32, Gmask *uint32, Bmask *uint32, Amask *uint32) bool
+var addrGetMasksForPixelFormat uintptr
+
+func fnGetMasksForPixelFormat(format PixelFormat, bpp *int32, Rmask *uint32, Gmask *uint32, Bmask *uint32, Amask *uint32) bool {
+	if addrGetMasksForPixelFormat == 0 {
+		missingSymbol("SDL_GetMasksForPixelFormat")
+	}
+	return uint8(call6(addrGetMasksForPixelFormat, uintptr(format), uintptr(unsafe.Pointer(bpp)), uintptr(unsafe.Pointer(Rmask)), uintptr(unsafe.Pointer(Gmask)), uintptr(unsafe.Pointer(Bmask)), uintptr(unsafe.Pointer(Amask)))) != 0
+}
 
 // Convert one of the enumerated pixel formats to a bpp value and RGBA masks.
 //
@@ -528,7 +542,14 @@ func GetMasksForPixelFormat(format PixelFormat, bpp *int32, Rmask *uint32, Gmask
 	return fnGetMasksForPixelFormat(format, bpp, Rmask, Gmask, Bmask, Amask)
 }
 
-var fnGetPixelFormatForMasks func(bpp int32, Rmask uint32, Gmask uint32, Bmask uint32, Amask uint32) PixelFormat
+var addrGetPixelFormatForMasks uintptr
+
+func fnGetPixelFormatForMasks(bpp int32, Rmask uint32, Gmask uint32, Bmask uint32, Amask uint32) PixelFormat {
+	if addrGetPixelFormatForMasks == 0 {
+		missingSymbol("SDL_GetPixelFormatForMasks")
+	}
+	return PixelFormat(call5(addrGetPixelFormatForMasks, uintptr(bpp), uintptr(Rmask), uintptr(Gmask), uintptr(Bmask), uintptr(Amask)))
+}
 
 // Convert a bpp value and RGBA masks to an enumerated pixel format.
 //
@@ -553,7 +574,14 @@ func GetPixelFormatForMasks(bpp int32, Rmask uint32, Gmask uint32, Bmask uint32,
 	return fnGetPixelFormatForMasks(bpp, Rmask, Gmask, Bmask, Amask)
 }
 
-var fnGetPixelFormatDetails func(format PixelFormat) *PixelFormatDetails
+var addrGetPixelFormatDetails uintptr
+
+func fnGetPixelFormatDetails(format PixelFormat) *PixelFormatDetails {
+	if addrGetPixelFormatDetails == 0 {
+		missingSymbol("SDL_GetPixelFormatDetails")
+	}
+	return (*PixelFormatDetails)(cptr(call1(addrGetPixelFormatDetails, uintptr(format))))
+}
 
 // Create an PixelFormatDetails structure corresponding to a pixel format.
 //
@@ -573,7 +601,14 @@ func GetPixelFormatDetails(format PixelFormat) *PixelFormatDetails {
 	return fnGetPixelFormatDetails(format)
 }
 
-var fnCreatePalette func(ncolors int32) *Palette
+var addrCreatePalette uintptr
+
+func fnCreatePalette(ncolors int32) *Palette {
+	if addrCreatePalette == 0 {
+		missingSymbol("SDL_CreatePalette")
+	}
+	return (*Palette)(cptr(call1(addrCreatePalette, uintptr(ncolors))))
+}
 
 // Create a palette structure with the specified number of color entries.
 //
@@ -593,7 +628,14 @@ func CreatePalette(ncolors int32) *Palette {
 	return fnCreatePalette(ncolors)
 }
 
-var fnSetPaletteColors func(palette *Palette, colors *Color, firstcolor int32, ncolors int32) bool
+var addrSetPaletteColors uintptr
+
+func fnSetPaletteColors(palette *Palette, colors *Color, firstcolor int32, ncolors int32) bool {
+	if addrSetPaletteColors == 0 {
+		missingSymbol("SDL_SetPaletteColors")
+	}
+	return uint8(call4(addrSetPaletteColors, uintptr(unsafe.Pointer(palette)), uintptr(unsafe.Pointer(colors)), uintptr(firstcolor), uintptr(ncolors))) != 0
+}
 
 // Set a range of colors in a palette.
 //
@@ -612,7 +654,14 @@ func SetPaletteColors(palette *Palette, colors *Color, firstcolor int32, ncolors
 	return fnSetPaletteColors(palette, colors, firstcolor, ncolors)
 }
 
-var fnDestroyPalette func(palette *Palette)
+var addrDestroyPalette uintptr
+
+func fnDestroyPalette(palette *Palette) {
+	if addrDestroyPalette == 0 {
+		missingSymbol("SDL_DestroyPalette")
+	}
+	call1(addrDestroyPalette, uintptr(unsafe.Pointer(palette)))
+}
 
 // Free a palette created with CreatePalette().
 //
@@ -628,7 +677,14 @@ func DestroyPalette(palette *Palette) {
 	fnDestroyPalette(palette)
 }
 
-var fnMapRGB func(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b uint8) uint32
+var addrMapRGB uintptr
+
+func fnMapRGB(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b uint8) uint32 {
+	if addrMapRGB == 0 {
+		missingSymbol("SDL_MapRGB")
+	}
+	return uint32(call5(addrMapRGB, uintptr(unsafe.Pointer(format)), uintptr(unsafe.Pointer(palette)), uintptr(r), uintptr(g), uintptr(b)))
+}
 
 // Map an RGB triple to an opaque pixel value for a given pixel format.
 //
@@ -665,7 +721,14 @@ func MapRGB(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b ui
 	return fnMapRGB(format, palette, r, g, b)
 }
 
-var fnMapRGBA func(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b uint8, a uint8) uint32
+var addrMapRGBA uintptr
+
+func fnMapRGBA(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b uint8, a uint8) uint32 {
+	if addrMapRGBA == 0 {
+		missingSymbol("SDL_MapRGBA")
+	}
+	return uint32(call6(addrMapRGBA, uintptr(unsafe.Pointer(format)), uintptr(unsafe.Pointer(palette)), uintptr(r), uintptr(g), uintptr(b), uintptr(a)))
+}
 
 // Map an RGBA quadruple to a pixel value for a given pixel format.
 //
@@ -703,7 +766,14 @@ func MapRGBA(format *PixelFormatDetails, palette *Palette, r uint8, g uint8, b u
 	return fnMapRGBA(format, palette, r, g, b, a)
 }
 
-var fnGetRGB func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8)
+var addrGetRGB uintptr
+
+func fnGetRGB(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8) {
+	if addrGetRGB == 0 {
+		missingSymbol("SDL_GetRGB")
+	}
+	call6(addrGetRGB, uintptr(pixelvalue), uintptr(unsafe.Pointer(format)), uintptr(unsafe.Pointer(palette)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)))
+}
 
 // Get RGB values from a pixel in the specified format.
 //
@@ -729,7 +799,14 @@ func GetRGB(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *
 	fnGetRGB(pixelvalue, format, palette, r, g, b)
 }
 
-var fnGetRGBA func(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8, a *uint8)
+var addrGetRGBA uintptr
+
+func fnGetRGBA(pixelvalue uint32, format *PixelFormatDetails, palette *Palette, r *uint8, g *uint8, b *uint8, a *uint8) {
+	if addrGetRGBA == 0 {
+		missingSymbol("SDL_GetRGBA")
+	}
+	call7(addrGetRGBA, uintptr(pixelvalue), uintptr(unsafe.Pointer(format)), uintptr(unsafe.Pointer(palette)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)), uintptr(unsafe.Pointer(a)))
+}
 
 // Get RGBA values from a pixel in the specified format.
 //

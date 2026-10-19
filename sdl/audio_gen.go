@@ -263,7 +263,14 @@ const (
 	PROP_AUDIOSTREAM_AUTO_CLEANUP_BOOLEAN               = "SDL.audiostream.auto_cleanup"
 )
 
-var fnGetNumAudioDrivers func() int32
+var addrGetNumAudioDrivers uintptr
+
+func fnGetNumAudioDrivers() int32 {
+	if addrGetNumAudioDrivers == 0 {
+		missingSymbol("SDL_GetNumAudioDrivers")
+	}
+	return int32(call0(addrGetNumAudioDrivers))
+}
 
 // Use this function to get the number of built-in audio drivers.
 //
@@ -288,7 +295,14 @@ func GetNumAudioDrivers() int32 {
 	return fnGetNumAudioDrivers()
 }
 
-var fnGetAudioDriver func(index int32) *byte
+var addrGetAudioDriver uintptr
+
+func fnGetAudioDriver(index int32) *byte {
+	if addrGetAudioDriver == 0 {
+		missingSymbol("SDL_GetAudioDriver")
+	}
+	return (*byte)(cptr(call1(addrGetAudioDriver, uintptr(index))))
+}
 
 // Use this function to get the name of a built in audio driver.
 //
@@ -314,7 +328,14 @@ func GetAudioDriver(index int32) string {
 	return GoString(fnGetAudioDriver(index))
 }
 
-var fnGetCurrentAudioDriver func() *byte
+var addrGetCurrentAudioDriver uintptr
+
+func fnGetCurrentAudioDriver() *byte {
+	if addrGetCurrentAudioDriver == 0 {
+		missingSymbol("SDL_GetCurrentAudioDriver")
+	}
+	return (*byte)(cptr(call0(addrGetCurrentAudioDriver)))
+}
 
 // Get the name of the current audio driver.
 //
@@ -331,7 +352,14 @@ func GetCurrentAudioDriver() string {
 	return GoString(fnGetCurrentAudioDriver())
 }
 
-var fnGetAudioPlaybackDevices func(count *int32) *AudioDeviceID
+var addrGetAudioPlaybackDevices uintptr
+
+func fnGetAudioPlaybackDevices(count *int32) *AudioDeviceID {
+	if addrGetAudioPlaybackDevices == 0 {
+		missingSymbol("SDL_GetAudioPlaybackDevices")
+	}
+	return (*AudioDeviceID)(cptr(call1(addrGetAudioPlaybackDevices, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently-connected audio playback devices.
 //
@@ -364,7 +392,14 @@ func GetAudioPlaybackDevices() []AudioDeviceID {
 	return copyFree(p, int(n))
 }
 
-var fnGetAudioRecordingDevices func(count *int32) *AudioDeviceID
+var addrGetAudioRecordingDevices uintptr
+
+func fnGetAudioRecordingDevices(count *int32) *AudioDeviceID {
+	if addrGetAudioRecordingDevices == 0 {
+		missingSymbol("SDL_GetAudioRecordingDevices")
+	}
+	return (*AudioDeviceID)(cptr(call1(addrGetAudioRecordingDevices, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently-connected audio recording devices.
 //
@@ -397,7 +432,14 @@ func GetAudioRecordingDevices() []AudioDeviceID {
 	return copyFree(p, int(n))
 }
 
-var fnGetAudioDeviceName func(devid AudioDeviceID) *byte
+var addrGetAudioDeviceName uintptr
+
+func fnGetAudioDeviceName(devid AudioDeviceID) *byte {
+	if addrGetAudioDeviceName == 0 {
+		missingSymbol("SDL_GetAudioDeviceName")
+	}
+	return (*byte)(cptr(call1(addrGetAudioDeviceName, uintptr(devid))))
+}
 
 // Get the human-readable name of a specific audio device.
 //
@@ -424,7 +466,14 @@ func GetAudioDeviceName(devid AudioDeviceID) string {
 	return GoString(fnGetAudioDeviceName(devid))
 }
 
-var fnGetAudioDeviceFormat func(devid AudioDeviceID, spec *AudioSpec, sample_frames *int32) bool
+var addrGetAudioDeviceFormat uintptr
+
+func fnGetAudioDeviceFormat(devid AudioDeviceID, spec *AudioSpec, sample_frames *int32) bool {
+	if addrGetAudioDeviceFormat == 0 {
+		missingSymbol("SDL_GetAudioDeviceFormat")
+	}
+	return uint8(call3(addrGetAudioDeviceFormat, uintptr(devid), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(sample_frames)))) != 0
+}
 
 // Get the current audio format of a specific audio device.
 //
@@ -461,7 +510,14 @@ func GetAudioDeviceFormat(devid AudioDeviceID, spec *AudioSpec, sample_frames *i
 	return fnGetAudioDeviceFormat(devid, spec, sample_frames)
 }
 
-var fnGetAudioDeviceChannelMap func(devid AudioDeviceID, count *int32) *int32
+var addrGetAudioDeviceChannelMap uintptr
+
+func fnGetAudioDeviceChannelMap(devid AudioDeviceID, count *int32) *int32 {
+	if addrGetAudioDeviceChannelMap == 0 {
+		missingSymbol("SDL_GetAudioDeviceChannelMap")
+	}
+	return (*int32)(cptr(call2(addrGetAudioDeviceChannelMap, uintptr(devid), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the current channel map of an audio device.
 //
@@ -490,7 +546,14 @@ func GetAudioDeviceChannelMap(devid AudioDeviceID) []int32 {
 	return copyFree(p, int(n))
 }
 
-var fnOpenAudioDevice func(devid AudioDeviceID, spec *AudioSpec) AudioDeviceID
+var addrOpenAudioDevice uintptr
+
+func fnOpenAudioDevice(devid AudioDeviceID, spec *AudioSpec) AudioDeviceID {
+	if addrOpenAudioDevice == 0 {
+		missingSymbol("SDL_OpenAudioDevice")
+	}
+	return AudioDeviceID(call2(addrOpenAudioDevice, uintptr(devid), uintptr(unsafe.Pointer(spec))))
+}
 
 // Open a specific audio device.
 //
@@ -564,7 +627,14 @@ func OpenAudioDevice(devid AudioDeviceID, spec *AudioSpec) AudioDeviceID {
 	return fnOpenAudioDevice(devid, spec)
 }
 
-var fnIsAudioDevicePhysical func(devid AudioDeviceID) bool
+var addrIsAudioDevicePhysical uintptr
+
+func fnIsAudioDevicePhysical(devid AudioDeviceID) bool {
+	if addrIsAudioDevicePhysical == 0 {
+		missingSymbol("SDL_IsAudioDevicePhysical")
+	}
+	return uint8(call1(addrIsAudioDevicePhysical, uintptr(devid))) != 0
+}
 
 // Determine if an audio device is physical (instead of logical).
 //
@@ -593,7 +663,14 @@ func IsAudioDevicePhysical(devid AudioDeviceID) bool {
 	return fnIsAudioDevicePhysical(devid)
 }
 
-var fnIsAudioDevicePlayback func(devid AudioDeviceID) bool
+var addrIsAudioDevicePlayback uintptr
+
+func fnIsAudioDevicePlayback(devid AudioDeviceID) bool {
+	if addrIsAudioDevicePlayback == 0 {
+		missingSymbol("SDL_IsAudioDevicePlayback")
+	}
+	return uint8(call1(addrIsAudioDevicePlayback, uintptr(devid))) != 0
+}
 
 // Determine if an audio device is a playback device (instead of recording).
 //
@@ -611,7 +688,14 @@ func IsAudioDevicePlayback(devid AudioDeviceID) bool {
 	return fnIsAudioDevicePlayback(devid)
 }
 
-var fnPauseAudioDevice func(devid AudioDeviceID) bool
+var addrPauseAudioDevice uintptr
+
+func fnPauseAudioDevice(devid AudioDeviceID) bool {
+	if addrPauseAudioDevice == 0 {
+		missingSymbol("SDL_PauseAudioDevice")
+	}
+	return uint8(call1(addrPauseAudioDevice, uintptr(devid))) != 0
+}
 
 // Use this function to pause audio playback on a specified device.
 //
@@ -644,7 +728,14 @@ func PauseAudioDevice(devid AudioDeviceID) bool {
 	return fnPauseAudioDevice(devid)
 }
 
-var fnResumeAudioDevice func(devid AudioDeviceID) bool
+var addrResumeAudioDevice uintptr
+
+func fnResumeAudioDevice(devid AudioDeviceID) bool {
+	if addrResumeAudioDevice == 0 {
+		missingSymbol("SDL_ResumeAudioDevice")
+	}
+	return uint8(call1(addrResumeAudioDevice, uintptr(devid))) != 0
+}
 
 // Use this function to unpause audio playback on a specified device.
 //
@@ -674,7 +765,14 @@ func ResumeAudioDevice(devid AudioDeviceID) bool {
 	return fnResumeAudioDevice(devid)
 }
 
-var fnAudioDevicePaused func(devid AudioDeviceID) bool
+var addrAudioDevicePaused uintptr
+
+func fnAudioDevicePaused(devid AudioDeviceID) bool {
+	if addrAudioDevicePaused == 0 {
+		missingSymbol("SDL_AudioDevicePaused")
+	}
+	return uint8(call1(addrAudioDevicePaused, uintptr(devid))) != 0
+}
 
 // Use this function to query if an audio device is paused.
 //
@@ -762,7 +860,14 @@ func SetAudioDeviceGain(devid AudioDeviceID, gain float32) bool {
 	return fnSetAudioDeviceGain(devid, gain)
 }
 
-var fnCloseAudioDevice func(devid AudioDeviceID)
+var addrCloseAudioDevice uintptr
+
+func fnCloseAudioDevice(devid AudioDeviceID) {
+	if addrCloseAudioDevice == 0 {
+		missingSymbol("SDL_CloseAudioDevice")
+	}
+	call1(addrCloseAudioDevice, uintptr(devid))
+}
 
 // Close a previously-opened audio device.
 //
@@ -785,7 +890,14 @@ func CloseAudioDevice(devid AudioDeviceID) {
 	fnCloseAudioDevice(devid)
 }
 
-var fnBindAudioStreams func(devid AudioDeviceID, streams **AudioStream, num_streams int32) bool
+var addrBindAudioStreams uintptr
+
+func fnBindAudioStreams(devid AudioDeviceID, streams **AudioStream, num_streams int32) bool {
+	if addrBindAudioStreams == 0 {
+		missingSymbol("SDL_BindAudioStreams")
+	}
+	return uint8(call3(addrBindAudioStreams, uintptr(devid), uintptr(unsafe.Pointer(streams)), uintptr(num_streams))) != 0
+}
 
 // Bind a list of audio streams to an audio device.
 //
@@ -826,7 +938,14 @@ func BindAudioStreams(devid AudioDeviceID, streams **AudioStream, num_streams in
 	return fnBindAudioStreams(devid, streams, num_streams)
 }
 
-var fnBindAudioStream func(devid AudioDeviceID, stream *AudioStream) bool
+var addrBindAudioStream uintptr
+
+func fnBindAudioStream(devid AudioDeviceID, stream *AudioStream) bool {
+	if addrBindAudioStream == 0 {
+		missingSymbol("SDL_BindAudioStream")
+	}
+	return uint8(call2(addrBindAudioStream, uintptr(devid), uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Bind a single audio stream to an audio device.
 //
@@ -848,7 +967,14 @@ func BindAudioStream(devid AudioDeviceID, stream *AudioStream) bool {
 	return fnBindAudioStream(devid, stream)
 }
 
-var fnUnbindAudioStreams func(streams **AudioStream, num_streams int32)
+var addrUnbindAudioStreams uintptr
+
+func fnUnbindAudioStreams(streams **AudioStream, num_streams int32) {
+	if addrUnbindAudioStreams == 0 {
+		missingSymbol("SDL_UnbindAudioStreams")
+	}
+	call2(addrUnbindAudioStreams, uintptr(unsafe.Pointer(streams)), uintptr(num_streams))
+}
 
 // Unbind a list of audio streams from their audio devices.
 //
@@ -871,7 +997,14 @@ func UnbindAudioStreams(streams **AudioStream, num_streams int32) {
 	fnUnbindAudioStreams(streams, num_streams)
 }
 
-var fnUnbindAudioStream func(stream *AudioStream)
+var addrUnbindAudioStream uintptr
+
+func fnUnbindAudioStream(stream *AudioStream) {
+	if addrUnbindAudioStream == 0 {
+		missingSymbol("SDL_UnbindAudioStream")
+	}
+	call1(addrUnbindAudioStream, uintptr(unsafe.Pointer(stream)))
+}
 
 // Unbind a single audio stream from its audio device.
 //
@@ -890,7 +1023,14 @@ func UnbindAudioStream(stream *AudioStream) {
 	fnUnbindAudioStream(stream)
 }
 
-var fnGetAudioStreamDevice func(stream *AudioStream) AudioDeviceID
+var addrGetAudioStreamDevice uintptr
+
+func fnGetAudioStreamDevice(stream *AudioStream) AudioDeviceID {
+	if addrGetAudioStreamDevice == 0 {
+		missingSymbol("SDL_GetAudioStreamDevice")
+	}
+	return AudioDeviceID(call1(addrGetAudioStreamDevice, uintptr(unsafe.Pointer(stream))))
+}
 
 // Query an audio stream for its currently-bound device.
 //
@@ -914,7 +1054,14 @@ func GetAudioStreamDevice(stream *AudioStream) AudioDeviceID {
 	return fnGetAudioStreamDevice(stream)
 }
 
-var fnCreateAudioStream func(src_spec *AudioSpec, dst_spec *AudioSpec) *AudioStream
+var addrCreateAudioStream uintptr
+
+func fnCreateAudioStream(src_spec *AudioSpec, dst_spec *AudioSpec) *AudioStream {
+	if addrCreateAudioStream == 0 {
+		missingSymbol("SDL_CreateAudioStream")
+	}
+	return (*AudioStream)(cptr(call2(addrCreateAudioStream, uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))))
+}
 
 // Create a new audio stream.
 //
@@ -940,7 +1087,14 @@ func CreateAudioStream(src_spec *AudioSpec, dst_spec *AudioSpec) *AudioStream {
 	return fnCreateAudioStream(src_spec, dst_spec)
 }
 
-var fnGetAudioStreamProperties func(stream *AudioStream) PropertiesID
+var addrGetAudioStreamProperties uintptr
+
+func fnGetAudioStreamProperties(stream *AudioStream) PropertiesID {
+	if addrGetAudioStreamProperties == 0 {
+		missingSymbol("SDL_GetAudioStreamProperties")
+	}
+	return PropertiesID(call1(addrGetAudioStreamProperties, uintptr(unsafe.Pointer(stream))))
+}
 
 // Get the properties associated with an audio stream.
 //
@@ -967,7 +1121,14 @@ func GetAudioStreamProperties(stream *AudioStream) PropertiesID {
 	return fnGetAudioStreamProperties(stream)
 }
 
-var fnGetAudioStreamFormat func(stream *AudioStream, src_spec *AudioSpec, dst_spec *AudioSpec) bool
+var addrGetAudioStreamFormat uintptr
+
+func fnGetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *AudioSpec) bool {
+	if addrGetAudioStreamFormat == 0 {
+		missingSymbol("SDL_GetAudioStreamFormat")
+	}
+	return uint8(call3(addrGetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))) != 0
+}
 
 // Query the current format of an audio stream.
 //
@@ -987,7 +1148,14 @@ func GetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *Au
 	return fnGetAudioStreamFormat(stream, src_spec, dst_spec)
 }
 
-var fnSetAudioStreamFormat func(stream *AudioStream, src_spec *AudioSpec, dst_spec *AudioSpec) bool
+var addrSetAudioStreamFormat uintptr
+
+func fnSetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *AudioSpec) bool {
+	if addrSetAudioStreamFormat == 0 {
+		missingSymbol("SDL_SetAudioStreamFormat")
+	}
+	return uint8(call3(addrSetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))) != 0
+}
 
 // Change the input and output formats of an audio stream.
 //
@@ -1122,7 +1290,14 @@ func SetAudioStreamGain(stream *AudioStream, gain float32) bool {
 	return fnSetAudioStreamGain(stream, gain)
 }
 
-var fnGetAudioStreamInputChannelMap func(stream *AudioStream, count *int32) *int32
+var addrGetAudioStreamInputChannelMap uintptr
+
+func fnGetAudioStreamInputChannelMap(stream *AudioStream, count *int32) *int32 {
+	if addrGetAudioStreamInputChannelMap == 0 {
+		missingSymbol("SDL_GetAudioStreamInputChannelMap")
+	}
+	return (*int32)(cptr(call2(addrGetAudioStreamInputChannelMap, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the current input channel map of an audio stream.
 //
@@ -1151,7 +1326,14 @@ func GetAudioStreamInputChannelMap(stream *AudioStream) []int32 {
 	return copyFree(p, int(n))
 }
 
-var fnGetAudioStreamOutputChannelMap func(stream *AudioStream, count *int32) *int32
+var addrGetAudioStreamOutputChannelMap uintptr
+
+func fnGetAudioStreamOutputChannelMap(stream *AudioStream, count *int32) *int32 {
+	if addrGetAudioStreamOutputChannelMap == 0 {
+		missingSymbol("SDL_GetAudioStreamOutputChannelMap")
+	}
+	return (*int32)(cptr(call2(addrGetAudioStreamOutputChannelMap, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the current output channel map of an audio stream.
 //
@@ -1180,7 +1362,14 @@ func GetAudioStreamOutputChannelMap(stream *AudioStream) []int32 {
 	return copyFree(p, int(n))
 }
 
-var fnSetAudioStreamInputChannelMap func(stream *AudioStream, chmap *int32, count int32) bool
+var addrSetAudioStreamInputChannelMap uintptr
+
+func fnSetAudioStreamInputChannelMap(stream *AudioStream, chmap *int32, count int32) bool {
+	if addrSetAudioStreamInputChannelMap == 0 {
+		missingSymbol("SDL_SetAudioStreamInputChannelMap")
+	}
+	return uint8(call3(addrSetAudioStreamInputChannelMap, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(chmap)), uintptr(count))) != 0
+}
 
 // Set the current input channel map of an audio stream.
 //
@@ -1240,7 +1429,14 @@ func SetAudioStreamInputChannelMap(stream *AudioStream, chmap *int32, count int3
 	return fnSetAudioStreamInputChannelMap(stream, chmap, count)
 }
 
-var fnSetAudioStreamOutputChannelMap func(stream *AudioStream, chmap *int32, count int32) bool
+var addrSetAudioStreamOutputChannelMap uintptr
+
+func fnSetAudioStreamOutputChannelMap(stream *AudioStream, chmap *int32, count int32) bool {
+	if addrSetAudioStreamOutputChannelMap == 0 {
+		missingSymbol("SDL_SetAudioStreamOutputChannelMap")
+	}
+	return uint8(call3(addrSetAudioStreamOutputChannelMap, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(chmap)), uintptr(count))) != 0
+}
 
 // Set the current output channel map of an audio stream.
 //
@@ -1298,7 +1494,14 @@ func SetAudioStreamOutputChannelMap(stream *AudioStream, chmap *int32, count int
 	return fnSetAudioStreamOutputChannelMap(stream, chmap, count)
 }
 
-var fnPutAudioStreamData func(stream *AudioStream, buf unsafe.Pointer, len_ int32) bool
+var addrPutAudioStreamData uintptr
+
+func fnPutAudioStreamData(stream *AudioStream, buf unsafe.Pointer, len_ int32) bool {
+	if addrPutAudioStreamData == 0 {
+		missingSymbol("SDL_PutAudioStreamData")
+	}
+	return uint8(call3(addrPutAudioStreamData, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(buf)), uintptr(len_))) != 0
+}
 
 // Add data to the stream.
 //
@@ -1363,7 +1566,14 @@ func PutAudioStreamSlice[T Number](stream *AudioStream, b []T) bool {
 	return ret
 }
 
-var fnPutAudioStreamDataNoCopy func(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool
+var addrPutAudioStreamDataNoCopy uintptr
+
+func fnPutAudioStreamDataNoCopy(stream *AudioStream, buf unsafe.Pointer, len_ int32, callback AudioStreamDataCompleteCallback, userdata unsafe.Pointer) bool {
+	if addrPutAudioStreamDataNoCopy == 0 {
+		missingSymbol("SDL_PutAudioStreamDataNoCopy")
+	}
+	return uint8(call5(addrPutAudioStreamDataNoCopy, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(buf)), uintptr(len_), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Add external data to an audio stream without copying it.
 //
@@ -1408,7 +1618,14 @@ func PutAudioStreamDataNoCopy(stream *AudioStream, buf unsafe.Pointer, len_ int3
 	return fnPutAudioStreamDataNoCopy(stream, buf, len_, callback, userdata)
 }
 
-var fnPutAudioStreamPlanarData func(stream *AudioStream, channel_buffers *unsafe.Pointer, num_channels int32, num_samples int32) bool
+var addrPutAudioStreamPlanarData uintptr
+
+func fnPutAudioStreamPlanarData(stream *AudioStream, channel_buffers *unsafe.Pointer, num_channels int32, num_samples int32) bool {
+	if addrPutAudioStreamPlanarData == 0 {
+		missingSymbol("SDL_PutAudioStreamPlanarData")
+	}
+	return uint8(call4(addrPutAudioStreamPlanarData, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(channel_buffers)), uintptr(num_channels), uintptr(num_samples))) != 0
+}
 
 // Add data to the stream with each channel in a separate array.
 //
@@ -1494,7 +1711,14 @@ func PutAudioStreamPlanarDataSlices(stream *AudioStream, planes [][]byte, numSam
 	return ok
 }
 
-var fnGetAudioStreamData func(stream *AudioStream, buf unsafe.Pointer, len_ int32) int32
+var addrGetAudioStreamData uintptr
+
+func fnGetAudioStreamData(stream *AudioStream, buf unsafe.Pointer, len_ int32) int32 {
+	if addrGetAudioStreamData == 0 {
+		missingSymbol("SDL_GetAudioStreamData")
+	}
+	return int32(call3(addrGetAudioStreamData, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(buf)), uintptr(len_)))
+}
 
 // Get converted/resampled data from the stream.
 //
@@ -1564,7 +1788,14 @@ func GetAudioStreamSlice[T Number](stream *AudioStream, b []T) int32 {
 	return ret
 }
 
-var fnGetAudioStreamAvailable func(stream *AudioStream) int32
+var addrGetAudioStreamAvailable uintptr
+
+func fnGetAudioStreamAvailable(stream *AudioStream) int32 {
+	if addrGetAudioStreamAvailable == 0 {
+		missingSymbol("SDL_GetAudioStreamAvailable")
+	}
+	return int32(call1(addrGetAudioStreamAvailable, uintptr(unsafe.Pointer(stream))))
+}
 
 // Get the number of converted/resampled bytes available.
 //
@@ -1592,7 +1823,14 @@ func GetAudioStreamAvailable(stream *AudioStream) int32 {
 	return fnGetAudioStreamAvailable(stream)
 }
 
-var fnGetAudioStreamQueued func(stream *AudioStream) int32
+var addrGetAudioStreamQueued uintptr
+
+func fnGetAudioStreamQueued(stream *AudioStream) int32 {
+	if addrGetAudioStreamQueued == 0 {
+		missingSymbol("SDL_GetAudioStreamQueued")
+	}
+	return int32(call1(addrGetAudioStreamQueued, uintptr(unsafe.Pointer(stream))))
+}
 
 // Get the number of bytes currently queued.
 //
@@ -1632,7 +1870,14 @@ func GetAudioStreamQueued(stream *AudioStream) int32 {
 	return fnGetAudioStreamQueued(stream)
 }
 
-var fnFlushAudioStream func(stream *AudioStream) bool
+var addrFlushAudioStream uintptr
+
+func fnFlushAudioStream(stream *AudioStream) bool {
+	if addrFlushAudioStream == 0 {
+		missingSymbol("SDL_FlushAudioStream")
+	}
+	return uint8(call1(addrFlushAudioStream, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Tell the stream that you're done sending data, and anything being buffered
 // should be converted/resampled and made available immediately.
@@ -1655,7 +1900,14 @@ func FlushAudioStream(stream *AudioStream) bool {
 	return fnFlushAudioStream(stream)
 }
 
-var fnClearAudioStream func(stream *AudioStream) bool
+var addrClearAudioStream uintptr
+
+func fnClearAudioStream(stream *AudioStream) bool {
+	if addrClearAudioStream == 0 {
+		missingSymbol("SDL_ClearAudioStream")
+	}
+	return uint8(call1(addrClearAudioStream, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Clear any pending data in the stream.
 //
@@ -1676,7 +1928,14 @@ func ClearAudioStream(stream *AudioStream) bool {
 	return fnClearAudioStream(stream)
 }
 
-var fnPauseAudioStreamDevice func(stream *AudioStream) bool
+var addrPauseAudioStreamDevice uintptr
+
+func fnPauseAudioStreamDevice(stream *AudioStream) bool {
+	if addrPauseAudioStreamDevice == 0 {
+		missingSymbol("SDL_PauseAudioStreamDevice")
+	}
+	return uint8(call1(addrPauseAudioStreamDevice, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Use this function to pause audio playback on the audio device associated
 // with an audio stream.
@@ -1703,7 +1962,14 @@ func PauseAudioStreamDevice(stream *AudioStream) bool {
 	return fnPauseAudioStreamDevice(stream)
 }
 
-var fnResumeAudioStreamDevice func(stream *AudioStream) bool
+var addrResumeAudioStreamDevice uintptr
+
+func fnResumeAudioStreamDevice(stream *AudioStream) bool {
+	if addrResumeAudioStreamDevice == 0 {
+		missingSymbol("SDL_ResumeAudioStreamDevice")
+	}
+	return uint8(call1(addrResumeAudioStreamDevice, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Use this function to unpause audio playback on the audio device associated
 // with an audio stream.
@@ -1729,7 +1995,14 @@ func ResumeAudioStreamDevice(stream *AudioStream) bool {
 	return fnResumeAudioStreamDevice(stream)
 }
 
-var fnAudioStreamDevicePaused func(stream *AudioStream) bool
+var addrAudioStreamDevicePaused uintptr
+
+func fnAudioStreamDevicePaused(stream *AudioStream) bool {
+	if addrAudioStreamDevicePaused == 0 {
+		missingSymbol("SDL_AudioStreamDevicePaused")
+	}
+	return uint8(call1(addrAudioStreamDevicePaused, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Use this function to query if an audio device associated with a stream is
 // paused.
@@ -1751,7 +2024,14 @@ func AudioStreamDevicePaused(stream *AudioStream) bool {
 	return fnAudioStreamDevicePaused(stream)
 }
 
-var fnLockAudioStream func(stream *AudioStream) bool
+var addrLockAudioStream uintptr
+
+func fnLockAudioStream(stream *AudioStream) bool {
+	if addrLockAudioStream == 0 {
+		missingSymbol("SDL_LockAudioStream")
+	}
+	return uint8(call1(addrLockAudioStream, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Lock an audio stream for serialized access.
 //
@@ -1782,7 +2062,14 @@ func LockAudioStream(stream *AudioStream) bool {
 	return fnLockAudioStream(stream)
 }
 
-var fnUnlockAudioStream func(stream *AudioStream) bool
+var addrUnlockAudioStream uintptr
+
+func fnUnlockAudioStream(stream *AudioStream) bool {
+	if addrUnlockAudioStream == 0 {
+		missingSymbol("SDL_UnlockAudioStream")
+	}
+	return uint8(call1(addrUnlockAudioStream, uintptr(unsafe.Pointer(stream)))) != 0
+}
 
 // Unlock an audio stream for serialized access.
 //
@@ -1802,7 +2089,14 @@ func UnlockAudioStream(stream *AudioStream) bool {
 	return fnUnlockAudioStream(stream)
 }
 
-var fnSetAudioStreamGetCallback func(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool
+var addrSetAudioStreamGetCallback uintptr
+
+func fnSetAudioStreamGetCallback(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool {
+	if addrSetAudioStreamGetCallback == 0 {
+		missingSymbol("SDL_SetAudioStreamGetCallback")
+	}
+	return uint8(call3(addrSetAudioStreamGetCallback, uintptr(unsafe.Pointer(stream)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Set a callback that runs when data is requested from an audio stream.
 //
@@ -1851,7 +2145,14 @@ func SetAudioStreamGetCallback(stream *AudioStream, callback AudioStreamCallback
 	return fnSetAudioStreamGetCallback(stream, callback, userdata)
 }
 
-var fnSetAudioStreamPutCallback func(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool
+var addrSetAudioStreamPutCallback uintptr
+
+func fnSetAudioStreamPutCallback(stream *AudioStream, callback AudioStreamCallback, userdata unsafe.Pointer) bool {
+	if addrSetAudioStreamPutCallback == 0 {
+		missingSymbol("SDL_SetAudioStreamPutCallback")
+	}
+	return uint8(call3(addrSetAudioStreamPutCallback, uintptr(unsafe.Pointer(stream)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Set a callback that runs when data is added to an audio stream.
 //
@@ -1903,7 +2204,14 @@ func SetAudioStreamPutCallback(stream *AudioStream, callback AudioStreamCallback
 	return fnSetAudioStreamPutCallback(stream, callback, userdata)
 }
 
-var fnDestroyAudioStream func(stream *AudioStream)
+var addrDestroyAudioStream uintptr
+
+func fnDestroyAudioStream(stream *AudioStream) {
+	if addrDestroyAudioStream == 0 {
+		missingSymbol("SDL_DestroyAudioStream")
+	}
+	call1(addrDestroyAudioStream, uintptr(unsafe.Pointer(stream)))
+}
 
 // Free an audio stream.
 //
@@ -1927,7 +2235,14 @@ func DestroyAudioStream(stream *AudioStream) {
 	fnDestroyAudioStream(stream)
 }
 
-var fnOpenAudioDeviceStream func(devid AudioDeviceID, spec *AudioSpec, callback AudioStreamCallback, userdata unsafe.Pointer) *AudioStream
+var addrOpenAudioDeviceStream uintptr
+
+func fnOpenAudioDeviceStream(devid AudioDeviceID, spec *AudioSpec, callback AudioStreamCallback, userdata unsafe.Pointer) *AudioStream {
+	if addrOpenAudioDeviceStream == 0 {
+		missingSymbol("SDL_OpenAudioDeviceStream")
+	}
+	return (*AudioStream)(cptr(call4(addrOpenAudioDeviceStream, uintptr(devid), uintptr(unsafe.Pointer(spec)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))))
+}
 
 // Convenience function for straightforward audio init for the common case.
 //
@@ -1985,7 +2300,14 @@ func OpenAudioDeviceStream(devid AudioDeviceID, spec *AudioSpec, callback AudioS
 	return fnOpenAudioDeviceStream(devid, spec, callback, userdata)
 }
 
-var fnSetAudioPostmixCallback func(devid AudioDeviceID, callback AudioPostmixCallback, userdata unsafe.Pointer) bool
+var addrSetAudioPostmixCallback uintptr
+
+func fnSetAudioPostmixCallback(devid AudioDeviceID, callback AudioPostmixCallback, userdata unsafe.Pointer) bool {
+	if addrSetAudioPostmixCallback == 0 {
+		missingSymbol("SDL_SetAudioPostmixCallback")
+	}
+	return uint8(call3(addrSetAudioPostmixCallback, uintptr(devid), uintptr(callback), uintptr(unsafe.Pointer(userdata)))) != 0
+}
 
 // Set a callback that fires when data is about to be fed to an audio device.
 //
@@ -2044,7 +2366,14 @@ func SetAudioPostmixCallback(devid AudioDeviceID, callback AudioPostmixCallback,
 	return fnSetAudioPostmixCallback(devid, callback, userdata)
 }
 
-var fnLoadWAV_IO func(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool
+var addrLoadWAV_IO uintptr
+
+func fnLoadWAV_IO(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
+	if addrLoadWAV_IO == 0 {
+		missingSymbol("SDL_LoadWAV_IO")
+	}
+	return uint8(call5(addrLoadWAV_IO, uintptr(unsafe.Pointer(src)), cbool(closeio), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+}
 
 // Load the audio data of a WAVE file into memory.
 //
@@ -2148,7 +2477,14 @@ func LoadWAVBytes(data []byte) (AudioSpec, []byte, error) {
 	return spec, out, nil
 }
 
-var fnLoadWAV func(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool
+var addrLoadWAV uintptr
+
+func fnLoadWAV(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
+	if addrLoadWAV == 0 {
+		missingSymbol("SDL_LoadWAV")
+	}
+	return uint8(call4(addrLoadWAV, uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+}
 
 // Loads a WAV from a file path.
 //
@@ -2219,7 +2555,14 @@ func MixAudio(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume fl
 	return fnMixAudio(dst, src, format, len_, volume)
 }
 
-var fnConvertAudioSamples func(src_spec *AudioSpec, src_data *uint8, src_len int32, dst_spec *AudioSpec, dst_data **uint8, dst_len *int32) bool
+var addrConvertAudioSamples uintptr
+
+func fnConvertAudioSamples(src_spec *AudioSpec, src_data *uint8, src_len int32, dst_spec *AudioSpec, dst_data **uint8, dst_len *int32) bool {
+	if addrConvertAudioSamples == 0 {
+		missingSymbol("SDL_ConvertAudioSamples")
+	}
+	return uint8(call6(addrConvertAudioSamples, uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(src_data)), uintptr(src_len), uintptr(unsafe.Pointer(dst_spec)), uintptr(unsafe.Pointer(dst_data)), uintptr(unsafe.Pointer(dst_len)))) != 0
+}
 
 // Convert some audio data of one format to another format.
 //
@@ -2252,7 +2595,14 @@ func ConvertAudioSamples(src_spec *AudioSpec, src_data *uint8, src_len int32, ds
 	return fnConvertAudioSamples(src_spec, src_data, src_len, dst_spec, dst_data, dst_len)
 }
 
-var fnGetAudioFormatName func(format AudioFormat) *byte
+var addrGetAudioFormatName uintptr
+
+func fnGetAudioFormatName(format AudioFormat) *byte {
+	if addrGetAudioFormatName == 0 {
+		missingSymbol("SDL_GetAudioFormatName")
+	}
+	return (*byte)(cptr(call1(addrGetAudioFormatName, uintptr(format))))
+}
 
 // Get the human readable name of an audio format.
 //
@@ -2268,7 +2618,14 @@ func GetAudioFormatName(format AudioFormat) string {
 	return GoString(fnGetAudioFormatName(format))
 }
 
-var fnGetSilenceValueForFormat func(format AudioFormat) int32
+var addrGetSilenceValueForFormat uintptr
+
+func fnGetSilenceValueForFormat(format AudioFormat) int32 {
+	if addrGetSilenceValueForFormat == 0 {
+		missingSymbol("SDL_GetSilenceValueForFormat")
+	}
+	return int32(call1(addrGetSilenceValueForFormat, uintptr(format)))
+}
 
 // Get the appropriate memset value for silencing an audio format.
 //

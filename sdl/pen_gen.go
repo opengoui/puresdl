@@ -108,7 +108,14 @@ const (
 	PEN_INPUT_IN_PROXIMITY PenInputFlags = 0x80000000
 )
 
-var fnGetPenDeviceType func(instance_id PenID) PenDeviceType
+var addrGetPenDeviceType uintptr
+
+func fnGetPenDeviceType(instance_id PenID) PenDeviceType {
+	if addrGetPenDeviceType == 0 {
+		missingSymbol("SDL_GetPenDeviceType")
+	}
+	return PenDeviceType(call1(addrGetPenDeviceType, uintptr(instance_id)))
+}
 
 // Get the device type of the given pen.
 //

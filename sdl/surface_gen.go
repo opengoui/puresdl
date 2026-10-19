@@ -92,7 +92,14 @@ const (
 	PROP_SURFACE_ROTATION_FLOAT                       = "SDL.surface.rotation"
 )
 
-var fnCreateSurface func(width int32, height int32, format PixelFormat) *Surface
+var addrCreateSurface uintptr
+
+func fnCreateSurface(width int32, height int32, format PixelFormat) *Surface {
+	if addrCreateSurface == 0 {
+		missingSymbol("SDL_CreateSurface")
+	}
+	return (*Surface)(cptr(call3(addrCreateSurface, uintptr(width), uintptr(height), uintptr(format))))
+}
 
 // Allocate a new surface with a specific pixel format.
 //
@@ -114,7 +121,14 @@ func CreateSurface(width int32, height int32, format PixelFormat) *Surface {
 	return fnCreateSurface(width, height, format)
 }
 
-var fnCreateSurfaceFrom func(width int32, height int32, format PixelFormat, pixels unsafe.Pointer, pitch int32) *Surface
+var addrCreateSurfaceFrom uintptr
+
+func fnCreateSurfaceFrom(width int32, height int32, format PixelFormat, pixels unsafe.Pointer, pitch int32) *Surface {
+	if addrCreateSurfaceFrom == 0 {
+		missingSymbol("SDL_CreateSurfaceFrom")
+	}
+	return (*Surface)(cptr(call5(addrCreateSurfaceFrom, uintptr(width), uintptr(height), uintptr(format), uintptr(unsafe.Pointer(pixels)), uintptr(pitch))))
+}
 
 // Allocate a new surface with a specific pixel format and existing pixel
 // data.
@@ -146,7 +160,14 @@ func CreateSurfaceFrom(width int32, height int32, format PixelFormat, pixels uns
 	return fnCreateSurfaceFrom(width, height, format, pixels, pitch)
 }
 
-var fnDestroySurface func(surface *Surface)
+var addrDestroySurface uintptr
+
+func fnDestroySurface(surface *Surface) {
+	if addrDestroySurface == 0 {
+		missingSymbol("SDL_DestroySurface")
+	}
+	call1(addrDestroySurface, uintptr(unsafe.Pointer(surface)))
+}
 
 // Free a surface.
 //
@@ -164,7 +185,14 @@ func DestroySurface(surface *Surface) {
 	fnDestroySurface(surface)
 }
 
-var fnGetSurfaceProperties func(surface *Surface) PropertiesID
+var addrGetSurfaceProperties uintptr
+
+func fnGetSurfaceProperties(surface *Surface) PropertiesID {
+	if addrGetSurfaceProperties == 0 {
+		missingSymbol("SDL_GetSurfaceProperties")
+	}
+	return PropertiesID(call1(addrGetSurfaceProperties, uintptr(unsafe.Pointer(surface))))
+}
 
 // Get the properties associated with a surface.
 //
@@ -207,7 +235,14 @@ func GetSurfaceProperties(surface *Surface) PropertiesID {
 	return fnGetSurfaceProperties(surface)
 }
 
-var fnSetSurfaceColorspace func(surface *Surface, colorspace Colorspace) bool
+var addrSetSurfaceColorspace uintptr
+
+func fnSetSurfaceColorspace(surface *Surface, colorspace Colorspace) bool {
+	if addrSetSurfaceColorspace == 0 {
+		missingSymbol("SDL_SetSurfaceColorspace")
+	}
+	return uint8(call2(addrSetSurfaceColorspace, uintptr(unsafe.Pointer(surface)), uintptr(colorspace))) != 0
+}
 
 // Set the colorspace used by a surface.
 //
@@ -229,7 +264,14 @@ func SetSurfaceColorspace(surface *Surface, colorspace Colorspace) bool {
 	return fnSetSurfaceColorspace(surface, colorspace)
 }
 
-var fnGetSurfaceColorspace func(surface *Surface) Colorspace
+var addrGetSurfaceColorspace uintptr
+
+func fnGetSurfaceColorspace(surface *Surface) Colorspace {
+	if addrGetSurfaceColorspace == 0 {
+		missingSymbol("SDL_GetSurfaceColorspace")
+	}
+	return Colorspace(call1(addrGetSurfaceColorspace, uintptr(unsafe.Pointer(surface))))
+}
 
 // Get the colorspace used by a surface.
 //
@@ -251,7 +293,14 @@ func GetSurfaceColorspace(surface *Surface) Colorspace {
 	return fnGetSurfaceColorspace(surface)
 }
 
-var fnCreateSurfacePalette func(surface *Surface) *Palette
+var addrCreateSurfacePalette uintptr
+
+func fnCreateSurfacePalette(surface *Surface) *Palette {
+	if addrCreateSurfacePalette == 0 {
+		missingSymbol("SDL_CreateSurfacePalette")
+	}
+	return (*Palette)(cptr(call1(addrCreateSurfacePalette, uintptr(unsafe.Pointer(surface)))))
+}
 
 // Create a palette and associate it with a surface.
 //
@@ -283,7 +332,14 @@ func CreateSurfacePalette(surface *Surface) *Palette {
 	return fnCreateSurfacePalette(surface)
 }
 
-var fnSetSurfacePalette func(surface *Surface, palette *Palette) bool
+var addrSetSurfacePalette uintptr
+
+func fnSetSurfacePalette(surface *Surface, palette *Palette) bool {
+	if addrSetSurfacePalette == 0 {
+		missingSymbol("SDL_SetSurfacePalette")
+	}
+	return uint8(call2(addrSetSurfacePalette, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(palette)))) != 0
+}
 
 // Set the palette used by a surface.
 //
@@ -307,7 +363,14 @@ func SetSurfacePalette(surface *Surface, palette *Palette) bool {
 	return fnSetSurfacePalette(surface, palette)
 }
 
-var fnGetSurfacePalette func(surface *Surface) *Palette
+var addrGetSurfacePalette uintptr
+
+func fnGetSurfacePalette(surface *Surface) *Palette {
+	if addrGetSurfacePalette == 0 {
+		missingSymbol("SDL_GetSurfacePalette")
+	}
+	return (*Palette)(cptr(call1(addrGetSurfacePalette, uintptr(unsafe.Pointer(surface)))))
+}
 
 // Get the palette used by a surface.
 //
@@ -325,7 +388,14 @@ func GetSurfacePalette(surface *Surface) *Palette {
 	return fnGetSurfacePalette(surface)
 }
 
-var fnAddSurfaceAlternateImage func(surface *Surface, image *Surface) bool
+var addrAddSurfaceAlternateImage uintptr
+
+func fnAddSurfaceAlternateImage(surface *Surface, image *Surface) bool {
+	if addrAddSurfaceAlternateImage == 0 {
+		missingSymbol("SDL_AddSurfaceAlternateImage")
+	}
+	return uint8(call2(addrAddSurfaceAlternateImage, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(image)))) != 0
+}
 
 // Add an alternate version of a surface.
 //
@@ -352,7 +422,14 @@ func AddSurfaceAlternateImage(surface *Surface, image *Surface) bool {
 	return fnAddSurfaceAlternateImage(surface, image)
 }
 
-var fnSurfaceHasAlternateImages func(surface *Surface) bool
+var addrSurfaceHasAlternateImages uintptr
+
+func fnSurfaceHasAlternateImages(surface *Surface) bool {
+	if addrSurfaceHasAlternateImages == 0 {
+		missingSymbol("SDL_SurfaceHasAlternateImages")
+	}
+	return uint8(call1(addrSurfaceHasAlternateImages, uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Return whether a surface has alternate versions available.
 //
@@ -370,7 +447,14 @@ func SurfaceHasAlternateImages(surface *Surface) bool {
 	return fnSurfaceHasAlternateImages(surface)
 }
 
-var fnGetSurfaceImages func(surface *Surface, count *int32) **Surface
+var addrGetSurfaceImages uintptr
+
+func fnGetSurfaceImages(surface *Surface, count *int32) **Surface {
+	if addrGetSurfaceImages == 0 {
+		missingSymbol("SDL_GetSurfaceImages")
+	}
+	return (**Surface)(cptr(call2(addrGetSurfaceImages, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get an array including all versions of a surface.
 //
@@ -400,7 +484,14 @@ func GetSurfaceImages(surface *Surface) []*Surface {
 	return copyFree(p, int(n))
 }
 
-var fnRemoveSurfaceAlternateImages func(surface *Surface)
+var addrRemoveSurfaceAlternateImages uintptr
+
+func fnRemoveSurfaceAlternateImages(surface *Surface) {
+	if addrRemoveSurfaceAlternateImages == 0 {
+		missingSymbol("SDL_RemoveSurfaceAlternateImages")
+	}
+	call1(addrRemoveSurfaceAlternateImages, uintptr(unsafe.Pointer(surface)))
+}
 
 // Remove all alternate versions of a surface.
 //
@@ -419,7 +510,14 @@ func RemoveSurfaceAlternateImages(surface *Surface) {
 	fnRemoveSurfaceAlternateImages(surface)
 }
 
-var fnLockSurface func(surface *Surface) bool
+var addrLockSurface uintptr
+
+func fnLockSurface(surface *Surface) bool {
+	if addrLockSurface == 0 {
+		missingSymbol("SDL_LockSurface")
+	}
+	return uint8(call1(addrLockSurface, uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Set up a surface for directly accessing the pixels.
 //
@@ -446,7 +544,14 @@ func LockSurface(surface *Surface) bool {
 	return fnLockSurface(surface)
 }
 
-var fnUnlockSurface func(surface *Surface)
+var addrUnlockSurface uintptr
+
+func fnUnlockSurface(surface *Surface) {
+	if addrUnlockSurface == 0 {
+		missingSymbol("SDL_UnlockSurface")
+	}
+	call1(addrUnlockSurface, uintptr(unsafe.Pointer(surface)))
+}
 
 // Release a surface after directly accessing the pixels.
 //
@@ -462,7 +567,14 @@ func UnlockSurface(surface *Surface) {
 	fnUnlockSurface(surface)
 }
 
-var fnLoadSurface_IO func(src *IOStream, closeio bool) *Surface
+var addrLoadSurface_IO uintptr
+
+func fnLoadSurface_IO(src *IOStream, closeio bool) *Surface {
+	if addrLoadSurface_IO == 0 {
+		missingSymbol("SDL_LoadSurface_IO")
+	}
+	return (*Surface)(cptr(call2(addrLoadSurface_IO, uintptr(unsafe.Pointer(src)), cbool(closeio))))
+}
 
 // Load a BMP or PNG image from a seekable SDL data stream.
 //
@@ -484,7 +596,14 @@ func LoadSurface_IO(src *IOStream, closeio bool) *Surface {
 	return fnLoadSurface_IO(src, closeio)
 }
 
-var fnLoadSurface func(file *byte) *Surface
+var addrLoadSurface uintptr
+
+func fnLoadSurface(file *byte) *Surface {
+	if addrLoadSurface == 0 {
+		missingSymbol("SDL_LoadSurface")
+	}
+	return (*Surface)(cptr(call1(addrLoadSurface, uintptr(unsafe.Pointer(file)))))
+}
 
 // Load a BMP or PNG image from a file.
 //
@@ -505,7 +624,14 @@ func LoadSurface(file string) *Surface {
 	return fnLoadSurface(cstr(file))
 }
 
-var fnLoadBMP_IO func(src *IOStream, closeio bool) *Surface
+var addrLoadBMP_IO uintptr
+
+func fnLoadBMP_IO(src *IOStream, closeio bool) *Surface {
+	if addrLoadBMP_IO == 0 {
+		missingSymbol("SDL_LoadBMP_IO")
+	}
+	return (*Surface)(cptr(call2(addrLoadBMP_IO, uintptr(unsafe.Pointer(src)), cbool(closeio))))
+}
 
 // Load a BMP image from a seekable SDL data stream.
 //
@@ -527,7 +653,14 @@ func LoadBMP_IO(src *IOStream, closeio bool) *Surface {
 	return fnLoadBMP_IO(src, closeio)
 }
 
-var fnLoadBMP func(file *byte) *Surface
+var addrLoadBMP uintptr
+
+func fnLoadBMP(file *byte) *Surface {
+	if addrLoadBMP == 0 {
+		missingSymbol("SDL_LoadBMP")
+	}
+	return (*Surface)(cptr(call1(addrLoadBMP, uintptr(unsafe.Pointer(file)))))
+}
 
 // Load a BMP image from a file.
 //
@@ -548,7 +681,14 @@ func LoadBMP(file string) *Surface {
 	return fnLoadBMP(cstr(file))
 }
 
-var fnSaveBMP_IO func(surface *Surface, dst *IOStream, closeio bool) bool
+var addrSaveBMP_IO uintptr
+
+func fnSaveBMP_IO(surface *Surface, dst *IOStream, closeio bool) bool {
+	if addrSaveBMP_IO == 0 {
+		missingSymbol("SDL_SaveBMP_IO")
+	}
+	return uint8(call3(addrSaveBMP_IO, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(dst)), cbool(closeio))) != 0
+}
 
 // Save a surface to a seekable SDL data stream in BMP format.
 //
@@ -574,7 +714,14 @@ func SaveBMP_IO(surface *Surface, dst *IOStream, closeio bool) bool {
 	return fnSaveBMP_IO(surface, dst, closeio)
 }
 
-var fnSaveBMP func(surface *Surface, file *byte) bool
+var addrSaveBMP uintptr
+
+func fnSaveBMP(surface *Surface, file *byte) bool {
+	if addrSaveBMP == 0 {
+		missingSymbol("SDL_SaveBMP")
+	}
+	return uint8(call2(addrSaveBMP, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(file)))) != 0
+}
 
 // Save a surface to a file in BMP format.
 //
@@ -599,7 +746,14 @@ func SaveBMP(surface *Surface, file string) bool {
 	return fnSaveBMP(surface, cstr(file))
 }
 
-var fnLoadPNG_IO func(src *IOStream, closeio bool) *Surface
+var addrLoadPNG_IO uintptr
+
+func fnLoadPNG_IO(src *IOStream, closeio bool) *Surface {
+	if addrLoadPNG_IO == 0 {
+		missingSymbol("SDL_LoadPNG_IO")
+	}
+	return (*Surface)(cptr(call2(addrLoadPNG_IO, uintptr(unsafe.Pointer(src)), cbool(closeio))))
+}
 
 // Load a PNG image from a seekable SDL data stream.
 //
@@ -625,7 +779,14 @@ func LoadPNG_IO(src *IOStream, closeio bool) *Surface {
 	return fnLoadPNG_IO(src, closeio)
 }
 
-var fnLoadPNG func(file *byte) *Surface
+var addrLoadPNG uintptr
+
+func fnLoadPNG(file *byte) *Surface {
+	if addrLoadPNG == 0 {
+		missingSymbol("SDL_LoadPNG")
+	}
+	return (*Surface)(cptr(call1(addrLoadPNG, uintptr(unsafe.Pointer(file)))))
+}
 
 // Load a PNG image from a file.
 //
@@ -650,7 +811,14 @@ func LoadPNG(file string) *Surface {
 	return fnLoadPNG(cstr(file))
 }
 
-var fnSavePNG_IO func(surface *Surface, dst *IOStream, closeio bool) bool
+var addrSavePNG_IO uintptr
+
+func fnSavePNG_IO(surface *Surface, dst *IOStream, closeio bool) bool {
+	if addrSavePNG_IO == 0 {
+		missingSymbol("SDL_SavePNG_IO")
+	}
+	return uint8(call3(addrSavePNG_IO, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(dst)), cbool(closeio))) != 0
+}
 
 // Save a surface to a seekable SDL data stream in PNG format.
 //
@@ -670,7 +838,14 @@ func SavePNG_IO(surface *Surface, dst *IOStream, closeio bool) bool {
 	return fnSavePNG_IO(surface, dst, closeio)
 }
 
-var fnSavePNG func(surface *Surface, file *byte) bool
+var addrSavePNG uintptr
+
+func fnSavePNG(surface *Surface, file *byte) bool {
+	if addrSavePNG == 0 {
+		missingSymbol("SDL_SavePNG")
+	}
+	return uint8(call2(addrSavePNG, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(file)))) != 0
+}
 
 // Save a surface to a file in PNG format.
 //
@@ -689,7 +864,14 @@ func SavePNG(surface *Surface, file string) bool {
 	return fnSavePNG(surface, cstr(file))
 }
 
-var fnSetSurfaceRLE func(surface *Surface, enabled bool) bool
+var addrSetSurfaceRLE uintptr
+
+func fnSetSurfaceRLE(surface *Surface, enabled bool) bool {
+	if addrSetSurfaceRLE == 0 {
+		missingSymbol("SDL_SetSurfaceRLE")
+	}
+	return uint8(call2(addrSetSurfaceRLE, uintptr(unsafe.Pointer(surface)), cbool(enabled))) != 0
+}
 
 // Set the RLE acceleration hint for a surface.
 //
@@ -711,7 +893,14 @@ func SetSurfaceRLE(surface *Surface, enabled bool) bool {
 	return fnSetSurfaceRLE(surface, enabled)
 }
 
-var fnSurfaceHasRLE func(surface *Surface) bool
+var addrSurfaceHasRLE uintptr
+
+func fnSurfaceHasRLE(surface *Surface) bool {
+	if addrSurfaceHasRLE == 0 {
+		missingSymbol("SDL_SurfaceHasRLE")
+	}
+	return uint8(call1(addrSurfaceHasRLE, uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Returns whether the surface is RLE enabled.
 //
@@ -731,7 +920,14 @@ func SurfaceHasRLE(surface *Surface) bool {
 	return fnSurfaceHasRLE(surface)
 }
 
-var fnSetSurfaceColorKey func(surface *Surface, enabled bool, key uint32) bool
+var addrSetSurfaceColorKey uintptr
+
+func fnSetSurfaceColorKey(surface *Surface, enabled bool, key uint32) bool {
+	if addrSetSurfaceColorKey == 0 {
+		missingSymbol("SDL_SetSurfaceColorKey")
+	}
+	return uint8(call3(addrSetSurfaceColorKey, uintptr(unsafe.Pointer(surface)), cbool(enabled), uintptr(key))) != 0
+}
 
 // Set the color key (transparent pixel) in a surface.
 //
@@ -758,7 +954,14 @@ func SetSurfaceColorKey(surface *Surface, enabled bool, key uint32) bool {
 	return fnSetSurfaceColorKey(surface, enabled, key)
 }
 
-var fnSurfaceHasColorKey func(surface *Surface) bool
+var addrSurfaceHasColorKey uintptr
+
+func fnSurfaceHasColorKey(surface *Surface) bool {
+	if addrSurfaceHasColorKey == 0 {
+		missingSymbol("SDL_SurfaceHasColorKey")
+	}
+	return uint8(call1(addrSurfaceHasColorKey, uintptr(unsafe.Pointer(surface)))) != 0
+}
 
 // Returns whether the surface has a color key.
 //
@@ -778,7 +981,14 @@ func SurfaceHasColorKey(surface *Surface) bool {
 	return fnSurfaceHasColorKey(surface)
 }
 
-var fnGetSurfaceColorKey func(surface *Surface, key *uint32) bool
+var addrGetSurfaceColorKey uintptr
+
+func fnGetSurfaceColorKey(surface *Surface, key *uint32) bool {
+	if addrGetSurfaceColorKey == 0 {
+		missingSymbol("SDL_GetSurfaceColorKey")
+	}
+	return uint8(call2(addrGetSurfaceColorKey, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(key)))) != 0
+}
 
 // Get the color key (transparent pixel) for a surface.
 //
@@ -802,7 +1012,14 @@ func GetSurfaceColorKey(surface *Surface, key *uint32) bool {
 	return fnGetSurfaceColorKey(surface, key)
 }
 
-var fnSetSurfaceColorMod func(surface *Surface, r uint8, g uint8, b uint8) bool
+var addrSetSurfaceColorMod uintptr
+
+func fnSetSurfaceColorMod(surface *Surface, r uint8, g uint8, b uint8) bool {
+	if addrSetSurfaceColorMod == 0 {
+		missingSymbol("SDL_SetSurfaceColorMod")
+	}
+	return uint8(call4(addrSetSurfaceColorMod, uintptr(unsafe.Pointer(surface)), uintptr(r), uintptr(g), uintptr(b))) != 0
+}
 
 // Set an additional color value multiplied into blit operations.
 //
@@ -829,7 +1046,14 @@ func SetSurfaceColorMod(surface *Surface, r uint8, g uint8, b uint8) bool {
 	return fnSetSurfaceColorMod(surface, r, g, b)
 }
 
-var fnGetSurfaceColorMod func(surface *Surface, r *uint8, g *uint8, b *uint8) bool
+var addrGetSurfaceColorMod uintptr
+
+func fnGetSurfaceColorMod(surface *Surface, r *uint8, g *uint8, b *uint8) bool {
+	if addrGetSurfaceColorMod == 0 {
+		missingSymbol("SDL_GetSurfaceColorMod")
+	}
+	return uint8(call4(addrGetSurfaceColorMod, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)))) != 0
+}
 
 // Get the additional color value multiplied into blit operations.
 //
@@ -850,7 +1074,14 @@ func GetSurfaceColorMod(surface *Surface, r *uint8, g *uint8, b *uint8) bool {
 	return fnGetSurfaceColorMod(surface, r, g, b)
 }
 
-var fnSetSurfaceAlphaMod func(surface *Surface, alpha uint8) bool
+var addrSetSurfaceAlphaMod uintptr
+
+func fnSetSurfaceAlphaMod(surface *Surface, alpha uint8) bool {
+	if addrSetSurfaceAlphaMod == 0 {
+		missingSymbol("SDL_SetSurfaceAlphaMod")
+	}
+	return uint8(call2(addrSetSurfaceAlphaMod, uintptr(unsafe.Pointer(surface)), uintptr(alpha))) != 0
+}
 
 // Set an additional alpha value used in blit operations.
 //
@@ -874,7 +1105,14 @@ func SetSurfaceAlphaMod(surface *Surface, alpha uint8) bool {
 	return fnSetSurfaceAlphaMod(surface, alpha)
 }
 
-var fnGetSurfaceAlphaMod func(surface *Surface, alpha *uint8) bool
+var addrGetSurfaceAlphaMod uintptr
+
+func fnGetSurfaceAlphaMod(surface *Surface, alpha *uint8) bool {
+	if addrGetSurfaceAlphaMod == 0 {
+		missingSymbol("SDL_GetSurfaceAlphaMod")
+	}
+	return uint8(call2(addrGetSurfaceAlphaMod, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(alpha)))) != 0
+}
 
 // Get the additional alpha value used in blit operations.
 //
@@ -893,7 +1131,14 @@ func GetSurfaceAlphaMod(surface *Surface, alpha *uint8) bool {
 	return fnGetSurfaceAlphaMod(surface, alpha)
 }
 
-var fnSetSurfaceBlendMode func(surface *Surface, blendMode BlendMode) bool
+var addrSetSurfaceBlendMode uintptr
+
+func fnSetSurfaceBlendMode(surface *Surface, blendMode BlendMode) bool {
+	if addrSetSurfaceBlendMode == 0 {
+		missingSymbol("SDL_SetSurfaceBlendMode")
+	}
+	return uint8(call2(addrSetSurfaceBlendMode, uintptr(unsafe.Pointer(surface)), uintptr(blendMode))) != 0
+}
 
 // Set the blend mode used for blit operations.
 //
@@ -916,7 +1161,14 @@ func SetSurfaceBlendMode(surface *Surface, blendMode BlendMode) bool {
 	return fnSetSurfaceBlendMode(surface, blendMode)
 }
 
-var fnGetSurfaceBlendMode func(surface *Surface, blendMode *BlendMode) bool
+var addrGetSurfaceBlendMode uintptr
+
+func fnGetSurfaceBlendMode(surface *Surface, blendMode *BlendMode) bool {
+	if addrGetSurfaceBlendMode == 0 {
+		missingSymbol("SDL_GetSurfaceBlendMode")
+	}
+	return uint8(call2(addrGetSurfaceBlendMode, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(blendMode)))) != 0
+}
 
 // Get the blend mode used for blit operations.
 //
@@ -935,7 +1187,14 @@ func GetSurfaceBlendMode(surface *Surface, blendMode *BlendMode) bool {
 	return fnGetSurfaceBlendMode(surface, blendMode)
 }
 
-var fnSetSurfaceClipRect func(surface *Surface, rect *Rect) bool
+var addrSetSurfaceClipRect uintptr
+
+func fnSetSurfaceClipRect(surface *Surface, rect *Rect) bool {
+	if addrSetSurfaceClipRect == 0 {
+		missingSymbol("SDL_SetSurfaceClipRect")
+	}
+	return uint8(call2(addrSetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Set the clipping rectangle for a surface.
 //
@@ -960,7 +1219,14 @@ func SetSurfaceClipRect(surface *Surface, rect *Rect) bool {
 	return fnSetSurfaceClipRect(surface, rect)
 }
 
-var fnGetSurfaceClipRect func(surface *Surface, rect *Rect) bool
+var addrGetSurfaceClipRect uintptr
+
+func fnGetSurfaceClipRect(surface *Surface, rect *Rect) bool {
+	if addrGetSurfaceClipRect == 0 {
+		missingSymbol("SDL_GetSurfaceClipRect")
+	}
+	return uint8(call2(addrGetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(rect)))) != 0
+}
 
 // Get the clipping rectangle for a surface.
 //
@@ -982,7 +1248,14 @@ func GetSurfaceClipRect(surface *Surface, rect *Rect) bool {
 	return fnGetSurfaceClipRect(surface, rect)
 }
 
-var fnFlipSurface func(surface *Surface, flip FlipMode) bool
+var addrFlipSurface uintptr
+
+func fnFlipSurface(surface *Surface, flip FlipMode) bool {
+	if addrFlipSurface == 0 {
+		missingSymbol("SDL_FlipSurface")
+	}
+	return uint8(call2(addrFlipSurface, uintptr(unsafe.Pointer(surface)), uintptr(flip))) != 0
+}
 
 // Flip a surface vertically or horizontally.
 //
@@ -1030,7 +1303,14 @@ func RotateSurface(surface *Surface, angle float32) *Surface {
 	return fnRotateSurface(surface, angle)
 }
 
-var fnDuplicateSurface func(surface *Surface) *Surface
+var addrDuplicateSurface uintptr
+
+func fnDuplicateSurface(surface *Surface) *Surface {
+	if addrDuplicateSurface == 0 {
+		missingSymbol("SDL_DuplicateSurface")
+	}
+	return (*Surface)(cptr(call1(addrDuplicateSurface, uintptr(unsafe.Pointer(surface)))))
+}
 
 // Creates a new surface identical to the existing surface.
 //
@@ -1053,7 +1333,14 @@ func DuplicateSurface(surface *Surface) *Surface {
 	return fnDuplicateSurface(surface)
 }
 
-var fnScaleSurface func(surface *Surface, width int32, height int32, scaleMode ScaleMode) *Surface
+var addrScaleSurface uintptr
+
+func fnScaleSurface(surface *Surface, width int32, height int32, scaleMode ScaleMode) *Surface {
+	if addrScaleSurface == 0 {
+		missingSymbol("SDL_ScaleSurface")
+	}
+	return (*Surface)(cptr(call4(addrScaleSurface, uintptr(unsafe.Pointer(surface)), uintptr(width), uintptr(height), uintptr(scaleMode))))
+}
 
 // Creates a new surface identical to the existing surface, scaled to the
 // desired size.
@@ -1077,7 +1364,14 @@ func ScaleSurface(surface *Surface, width int32, height int32, scaleMode ScaleMo
 	return fnScaleSurface(surface, width, height, scaleMode)
 }
 
-var fnConvertSurface func(surface *Surface, format PixelFormat) *Surface
+var addrConvertSurface uintptr
+
+func fnConvertSurface(surface *Surface, format PixelFormat) *Surface {
+	if addrConvertSurface == 0 {
+		missingSymbol("SDL_ConvertSurface")
+	}
+	return (*Surface)(cptr(call2(addrConvertSurface, uintptr(unsafe.Pointer(surface)), uintptr(format))))
+}
 
 // Copy an existing surface to a new surface of the specified format.
 //
@@ -1107,7 +1401,14 @@ func ConvertSurface(surface *Surface, format PixelFormat) *Surface {
 	return fnConvertSurface(surface, format)
 }
 
-var fnConvertSurfaceAndColorspace func(surface *Surface, format PixelFormat, palette *Palette, colorspace Colorspace, props PropertiesID) *Surface
+var addrConvertSurfaceAndColorspace uintptr
+
+func fnConvertSurfaceAndColorspace(surface *Surface, format PixelFormat, palette *Palette, colorspace Colorspace, props PropertiesID) *Surface {
+	if addrConvertSurfaceAndColorspace == 0 {
+		missingSymbol("SDL_ConvertSurfaceAndColorspace")
+	}
+	return (*Surface)(cptr(call5(addrConvertSurfaceAndColorspace, uintptr(unsafe.Pointer(surface)), uintptr(format), uintptr(unsafe.Pointer(palette)), uintptr(colorspace), uintptr(props))))
+}
 
 // Copy an existing surface to a new surface of the specified format and
 // colorspace.
@@ -1137,7 +1438,14 @@ func ConvertSurfaceAndColorspace(surface *Surface, format PixelFormat, palette *
 	return fnConvertSurfaceAndColorspace(surface, format, palette, colorspace, props)
 }
 
-var fnConvertPixels func(width int32, height int32, src_format PixelFormat, src unsafe.Pointer, src_pitch int32, dst_format PixelFormat, dst unsafe.Pointer, dst_pitch int32) bool
+var addrConvertPixels uintptr
+
+func fnConvertPixels(width int32, height int32, src_format PixelFormat, src unsafe.Pointer, src_pitch int32, dst_format PixelFormat, dst unsafe.Pointer, dst_pitch int32) bool {
+	if addrConvertPixels == 0 {
+		missingSymbol("SDL_ConvertPixels")
+	}
+	return uint8(call8(addrConvertPixels, uintptr(width), uintptr(height), uintptr(src_format), uintptr(unsafe.Pointer(src)), uintptr(src_pitch), uintptr(dst_format), uintptr(unsafe.Pointer(dst)), uintptr(dst_pitch))) != 0
+}
 
 // Copy a block of pixels of one format to another format.
 //
@@ -1218,7 +1526,14 @@ func PremultiplyAlpha(width int32, height int32, src_format PixelFormat, src uns
 	return fnPremultiplyAlpha(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch, linear)
 }
 
-var fnPremultiplySurfaceAlpha func(surface *Surface, linear bool) bool
+var addrPremultiplySurfaceAlpha uintptr
+
+func fnPremultiplySurfaceAlpha(surface *Surface, linear bool) bool {
+	if addrPremultiplySurfaceAlpha == 0 {
+		missingSymbol("SDL_PremultiplySurfaceAlpha")
+	}
+	return uint8(call2(addrPremultiplySurfaceAlpha, uintptr(unsafe.Pointer(surface)), cbool(linear))) != 0
+}
 
 // Premultiply the alpha in a surface.
 //
@@ -1262,7 +1577,14 @@ func ClearSurface(surface *Surface, r float32, g float32, b float32, a float32) 
 	return fnClearSurface(surface, r, g, b, a)
 }
 
-var fnFillSurfaceRect func(dst *Surface, rect *Rect, color uint32) bool
+var addrFillSurfaceRect uintptr
+
+func fnFillSurfaceRect(dst *Surface, rect *Rect, color uint32) bool {
+	if addrFillSurfaceRect == 0 {
+		missingSymbol("SDL_FillSurfaceRect")
+	}
+	return uint8(call3(addrFillSurfaceRect, uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(rect)), uintptr(color))) != 0
+}
 
 // Perform a fast fill of a rectangle with a specific color.
 //
@@ -1291,7 +1613,14 @@ func FillSurfaceRect(dst *Surface, rect *Rect, color uint32) bool {
 	return fnFillSurfaceRect(dst, rect, color)
 }
 
-var fnFillSurfaceRects func(dst *Surface, rects *Rect, count int32, color uint32) bool
+var addrFillSurfaceRects uintptr
+
+func fnFillSurfaceRects(dst *Surface, rects *Rect, count int32, color uint32) bool {
+	if addrFillSurfaceRects == 0 {
+		missingSymbol("SDL_FillSurfaceRects")
+	}
+	return uint8(call4(addrFillSurfaceRects, uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(rects)), uintptr(count), uintptr(color))) != 0
+}
 
 // Perform a fast fill of a set of rectangles with a specific color.
 //
@@ -1340,7 +1669,14 @@ func FillSurfaceRectsSlice(dst *Surface, rects []Rect, color uint32) bool {
 	return ret
 }
 
-var fnBlitSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool
+var addrBlitSurface uintptr
+
+func fnBlitSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool {
+	if addrBlitSurface == 0 {
+		missingSymbol("SDL_BlitSurface")
+	}
+	return uint8(call4(addrBlitSurface, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+}
 
 // Performs a fast blit from the source surface to the destination surface
 // with clipping.
@@ -1408,7 +1744,14 @@ func BlitSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool 
 	return fnBlitSurface(src, srcrect, dst, dstrect)
 }
 
-var fnBlitSurfaceUnchecked func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool
+var addrBlitSurfaceUnchecked uintptr
+
+func fnBlitSurfaceUnchecked(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool {
+	if addrBlitSurfaceUnchecked == 0 {
+		missingSymbol("SDL_BlitSurfaceUnchecked")
+	}
+	return uint8(call4(addrBlitSurfaceUnchecked, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+}
 
 // Perform low-level surface blitting only.
 //
@@ -1432,7 +1775,14 @@ func BlitSurfaceUnchecked(src *Surface, srcrect *Rect, dst *Surface, dstrect *Re
 	return fnBlitSurfaceUnchecked(src, srcrect, dst, dstrect)
 }
 
-var fnBlitSurfaceScaled func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool
+var addrBlitSurfaceScaled uintptr
+
+func fnBlitSurfaceScaled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool {
+	if addrBlitSurfaceScaled == 0 {
+		missingSymbol("SDL_BlitSurfaceScaled")
+	}
+	return uint8(call5(addrBlitSurfaceScaled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+}
 
 // Perform a scaled blit to a destination surface, which may be of a different
 // format.
@@ -1455,7 +1805,14 @@ func BlitSurfaceScaled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect,
 	return fnBlitSurfaceScaled(src, srcrect, dst, dstrect, scaleMode)
 }
 
-var fnBlitSurfaceUncheckedScaled func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool
+var addrBlitSurfaceUncheckedScaled uintptr
+
+func fnBlitSurfaceUncheckedScaled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool {
+	if addrBlitSurfaceUncheckedScaled == 0 {
+		missingSymbol("SDL_BlitSurfaceUncheckedScaled")
+	}
+	return uint8(call5(addrBlitSurfaceUncheckedScaled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+}
 
 // Perform low-level surface scaled blitting only.
 //
@@ -1480,7 +1837,14 @@ func BlitSurfaceUncheckedScaled(src *Surface, srcrect *Rect, dst *Surface, dstre
 	return fnBlitSurfaceUncheckedScaled(src, srcrect, dst, dstrect, scaleMode)
 }
 
-var fnStretchSurface func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool
+var addrStretchSurface uintptr
+
+func fnStretchSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, scaleMode ScaleMode) bool {
+	if addrStretchSurface == 0 {
+		missingSymbol("SDL_StretchSurface")
+	}
+	return uint8(call5(addrStretchSurface, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+}
 
 // Perform a stretched pixel copy from one surface to another.
 //
@@ -1502,7 +1866,14 @@ func StretchSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, sc
 	return fnStretchSurface(src, srcrect, dst, dstrect, scaleMode)
 }
 
-var fnBlitSurfaceTiled func(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool
+var addrBlitSurfaceTiled uintptr
+
+func fnBlitSurfaceTiled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) bool {
+	if addrBlitSurfaceTiled == 0 {
+		missingSymbol("SDL_BlitSurfaceTiled")
+	}
+	return uint8(call4(addrBlitSurfaceTiled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+}
 
 // Perform a tiled blit to a destination surface, which may be of a different
 // format.
@@ -1588,7 +1959,14 @@ func BlitSurface9Grid(src *Surface, srcrect *Rect, left_width int32, right_width
 	return fnBlitSurface9Grid(src, srcrect, left_width, right_width, top_height, bottom_height, scale, scaleMode, dst, dstrect)
 }
 
-var fnMapSurfaceRGB func(surface *Surface, r uint8, g uint8, b uint8) uint32
+var addrMapSurfaceRGB uintptr
+
+func fnMapSurfaceRGB(surface *Surface, r uint8, g uint8, b uint8) uint32 {
+	if addrMapSurfaceRGB == 0 {
+		missingSymbol("SDL_MapSurfaceRGB")
+	}
+	return uint32(call4(addrMapSurfaceRGB, uintptr(unsafe.Pointer(surface)), uintptr(r), uintptr(g), uintptr(b)))
+}
 
 // Map an RGB triple to an opaque pixel value for a surface.
 //
@@ -1624,7 +2002,14 @@ func MapSurfaceRGB(surface *Surface, r uint8, g uint8, b uint8) uint32 {
 	return fnMapSurfaceRGB(surface, r, g, b)
 }
 
-var fnMapSurfaceRGBA func(surface *Surface, r uint8, g uint8, b uint8, a uint8) uint32
+var addrMapSurfaceRGBA uintptr
+
+func fnMapSurfaceRGBA(surface *Surface, r uint8, g uint8, b uint8, a uint8) uint32 {
+	if addrMapSurfaceRGBA == 0 {
+		missingSymbol("SDL_MapSurfaceRGBA")
+	}
+	return uint32(call5(addrMapSurfaceRGBA, uintptr(unsafe.Pointer(surface)), uintptr(r), uintptr(g), uintptr(b), uintptr(a)))
+}
 
 // Map an RGBA quadruple to a pixel value for a surface.
 //
@@ -1661,7 +2046,14 @@ func MapSurfaceRGBA(surface *Surface, r uint8, g uint8, b uint8, a uint8) uint32
 	return fnMapSurfaceRGBA(surface, r, g, b, a)
 }
 
-var fnReadSurfacePixel func(surface *Surface, x int32, y int32, r *uint8, g *uint8, b *uint8, a *uint8) bool
+var addrReadSurfacePixel uintptr
+
+func fnReadSurfacePixel(surface *Surface, x int32, y int32, r *uint8, g *uint8, b *uint8, a *uint8) bool {
+	if addrReadSurfacePixel == 0 {
+		missingSymbol("SDL_ReadSurfacePixel")
+	}
+	return uint8(call7(addrReadSurfacePixel, uintptr(unsafe.Pointer(surface)), uintptr(x), uintptr(y), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)), uintptr(unsafe.Pointer(a)))) != 0
+}
 
 // Retrieves a single pixel from a surface.
 //
@@ -1689,7 +2081,14 @@ func ReadSurfacePixel(surface *Surface, x int32, y int32, r *uint8, g *uint8, b 
 	return fnReadSurfacePixel(surface, x, y, r, g, b, a)
 }
 
-var fnReadSurfacePixelFloat func(surface *Surface, x int32, y int32, r *float32, g *float32, b *float32, a *float32) bool
+var addrReadSurfacePixelFloat uintptr
+
+func fnReadSurfacePixelFloat(surface *Surface, x int32, y int32, r *float32, g *float32, b *float32, a *float32) bool {
+	if addrReadSurfacePixelFloat == 0 {
+		missingSymbol("SDL_ReadSurfacePixelFloat")
+	}
+	return uint8(call7(addrReadSurfacePixelFloat, uintptr(unsafe.Pointer(surface)), uintptr(x), uintptr(y), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(g)), uintptr(unsafe.Pointer(b)), uintptr(unsafe.Pointer(a)))) != 0
+}
 
 // Retrieves a single pixel from a surface.
 //
@@ -1714,7 +2113,14 @@ func ReadSurfacePixelFloat(surface *Surface, x int32, y int32, r *float32, g *fl
 	return fnReadSurfacePixelFloat(surface, x, y, r, g, b, a)
 }
 
-var fnWriteSurfacePixel func(surface *Surface, x int32, y int32, r uint8, g uint8, b uint8, a uint8) bool
+var addrWriteSurfacePixel uintptr
+
+func fnWriteSurfacePixel(surface *Surface, x int32, y int32, r uint8, g uint8, b uint8, a uint8) bool {
+	if addrWriteSurfacePixel == 0 {
+		missingSymbol("SDL_WriteSurfacePixel")
+	}
+	return uint8(call7(addrWriteSurfacePixel, uintptr(unsafe.Pointer(surface)), uintptr(x), uintptr(y), uintptr(r), uintptr(g), uintptr(b), uintptr(a))) != 0
+}
 
 // Writes a single pixel to a surface.
 //

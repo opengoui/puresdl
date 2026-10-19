@@ -81,7 +81,14 @@ const (
 	PROP_PROCESS_BACKGROUND_BOOLEAN              = "SDL.process.background"
 )
 
-var fnCreateProcess func(args **byte, pipe_stdio bool) *Process
+var addrCreateProcess uintptr
+
+func fnCreateProcess(args **byte, pipe_stdio bool) *Process {
+	if addrCreateProcess == 0 {
+		missingSymbol("SDL_CreateProcess")
+	}
+	return (*Process)(cptr(call2(addrCreateProcess, uintptr(unsafe.Pointer(args)), cbool(pipe_stdio))))
+}
 
 // Create a new process.
 //
@@ -114,7 +121,14 @@ func CreateProcess(args **byte, pipe_stdio bool) *Process {
 	return fnCreateProcess(args, pipe_stdio)
 }
 
-var fnCreateProcessWithProperties func(props PropertiesID) *Process
+var addrCreateProcessWithProperties uintptr
+
+func fnCreateProcessWithProperties(props PropertiesID) *Process {
+	if addrCreateProcessWithProperties == 0 {
+		missingSymbol("SDL_CreateProcessWithProperties")
+	}
+	return (*Process)(cptr(call1(addrCreateProcessWithProperties, uintptr(props))))
+}
 
 // Create a new process with the specified properties.
 //
@@ -181,7 +195,14 @@ func CreateProcessWithProperties(props PropertiesID) *Process {
 	return fnCreateProcessWithProperties(props)
 }
 
-var fnGetProcessProperties func(process *Process) PropertiesID
+var addrGetProcessProperties uintptr
+
+func fnGetProcessProperties(process *Process) PropertiesID {
+	if addrGetProcessProperties == 0 {
+		missingSymbol("SDL_GetProcessProperties")
+	}
+	return PropertiesID(call1(addrGetProcessProperties, uintptr(unsafe.Pointer(process))))
+}
 
 // Get the properties associated with a process.
 //
@@ -214,7 +235,14 @@ func GetProcessProperties(process *Process) PropertiesID {
 	return fnGetProcessProperties(process)
 }
 
-var fnReadProcess func(process *Process, datasize *uint, exitcode *int32) unsafe.Pointer
+var addrReadProcess uintptr
+
+func fnReadProcess(process *Process, datasize *uint, exitcode *int32) unsafe.Pointer {
+	if addrReadProcess == 0 {
+		missingSymbol("SDL_ReadProcess")
+	}
+	return cptr(call3(addrReadProcess, uintptr(unsafe.Pointer(process)), uintptr(unsafe.Pointer(datasize)), uintptr(unsafe.Pointer(exitcode))))
+}
 
 // Read all the output from a process.
 //
@@ -248,7 +276,14 @@ func ReadProcess(process *Process, exitcode *int32) []byte {
 	return copyFreeBytes(p, int(n))
 }
 
-var fnGetProcessInput func(process *Process) *IOStream
+var addrGetProcessInput uintptr
+
+func fnGetProcessInput(process *Process) *IOStream {
+	if addrGetProcessInput == 0 {
+		missingSymbol("SDL_GetProcessInput")
+	}
+	return (*IOStream)(cptr(call1(addrGetProcessInput, uintptr(unsafe.Pointer(process)))))
+}
 
 // Get the IOStream associated with process standard input.
 //
@@ -275,7 +310,14 @@ func GetProcessInput(process *Process) *IOStream {
 	return fnGetProcessInput(process)
 }
 
-var fnGetProcessOutput func(process *Process) *IOStream
+var addrGetProcessOutput uintptr
+
+func fnGetProcessOutput(process *Process) *IOStream {
+	if addrGetProcessOutput == 0 {
+		missingSymbol("SDL_GetProcessOutput")
+	}
+	return (*IOStream)(cptr(call1(addrGetProcessOutput, uintptr(unsafe.Pointer(process)))))
+}
 
 // Get the IOStream associated with process standard output.
 //
@@ -300,7 +342,14 @@ func GetProcessOutput(process *Process) *IOStream {
 	return fnGetProcessOutput(process)
 }
 
-var fnKillProcess func(process *Process, force bool) bool
+var addrKillProcess uintptr
+
+func fnKillProcess(process *Process, force bool) bool {
+	if addrKillProcess == 0 {
+		missingSymbol("SDL_KillProcess")
+	}
+	return uint8(call2(addrKillProcess, uintptr(unsafe.Pointer(process)), cbool(force))) != 0
+}
 
 // Stop a process.
 //
@@ -319,7 +368,14 @@ func KillProcess(process *Process, force bool) bool {
 	return fnKillProcess(process, force)
 }
 
-var fnWaitProcess func(process *Process, block bool, exitcode *int32) bool
+var addrWaitProcess uintptr
+
+func fnWaitProcess(process *Process, block bool, exitcode *int32) bool {
+	if addrWaitProcess == 0 {
+		missingSymbol("SDL_WaitProcess")
+	}
+	return uint8(call3(addrWaitProcess, uintptr(unsafe.Pointer(process)), cbool(block), uintptr(unsafe.Pointer(exitcode)))) != 0
+}
 
 // Wait for a process to finish.
 //
@@ -351,7 +407,14 @@ func WaitProcess(process *Process, block bool, exitcode *int32) bool {
 	return fnWaitProcess(process, block, exitcode)
 }
 
-var fnDestroyProcess func(process *Process)
+var addrDestroyProcess uintptr
+
+func fnDestroyProcess(process *Process) {
+	if addrDestroyProcess == 0 {
+		missingSymbol("SDL_DestroyProcess")
+	}
+	call1(addrDestroyProcess, uintptr(unsafe.Pointer(process)))
+}
 
 // Destroy a previously created process object.
 //

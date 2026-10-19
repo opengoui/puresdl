@@ -257,7 +257,14 @@ const (
 	PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN = "SDL.joystick.cap.trigger_rumble"
 )
 
-var fnAddGamepadMapping func(mapping *byte) int32
+var addrAddGamepadMapping uintptr
+
+func fnAddGamepadMapping(mapping *byte) int32 {
+	if addrAddGamepadMapping == 0 {
+		missingSymbol("SDL_AddGamepadMapping")
+	}
+	return int32(call1(addrAddGamepadMapping, uintptr(unsafe.Pointer(mapping))))
+}
 
 // Add support for gamepads that SDL is unaware of or change the binding of an
 // existing gamepad.
@@ -295,7 +302,14 @@ func AddGamepadMapping(mapping string) int32 {
 	return fnAddGamepadMapping(cstr(mapping))
 }
 
-var fnAddGamepadMappingsFromIO func(src *IOStream, closeio bool) int32
+var addrAddGamepadMappingsFromIO uintptr
+
+func fnAddGamepadMappingsFromIO(src *IOStream, closeio bool) int32 {
+	if addrAddGamepadMappingsFromIO == 0 {
+		missingSymbol("SDL_AddGamepadMappingsFromIO")
+	}
+	return int32(call2(addrAddGamepadMappingsFromIO, uintptr(unsafe.Pointer(src)), cbool(closeio)))
+}
 
 // Load a set of gamepad mappings from an IOStream.
 //
@@ -331,7 +345,14 @@ func AddGamepadMappingsFromIO(src *IOStream, closeio bool) int32 {
 	return fnAddGamepadMappingsFromIO(src, closeio)
 }
 
-var fnAddGamepadMappingsFromFile func(file *byte) int32
+var addrAddGamepadMappingsFromFile uintptr
+
+func fnAddGamepadMappingsFromFile(file *byte) int32 {
+	if addrAddGamepadMappingsFromFile == 0 {
+		missingSymbol("SDL_AddGamepadMappingsFromFile")
+	}
+	return int32(call1(addrAddGamepadMappingsFromFile, uintptr(unsafe.Pointer(file))))
+}
 
 // Load a set of gamepad mappings from a file.
 //
@@ -362,7 +383,14 @@ func AddGamepadMappingsFromFile(file string) int32 {
 	return fnAddGamepadMappingsFromFile(cstr(file))
 }
 
-var fnReloadGamepadMappings func() bool
+var addrReloadGamepadMappings uintptr
+
+func fnReloadGamepadMappings() bool {
+	if addrReloadGamepadMappings == 0 {
+		missingSymbol("SDL_ReloadGamepadMappings")
+	}
+	return uint8(call0(addrReloadGamepadMappings)) != 0
+}
 
 // Reinitialize the SDL mapping database to its initial state.
 //
@@ -377,7 +405,14 @@ func ReloadGamepadMappings() bool {
 	return fnReloadGamepadMappings()
 }
 
-var fnGetGamepadMappings func(count *int32) **byte
+var addrGetGamepadMappings uintptr
+
+func fnGetGamepadMappings(count *int32) **byte {
+	if addrGetGamepadMappings == 0 {
+		missingSymbol("SDL_GetGamepadMappings")
+	}
+	return (**byte)(cptr(call1(addrGetGamepadMappings, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the current gamepad mappings.
 //
@@ -421,7 +456,14 @@ func GetGamepadMappingForGUID(guid GUID) string {
 	return s
 }
 
-var fnGetGamepadMapping func(gamepad *Gamepad) *byte
+var addrGetGamepadMapping uintptr
+
+func fnGetGamepadMapping(gamepad *Gamepad) *byte {
+	if addrGetGamepadMapping == 0 {
+		missingSymbol("SDL_GetGamepadMapping")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadMapping, uintptr(unsafe.Pointer(gamepad)))))
+}
 
 // Get the current mapping of a gamepad.
 //
@@ -447,7 +489,14 @@ func GetGamepadMapping(gamepad *Gamepad) string {
 	return s
 }
 
-var fnSetGamepadMapping func(instance_id JoystickID, mapping *byte) bool
+var addrSetGamepadMapping uintptr
+
+func fnSetGamepadMapping(instance_id JoystickID, mapping *byte) bool {
+	if addrSetGamepadMapping == 0 {
+		missingSymbol("SDL_SetGamepadMapping")
+	}
+	return uint8(call2(addrSetGamepadMapping, uintptr(instance_id), uintptr(unsafe.Pointer(mapping)))) != 0
+}
 
 // Set the current mapping of a joystick or gamepad.
 //
@@ -470,7 +519,14 @@ func SetGamepadMapping(instance_id JoystickID, mapping *string) bool {
 	return fnSetGamepadMapping(instance_id, cstrPtr(mapping))
 }
 
-var fnHasGamepad func() bool
+var addrHasGamepad uintptr
+
+func fnHasGamepad() bool {
+	if addrHasGamepad == 0 {
+		missingSymbol("SDL_HasGamepad")
+	}
+	return uint8(call0(addrHasGamepad)) != 0
+}
 
 // Return whether a gamepad is currently connected.
 //
@@ -485,7 +541,14 @@ func HasGamepad() bool {
 	return fnHasGamepad()
 }
 
-var fnGetGamepads func(count *int32) *JoystickID
+var addrGetGamepads uintptr
+
+func fnGetGamepads(count *int32) *JoystickID {
+	if addrGetGamepads == 0 {
+		missingSymbol("SDL_GetGamepads")
+	}
+	return (*JoystickID)(cptr(call1(addrGetGamepads, uintptr(unsafe.Pointer(count)))))
+}
 
 // Get a list of currently connected gamepads.
 //
@@ -507,7 +570,14 @@ func GetGamepads() []JoystickID {
 	return copyFree(p, int(n))
 }
 
-var fnIsGamepad func(instance_id JoystickID) bool
+var addrIsGamepad uintptr
+
+func fnIsGamepad(instance_id JoystickID) bool {
+	if addrIsGamepad == 0 {
+		missingSymbol("SDL_IsGamepad")
+	}
+	return uint8(call1(addrIsGamepad, uintptr(instance_id))) != 0
+}
 
 // Check if the given joystick is supported by the gamepad interface.
 //
@@ -525,7 +595,14 @@ func IsGamepad(instance_id JoystickID) bool {
 	return fnIsGamepad(instance_id)
 }
 
-var fnGetGamepadNameForID func(instance_id JoystickID) *byte
+var addrGetGamepadNameForID uintptr
+
+func fnGetGamepadNameForID(instance_id JoystickID) *byte {
+	if addrGetGamepadNameForID == 0 {
+		missingSymbol("SDL_GetGamepadNameForID")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadNameForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent name of a gamepad.
 //
@@ -545,7 +622,14 @@ func GetGamepadNameForID(instance_id JoystickID) string {
 	return GoString(fnGetGamepadNameForID(instance_id))
 }
 
-var fnGetGamepadPathForID func(instance_id JoystickID) *byte
+var addrGetGamepadPathForID uintptr
+
+func fnGetGamepadPathForID(instance_id JoystickID) *byte {
+	if addrGetGamepadPathForID == 0 {
+		missingSymbol("SDL_GetGamepadPathForID")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadPathForID, uintptr(instance_id))))
+}
 
 // Get the implementation dependent path of a gamepad.
 //
@@ -565,7 +649,14 @@ func GetGamepadPathForID(instance_id JoystickID) string {
 	return GoString(fnGetGamepadPathForID(instance_id))
 }
 
-var fnGetGamepadPlayerIndexForID func(instance_id JoystickID) int32
+var addrGetGamepadPlayerIndexForID uintptr
+
+func fnGetGamepadPlayerIndexForID(instance_id JoystickID) int32 {
+	if addrGetGamepadPlayerIndexForID == 0 {
+		missingSymbol("SDL_GetGamepadPlayerIndexForID")
+	}
+	return int32(call1(addrGetGamepadPlayerIndexForID, uintptr(instance_id)))
+}
 
 // Get the player index of a gamepad.
 //
@@ -605,7 +696,14 @@ func GetGamepadGUIDForID(instance_id JoystickID) GUID {
 	return fnGetGamepadGUIDForID(instance_id).guid()
 }
 
-var fnGetGamepadVendorForID func(instance_id JoystickID) uint16
+var addrGetGamepadVendorForID uintptr
+
+func fnGetGamepadVendorForID(instance_id JoystickID) uint16 {
+	if addrGetGamepadVendorForID == 0 {
+		missingSymbol("SDL_GetGamepadVendorForID")
+	}
+	return uint16(call1(addrGetGamepadVendorForID, uintptr(instance_id)))
+}
 
 // Get the USB vendor ID of a gamepad, if available.
 //
@@ -626,7 +724,14 @@ func GetGamepadVendorForID(instance_id JoystickID) uint16 {
 	return fnGetGamepadVendorForID(instance_id)
 }
 
-var fnGetGamepadProductForID func(instance_id JoystickID) uint16
+var addrGetGamepadProductForID uintptr
+
+func fnGetGamepadProductForID(instance_id JoystickID) uint16 {
+	if addrGetGamepadProductForID == 0 {
+		missingSymbol("SDL_GetGamepadProductForID")
+	}
+	return uint16(call1(addrGetGamepadProductForID, uintptr(instance_id)))
+}
 
 // Get the USB product ID of a gamepad, if available.
 //
@@ -647,7 +752,14 @@ func GetGamepadProductForID(instance_id JoystickID) uint16 {
 	return fnGetGamepadProductForID(instance_id)
 }
 
-var fnGetGamepadProductVersionForID func(instance_id JoystickID) uint16
+var addrGetGamepadProductVersionForID uintptr
+
+func fnGetGamepadProductVersionForID(instance_id JoystickID) uint16 {
+	if addrGetGamepadProductVersionForID == 0 {
+		missingSymbol("SDL_GetGamepadProductVersionForID")
+	}
+	return uint16(call1(addrGetGamepadProductVersionForID, uintptr(instance_id)))
+}
 
 // Get the product version of a gamepad, if available.
 //
@@ -668,7 +780,14 @@ func GetGamepadProductVersionForID(instance_id JoystickID) uint16 {
 	return fnGetGamepadProductVersionForID(instance_id)
 }
 
-var fnGetGamepadTypeForID func(instance_id JoystickID) GamepadType
+var addrGetGamepadTypeForID uintptr
+
+func fnGetGamepadTypeForID(instance_id JoystickID) GamepadType {
+	if addrGetGamepadTypeForID == 0 {
+		missingSymbol("SDL_GetGamepadTypeForID")
+	}
+	return GamepadType(call1(addrGetGamepadTypeForID, uintptr(instance_id)))
+}
 
 // Get the type of a gamepad.
 //
@@ -688,7 +807,14 @@ func GetGamepadTypeForID(instance_id JoystickID) GamepadType {
 	return fnGetGamepadTypeForID(instance_id)
 }
 
-var fnGetRealGamepadTypeForID func(instance_id JoystickID) GamepadType
+var addrGetRealGamepadTypeForID uintptr
+
+func fnGetRealGamepadTypeForID(instance_id JoystickID) GamepadType {
+	if addrGetRealGamepadTypeForID == 0 {
+		missingSymbol("SDL_GetRealGamepadTypeForID")
+	}
+	return GamepadType(call1(addrGetRealGamepadTypeForID, uintptr(instance_id)))
+}
 
 // Get the type of a gamepad, ignoring any mapping override.
 //
@@ -708,7 +834,14 @@ func GetRealGamepadTypeForID(instance_id JoystickID) GamepadType {
 	return fnGetRealGamepadTypeForID(instance_id)
 }
 
-var fnGetGamepadMappingForID func(instance_id JoystickID) *byte
+var addrGetGamepadMappingForID uintptr
+
+func fnGetGamepadMappingForID(instance_id JoystickID) *byte {
+	if addrGetGamepadMappingForID == 0 {
+		missingSymbol("SDL_GetGamepadMappingForID")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadMappingForID, uintptr(instance_id))))
+}
 
 // Get the mapping of a gamepad.
 //
@@ -734,7 +867,14 @@ func GetGamepadMappingForID(instance_id JoystickID) string {
 	return s
 }
 
-var fnOpenGamepad func(instance_id JoystickID) *Gamepad
+var addrOpenGamepad uintptr
+
+func fnOpenGamepad(instance_id JoystickID) *Gamepad {
+	if addrOpenGamepad == 0 {
+		missingSymbol("SDL_OpenGamepad")
+	}
+	return (*Gamepad)(cptr(call1(addrOpenGamepad, uintptr(instance_id))))
+}
 
 // Open a gamepad for use.
 //
@@ -752,7 +892,14 @@ func OpenGamepad(instance_id JoystickID) *Gamepad {
 	return fnOpenGamepad(instance_id)
 }
 
-var fnGetGamepadFromID func(instance_id JoystickID) *Gamepad
+var addrGetGamepadFromID uintptr
+
+func fnGetGamepadFromID(instance_id JoystickID) *Gamepad {
+	if addrGetGamepadFromID == 0 {
+		missingSymbol("SDL_GetGamepadFromID")
+	}
+	return (*Gamepad)(cptr(call1(addrGetGamepadFromID, uintptr(instance_id))))
+}
 
 // Get the Gamepad associated with a joystick instance ID, if it has been
 // opened.
@@ -769,7 +916,14 @@ func GetGamepadFromID(instance_id JoystickID) *Gamepad {
 	return fnGetGamepadFromID(instance_id)
 }
 
-var fnGetGamepadFromPlayerIndex func(player_index int32) *Gamepad
+var addrGetGamepadFromPlayerIndex uintptr
+
+func fnGetGamepadFromPlayerIndex(player_index int32) *Gamepad {
+	if addrGetGamepadFromPlayerIndex == 0 {
+		missingSymbol("SDL_GetGamepadFromPlayerIndex")
+	}
+	return (*Gamepad)(cptr(call1(addrGetGamepadFromPlayerIndex, uintptr(player_index))))
+}
 
 // Get the Gamepad associated with a player index.
 //
@@ -787,7 +941,14 @@ func GetGamepadFromPlayerIndex(player_index int32) *Gamepad {
 	return fnGetGamepadFromPlayerIndex(player_index)
 }
 
-var fnGetGamepadProperties func(gamepad *Gamepad) PropertiesID
+var addrGetGamepadProperties uintptr
+
+func fnGetGamepadProperties(gamepad *Gamepad) PropertiesID {
+	if addrGetGamepadProperties == 0 {
+		missingSymbol("SDL_GetGamepadProperties")
+	}
+	return PropertiesID(call1(addrGetGamepadProperties, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the properties associated with an opened gamepad.
 //
@@ -818,7 +979,14 @@ func GetGamepadProperties(gamepad *Gamepad) PropertiesID {
 	return fnGetGamepadProperties(gamepad)
 }
 
-var fnGetGamepadID func(gamepad *Gamepad) JoystickID
+var addrGetGamepadID uintptr
+
+func fnGetGamepadID(gamepad *Gamepad) JoystickID {
+	if addrGetGamepadID == 0 {
+		missingSymbol("SDL_GetGamepadID")
+	}
+	return JoystickID(call1(addrGetGamepadID, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the instance ID of an opened gamepad.
 //
@@ -834,7 +1002,14 @@ func GetGamepadID(gamepad *Gamepad) JoystickID {
 	return fnGetGamepadID(gamepad)
 }
 
-var fnGetGamepadName func(gamepad *Gamepad) *byte
+var addrGetGamepadName uintptr
+
+func fnGetGamepadName(gamepad *Gamepad) *byte {
+	if addrGetGamepadName == 0 {
+		missingSymbol("SDL_GetGamepadName")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadName, uintptr(unsafe.Pointer(gamepad)))))
+}
 
 // Get the implementation-dependent name for an opened gamepad.
 //
@@ -852,7 +1027,14 @@ func GetGamepadName(gamepad *Gamepad) string {
 	return GoString(fnGetGamepadName(gamepad))
 }
 
-var fnGetGamepadPath func(gamepad *Gamepad) *byte
+var addrGetGamepadPath uintptr
+
+func fnGetGamepadPath(gamepad *Gamepad) *byte {
+	if addrGetGamepadPath == 0 {
+		missingSymbol("SDL_GetGamepadPath")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadPath, uintptr(unsafe.Pointer(gamepad)))))
+}
 
 // Get the implementation-dependent path for an opened gamepad.
 //
@@ -870,7 +1052,14 @@ func GetGamepadPath(gamepad *Gamepad) string {
 	return GoString(fnGetGamepadPath(gamepad))
 }
 
-var fnGetGamepadType func(gamepad *Gamepad) GamepadType
+var addrGetGamepadType uintptr
+
+func fnGetGamepadType(gamepad *Gamepad) GamepadType {
+	if addrGetGamepadType == 0 {
+		missingSymbol("SDL_GetGamepadType")
+	}
+	return GamepadType(call1(addrGetGamepadType, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the type of an opened gamepad.
 //
@@ -888,7 +1077,14 @@ func GetGamepadType(gamepad *Gamepad) GamepadType {
 	return fnGetGamepadType(gamepad)
 }
 
-var fnGetRealGamepadType func(gamepad *Gamepad) GamepadType
+var addrGetRealGamepadType uintptr
+
+func fnGetRealGamepadType(gamepad *Gamepad) GamepadType {
+	if addrGetRealGamepadType == 0 {
+		missingSymbol("SDL_GetRealGamepadType")
+	}
+	return GamepadType(call1(addrGetRealGamepadType, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the type of an opened gamepad, ignoring any mapping override.
 //
@@ -906,7 +1102,14 @@ func GetRealGamepadType(gamepad *Gamepad) GamepadType {
 	return fnGetRealGamepadType(gamepad)
 }
 
-var fnGetGamepadPlayerIndex func(gamepad *Gamepad) int32
+var addrGetGamepadPlayerIndex uintptr
+
+func fnGetGamepadPlayerIndex(gamepad *Gamepad) int32 {
+	if addrGetGamepadPlayerIndex == 0 {
+		missingSymbol("SDL_GetGamepadPlayerIndex")
+	}
+	return int32(call1(addrGetGamepadPlayerIndex, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the player index of an opened gamepad.
 //
@@ -926,7 +1129,14 @@ func GetGamepadPlayerIndex(gamepad *Gamepad) int32 {
 	return fnGetGamepadPlayerIndex(gamepad)
 }
 
-var fnSetGamepadPlayerIndex func(gamepad *Gamepad, player_index int32) bool
+var addrSetGamepadPlayerIndex uintptr
+
+func fnSetGamepadPlayerIndex(gamepad *Gamepad, player_index int32) bool {
+	if addrSetGamepadPlayerIndex == 0 {
+		missingSymbol("SDL_SetGamepadPlayerIndex")
+	}
+	return uint8(call2(addrSetGamepadPlayerIndex, uintptr(unsafe.Pointer(gamepad)), uintptr(player_index))) != 0
+}
 
 // Set the player index of an opened gamepad.
 //
@@ -945,7 +1155,14 @@ func SetGamepadPlayerIndex(gamepad *Gamepad, player_index int32) bool {
 	return fnSetGamepadPlayerIndex(gamepad, player_index)
 }
 
-var fnGetGamepadVendor func(gamepad *Gamepad) uint16
+var addrGetGamepadVendor uintptr
+
+func fnGetGamepadVendor(gamepad *Gamepad) uint16 {
+	if addrGetGamepadVendor == 0 {
+		missingSymbol("SDL_GetGamepadVendor")
+	}
+	return uint16(call1(addrGetGamepadVendor, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the USB vendor ID of an opened gamepad, if available.
 //
@@ -965,7 +1182,14 @@ func GetGamepadVendor(gamepad *Gamepad) uint16 {
 	return fnGetGamepadVendor(gamepad)
 }
 
-var fnGetGamepadProduct func(gamepad *Gamepad) uint16
+var addrGetGamepadProduct uintptr
+
+func fnGetGamepadProduct(gamepad *Gamepad) uint16 {
+	if addrGetGamepadProduct == 0 {
+		missingSymbol("SDL_GetGamepadProduct")
+	}
+	return uint16(call1(addrGetGamepadProduct, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the USB product ID of an opened gamepad, if available.
 //
@@ -985,7 +1209,14 @@ func GetGamepadProduct(gamepad *Gamepad) uint16 {
 	return fnGetGamepadProduct(gamepad)
 }
 
-var fnGetGamepadProductVersion func(gamepad *Gamepad) uint16
+var addrGetGamepadProductVersion uintptr
+
+func fnGetGamepadProductVersion(gamepad *Gamepad) uint16 {
+	if addrGetGamepadProductVersion == 0 {
+		missingSymbol("SDL_GetGamepadProductVersion")
+	}
+	return uint16(call1(addrGetGamepadProductVersion, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the product version of an opened gamepad, if available.
 //
@@ -1005,7 +1236,14 @@ func GetGamepadProductVersion(gamepad *Gamepad) uint16 {
 	return fnGetGamepadProductVersion(gamepad)
 }
 
-var fnGetGamepadFirmwareVersion func(gamepad *Gamepad) uint16
+var addrGetGamepadFirmwareVersion uintptr
+
+func fnGetGamepadFirmwareVersion(gamepad *Gamepad) uint16 {
+	if addrGetGamepadFirmwareVersion == 0 {
+		missingSymbol("SDL_GetGamepadFirmwareVersion")
+	}
+	return uint16(call1(addrGetGamepadFirmwareVersion, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the firmware version of an opened gamepad, if available.
 //
@@ -1023,7 +1261,14 @@ func GetGamepadFirmwareVersion(gamepad *Gamepad) uint16 {
 	return fnGetGamepadFirmwareVersion(gamepad)
 }
 
-var fnGetGamepadSerial func(gamepad *Gamepad) *byte
+var addrGetGamepadSerial uintptr
+
+func fnGetGamepadSerial(gamepad *Gamepad) *byte {
+	if addrGetGamepadSerial == 0 {
+		missingSymbol("SDL_GetGamepadSerial")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadSerial, uintptr(unsafe.Pointer(gamepad)))))
+}
 
 // Get the serial number of an opened gamepad, if available.
 //
@@ -1041,7 +1286,14 @@ func GetGamepadSerial(gamepad *Gamepad) string {
 	return GoString(fnGetGamepadSerial(gamepad))
 }
 
-var fnGetGamepadSteamHandle func(gamepad *Gamepad) uint64
+var addrGetGamepadSteamHandle uintptr
+
+func fnGetGamepadSteamHandle(gamepad *Gamepad) uint64 {
+	if addrGetGamepadSteamHandle == 0 {
+		missingSymbol("SDL_GetGamepadSteamHandle")
+	}
+	return uint64(call1(addrGetGamepadSteamHandle, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the Steam Input handle of an opened gamepad, if available.
 //
@@ -1060,7 +1312,14 @@ func GetGamepadSteamHandle(gamepad *Gamepad) uint64 {
 	return fnGetGamepadSteamHandle(gamepad)
 }
 
-var fnGetGamepadConnectionState func(gamepad *Gamepad) JoystickConnectionState
+var addrGetGamepadConnectionState uintptr
+
+func fnGetGamepadConnectionState(gamepad *Gamepad) JoystickConnectionState {
+	if addrGetGamepadConnectionState == 0 {
+		missingSymbol("SDL_GetGamepadConnectionState")
+	}
+	return JoystickConnectionState(call1(addrGetGamepadConnectionState, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the connection state of a gamepad.
 //
@@ -1076,7 +1335,14 @@ func GetGamepadConnectionState(gamepad *Gamepad) JoystickConnectionState {
 	return fnGetGamepadConnectionState(gamepad)
 }
 
-var fnGetGamepadPowerInfo func(gamepad *Gamepad, percent *int32) PowerState
+var addrGetGamepadPowerInfo uintptr
+
+func fnGetGamepadPowerInfo(gamepad *Gamepad, percent *int32) PowerState {
+	if addrGetGamepadPowerInfo == 0 {
+		missingSymbol("SDL_GetGamepadPowerInfo")
+	}
+	return PowerState(call2(addrGetGamepadPowerInfo, uintptr(unsafe.Pointer(gamepad)), uintptr(unsafe.Pointer(percent))))
+}
 
 // Get the battery state of a gamepad.
 //
@@ -1099,7 +1365,14 @@ func GetGamepadPowerInfo(gamepad *Gamepad, percent *int32) PowerState {
 	return fnGetGamepadPowerInfo(gamepad, percent)
 }
 
-var fnGamepadConnected func(gamepad *Gamepad) bool
+var addrGamepadConnected uintptr
+
+func fnGamepadConnected(gamepad *Gamepad) bool {
+	if addrGamepadConnected == 0 {
+		missingSymbol("SDL_GamepadConnected")
+	}
+	return uint8(call1(addrGamepadConnected, uintptr(unsafe.Pointer(gamepad)))) != 0
+}
 
 // Check if a gamepad has been opened and is currently connected.
 //
@@ -1115,7 +1388,14 @@ func GamepadConnected(gamepad *Gamepad) bool {
 	return fnGamepadConnected(gamepad)
 }
 
-var fnGetGamepadJoystick func(gamepad *Gamepad) *Joystick
+var addrGetGamepadJoystick uintptr
+
+func fnGetGamepadJoystick(gamepad *Gamepad) *Joystick {
+	if addrGetGamepadJoystick == 0 {
+		missingSymbol("SDL_GetGamepadJoystick")
+	}
+	return (*Joystick)(cptr(call1(addrGetGamepadJoystick, uintptr(unsafe.Pointer(gamepad)))))
+}
 
 // Get the underlying joystick from a gamepad.
 //
@@ -1140,7 +1420,14 @@ func GetGamepadJoystick(gamepad *Gamepad) *Joystick {
 	return fnGetGamepadJoystick(gamepad)
 }
 
-var fnSetGamepadEventsEnabled func(enabled bool)
+var addrSetGamepadEventsEnabled uintptr
+
+func fnSetGamepadEventsEnabled(enabled bool) {
+	if addrSetGamepadEventsEnabled == 0 {
+		missingSymbol("SDL_SetGamepadEventsEnabled")
+	}
+	call1(addrSetGamepadEventsEnabled, cbool(enabled))
+}
 
 // Set the state of gamepad event processing.
 //
@@ -1159,7 +1446,14 @@ func SetGamepadEventsEnabled(enabled bool) {
 	fnSetGamepadEventsEnabled(enabled)
 }
 
-var fnGamepadEventsEnabled func() bool
+var addrGamepadEventsEnabled uintptr
+
+func fnGamepadEventsEnabled() bool {
+	if addrGamepadEventsEnabled == 0 {
+		missingSymbol("SDL_GamepadEventsEnabled")
+	}
+	return uint8(call0(addrGamepadEventsEnabled)) != 0
+}
 
 // Query the state of gamepad event processing.
 //
@@ -1177,7 +1471,14 @@ func GamepadEventsEnabled() bool {
 	return fnGamepadEventsEnabled()
 }
 
-var fnGetGamepadBindings func(gamepad *Gamepad, count *int32) **GamepadBinding
+var addrGetGamepadBindings uintptr
+
+func fnGetGamepadBindings(gamepad *Gamepad, count *int32) **GamepadBinding {
+	if addrGetGamepadBindings == 0 {
+		missingSymbol("SDL_GetGamepadBindings")
+	}
+	return (**GamepadBinding)(cptr(call2(addrGetGamepadBindings, uintptr(unsafe.Pointer(gamepad)), uintptr(unsafe.Pointer(count)))))
+}
 
 // Get the SDL joystick layer bindings for a gamepad.
 //
@@ -1198,7 +1499,14 @@ func GetGamepadBindings(gamepad *Gamepad) []GamepadBinding {
 	return copyFreeDeref(p, int(n))
 }
 
-var fnUpdateGamepads func()
+var addrUpdateGamepads uintptr
+
+func fnUpdateGamepads() {
+	if addrUpdateGamepads == 0 {
+		missingSymbol("SDL_UpdateGamepads")
+	}
+	call0(addrUpdateGamepads)
+}
 
 // Manually pump gamepad updates if not using the loop.
 //
@@ -1213,7 +1521,14 @@ func UpdateGamepads() {
 	fnUpdateGamepads()
 }
 
-var fnGetGamepadTypeFromString func(str *byte) GamepadType
+var addrGetGamepadTypeFromString uintptr
+
+func fnGetGamepadTypeFromString(str *byte) GamepadType {
+	if addrGetGamepadTypeFromString == 0 {
+		missingSymbol("SDL_GetGamepadTypeFromString")
+	}
+	return GamepadType(call1(addrGetGamepadTypeFromString, uintptr(unsafe.Pointer(str))))
+}
 
 // Convert a string into GamepadType enum.
 //
@@ -1236,7 +1551,14 @@ func GetGamepadTypeFromString(str string) GamepadType {
 	return fnGetGamepadTypeFromString(cstr(str))
 }
 
-var fnGetGamepadStringForType func(type_ GamepadType) *byte
+var addrGetGamepadStringForType uintptr
+
+func fnGetGamepadStringForType(type_ GamepadType) *byte {
+	if addrGetGamepadStringForType == 0 {
+		missingSymbol("SDL_GetGamepadStringForType")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadStringForType, uintptr(type_))))
+}
 
 // Convert from an GamepadType enum to a string.
 //
@@ -1254,7 +1576,14 @@ func GetGamepadStringForType(type_ GamepadType) string {
 	return GoString(fnGetGamepadStringForType(type_))
 }
 
-var fnGetGamepadAxisFromString func(str *byte) GamepadAxis
+var addrGetGamepadAxisFromString uintptr
+
+func fnGetGamepadAxisFromString(str *byte) GamepadAxis {
+	if addrGetGamepadAxisFromString == 0 {
+		missingSymbol("SDL_GetGamepadAxisFromString")
+	}
+	return GamepadAxis(call1(addrGetGamepadAxisFromString, uintptr(unsafe.Pointer(str))))
+}
 
 // Convert a string into GamepadAxis enum.
 //
@@ -1281,7 +1610,14 @@ func GetGamepadAxisFromString(str string) GamepadAxis {
 	return fnGetGamepadAxisFromString(cstr(str))
 }
 
-var fnGetGamepadStringForAxis func(axis GamepadAxis) *byte
+var addrGetGamepadStringForAxis uintptr
+
+func fnGetGamepadStringForAxis(axis GamepadAxis) *byte {
+	if addrGetGamepadStringForAxis == 0 {
+		missingSymbol("SDL_GetGamepadStringForAxis")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadStringForAxis, uintptr(axis))))
+}
 
 // Convert from an GamepadAxis enum to a string.
 //
@@ -1299,7 +1635,14 @@ func GetGamepadStringForAxis(axis GamepadAxis) string {
 	return GoString(fnGetGamepadStringForAxis(axis))
 }
 
-var fnGamepadHasAxis func(gamepad *Gamepad, axis GamepadAxis) bool
+var addrGamepadHasAxis uintptr
+
+func fnGamepadHasAxis(gamepad *Gamepad, axis GamepadAxis) bool {
+	if addrGamepadHasAxis == 0 {
+		missingSymbol("SDL_GamepadHasAxis")
+	}
+	return uint8(call2(addrGamepadHasAxis, uintptr(unsafe.Pointer(gamepad)), uintptr(axis))) != 0
+}
 
 // Query whether a gamepad has a given axis.
 //
@@ -1321,7 +1664,14 @@ func GamepadHasAxis(gamepad *Gamepad, axis GamepadAxis) bool {
 	return fnGamepadHasAxis(gamepad, axis)
 }
 
-var fnGetGamepadAxis func(gamepad *Gamepad, axis GamepadAxis) int16
+var addrGetGamepadAxis uintptr
+
+func fnGetGamepadAxis(gamepad *Gamepad, axis GamepadAxis) int16 {
+	if addrGetGamepadAxis == 0 {
+		missingSymbol("SDL_GetGamepadAxis")
+	}
+	return int16(call2(addrGetGamepadAxis, uintptr(unsafe.Pointer(gamepad)), uintptr(axis)))
+}
 
 // Get the current state of an axis control on a gamepad.
 //
@@ -1352,7 +1702,14 @@ func GetGamepadAxis(gamepad *Gamepad, axis GamepadAxis) int16 {
 	return fnGetGamepadAxis(gamepad, axis)
 }
 
-var fnGetGamepadButtonFromString func(str *byte) GamepadButton
+var addrGetGamepadButtonFromString uintptr
+
+func fnGetGamepadButtonFromString(str *byte) GamepadButton {
+	if addrGetGamepadButtonFromString == 0 {
+		missingSymbol("SDL_GetGamepadButtonFromString")
+	}
+	return GamepadButton(call1(addrGetGamepadButtonFromString, uintptr(unsafe.Pointer(str))))
+}
 
 // Convert a string into an GamepadButton enum.
 //
@@ -1375,7 +1732,14 @@ func GetGamepadButtonFromString(str string) GamepadButton {
 	return fnGetGamepadButtonFromString(cstr(str))
 }
 
-var fnGetGamepadStringForButton func(button GamepadButton) *byte
+var addrGetGamepadStringForButton uintptr
+
+func fnGetGamepadStringForButton(button GamepadButton) *byte {
+	if addrGetGamepadStringForButton == 0 {
+		missingSymbol("SDL_GetGamepadStringForButton")
+	}
+	return (*byte)(cptr(call1(addrGetGamepadStringForButton, uintptr(button))))
+}
 
 // Convert from an GamepadButton enum to a string.
 //
@@ -1393,7 +1757,14 @@ func GetGamepadStringForButton(button GamepadButton) string {
 	return GoString(fnGetGamepadStringForButton(button))
 }
 
-var fnGamepadHasButton func(gamepad *Gamepad, button GamepadButton) bool
+var addrGamepadHasButton uintptr
+
+func fnGamepadHasButton(gamepad *Gamepad, button GamepadButton) bool {
+	if addrGamepadHasButton == 0 {
+		missingSymbol("SDL_GamepadHasButton")
+	}
+	return uint8(call2(addrGamepadHasButton, uintptr(unsafe.Pointer(gamepad)), uintptr(button))) != 0
+}
 
 // Query whether a gamepad has a given button.
 //
@@ -1415,7 +1786,14 @@ func GamepadHasButton(gamepad *Gamepad, button GamepadButton) bool {
 	return fnGamepadHasButton(gamepad, button)
 }
 
-var fnGetGamepadButton func(gamepad *Gamepad, button GamepadButton) bool
+var addrGetGamepadButton uintptr
+
+func fnGetGamepadButton(gamepad *Gamepad, button GamepadButton) bool {
+	if addrGetGamepadButton == 0 {
+		missingSymbol("SDL_GetGamepadButton")
+	}
+	return uint8(call2(addrGetGamepadButton, uintptr(unsafe.Pointer(gamepad)), uintptr(button))) != 0
+}
 
 // Get the current state of a button on a gamepad.
 //
@@ -1434,7 +1812,14 @@ func GetGamepadButton(gamepad *Gamepad, button GamepadButton) bool {
 	return fnGetGamepadButton(gamepad, button)
 }
 
-var fnGetGamepadButtonLabelForType func(type_ GamepadType, button GamepadButton) GamepadButtonLabel
+var addrGetGamepadButtonLabelForType uintptr
+
+func fnGetGamepadButtonLabelForType(type_ GamepadType, button GamepadButton) GamepadButtonLabel {
+	if addrGetGamepadButtonLabelForType == 0 {
+		missingSymbol("SDL_GetGamepadButtonLabelForType")
+	}
+	return GamepadButtonLabel(call2(addrGetGamepadButtonLabelForType, uintptr(type_), uintptr(button)))
+}
 
 // Get the label of a button on a gamepad.
 //
@@ -1453,7 +1838,14 @@ func GetGamepadButtonLabelForType(type_ GamepadType, button GamepadButton) Gamep
 	return fnGetGamepadButtonLabelForType(type_, button)
 }
 
-var fnGetGamepadButtonLabel func(gamepad *Gamepad, button GamepadButton) GamepadButtonLabel
+var addrGetGamepadButtonLabel uintptr
+
+func fnGetGamepadButtonLabel(gamepad *Gamepad, button GamepadButton) GamepadButtonLabel {
+	if addrGetGamepadButtonLabel == 0 {
+		missingSymbol("SDL_GetGamepadButtonLabel")
+	}
+	return GamepadButtonLabel(call2(addrGetGamepadButtonLabel, uintptr(unsafe.Pointer(gamepad)), uintptr(button)))
+}
 
 // Get the label of a button on a gamepad.
 //
@@ -1472,7 +1864,14 @@ func GetGamepadButtonLabel(gamepad *Gamepad, button GamepadButton) GamepadButton
 	return fnGetGamepadButtonLabel(gamepad, button)
 }
 
-var fnGetNumGamepadTouchpads func(gamepad *Gamepad) int32
+var addrGetNumGamepadTouchpads uintptr
+
+func fnGetNumGamepadTouchpads(gamepad *Gamepad) int32 {
+	if addrGetNumGamepadTouchpads == 0 {
+		missingSymbol("SDL_GetNumGamepadTouchpads")
+	}
+	return int32(call1(addrGetNumGamepadTouchpads, uintptr(unsafe.Pointer(gamepad))))
+}
 
 // Get the number of touchpads on a gamepad.
 //
@@ -1490,7 +1889,14 @@ func GetNumGamepadTouchpads(gamepad *Gamepad) int32 {
 	return fnGetNumGamepadTouchpads(gamepad)
 }
 
-var fnGetNumGamepadTouchpadFingers func(gamepad *Gamepad, touchpad int32) int32
+var addrGetNumGamepadTouchpadFingers uintptr
+
+func fnGetNumGamepadTouchpadFingers(gamepad *Gamepad, touchpad int32) int32 {
+	if addrGetNumGamepadTouchpadFingers == 0 {
+		missingSymbol("SDL_GetNumGamepadTouchpadFingers")
+	}
+	return int32(call2(addrGetNumGamepadTouchpadFingers, uintptr(unsafe.Pointer(gamepad)), uintptr(touchpad)))
+}
 
 // Get the number of supported simultaneous fingers on a touchpad on a game
 // gamepad.
@@ -1510,7 +1916,14 @@ func GetNumGamepadTouchpadFingers(gamepad *Gamepad, touchpad int32) int32 {
 	return fnGetNumGamepadTouchpadFingers(gamepad, touchpad)
 }
 
-var fnGetGamepadTouchpadFinger func(gamepad *Gamepad, touchpad int32, finger int32, down *bool, x *float32, y *float32, pressure *float32) bool
+var addrGetGamepadTouchpadFinger uintptr
+
+func fnGetGamepadTouchpadFinger(gamepad *Gamepad, touchpad int32, finger int32, down *bool, x *float32, y *float32, pressure *float32) bool {
+	if addrGetGamepadTouchpadFinger == 0 {
+		missingSymbol("SDL_GetGamepadTouchpadFinger")
+	}
+	return uint8(call7(addrGetGamepadTouchpadFinger, uintptr(unsafe.Pointer(gamepad)), uintptr(touchpad), uintptr(finger), uintptr(unsafe.Pointer(down)), uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y)), uintptr(unsafe.Pointer(pressure)))) != 0
+}
 
 // Get the current state of a finger on a touchpad on a gamepad.
 //
@@ -1534,7 +1947,14 @@ func GetGamepadTouchpadFinger(gamepad *Gamepad, touchpad int32, finger int32, do
 	return fnGetGamepadTouchpadFinger(gamepad, touchpad, finger, down, x, y, pressure)
 }
 
-var fnGamepadHasSensor func(gamepad *Gamepad, type_ SensorType) bool
+var addrGamepadHasSensor uintptr
+
+func fnGamepadHasSensor(gamepad *Gamepad, type_ SensorType) bool {
+	if addrGamepadHasSensor == 0 {
+		missingSymbol("SDL_GamepadHasSensor")
+	}
+	return uint8(call2(addrGamepadHasSensor, uintptr(unsafe.Pointer(gamepad)), uintptr(type_))) != 0
+}
 
 // Return whether a gamepad has a particular sensor.
 //
@@ -1553,7 +1973,14 @@ func GamepadHasSensor(gamepad *Gamepad, type_ SensorType) bool {
 	return fnGamepadHasSensor(gamepad, type_)
 }
 
-var fnSetGamepadSensorEnabled func(gamepad *Gamepad, type_ SensorType, enabled bool) bool
+var addrSetGamepadSensorEnabled uintptr
+
+func fnSetGamepadSensorEnabled(gamepad *Gamepad, type_ SensorType, enabled bool) bool {
+	if addrSetGamepadSensorEnabled == 0 {
+		missingSymbol("SDL_SetGamepadSensorEnabled")
+	}
+	return uint8(call3(addrSetGamepadSensorEnabled, uintptr(unsafe.Pointer(gamepad)), uintptr(type_), cbool(enabled))) != 0
+}
 
 // Set whether data reporting for a gamepad sensor is enabled.
 //
@@ -1573,7 +2000,14 @@ func SetGamepadSensorEnabled(gamepad *Gamepad, type_ SensorType, enabled bool) b
 	return fnSetGamepadSensorEnabled(gamepad, type_, enabled)
 }
 
-var fnGamepadSensorEnabled func(gamepad *Gamepad, type_ SensorType) bool
+var addrGamepadSensorEnabled uintptr
+
+func fnGamepadSensorEnabled(gamepad *Gamepad, type_ SensorType) bool {
+	if addrGamepadSensorEnabled == 0 {
+		missingSymbol("SDL_GamepadSensorEnabled")
+	}
+	return uint8(call2(addrGamepadSensorEnabled, uintptr(unsafe.Pointer(gamepad)), uintptr(type_))) != 0
+}
 
 // Query whether sensor data reporting is enabled for a gamepad.
 //
@@ -1609,7 +2043,14 @@ func GetGamepadSensorDataRate(gamepad *Gamepad, type_ SensorType) float32 {
 	return fnGetGamepadSensorDataRate(gamepad, type_)
 }
 
-var fnGetGamepadSensorData func(gamepad *Gamepad, type_ SensorType, data *float32, num_values int32) bool
+var addrGetGamepadSensorData uintptr
+
+func fnGetGamepadSensorData(gamepad *Gamepad, type_ SensorType, data *float32, num_values int32) bool {
+	if addrGetGamepadSensorData == 0 {
+		missingSymbol("SDL_GetGamepadSensorData")
+	}
+	return uint8(call4(addrGetGamepadSensorData, uintptr(unsafe.Pointer(gamepad)), uintptr(type_), uintptr(unsafe.Pointer(data)), uintptr(num_values))) != 0
+}
 
 // Get the current state of a gamepad sensor.
 //
@@ -1631,7 +2072,14 @@ func GetGamepadSensorData(gamepad *Gamepad, type_ SensorType, data *float32, num
 	return fnGetGamepadSensorData(gamepad, type_, data, num_values)
 }
 
-var fnRumbleGamepad func(gamepad *Gamepad, low_frequency_rumble uint16, high_frequency_rumble uint16, duration_ms uint32) bool
+var addrRumbleGamepad uintptr
+
+func fnRumbleGamepad(gamepad *Gamepad, low_frequency_rumble uint16, high_frequency_rumble uint16, duration_ms uint32) bool {
+	if addrRumbleGamepad == 0 {
+		missingSymbol("SDL_RumbleGamepad")
+	}
+	return uint8(call4(addrRumbleGamepad, uintptr(unsafe.Pointer(gamepad)), uintptr(low_frequency_rumble), uintptr(high_frequency_rumble), uintptr(duration_ms))) != 0
+}
 
 // Start a rumble effect on a gamepad.
 //
@@ -1656,7 +2104,14 @@ func RumbleGamepad(gamepad *Gamepad, low_frequency_rumble uint16, high_frequency
 	return fnRumbleGamepad(gamepad, low_frequency_rumble, high_frequency_rumble, duration_ms)
 }
 
-var fnRumbleGamepadTriggers func(gamepad *Gamepad, left_rumble uint16, right_rumble uint16, duration_ms uint32) bool
+var addrRumbleGamepadTriggers uintptr
+
+func fnRumbleGamepadTriggers(gamepad *Gamepad, left_rumble uint16, right_rumble uint16, duration_ms uint32) bool {
+	if addrRumbleGamepadTriggers == 0 {
+		missingSymbol("SDL_RumbleGamepadTriggers")
+	}
+	return uint8(call4(addrRumbleGamepadTriggers, uintptr(unsafe.Pointer(gamepad)), uintptr(left_rumble), uintptr(right_rumble), uintptr(duration_ms))) != 0
+}
 
 // Start a rumble effect in the gamepad's triggers.
 //
@@ -1687,7 +2142,14 @@ func RumbleGamepadTriggers(gamepad *Gamepad, left_rumble uint16, right_rumble ui
 	return fnRumbleGamepadTriggers(gamepad, left_rumble, right_rumble, duration_ms)
 }
 
-var fnSetGamepadLED func(gamepad *Gamepad, red uint8, green uint8, blue uint8) bool
+var addrSetGamepadLED uintptr
+
+func fnSetGamepadLED(gamepad *Gamepad, red uint8, green uint8, blue uint8) bool {
+	if addrSetGamepadLED == 0 {
+		missingSymbol("SDL_SetGamepadLED")
+	}
+	return uint8(call4(addrSetGamepadLED, uintptr(unsafe.Pointer(gamepad)), uintptr(red), uintptr(green), uintptr(blue))) != 0
+}
 
 // Update a gamepad's LED color.
 //
@@ -1712,7 +2174,14 @@ func SetGamepadLED(gamepad *Gamepad, red uint8, green uint8, blue uint8) bool {
 	return fnSetGamepadLED(gamepad, red, green, blue)
 }
 
-var fnSendGamepadEffect func(gamepad *Gamepad, data unsafe.Pointer, size int32) bool
+var addrSendGamepadEffect uintptr
+
+func fnSendGamepadEffect(gamepad *Gamepad, data unsafe.Pointer, size int32) bool {
+	if addrSendGamepadEffect == 0 {
+		missingSymbol("SDL_SendGamepadEffect")
+	}
+	return uint8(call3(addrSendGamepadEffect, uintptr(unsafe.Pointer(gamepad)), uintptr(unsafe.Pointer(data)), uintptr(size))) != 0
+}
 
 // Send a gamepad specific effect packet.
 //
@@ -1767,7 +2236,14 @@ func SendGamepadEffectSlice[T Number](gamepad *Gamepad, b []T) bool {
 	return ret
 }
 
-var fnCloseGamepad func(gamepad *Gamepad)
+var addrCloseGamepad uintptr
+
+func fnCloseGamepad(gamepad *Gamepad) {
+	if addrCloseGamepad == 0 {
+		missingSymbol("SDL_CloseGamepad")
+	}
+	call1(addrCloseGamepad, uintptr(unsafe.Pointer(gamepad)))
+}
 
 // Close a gamepad previously opened with OpenGamepad().
 //
@@ -1783,7 +2259,14 @@ func CloseGamepad(gamepad *Gamepad) {
 	fnCloseGamepad(gamepad)
 }
 
-var fnGetGamepadAppleSFSymbolsNameForButton func(gamepad *Gamepad, button GamepadButton) *byte
+var addrGetGamepadAppleSFSymbolsNameForButton uintptr
+
+func fnGetGamepadAppleSFSymbolsNameForButton(gamepad *Gamepad, button GamepadButton) *byte {
+	if addrGetGamepadAppleSFSymbolsNameForButton == 0 {
+		missingSymbol("SDL_GetGamepadAppleSFSymbolsNameForButton")
+	}
+	return (*byte)(cptr(call2(addrGetGamepadAppleSFSymbolsNameForButton, uintptr(unsafe.Pointer(gamepad)), uintptr(button))))
+}
 
 // Return the sfSymbolsName for a given button on a gamepad on Apple
 // platforms.
@@ -1803,7 +2286,14 @@ func GetGamepadAppleSFSymbolsNameForButton(gamepad *Gamepad, button GamepadButto
 	return GoString(fnGetGamepadAppleSFSymbolsNameForButton(gamepad, button))
 }
 
-var fnGetGamepadAppleSFSymbolsNameForAxis func(gamepad *Gamepad, axis GamepadAxis) *byte
+var addrGetGamepadAppleSFSymbolsNameForAxis uintptr
+
+func fnGetGamepadAppleSFSymbolsNameForAxis(gamepad *Gamepad, axis GamepadAxis) *byte {
+	if addrGetGamepadAppleSFSymbolsNameForAxis == 0 {
+		missingSymbol("SDL_GetGamepadAppleSFSymbolsNameForAxis")
+	}
+	return (*byte)(cptr(call2(addrGetGamepadAppleSFSymbolsNameForAxis, uintptr(unsafe.Pointer(gamepad)), uintptr(axis))))
+}
 
 // Return the sfSymbolsName for a given axis on a gamepad on Apple platforms.
 //

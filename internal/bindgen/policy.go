@@ -90,22 +90,10 @@ var initialisms = map[string]string{"hid": "HID", "id": "ID", "io": "IO", "utf":
 // be wrong for them.
 var handWritten = map[string]bool{
 	"SDL_GetPreferredLocales": true,
-	// This scalar hot path uses the pooled, allocation-free purego syscall
-	// bridge instead of the reflection wrapper installed by RegisterFunc.
-	"SDL_GetNumberProperty": true,
 	// SDL keeps the name pointer; the wrapper has to own a permanent copy.
 	"SDL_SetScancodeName": true,
 	// The output has no length and the input length must derive from the Go value.
 	"SDL_iconv_string": true,
-}
-
-// fastSliceCalls route renderer slice forms around the reflective function
-// wrappers installed by purego.RegisterFunc.
-var fastSliceCalls = map[string]string{
-	"SDL_RenderFillRects": "fastRenderFillRects",
-	"SDL_RenderLines":     "fastRenderLines",
-	"SDL_RenderPoints":    "fastRenderPoints",
-	"SDL_RenderRects":     "fastRenderRects",
 }
 
 // constTypeOverrides pins the type of macro constants whose contiguous
