@@ -1441,7 +1441,19 @@ func InitHapticRumble(haptic *Haptic) bool {
 	return fnInitHapticRumble(haptic)
 }
 
-var fnPlayHapticRumble func(haptic *Haptic, strength float32, length uint32) bool
+var addrPlayHapticRumble uintptr
+var regPlayHapticRumble func(haptic *Haptic, strength float32, length uint32) bool
+
+func fnPlayHapticRumble(haptic *Haptic, strength float32, length uint32) bool {
+	if !floatCalls {
+		return regPlayHapticRumble(haptic, strength, length)
+	}
+	if addrPlayHapticRumble == 0 {
+		missingSymbol("SDL_PlayHapticRumble")
+	}
+	r, _ := callF2(addrPlayHapticRumble, 0b10, &floatArgs{f32(strength)}, uintptr(unsafe.Pointer(haptic)), uintptr(length))
+	return uint8(r) != 0
+}
 
 // Run a simple rumble effect on a haptic device.
 //

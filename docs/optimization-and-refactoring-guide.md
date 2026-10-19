@@ -2,7 +2,7 @@
 
 > 本文档基于对 [puresdl](file:///Users/tbxark/Repos/opengoui/puresdl) 项目全貌（生成器架构、Purego 运行时内存模型、API 封装模式及测试/CI 体系）的系统性代码审查编制。针对该项目作为 **OpenGoUI 底层基石**（核心诉求：1:1 C ABI 精度、极致性能与零堆分配、内存确定性、轻量透明直通）的定位，提供长效演进与重构参考。
 
-> **实施状态（2026-10-15）**：文件对话框只按 SDL 文档保留筛选器指针；`GetError` 已说明 OS 线程本地语义；NUL 结尾字符串热路径已优化；生成器对所有单字寄存器签名（整数/枚举/bool/指针、≤8 参数，约 1050 个函数）生成零分配直接调用，取代原先 5 个手写 `SyscallN` 快速路径（2026-10-19，见 architecture.md“函数包装规则”）；clang ABI 目标覆盖 Linux 与 Windows ARM64；常量类型守卫、严格 CI ABI 检查和基准已加入。对应基准与剩余可选 Raw API 方案见下文。
+> **实施状态（2026-10-15）**：文件对话框只按 SDL 文档保留筛选器指针；`GetError` 已说明 OS 线程本地语义；NUL 结尾字符串热路径已优化；生成器对所有单字寄存器签名（整数/枚举/bool/指针、≤8 参数，约 1050 个函数）生成零分配直接调用，取代原先 5 个手写 `SyscallN` 快速路径（2026-10-19，见 architecture.md“函数包装规则”）；darwin/linux 的 amd64/arm64 上改用无 cgo 的汇编 trampoline，并把浮点签名（约 43 个，含 `RenderLine`、`SetRenderDrawColorFloat` 等）也纳入零分配直接调用（2026-10-19）；clang ABI 目标覆盖 Linux 与 Windows ARM64；常量类型守卫、严格 CI ABI 检查和基准已加入。对应基准与剩余可选 Raw API 方案见下文。
 
 ---
 

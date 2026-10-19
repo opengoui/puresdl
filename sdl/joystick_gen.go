@@ -783,7 +783,19 @@ func SetJoystickVirtualHat(joystick *Joystick, hat int32, value uint8) bool {
 	return fnSetJoystickVirtualHat(joystick, hat, value)
 }
 
-var fnSetJoystickVirtualTouchpad func(joystick *Joystick, touchpad int32, finger int32, down bool, x float32, y float32, pressure float32) bool
+var addrSetJoystickVirtualTouchpad uintptr
+var regSetJoystickVirtualTouchpad func(joystick *Joystick, touchpad int32, finger int32, down bool, x float32, y float32, pressure float32) bool
+
+func fnSetJoystickVirtualTouchpad(joystick *Joystick, touchpad int32, finger int32, down bool, x float32, y float32, pressure float32) bool {
+	if !floatCalls {
+		return regSetJoystickVirtualTouchpad(joystick, touchpad, finger, down, x, y, pressure)
+	}
+	if addrSetJoystickVirtualTouchpad == 0 {
+		missingSymbol("SDL_SetJoystickVirtualTouchpad")
+	}
+	r, _ := callF4(addrSetJoystickVirtualTouchpad, 0b1110000, &floatArgs{f32(x), f32(y), f32(pressure)}, uintptr(unsafe.Pointer(joystick)), uintptr(touchpad), uintptr(finger), cbool(down))
+	return uint8(r) != 0
+}
 
 // Set touchpad finger state on an opened virtual joystick.
 //

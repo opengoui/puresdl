@@ -271,8 +271,8 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	fb := g.file(f.File)
 	if directCall(f) {
 		addrVar := "addr" + n
-		g.emitDirect(fb, f, fnVar, addrVar, plans, rawParams, rawRet)
-		g.binds = append(g.binds, binding{goVar: addrVar, cName: f.Name, direct: true})
+		regVar := g.emitDirect(fb, f, fnVar, addrVar, plans, rawParams, rawRet)
+		g.binds = append(g.binds, binding{goVar: addrVar, cName: f.Name, direct: true, fallback: regVar})
 	} else {
 		rawFn := jen.Func().Params(rawParams...)
 		if rawRet != nil {

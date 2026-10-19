@@ -2026,7 +2026,19 @@ func GamepadSensorEnabled(gamepad *Gamepad, type_ SensorType) bool {
 	return fnGamepadSensorEnabled(gamepad, type_)
 }
 
-var fnGetGamepadSensorDataRate func(gamepad *Gamepad, type_ SensorType) float32
+var addrGetGamepadSensorDataRate uintptr
+var regGetGamepadSensorDataRate func(gamepad *Gamepad, type_ SensorType) float32
+
+func fnGetGamepadSensorDataRate(gamepad *Gamepad, type_ SensorType) float32 {
+	if !floatCalls {
+		return regGetGamepadSensorDataRate(gamepad, type_)
+	}
+	if addrGetGamepadSensorDataRate == 0 {
+		missingSymbol("SDL_GetGamepadSensorDataRate")
+	}
+	_, fr := callF2(addrGetGamepadSensorDataRate, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(gamepad)), uintptr(type_))
+	return retF32(fr)
+}
 
 // Get the data rate (number of events per second) of a gamepad sensor.
 //

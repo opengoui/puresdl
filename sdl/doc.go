@@ -63,13 +63,16 @@
 // # Calls
 //
 // Functions whose parameters and result are each one integer word (integers,
-// enums, bool, pointers) and that take at most eight parameters call C
-// through purego.SyscallN with a pooled argument array: they do not allocate
-// and cost about half as much as the reflective wrappers of
-// purego.RegisterFunc, which the remaining functions (floating-point values,
-// structs passed by value, more parameters) still use. Go memory passed by
-// pointer is moved to the heap and kept alive for the duration of the call
-// in both cases.
+// enums, bool, pointers) or one float or double, with at most eight integer
+// and eight floating-point parameters, are direct calls that do not allocate.
+// On darwin, linux and windows for amd64 and arm64 they enter C through a small
+// assembly trampoline and runtime.cgocall, without cgo, at roughly a third of
+// the cost of the reflective wrappers of purego.RegisterFunc. Elsewhere
+// integer signatures go through purego.SyscallN and floating-point ones use
+// purego.RegisterFunc. The remaining functions (structs passed by value,
+// C variadic functions, more than eight integer parameters) use
+// purego.RegisterFunc everywhere. Go memory passed by pointer is moved to the
+// heap and kept alive for the duration of the call in every case.
 //
 // # Generation
 //
@@ -90,7 +93,9 @@
 //   - doc.go: this package documentation.
 //   - loader.go, loader_unix.go, loader_windows.go: locating and loading
 //     libSDL3 and binding its symbols.
-//   - call.go: the allocation-free call0 ... call8 bridge that most generated
+//   - call.go, call_trampoline.go, call_regclass.go, call_windows_amd64.go,
+//     call_trampoline_*.s, call_syscall.go: the allocation-free
+//     call0 ... call8 and callF0 ... callF8 bridge that most generated
 //     functions use instead of purego.RegisterFunc (see below).
 //   - macros.go: Go versions of SDL function-like macros and static inline
 //     functions, which the shared library does not export.

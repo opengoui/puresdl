@@ -1272,7 +1272,19 @@ func FlipSurface(surface *Surface, flip FlipMode) bool {
 	return fnFlipSurface(surface, flip)
 }
 
-var fnRotateSurface func(surface *Surface, angle float32) *Surface
+var addrRotateSurface uintptr
+var regRotateSurface func(surface *Surface, angle float32) *Surface
+
+func fnRotateSurface(surface *Surface, angle float32) *Surface {
+	if !floatCalls {
+		return regRotateSurface(surface, angle)
+	}
+	if addrRotateSurface == 0 {
+		missingSymbol("SDL_RotateSurface")
+	}
+	r, _ := callF1(addrRotateSurface, 0b10, &floatArgs{f32(angle)}, uintptr(unsafe.Pointer(surface)))
+	return (*Surface)(cptr(r))
+}
 
 // Return a copy of a surface rotated clockwise a number of degrees.
 //
@@ -1552,7 +1564,19 @@ func PremultiplySurfaceAlpha(surface *Surface, linear bool) bool {
 	return fnPremultiplySurfaceAlpha(surface, linear)
 }
 
-var fnClearSurface func(surface *Surface, r float32, g float32, b float32, a float32) bool
+var addrClearSurface uintptr
+var regClearSurface func(surface *Surface, r float32, g float32, b float32, a float32) bool
+
+func fnClearSurface(surface *Surface, r float32, g float32, b float32, a float32) bool {
+	if !floatCalls {
+		return regClearSurface(surface, r, g, b, a)
+	}
+	if addrClearSurface == 0 {
+		missingSymbol("SDL_ClearSurface")
+	}
+	r_, _ := callF1(addrClearSurface, 0b11110, &floatArgs{f32(r), f32(g), f32(b), f32(a)}, uintptr(unsafe.Pointer(surface)))
+	return uint8(r_) != 0
+}
 
 // Clear a surface with a specific color, with floating point precision.
 //
@@ -1898,7 +1922,19 @@ func BlitSurfaceTiled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) 
 	return fnBlitSurfaceTiled(src, srcrect, dst, dstrect)
 }
 
-var fnBlitSurfaceTiledWithScale func(src *Surface, srcrect *Rect, scale float32, scaleMode ScaleMode, dst *Surface, dstrect *Rect) bool
+var addrBlitSurfaceTiledWithScale uintptr
+var regBlitSurfaceTiledWithScale func(src *Surface, srcrect *Rect, scale float32, scaleMode ScaleMode, dst *Surface, dstrect *Rect) bool
+
+func fnBlitSurfaceTiledWithScale(src *Surface, srcrect *Rect, scale float32, scaleMode ScaleMode, dst *Surface, dstrect *Rect) bool {
+	if !floatCalls {
+		return regBlitSurfaceTiledWithScale(src, srcrect, scale, scaleMode, dst, dstrect)
+	}
+	if addrBlitSurfaceTiledWithScale == 0 {
+		missingSymbol("SDL_BlitSurfaceTiledWithScale")
+	}
+	r, _ := callF5(addrBlitSurfaceTiledWithScale, 0b100, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(scaleMode), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))
+	return uint8(r) != 0
+}
 
 // Perform a scaled and tiled blit to a destination surface, which may be of a
 // different format.
@@ -2148,7 +2184,19 @@ func WriteSurfacePixel(surface *Surface, x int32, y int32, r uint8, g uint8, b u
 	return fnWriteSurfacePixel(surface, x, y, r, g, b, a)
 }
 
-var fnWriteSurfacePixelFloat func(surface *Surface, x int32, y int32, r float32, g float32, b float32, a float32) bool
+var addrWriteSurfacePixelFloat uintptr
+var regWriteSurfacePixelFloat func(surface *Surface, x int32, y int32, r float32, g float32, b float32, a float32) bool
+
+func fnWriteSurfacePixelFloat(surface *Surface, x int32, y int32, r float32, g float32, b float32, a float32) bool {
+	if !floatCalls {
+		return regWriteSurfacePixelFloat(surface, x, y, r, g, b, a)
+	}
+	if addrWriteSurfacePixelFloat == 0 {
+		missingSymbol("SDL_WriteSurfacePixelFloat")
+	}
+	r_, _ := callF3(addrWriteSurfacePixelFloat, 0b1111000, &floatArgs{f32(r), f32(g), f32(b), f32(a)}, uintptr(unsafe.Pointer(surface)), uintptr(x), uintptr(y))
+	return uint8(r_) != 0
+}
 
 // Writes a single pixel to a surface.
 //

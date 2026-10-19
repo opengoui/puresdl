@@ -797,7 +797,19 @@ func AudioDevicePaused(devid AudioDeviceID) bool {
 	return fnAudioDevicePaused(devid)
 }
 
-var fnGetAudioDeviceGain func(devid AudioDeviceID) float32
+var addrGetAudioDeviceGain uintptr
+var regGetAudioDeviceGain func(devid AudioDeviceID) float32
+
+func fnGetAudioDeviceGain(devid AudioDeviceID) float32 {
+	if !floatCalls {
+		return regGetAudioDeviceGain(devid)
+	}
+	if addrGetAudioDeviceGain == 0 {
+		missingSymbol("SDL_GetAudioDeviceGain")
+	}
+	_, fr := callF1(addrGetAudioDeviceGain, 0b0, &floatArgs{}, uintptr(devid))
+	return retF32(fr)
+}
 
 // Get the gain of an audio device.
 //
@@ -823,7 +835,19 @@ func GetAudioDeviceGain(devid AudioDeviceID) float32 {
 	return fnGetAudioDeviceGain(devid)
 }
 
-var fnSetAudioDeviceGain func(devid AudioDeviceID, gain float32) bool
+var addrSetAudioDeviceGain uintptr
+var regSetAudioDeviceGain func(devid AudioDeviceID, gain float32) bool
+
+func fnSetAudioDeviceGain(devid AudioDeviceID, gain float32) bool {
+	if !floatCalls {
+		return regSetAudioDeviceGain(devid, gain)
+	}
+	if addrSetAudioDeviceGain == 0 {
+		missingSymbol("SDL_SetAudioDeviceGain")
+	}
+	r, _ := callF1(addrSetAudioDeviceGain, 0b10, &floatArgs{f32(gain)}, uintptr(devid))
+	return uint8(r) != 0
+}
 
 // Change the gain of an audio device.
 //
@@ -1194,7 +1218,19 @@ func SetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *Au
 	return fnSetAudioStreamFormat(stream, src_spec, dst_spec)
 }
 
-var fnGetAudioStreamFrequencyRatio func(stream *AudioStream) float32
+var addrGetAudioStreamFrequencyRatio uintptr
+var regGetAudioStreamFrequencyRatio func(stream *AudioStream) float32
+
+func fnGetAudioStreamFrequencyRatio(stream *AudioStream) float32 {
+	if !floatCalls {
+		return regGetAudioStreamFrequencyRatio(stream)
+	}
+	if addrGetAudioStreamFrequencyRatio == 0 {
+		missingSymbol("SDL_GetAudioStreamFrequencyRatio")
+	}
+	_, fr := callF1(addrGetAudioStreamFrequencyRatio, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(stream)))
+	return retF32(fr)
+}
 
 // Get the frequency ratio of an audio stream.
 //
@@ -1212,7 +1248,19 @@ func GetAudioStreamFrequencyRatio(stream *AudioStream) float32 {
 	return fnGetAudioStreamFrequencyRatio(stream)
 }
 
-var fnSetAudioStreamFrequencyRatio func(stream *AudioStream, ratio float32) bool
+var addrSetAudioStreamFrequencyRatio uintptr
+var regSetAudioStreamFrequencyRatio func(stream *AudioStream, ratio float32) bool
+
+func fnSetAudioStreamFrequencyRatio(stream *AudioStream, ratio float32) bool {
+	if !floatCalls {
+		return regSetAudioStreamFrequencyRatio(stream, ratio)
+	}
+	if addrSetAudioStreamFrequencyRatio == 0 {
+		missingSymbol("SDL_SetAudioStreamFrequencyRatio")
+	}
+	r, _ := callF1(addrSetAudioStreamFrequencyRatio, 0b10, &floatArgs{f32(ratio)}, uintptr(unsafe.Pointer(stream)))
+	return uint8(r) != 0
+}
 
 // Change the frequency ratio of an audio stream.
 //
@@ -1240,7 +1288,19 @@ func SetAudioStreamFrequencyRatio(stream *AudioStream, ratio float32) bool {
 	return fnSetAudioStreamFrequencyRatio(stream, ratio)
 }
 
-var fnGetAudioStreamGain func(stream *AudioStream) float32
+var addrGetAudioStreamGain uintptr
+var regGetAudioStreamGain func(stream *AudioStream) float32
+
+func fnGetAudioStreamGain(stream *AudioStream) float32 {
+	if !floatCalls {
+		return regGetAudioStreamGain(stream)
+	}
+	if addrGetAudioStreamGain == 0 {
+		missingSymbol("SDL_GetAudioStreamGain")
+	}
+	_, fr := callF1(addrGetAudioStreamGain, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(stream)))
+	return retF32(fr)
+}
 
 // Get the gain of an audio stream.
 //
@@ -1263,7 +1323,19 @@ func GetAudioStreamGain(stream *AudioStream) float32 {
 	return fnGetAudioStreamGain(stream)
 }
 
-var fnSetAudioStreamGain func(stream *AudioStream, gain float32) bool
+var addrSetAudioStreamGain uintptr
+var regSetAudioStreamGain func(stream *AudioStream, gain float32) bool
+
+func fnSetAudioStreamGain(stream *AudioStream, gain float32) bool {
+	if !floatCalls {
+		return regSetAudioStreamGain(stream, gain)
+	}
+	if addrSetAudioStreamGain == 0 {
+		missingSymbol("SDL_SetAudioStreamGain")
+	}
+	r, _ := callF1(addrSetAudioStreamGain, 0b10, &floatArgs{f32(gain)}, uintptr(unsafe.Pointer(stream)))
+	return uint8(r) != 0
+}
 
 // Change the gain of an audio stream.
 //
@@ -2518,7 +2590,19 @@ func LoadWAV(path string, spec *AudioSpec, audio_buf **uint8, audio_len *uint32)
 	return fnLoadWAV(cstr(path), spec, audio_buf, audio_len)
 }
 
-var fnMixAudio func(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume float32) bool
+var addrMixAudio uintptr
+var regMixAudio func(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume float32) bool
+
+func fnMixAudio(dst *uint8, src *uint8, format AudioFormat, len_ uint32, volume float32) bool {
+	if !floatCalls {
+		return regMixAudio(dst, src, format, len_, volume)
+	}
+	if addrMixAudio == 0 {
+		missingSymbol("SDL_MixAudio")
+	}
+	r, _ := callF4(addrMixAudio, 0b10000, &floatArgs{f32(volume)}, uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(src)), uintptr(format), uintptr(len_))
+	return uint8(r) != 0
+}
 
 // Mix audio data in a specified format.
 //

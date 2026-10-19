@@ -375,7 +375,19 @@ func SetNumberProperty(props PropertiesID, name string, value int64) bool {
 	return fnSetNumberProperty(props, cstr(name), value)
 }
 
-var fnSetFloatProperty func(props PropertiesID, name *byte, value float32) bool
+var addrSetFloatProperty uintptr
+var regSetFloatProperty func(props PropertiesID, name *byte, value float32) bool
+
+func fnSetFloatProperty(props PropertiesID, name *byte, value float32) bool {
+	if !floatCalls {
+		return regSetFloatProperty(props, name, value)
+	}
+	if addrSetFloatProperty == 0 {
+		missingSymbol("SDL_SetFloatProperty")
+	}
+	r, _ := callF2(addrSetFloatProperty, 0b100, &floatArgs{f32(value)}, uintptr(props), uintptr(unsafe.Pointer(name)))
+	return uint8(r) != 0
+}
 
 // Set a floating point property in a group of properties.
 //
@@ -563,7 +575,19 @@ func GetNumberProperty(props PropertiesID, name string, default_value int64) int
 	return fnGetNumberProperty(props, cstr(name), default_value)
 }
 
-var fnGetFloatProperty func(props PropertiesID, name *byte, default_value float32) float32
+var addrGetFloatProperty uintptr
+var regGetFloatProperty func(props PropertiesID, name *byte, default_value float32) float32
+
+func fnGetFloatProperty(props PropertiesID, name *byte, default_value float32) float32 {
+	if !floatCalls {
+		return regGetFloatProperty(props, name, default_value)
+	}
+	if addrGetFloatProperty == 0 {
+		missingSymbol("SDL_GetFloatProperty")
+	}
+	_, fr := callF2(addrGetFloatProperty, 0b100, &floatArgs{f32(default_value)}, uintptr(props), uintptr(unsafe.Pointer(name)))
+	return retF32(fr)
+}
 
 // Get a floating point property from a group of properties.
 //

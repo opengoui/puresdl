@@ -44,7 +44,10 @@ type Result struct {
 type binding struct {
 	goVar  string // fn<Name> for RegisterFunc, addr<Name> for a direct call
 	cName  string
-	direct bool // goVar holds the symbol address used by call0 ... call8
+	direct bool // goVar holds the symbol address used by call0 ... call8 or callF0 ... callF8
+	// fallback is the reg<Name> purego.RegisterFunc variable of a direct
+	// floating-point function, bound only where floatCalls is false.
+	fallback string
 }
 
 type gen struct {
@@ -219,6 +222,9 @@ func (g *gen) bindFile() *jen.File {
 			reg = "registerAddr"
 		}
 		body = append(body, jen.Id(reg).Call(jen.Op("&").Id(b.goVar), jen.Lit(b.cName)))
+		if b.fallback != "" {
+			body = append(body, jen.Id("registerFallback").Call(jen.Op("&").Id(b.fallback), jen.Lit(b.cName)))
+		}
 	}
 	f.Comment("bindAll binds every wrapped C function. It runs after the library is loaded.")
 	f.Func().Id("bindAll").Params().Block(body...)

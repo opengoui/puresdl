@@ -66,8 +66,9 @@ func BenchmarkRenderPointsSlice(b *testing.B) {
 	}
 }
 
-// BenchmarkDirectCall measures the call0 ... call8 bridge against the
-// reflective purego.RegisterFunc path, which floating-point signatures use.
+// BenchmarkDirectCall measures the integer call0 ... call8 bridge and the
+// floating-point callF0 ... callF8 bridge (GetFloatProperty, which uses
+// purego.RegisterFunc where floatCalls is false).
 func BenchmarkDirectCall(b *testing.B) {
 	props := CreateProperties()
 	if props == 0 {
@@ -88,10 +89,40 @@ func BenchmarkDirectCall(b *testing.B) {
 			_ = HasProperty(props, key)
 		}
 	})
-	b.Run("GetFloatProperty_reflect", func(b *testing.B) {
+	b.Run("GetFloatProperty", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
 			_ = GetFloatProperty(props, key, 0)
+		}
+	})
+}
+
+// BenchmarkFloatCall measures floating-point signatures, which call C through
+// callF0 ... callF8 where floatCalls is true and through purego.RegisterFunc
+// elsewhere.
+func BenchmarkFloatCall(b *testing.B) {
+	runtime.LockOSThread()
+	b.Cleanup(runtime.UnlockOSThread)
+	surface := CreateSurface(64, 64, PIXELFORMAT_RGBA32)
+	if surface == nil {
+		b.Fatal(GetError())
+	}
+	b.Cleanup(func() { DestroySurface(surface) })
+	renderer := CreateSoftwareRenderer(surface)
+	if renderer == nil {
+		b.Fatal(GetError())
+	}
+	b.Cleanup(func() { DestroyRenderer(renderer) })
+	b.Run("SetRenderDrawColorFloat", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			_ = SetRenderDrawColorFloat(renderer, 0.25, 0.5, 0.75, 1)
+		}
+	})
+	b.Run("RenderLine", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			_ = RenderLine(renderer, 0, 0, 1, 1)
 		}
 	})
 }

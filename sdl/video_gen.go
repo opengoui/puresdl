@@ -951,7 +951,19 @@ func GetCurrentDisplayOrientation(displayID DisplayID) DisplayOrientation {
 	return fnGetCurrentDisplayOrientation(displayID)
 }
 
-var fnGetDisplayContentScale func(displayID DisplayID) float32
+var addrGetDisplayContentScale uintptr
+var regGetDisplayContentScale func(displayID DisplayID) float32
+
+func fnGetDisplayContentScale(displayID DisplayID) float32 {
+	if !floatCalls {
+		return regGetDisplayContentScale(displayID)
+	}
+	if addrGetDisplayContentScale == 0 {
+		missingSymbol("SDL_GetDisplayContentScale")
+	}
+	_, fr := callF1(addrGetDisplayContentScale, 0b0, &floatArgs{}, uintptr(displayID))
+	return retF32(fr)
+}
 
 // Get the content scale of a display.
 //
@@ -1019,7 +1031,19 @@ func GetFullscreenDisplayModes(displayID DisplayID) []DisplayMode {
 	return copyFreeDeref(p, int(n))
 }
 
-var fnGetClosestFullscreenDisplayMode func(displayID DisplayID, w int32, h int32, refresh_rate float32, include_high_density_modes bool, closest *DisplayMode) bool
+var addrGetClosestFullscreenDisplayMode uintptr
+var regGetClosestFullscreenDisplayMode func(displayID DisplayID, w int32, h int32, refresh_rate float32, include_high_density_modes bool, closest *DisplayMode) bool
+
+func fnGetClosestFullscreenDisplayMode(displayID DisplayID, w int32, h int32, refresh_rate float32, include_high_density_modes bool, closest *DisplayMode) bool {
+	if !floatCalls {
+		return regGetClosestFullscreenDisplayMode(displayID, w, h, refresh_rate, include_high_density_modes, closest)
+	}
+	if addrGetClosestFullscreenDisplayMode == 0 {
+		missingSymbol("SDL_GetClosestFullscreenDisplayMode")
+	}
+	r, _ := callF5(addrGetClosestFullscreenDisplayMode, 0b1000, &floatArgs{f32(refresh_rate)}, uintptr(displayID), uintptr(w), uintptr(h), cbool(include_high_density_modes), uintptr(unsafe.Pointer(closest)))
+	return uint8(r) != 0
+}
 
 // Get the closest match to the requested display mode.
 //
@@ -1184,7 +1208,19 @@ func GetDisplayForWindow(window *Window) DisplayID {
 	return fnGetDisplayForWindow(window)
 }
 
-var fnGetWindowPixelDensity func(window *Window) float32
+var addrGetWindowPixelDensity uintptr
+var regGetWindowPixelDensity func(window *Window) float32
+
+func fnGetWindowPixelDensity(window *Window) float32 {
+	if !floatCalls {
+		return regGetWindowPixelDensity(window)
+	}
+	if addrGetWindowPixelDensity == 0 {
+		missingSymbol("SDL_GetWindowPixelDensity")
+	}
+	_, fr := callF1(addrGetWindowPixelDensity, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(window)))
+	return retF32(fr)
+}
 
 // Get the pixel density of a window.
 //
@@ -1206,7 +1242,19 @@ func GetWindowPixelDensity(window *Window) float32 {
 	return fnGetWindowPixelDensity(window)
 }
 
-var fnGetWindowDisplayScale func(window *Window) float32
+var addrGetWindowDisplayScale uintptr
+var regGetWindowDisplayScale func(window *Window) float32
+
+func fnGetWindowDisplayScale(window *Window) float32 {
+	if !floatCalls {
+		return regGetWindowDisplayScale(window)
+	}
+	if addrGetWindowDisplayScale == 0 {
+		missingSymbol("SDL_GetWindowDisplayScale")
+	}
+	_, fr := callF1(addrGetWindowDisplayScale, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(window)))
+	return retF32(fr)
+}
 
 // Get the content display scale relative to a window's pixel size.
 //
@@ -2232,7 +2280,19 @@ func GetWindowSafeArea(window *Window, rect *Rect) bool {
 	return fnGetWindowSafeArea(window, rect)
 }
 
-var fnSetWindowAspectRatio func(window *Window, min_aspect float32, max_aspect float32) bool
+var addrSetWindowAspectRatio uintptr
+var regSetWindowAspectRatio func(window *Window, min_aspect float32, max_aspect float32) bool
+
+func fnSetWindowAspectRatio(window *Window, min_aspect float32, max_aspect float32) bool {
+	if !floatCalls {
+		return regSetWindowAspectRatio(window, min_aspect, max_aspect)
+	}
+	if addrSetWindowAspectRatio == 0 {
+		missingSymbol("SDL_SetWindowAspectRatio")
+	}
+	r, _ := callF1(addrSetWindowAspectRatio, 0b110, &floatArgs{f32(min_aspect), f32(max_aspect)}, uintptr(unsafe.Pointer(window)))
+	return uint8(r) != 0
+}
 
 // Request that the aspect ratio of a window's client area be set.
 //
@@ -3311,7 +3371,19 @@ func GetWindowMouseRect(window *Window) *Rect {
 	return fnGetWindowMouseRect(window)
 }
 
-var fnSetWindowOpacity func(window *Window, opacity float32) bool
+var addrSetWindowOpacity uintptr
+var regSetWindowOpacity func(window *Window, opacity float32) bool
+
+func fnSetWindowOpacity(window *Window, opacity float32) bool {
+	if !floatCalls {
+		return regSetWindowOpacity(window, opacity)
+	}
+	if addrSetWindowOpacity == 0 {
+		missingSymbol("SDL_SetWindowOpacity")
+	}
+	r, _ := callF1(addrSetWindowOpacity, 0b10, &floatArgs{f32(opacity)}, uintptr(unsafe.Pointer(window)))
+	return uint8(r) != 0
+}
 
 // Set the opacity for a window.
 //
@@ -3335,7 +3407,19 @@ func SetWindowOpacity(window *Window, opacity float32) bool {
 	return fnSetWindowOpacity(window, opacity)
 }
 
-var fnGetWindowOpacity func(window *Window) float32
+var addrGetWindowOpacity uintptr
+var regGetWindowOpacity func(window *Window) float32
+
+func fnGetWindowOpacity(window *Window) float32 {
+	if !floatCalls {
+		return regGetWindowOpacity(window)
+	}
+	if addrGetWindowOpacity == 0 {
+		missingSymbol("SDL_GetWindowOpacity")
+	}
+	_, fr := callF1(addrGetWindowOpacity, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(window)))
+	return retF32(fr)
+}
 
 // Get the opacity of a window.
 //
@@ -3648,7 +3732,19 @@ func GetWindowProgressState(window *Window) ProgressState {
 	return fnGetWindowProgressState(window)
 }
 
-var fnSetWindowProgressValue func(window *Window, value float32) bool
+var addrSetWindowProgressValue uintptr
+var regSetWindowProgressValue func(window *Window, value float32) bool
+
+func fnSetWindowProgressValue(window *Window, value float32) bool {
+	if !floatCalls {
+		return regSetWindowProgressValue(window, value)
+	}
+	if addrSetWindowProgressValue == 0 {
+		missingSymbol("SDL_SetWindowProgressValue")
+	}
+	r, _ := callF1(addrSetWindowProgressValue, 0b10, &floatArgs{f32(value)}, uintptr(unsafe.Pointer(window)))
+	return uint8(r) != 0
+}
 
 // Sets the value of the progress bar for the given window’s taskbar icon.
 //
@@ -3665,7 +3761,19 @@ func SetWindowProgressValue(window *Window, value float32) bool {
 	return fnSetWindowProgressValue(window, value)
 }
 
-var fnGetWindowProgressValue func(window *Window) float32
+var addrGetWindowProgressValue uintptr
+var regGetWindowProgressValue func(window *Window) float32
+
+func fnGetWindowProgressValue(window *Window) float32 {
+	if !floatCalls {
+		return regGetWindowProgressValue(window)
+	}
+	if addrGetWindowProgressValue == 0 {
+		missingSymbol("SDL_GetWindowProgressValue")
+	}
+	_, fr := callF1(addrGetWindowProgressValue, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(window)))
+	return retF32(fr)
+}
 
 // Get the value of the progress bar for the given window’s taskbar icon.
 //

@@ -1257,7 +1257,19 @@ func Rand(n int32) int32 {
 	return fnRand(n)
 }
 
-var fnRandf func() float32
+var addrRandf uintptr
+var regRandf func() float32
+
+func fnRandf() float32 {
+	if !floatCalls {
+		return regRandf()
+	}
+	if addrRandf == 0 {
+		missingSymbol("SDL_randf")
+	}
+	_, fr := callF0(addrRandf, 0b0, &floatArgs{})
+	return retF32(fr)
+}
 
 // Generate a uniform pseudo-random floating point number less than 1.0
 //
@@ -1353,7 +1365,19 @@ func RandR(state *uint64, n int32) int32 {
 	return fnRandR(state, n)
 }
 
-var fnRandfR func(state *uint64) float32
+var addrRandfR uintptr
+var regRandfR func(state *uint64) float32
+
+func fnRandfR(state *uint64) float32 {
+	if !floatCalls {
+		return regRandfR(state)
+	}
+	if addrRandfR == 0 {
+		missingSymbol("SDL_randf_r")
+	}
+	_, fr := callF1(addrRandfR, 0b0, &floatArgs{}, uintptr(unsafe.Pointer(state)))
+	return retF32(fr)
+}
 
 // Generate a uniform pseudo-random floating point number less than 1.0
 //

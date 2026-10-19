@@ -383,7 +383,19 @@ func GetRelativeMouseState(x *float32, y *float32) MouseButtonFlags {
 	return fnGetRelativeMouseState(x, y)
 }
 
-var fnWarpMouseInWindow func(window *Window, x float32, y float32)
+var addrWarpMouseInWindow uintptr
+var regWarpMouseInWindow func(window *Window, x float32, y float32)
+
+func fnWarpMouseInWindow(window *Window, x float32, y float32) {
+	if !floatCalls {
+		regWarpMouseInWindow(window, x, y)
+		return
+	}
+	if addrWarpMouseInWindow == 0 {
+		missingSymbol("SDL_WarpMouseInWindow")
+	}
+	callF1(addrWarpMouseInWindow, 0b110, &floatArgs{f32(x), f32(y)}, uintptr(unsafe.Pointer(window)))
+}
 
 // Move the mouse cursor to the given position within the window.
 //
@@ -408,7 +420,19 @@ func WarpMouseInWindow(window *Window, x float32, y float32) {
 	fnWarpMouseInWindow(window, x, y)
 }
 
-var fnWarpMouseGlobal func(x float32, y float32) bool
+var addrWarpMouseGlobal uintptr
+var regWarpMouseGlobal func(x float32, y float32) bool
+
+func fnWarpMouseGlobal(x float32, y float32) bool {
+	if !floatCalls {
+		return regWarpMouseGlobal(x, y)
+	}
+	if addrWarpMouseGlobal == 0 {
+		missingSymbol("SDL_WarpMouseGlobal")
+	}
+	r, _ := callF0(addrWarpMouseGlobal, 0b11, &floatArgs{f32(x), f32(y)})
+	return uint8(r) != 0
+}
 
 // Move the mouse to the given position in global screen space.
 //

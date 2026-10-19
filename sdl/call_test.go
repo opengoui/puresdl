@@ -2,8 +2,10 @@ package sdl
 
 import (
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
+	"unsafe"
 )
 
 // The direct-call bridge (call0 ... call8) must not allocate for scalar and
@@ -74,4 +76,86 @@ func TestDirectCallMissingSymbolPanics(t *testing.T) {
 		}
 	}()
 	GetTicks()
+}
+
+// A C function that calls back into Go on the same thread runs the callback
+// on the calling goroutine's stack, which may grow and move it during the
+// call. The result of the direct call must survive that.
+func TestDirectCallSurvivesStackGrowthInCallback(t *testing.T) {
+	const name = "PURESDL_STACK_GROWTH_HINT"
+	calls := 0
+	cb := NewHintCallback(func(ud unsafe.Pointer, n, oldV, newV *byte) {
+		calls++
+		growStack(64)
+	})
+	if !AddHintCallback(name, cb, nil) {
+		t.Fatal(GetError())
+	}
+	defer RemoveHintCallback(name, cb, nil)
+	defer ResetHint(name)
+	for i := range 20 {
+		// A fresh goroutine starts with a small stack, so the callback
+		// moves it.
+		ok := make(chan bool)
+		go func() {
+			runtime.LockOSThread()
+			defer runtime.UnlockOSThread()
+			ok <- SetHint(name, strconv.Itoa(i))
+		}()
+		if !<-ok {
+			t.Fatalf("SetHint #%d = false across a stack-moving callback: %s", i, GetError())
+		}
+	}
+	if calls < 20 {
+		t.Fatalf("hint callback ran %d times, want at least 20", calls)
+	}
+}
+
+// growStack uses about depth KiB of goroutine stack.
+//
+//go:noinline
+func growStack(depth int) byte {
+	var buf [1024]byte
+	buf[depth%len(buf)] = byte(depth)
+	if depth == 0 {
+		return buf[0]
+	}
+	return growStack(depth-1) + buf[depth%len(buf)]
+}
+
+// positionalArgs restores parameter order for the Microsoft x64 ABI, which
+// cannot be exercised on the machines that run most tests.
+func TestPositionalArgs(t *testing.T) {
+	a := [maxDirectArgs]uintptr{1, 2, 3, 4, 5, 6, 7, 8}
+	f := floatArgs{101, 102, 103, 104, 105, 106, 107, 108}
+	for _, tc := range []struct {
+		name  string
+		fmask uint16
+		nInt  int
+		want  []uintptr
+	}{
+		{"integers only", 0, 3, []uintptr{1, 2, 3}},
+		// SetRenderDrawColorFloat(renderer, r, g, b, a).
+		{"pointer then floats", 0b11110, 1, []uintptr{1, 101, 102, 103, 104}},
+		// RenderTextureRotated(renderer, texture, srcrect, dstrect, angle, center, flip).
+		{"float between integers", 0b0010000, 6, []uintptr{1, 2, 3, 4, 101, 5, 6}},
+		{"leading float", 0b1, 1, []uintptr{101, 1}},
+		{"eight of each, interleaved", 0b1010101010101010, 8,
+			[]uintptr{1, 101, 2, 102, 3, 103, 4, 104, 5, 105, 6, 106, 7, 107, 8, 108}},
+	} {
+		in := a
+		clear(in[tc.nInt:])
+		nFloat := 0
+		for m := tc.fmask; m != 0; m &= m - 1 {
+			nFloat++
+		}
+		fin := f
+		clear(fin[nFloat:])
+		got := positionalArgs(&in, &fin, tc.fmask)
+		want := make([]uintptr, len(got))
+		copy(want, tc.want)
+		if got != [2 * maxDirectArgs]uintptr(want) {
+			t.Errorf("%s: positionalArgs = %v, want %v", tc.name, got, want)
+		}
+	}
 }

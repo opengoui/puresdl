@@ -1213,7 +1213,19 @@ func SetTextureColorMod(texture *Texture, r uint8, g uint8, b uint8) bool {
 	return fnSetTextureColorMod(texture, r, g, b)
 }
 
-var fnSetTextureColorModFloat func(texture *Texture, r float32, g float32, b float32) bool
+var addrSetTextureColorModFloat uintptr
+var regSetTextureColorModFloat func(texture *Texture, r float32, g float32, b float32) bool
+
+func fnSetTextureColorModFloat(texture *Texture, r float32, g float32, b float32) bool {
+	if !floatCalls {
+		return regSetTextureColorModFloat(texture, r, g, b)
+	}
+	if addrSetTextureColorModFloat == 0 {
+		missingSymbol("SDL_SetTextureColorModFloat")
+	}
+	r_, _ := callF1(addrSetTextureColorModFloat, 0b1110, &floatArgs{f32(r), f32(g), f32(b)}, uintptr(unsafe.Pointer(texture)))
+	return uint8(r_) != 0
+}
 
 // Set an additional color value multiplied into render copy operations.
 //
@@ -1333,7 +1345,19 @@ func SetTextureAlphaMod(texture *Texture, alpha uint8) bool {
 	return fnSetTextureAlphaMod(texture, alpha)
 }
 
-var fnSetTextureAlphaModFloat func(texture *Texture, alpha float32) bool
+var addrSetTextureAlphaModFloat uintptr
+var regSetTextureAlphaModFloat func(texture *Texture, alpha float32) bool
+
+func fnSetTextureAlphaModFloat(texture *Texture, alpha float32) bool {
+	if !floatCalls {
+		return regSetTextureAlphaModFloat(texture, alpha)
+	}
+	if addrSetTextureAlphaModFloat == 0 {
+		missingSymbol("SDL_SetTextureAlphaModFloat")
+	}
+	r, _ := callF1(addrSetTextureAlphaModFloat, 0b10, &floatArgs{f32(alpha)}, uintptr(unsafe.Pointer(texture)))
+	return uint8(r) != 0
+}
 
 // Set an additional alpha value multiplied into render copy operations.
 //
@@ -2024,7 +2048,19 @@ func GetRenderLogicalPresentationRect(renderer *Renderer, rect *FRect) bool {
 	return fnGetRenderLogicalPresentationRect(renderer, rect)
 }
 
-var fnRenderCoordinatesFromWindow func(renderer *Renderer, window_x float32, window_y float32, x *float32, y *float32) bool
+var addrRenderCoordinatesFromWindow uintptr
+var regRenderCoordinatesFromWindow func(renderer *Renderer, window_x float32, window_y float32, x *float32, y *float32) bool
+
+func fnRenderCoordinatesFromWindow(renderer *Renderer, window_x float32, window_y float32, x *float32, y *float32) bool {
+	if !floatCalls {
+		return regRenderCoordinatesFromWindow(renderer, window_x, window_y, x, y)
+	}
+	if addrRenderCoordinatesFromWindow == 0 {
+		missingSymbol("SDL_RenderCoordinatesFromWindow")
+	}
+	r, _ := callF3(addrRenderCoordinatesFromWindow, 0b110, &floatArgs{f32(window_x), f32(window_y)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(x)), uintptr(unsafe.Pointer(y)))
+	return uint8(r) != 0
+}
 
 // Get a point in render coordinates when given a point in window coordinates.
 //
@@ -2053,7 +2089,19 @@ func RenderCoordinatesFromWindow(renderer *Renderer, window_x float32, window_y 
 	return fnRenderCoordinatesFromWindow(renderer, window_x, window_y, x, y)
 }
 
-var fnRenderCoordinatesToWindow func(renderer *Renderer, x float32, y float32, window_x *float32, window_y *float32) bool
+var addrRenderCoordinatesToWindow uintptr
+var regRenderCoordinatesToWindow func(renderer *Renderer, x float32, y float32, window_x *float32, window_y *float32) bool
+
+func fnRenderCoordinatesToWindow(renderer *Renderer, x float32, y float32, window_x *float32, window_y *float32) bool {
+	if !floatCalls {
+		return regRenderCoordinatesToWindow(renderer, x, y, window_x, window_y)
+	}
+	if addrRenderCoordinatesToWindow == 0 {
+		missingSymbol("SDL_RenderCoordinatesToWindow")
+	}
+	r, _ := callF3(addrRenderCoordinatesToWindow, 0b110, &floatArgs{f32(x), f32(y)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(window_x)), uintptr(unsafe.Pointer(window_y)))
+	return uint8(r) != 0
+}
 
 // Get a point in window coordinates when given a point in render coordinates.
 //
@@ -2340,7 +2388,19 @@ func RenderClipEnabled(renderer *Renderer) bool {
 	return fnRenderClipEnabled(renderer)
 }
 
-var fnSetRenderScale func(renderer *Renderer, scaleX float32, scaleY float32) bool
+var addrSetRenderScale uintptr
+var regSetRenderScale func(renderer *Renderer, scaleX float32, scaleY float32) bool
+
+func fnSetRenderScale(renderer *Renderer, scaleX float32, scaleY float32) bool {
+	if !floatCalls {
+		return regSetRenderScale(renderer, scaleX, scaleY)
+	}
+	if addrSetRenderScale == 0 {
+		missingSymbol("SDL_SetRenderScale")
+	}
+	r, _ := callF1(addrSetRenderScale, 0b110, &floatArgs{f32(scaleX), f32(scaleY)}, uintptr(unsafe.Pointer(renderer)))
+	return uint8(r) != 0
+}
 
 // Set the drawing scale for rendering on the current target.
 //
@@ -2433,7 +2493,19 @@ func SetRenderDrawColor(renderer *Renderer, r uint8, g uint8, b uint8, a uint8) 
 	return fnSetRenderDrawColor(renderer, r, g, b, a)
 }
 
-var fnSetRenderDrawColorFloat func(renderer *Renderer, r float32, g float32, b float32, a float32) bool
+var addrSetRenderDrawColorFloat uintptr
+var regSetRenderDrawColorFloat func(renderer *Renderer, r float32, g float32, b float32, a float32) bool
+
+func fnSetRenderDrawColorFloat(renderer *Renderer, r float32, g float32, b float32, a float32) bool {
+	if !floatCalls {
+		return regSetRenderDrawColorFloat(renderer, r, g, b, a)
+	}
+	if addrSetRenderDrawColorFloat == 0 {
+		missingSymbol("SDL_SetRenderDrawColorFloat")
+	}
+	r_, _ := callF1(addrSetRenderDrawColorFloat, 0b11110, &floatArgs{f32(r), f32(g), f32(b), f32(a)}, uintptr(unsafe.Pointer(renderer)))
+	return uint8(r_) != 0
+}
 
 // Set the color used for drawing operations (Rect, Line and Clear).
 //
@@ -2516,7 +2588,19 @@ func GetRenderDrawColorFloat(renderer *Renderer, r *float32, g *float32, b *floa
 	return fnGetRenderDrawColorFloat(renderer, r, g, b, a)
 }
 
-var fnSetRenderColorScale func(renderer *Renderer, scale float32) bool
+var addrSetRenderColorScale uintptr
+var regSetRenderColorScale func(renderer *Renderer, scale float32) bool
+
+func fnSetRenderColorScale(renderer *Renderer, scale float32) bool {
+	if !floatCalls {
+		return regSetRenderColorScale(renderer, scale)
+	}
+	if addrSetRenderColorScale == 0 {
+		missingSymbol("SDL_SetRenderColorScale")
+	}
+	r, _ := callF1(addrSetRenderColorScale, 0b10, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(renderer)))
+	return uint8(r) != 0
+}
 
 // Set the color scale used for render operations.
 //
@@ -2655,7 +2739,19 @@ func RenderClear(renderer *Renderer) bool {
 	return fnRenderClear(renderer)
 }
 
-var fnRenderPoint func(renderer *Renderer, x float32, y float32) bool
+var addrRenderPoint uintptr
+var regRenderPoint func(renderer *Renderer, x float32, y float32) bool
+
+func fnRenderPoint(renderer *Renderer, x float32, y float32) bool {
+	if !floatCalls {
+		return regRenderPoint(renderer, x, y)
+	}
+	if addrRenderPoint == 0 {
+		missingSymbol("SDL_RenderPoint")
+	}
+	r, _ := callF1(addrRenderPoint, 0b110, &floatArgs{f32(x), f32(y)}, uintptr(unsafe.Pointer(renderer)))
+	return uint8(r) != 0
+}
 
 // Draw a point on the current rendering target at subpixel precision.
 //
@@ -2721,7 +2817,19 @@ func RenderPointsSlice(renderer *Renderer, points []FPoint) bool {
 	return ret
 }
 
-var fnRenderLine func(renderer *Renderer, x1 float32, y1 float32, x2 float32, y2 float32) bool
+var addrRenderLine uintptr
+var regRenderLine func(renderer *Renderer, x1 float32, y1 float32, x2 float32, y2 float32) bool
+
+func fnRenderLine(renderer *Renderer, x1 float32, y1 float32, x2 float32, y2 float32) bool {
+	if !floatCalls {
+		return regRenderLine(renderer, x1, y1, x2, y2)
+	}
+	if addrRenderLine == 0 {
+		missingSymbol("SDL_RenderLine")
+	}
+	r, _ := callF1(addrRenderLine, 0b11110, &floatArgs{f32(x1), f32(y1), f32(x2), f32(y2)}, uintptr(unsafe.Pointer(renderer)))
+	return uint8(r) != 0
+}
 
 // Draw a line on the current rendering target at subpixel precision.
 //
@@ -2966,7 +3074,19 @@ func RenderTexture(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect
 	return fnRenderTexture(renderer, texture, srcrect, dstrect)
 }
 
-var fnRenderTextureRotated func(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect, angle float64, center *FPoint, flip FlipMode) bool
+var addrRenderTextureRotated uintptr
+var regRenderTextureRotated func(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect, angle float64, center *FPoint, flip FlipMode) bool
+
+func fnRenderTextureRotated(renderer *Renderer, texture *Texture, srcrect *FRect, dstrect *FRect, angle float64, center *FPoint, flip FlipMode) bool {
+	if !floatCalls {
+		return regRenderTextureRotated(renderer, texture, srcrect, dstrect, angle, center, flip)
+	}
+	if addrRenderTextureRotated == 0 {
+		missingSymbol("SDL_RenderTextureRotated")
+	}
+	r, _ := callF6(addrRenderTextureRotated, 0b10000, &floatArgs{f64(angle)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)), uintptr(unsafe.Pointer(center)), uintptr(flip))
+	return uint8(r) != 0
+}
 
 // Copy a portion of the source texture to the current rendering target, with
 // rotation and flipping, at subpixel precision.
@@ -3022,7 +3142,19 @@ func RenderTextureAffine(renderer *Renderer, texture *Texture, srcrect *FRect, o
 	return fnRenderTextureAffine(renderer, texture, srcrect, origin, right, down)
 }
 
-var fnRenderTextureTiled func(renderer *Renderer, texture *Texture, srcrect *FRect, scale float32, dstrect *FRect) bool
+var addrRenderTextureTiled uintptr
+var regRenderTextureTiled func(renderer *Renderer, texture *Texture, srcrect *FRect, scale float32, dstrect *FRect) bool
+
+func fnRenderTextureTiled(renderer *Renderer, texture *Texture, srcrect *FRect, scale float32, dstrect *FRect) bool {
+	if !floatCalls {
+		return regRenderTextureTiled(renderer, texture, srcrect, scale, dstrect)
+	}
+	if addrRenderTextureTiled == 0 {
+		missingSymbol("SDL_RenderTextureTiled")
+	}
+	r, _ := callF4(addrRenderTextureTiled, 0b1000, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
+	return uint8(r) != 0
+}
 
 // Tile a portion of the texture to the current rendering target at subpixel
 // precision.
@@ -3048,7 +3180,19 @@ func RenderTextureTiled(renderer *Renderer, texture *Texture, srcrect *FRect, sc
 	return fnRenderTextureTiled(renderer, texture, srcrect, scale, dstrect)
 }
 
-var fnRenderTexture9Grid func(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect) bool
+var addrRenderTexture9Grid uintptr
+var regRenderTexture9Grid func(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect) bool
+
+func fnRenderTexture9Grid(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect) bool {
+	if !floatCalls {
+		return regRenderTexture9Grid(renderer, texture, srcrect, left_width, right_width, top_height, bottom_height, scale, dstrect)
+	}
+	if addrRenderTexture9Grid == 0 {
+		missingSymbol("SDL_RenderTexture9Grid")
+	}
+	r, _ := callF4(addrRenderTexture9Grid, 0b11111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
+	return uint8(r) != 0
+}
 
 // Perform a scaled copy using the 9-grid algorithm to the current rendering
 // target at subpixel precision.
@@ -3081,7 +3225,19 @@ func RenderTexture9Grid(renderer *Renderer, texture *Texture, srcrect *FRect, le
 	return fnRenderTexture9Grid(renderer, texture, srcrect, left_width, right_width, top_height, bottom_height, scale, dstrect)
 }
 
-var fnRenderTexture9GridTiled func(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect, tileScale float32) bool
+var addrRenderTexture9GridTiled uintptr
+var regRenderTexture9GridTiled func(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect, tileScale float32) bool
+
+func fnRenderTexture9GridTiled(renderer *Renderer, texture *Texture, srcrect *FRect, left_width float32, right_width float32, top_height float32, bottom_height float32, scale float32, dstrect *FRect, tileScale float32) bool {
+	if !floatCalls {
+		return regRenderTexture9GridTiled(renderer, texture, srcrect, left_width, right_width, top_height, bottom_height, scale, dstrect, tileScale)
+	}
+	if addrRenderTexture9GridTiled == 0 {
+		missingSymbol("SDL_RenderTexture9GridTiled")
+	}
+	r, _ := callF4(addrRenderTexture9GridTiled, 0b1011111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale), f32(tileScale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
+	return uint8(r) != 0
+}
 
 // Perform a scaled copy using the 9-grid algorithm to the current rendering
 // target at subpixel precision.
@@ -3597,7 +3753,19 @@ func GetRenderVSync(renderer *Renderer, vsync *int32) bool {
 	return fnGetRenderVSync(renderer, vsync)
 }
 
-var fnRenderDebugText func(renderer *Renderer, x float32, y float32, str *byte) bool
+var addrRenderDebugText uintptr
+var regRenderDebugText func(renderer *Renderer, x float32, y float32, str *byte) bool
+
+func fnRenderDebugText(renderer *Renderer, x float32, y float32, str *byte) bool {
+	if !floatCalls {
+		return regRenderDebugText(renderer, x, y, str)
+	}
+	if addrRenderDebugText == 0 {
+		missingSymbol("SDL_RenderDebugText")
+	}
+	r, _ := callF2(addrRenderDebugText, 0b110, &floatArgs{f32(x), f32(y)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(str)))
+	return uint8(r) != 0
+}
 
 // Draw debug text to an Renderer.
 //
