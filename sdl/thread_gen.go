@@ -41,7 +41,10 @@ const NoTLSDestructorCallback TLSDestructorCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewTLSDestructorCallback(fn func(value unsafe.Pointer)) TLSDestructorCallback {
-	return TLSDestructorCallback(purego.NewCallback(fn))
+	return TLSDestructorCallback(purego.NewCallback(func(value unsafe.Pointer) uintptr {
+		fn(value)
+		return 0
+	}))
 }
 
 // Thread local storage ID.
@@ -75,7 +78,9 @@ const NoThreadFunction ThreadFunction = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewThreadFunction(fn func(data unsafe.Pointer) int32) ThreadFunction {
-	return ThreadFunction(purego.NewCallback(fn))
+	return ThreadFunction(purego.NewCallback(func(data unsafe.Pointer) uintptr {
+		return uintptr(fn(data))
+	}))
 }
 
 // A unique numeric ID that identifies a thread.

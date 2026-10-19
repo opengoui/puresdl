@@ -40,7 +40,10 @@ const NoCleanupPropertyCallback CleanupPropertyCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewCleanupPropertyCallback(fn func(userdata unsafe.Pointer, value unsafe.Pointer)) CleanupPropertyCallback {
-	return CleanupPropertyCallback(purego.NewCallback(fn))
+	return CleanupPropertyCallback(purego.NewCallback(func(userdata unsafe.Pointer, value unsafe.Pointer) uintptr {
+		fn(userdata, value)
+		return 0
+	}))
 }
 
 // A callback used to enumerate all the properties in a group of properties.
@@ -71,7 +74,10 @@ const NoEnumeratePropertiesCallback EnumeratePropertiesCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewEnumeratePropertiesCallback(fn func(userdata unsafe.Pointer, props PropertiesID, name *byte)) EnumeratePropertiesCallback {
-	return EnumeratePropertiesCallback(purego.NewCallback(fn))
+	return EnumeratePropertiesCallback(purego.NewCallback(func(userdata unsafe.Pointer, props PropertiesID, name *byte) uintptr {
+		fn(userdata, props, name)
+		return 0
+	}))
 }
 
 // An ID that represents a properties set.

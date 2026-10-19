@@ -50,7 +50,10 @@ const NoTrayCallback TrayCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewTrayCallback(fn func(userdata unsafe.Pointer, entry *TrayEntry)) TrayCallback {
-	return TrayCallback(purego.NewCallback(fn))
+	return TrayCallback(purego.NewCallback(func(userdata unsafe.Pointer, entry *TrayEntry) uintptr {
+		fn(userdata, entry)
+		return 0
+	}))
 }
 
 // Flags that control the creation of system tray entries.

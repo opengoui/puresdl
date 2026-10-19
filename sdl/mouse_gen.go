@@ -80,7 +80,10 @@ const NoMouseMotionTransformCallback MouseMotionTransformCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewMouseMotionTransformCallback(fn func(userdata unsafe.Pointer, timestamp uint64, window *Window, mouseID MouseID, x *float32, y *float32)) MouseMotionTransformCallback {
-	return MouseMotionTransformCallback(purego.NewCallback(fn))
+	return MouseMotionTransformCallback(purego.NewCallback(func(userdata unsafe.Pointer, timestamp uint64, window *Window, mouseID MouseID, x *float32, y *float32) uintptr {
+		fn(userdata, timestamp, window, mouseID, x, y)
+		return 0
+	}))
 }
 
 // Cursor types for CreateSystemCursor().

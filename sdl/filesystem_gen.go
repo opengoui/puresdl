@@ -62,7 +62,9 @@ const NoEnumerateDirectoryCallback EnumerateDirectoryCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewEnumerateDirectoryCallback(fn func(userdata unsafe.Pointer, dirname *byte, fname *byte) EnumerationResult) EnumerateDirectoryCallback {
-	return EnumerateDirectoryCallback(purego.NewCallback(fn))
+	return EnumerateDirectoryCallback(purego.NewCallback(func(userdata unsafe.Pointer, dirname *byte, fname *byte) uintptr {
+		return uintptr(fn(userdata, dirname, fname))
+	}))
 }
 
 // Flags for path matching.

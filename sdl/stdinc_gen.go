@@ -47,7 +47,9 @@ const NoCompareCallback CompareCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewCompareCallback(fn func(a unsafe.Pointer, b unsafe.Pointer) int32) CompareCallback {
-	return CompareCallback(purego.NewCallback(fn))
+	return CompareCallback(purego.NewCallback(func(a unsafe.Pointer, b unsafe.Pointer) uintptr {
+		return uintptr(fn(a, b))
+	}))
 }
 
 // A callback used with SDL sorting and binary search functions.
@@ -75,7 +77,9 @@ const NoCompareCallback_r CompareCallback_r = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewCompareCallback_r(fn func(userdata unsafe.Pointer, a unsafe.Pointer, b unsafe.Pointer) int32) CompareCallback_r {
-	return CompareCallback_r(purego.NewCallback(fn))
+	return CompareCallback_r(purego.NewCallback(func(userdata unsafe.Pointer, a unsafe.Pointer, b unsafe.Pointer) uintptr {
+		return uintptr(fn(userdata, a, b))
+	}))
 }
 
 // It holds a C function pointer; create one with NewFunctionPointer.
@@ -90,7 +94,10 @@ const NoFunctionPointer FunctionPointer = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewFunctionPointer(fn func()) FunctionPointer {
-	return FunctionPointer(purego.NewCallback(fn))
+	return FunctionPointer(purego.NewCallback(func() uintptr {
+		fn()
+		return 0
+	}))
 }
 
 // SDL times are signed, 64-bit integers representing nanoseconds since the
@@ -162,7 +169,10 @@ const NoFreeFunc FreeFunc = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewFreeFunc(fn func(mem unsafe.Pointer)) FreeFunc {
-	return FreeFunc(purego.NewCallback(fn))
+	return FreeFunc(purego.NewCallback(func(mem unsafe.Pointer) uintptr {
+		fn(mem)
+		return 0
+	}))
 }
 
 // An opaque handle representing string encoding conversion state.

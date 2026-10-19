@@ -76,7 +76,9 @@ const NoTimerCallback TimerCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewTimerCallback(fn func(userdata unsafe.Pointer, timerID TimerID, interval uint32) uint32) TimerCallback {
-	return TimerCallback(purego.NewCallback(fn))
+	return TimerCallback(purego.NewCallback(func(userdata unsafe.Pointer, timerID TimerID, interval uint32) uintptr {
+		return uintptr(fn(userdata, timerID, interval))
+	}))
 }
 
 // Definition of the timer ID type.

@@ -331,3 +331,58 @@ func TestPtrFieldAccessors(t *testing.T) {
 		}
 	}
 }
+
+// Callback constructors hand purego a function with one uintptr result,
+// which syscall.NewCallback requires on Windows.
+func TestCallbackConstructorsReturnUintptr(t *testing.T) {
+	i32 := &ir.Type{Kind: ir.Int, Size: 4, Signed: true}
+	i64 := &ir.Type{Kind: ir.Int, Size: 8, Signed: true}
+	var tds []*ir.Typedef
+	add := func(name string, ret *ir.Type, params ...ir.Param) {
+		cb := &ir.Type{Kind: ir.Named, Name: name, Under: ptrTo(&ir.Type{Kind: ir.Func, Sig: &ir.Sig{Ret: ret, Params: params}})}
+		tds = append(tds, &ir.Typedef{Name: name, File: "SDL_synth.h", Doc: "A callback.", Type: cb})
+	}
+	x := ir.Param{Name: "x", Type: i32}
+	add("SDL_VoidCallback", &ir.Type{Kind: ir.Void}, x)
+	add("SDL_BoolCallback", &ir.Type{Kind: ir.Bool}, x)
+	add("SDL_IntCallback", i32, x)
+	add("SDL_WideCallback", i64, x)
+	add("SDL_ShadowCallback", &ir.Type{Kind: ir.Void}, ir.Param{Name: "fn", Type: i32})
+	g := &gen{
+		api: &ir.API{Typedefs: tds, Version: "0.0.0"}, pkg: "sdl",
+		docNames: map[string]string{}, claimed: map[string]string{}, tdGo: map[string]string{},
+		typedefs: map[string]*ir.Typedef{}, recName: map[*ir.Record]string{}, enumName: map[*ir.EnumDecl]string{},
+		files: map[string]*fileBuf{}, handNames: map[string]bool{},
+	}
+	g.index()
+	g.emitTypes()
+	if len(g.errs) > 0 {
+		t.Fatal(g.errs)
+	}
+	f := g.newFile()
+	for _, c := range g.file("SDL_synth.h").types {
+		f.Add(c)
+	}
+	var buf bytes.Buffer
+	if err := f.Render(&buf); err != nil {
+		t.Fatal(err)
+	}
+	src := buf.String()
+	for _, want := range []string{
+		"purego.NewCallback(func(x int32) uintptr {\n\t\tfn(x)\n\t\treturn 0\n\t})",
+		"purego.NewCallback(func(x int32) uintptr {\n\t\treturn cbool(fn(x))\n\t})",
+		"purego.NewCallback(func(x int32) uintptr {\n\t\treturn uintptr(fn(x))\n\t})",
+		// An int64 result is already uintptr-sized.
+		"func NewWideCallback(fn func(x int32) int64) WideCallback {\n\treturn WideCallback(purego.NewCallback(fn))",
+		// The wrapper's parameter named fn must not shadow the constructor's.
+		"func NewShadowCallback(fn_ func(fn int32)) ShadowCallback {",
+		"fn_(fn)",
+	} {
+		if !strings.Contains(src, want) {
+			t.Errorf("generated source lacks %q", want)
+		}
+	}
+	if t.Failed() {
+		t.Log(src)
+	}
+}

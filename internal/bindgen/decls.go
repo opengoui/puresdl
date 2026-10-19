@@ -223,7 +223,15 @@ func (g *gen) emitCallback(td *ir.Typedef, n string, doc []string, sig *ir.Sig, 
 		ndoc := []string{"No" + n + " is the NULL " + n + ", for optional callback parameters."}
 		fb.types = append(fb.types, start(ndoc).Const().Id("No"+n).Id(n).Op("=").Lit(0))
 	}
-	var params []jen.Code
+	var params, names []jen.Code
+	// fnName is the constructor's parameter; the wrapper's parameters must
+	// not shadow it.
+	fnName := "fn"
+	for i, p := range sig.Params {
+		if paramName(p.Name, i) == fnName {
+			fnName += "_"
+		}
+	}
 	for i, p := range sig.Params {
 		t, err := g.typ(p.Type)
 		if err != nil {
@@ -231,9 +239,11 @@ func (g *gen) emitCallback(td *ir.Typedef, n string, doc []string, sig *ir.Sig, 
 			return
 		}
 		params = append(params, jen.Id(paramName(p.Name, i)).Add(t))
+		names = append(names, jen.Id(paramName(p.Name, i)))
 	}
 	fnType := jen.Func().Params(params...)
-	if r := sig.Ret.Resolve(); r.Kind != ir.Void {
+	r := sig.Ret.Resolve()
+	if r.Kind != ir.Void {
 		t, err := g.typ(sig.Ret)
 		if err != nil {
 			g.skip("New"+n, err.Error())
@@ -241,14 +251,28 @@ func (g *gen) emitCallback(td *ir.Typedef, n string, doc []string, sig *ir.Sig, 
 		}
 		fnType = fnType.Add(t)
 	}
+	// purego.NewCallback goes through syscall.NewCallback on Windows, which
+	// accepts only functions with exactly one uintptr-sized result. A void,
+	// bool or narrower integer result is therefore returned as a uintptr by
+	// a wrapper; C reads only the bits its result type defines.
+	cb := jen.Id(fnName)
+	call := jen.Id(fnName).Call(names...)
+	switch {
+	case r.Kind == ir.Void:
+		cb = jen.Func().Params(params...).Uintptr().Block(call, jen.Return(jen.Lit(0)))
+	case r.Kind == ir.Bool:
+		cb = jen.Func().Params(params...).Uintptr().Block(jen.Return(jen.Id("cbool").Call(call)))
+	case (r.Kind == ir.Int || r.Kind == ir.Enum) && r.Size < 8:
+		cb = jen.Func().Params(params...).Uintptr().Block(jen.Return(jen.Uintptr().Call(call)))
+	}
 	cdoc := []string{
 		"New" + n + " wraps fn as a C callback of type " + n + ".",
 		"",
 		"The callback is allocated once and never freed, and purego supports at most",
 		"about 2000 callbacks per process: create each callback once and reuse it.",
 	}
-	fb.types = append(fb.types, start(cdoc).Func().Id("New"+n).Params(jen.Id("fn").Add(fnType)).Id(n).Block(
-		jen.Return(jen.Id(n).Call(jen.Qual("github.com/ebitengine/purego", "NewCallback").Call(jen.Id("fn")))),
+	fb.types = append(fb.types, start(cdoc).Func().Id("New"+n).Params(jen.Id(fnName).Add(fnType)).Id(n).Block(
+		jen.Return(jen.Id(n).Call(jen.Qual("github.com/ebitengine/purego", "NewCallback").Call(cb))),
 	))
 }
 

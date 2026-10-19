@@ -29,7 +29,10 @@ const NoClipboardCleanupCallback ClipboardCleanupCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewClipboardCleanupCallback(fn func(userdata unsafe.Pointer)) ClipboardCleanupCallback {
-	return ClipboardCleanupCallback(purego.NewCallback(fn))
+	return ClipboardCleanupCallback(purego.NewCallback(func(userdata unsafe.Pointer) uintptr {
+		fn(userdata)
+		return 0
+	}))
 }
 
 // Callback function that will be called when data for the specified mime-type

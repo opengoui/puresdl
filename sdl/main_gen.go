@@ -29,7 +29,9 @@ const NoMainFunc MainFunc = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewMainFunc(fn func(argc int32, argv **byte) int32) MainFunc {
-	return MainFunc(purego.NewCallback(fn))
+	return MainFunc(purego.NewCallback(func(argc int32, argv **byte) uintptr {
+		return uintptr(fn(argc, argv))
+	}))
 }
 
 var addrSetMainReady uintptr

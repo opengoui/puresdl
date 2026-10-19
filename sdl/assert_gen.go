@@ -55,7 +55,9 @@ const NoAssertionHandler AssertionHandler = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAssertionHandler(fn func(data *AssertData, userdata unsafe.Pointer) AssertState) AssertionHandler {
-	return AssertionHandler(purego.NewCallback(fn))
+	return AssertionHandler(purego.NewCallback(func(data *AssertData, userdata unsafe.Pointer) uintptr {
+		return uintptr(fn(data, userdata))
+	}))
 }
 
 // Possible outcomes from a triggered assertion.

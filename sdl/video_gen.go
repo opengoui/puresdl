@@ -224,7 +224,9 @@ const NoHitTest HitTest = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewHitTest(fn func(win *Window, area *Point, data unsafe.Pointer) HitTestResult) HitTest {
-	return HitTest(purego.NewCallback(fn))
+	return HitTest(purego.NewCallback(func(win *Window, area *Point, data unsafe.Pointer) uintptr {
+		return uintptr(fn(win, area, data))
+	}))
 }
 
 // The flags on a window.

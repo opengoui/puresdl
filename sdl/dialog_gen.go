@@ -70,7 +70,10 @@ const NoDialogFileCallback DialogFileCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewDialogFileCallback(fn func(userdata unsafe.Pointer, filelist **byte, filter int32)) DialogFileCallback {
-	return DialogFileCallback(purego.NewCallback(fn))
+	return DialogFileCallback(purego.NewCallback(func(userdata unsafe.Pointer, filelist **byte, filter int32) uintptr {
+		fn(userdata, filelist, filter)
+		return 0
+	}))
 }
 
 // Various types of file dialogs.

@@ -45,7 +45,9 @@ const NoWindowsMessageHook WindowsMessageHook = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewWindowsMessageHook(fn func(userdata unsafe.Pointer, msg *MSG) bool) WindowsMessageHook {
-	return WindowsMessageHook(purego.NewCallback(fn))
+	return WindowsMessageHook(purego.NewCallback(func(userdata unsafe.Pointer, msg *MSG) uintptr {
+		return cbool(fn(userdata, msg))
+	}))
 }
 
 // A callback to be used with SetX11EventHook.
@@ -80,7 +82,9 @@ const NoX11EventHook X11EventHook = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewX11EventHook(fn func(userdata unsafe.Pointer, xevent *XEvent) bool) X11EventHook {
-	return X11EventHook(purego.NewCallback(fn))
+	return X11EventHook(purego.NewCallback(func(userdata unsafe.Pointer, xevent *XEvent) uintptr {
+		return cbool(fn(userdata, xevent))
+	}))
 }
 
 // Application sandbox environment.

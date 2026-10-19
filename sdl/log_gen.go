@@ -33,7 +33,10 @@ const NoLogOutputFunction LogOutputFunction = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewLogOutputFunction(fn func(userdata unsafe.Pointer, category int32, priority LogPriority, message *byte)) LogOutputFunction {
-	return LogOutputFunction(purego.NewCallback(fn))
+	return LogOutputFunction(purego.NewCallback(func(userdata unsafe.Pointer, category int32, priority LogPriority, message *byte) uintptr {
+		fn(userdata, category, priority, message)
+		return 0
+	}))
 }
 
 // The predefined log priorities

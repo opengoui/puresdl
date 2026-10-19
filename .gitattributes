@@ -1,0 +1,4 @@
+# Check out text files with LF line endings on every platform: the generated
+# *_gen.go files are compared byte for byte with fresh generator output
+# (internal/gensdl), which a CRLF checkout on Windows would break.
+* text=auto eol=lf

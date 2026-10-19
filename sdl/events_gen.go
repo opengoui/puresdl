@@ -1196,7 +1196,9 @@ const NoEventFilter EventFilter = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewEventFilter(fn func(userdata unsafe.Pointer, event *Event) bool) EventFilter {
-	return EventFilter(purego.NewCallback(fn))
+	return EventFilter(purego.NewCallback(func(userdata unsafe.Pointer, event *Event) uintptr {
+		return cbool(fn(userdata, event))
+	}))
 }
 
 // The types of events that can be delivered.

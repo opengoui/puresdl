@@ -33,7 +33,9 @@ const NoAppEvent_func AppEvent_func = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAppEvent_func(fn func(appstate unsafe.Pointer, event *Event) AppResult) AppEvent_func {
-	return AppEvent_func(purego.NewCallback(fn))
+	return AppEvent_func(purego.NewCallback(func(appstate unsafe.Pointer, event *Event) uintptr {
+		return uintptr(fn(appstate, event))
+	}))
 }
 
 // Function pointer typedef for `SDL_AppInit`.
@@ -63,7 +65,9 @@ const NoAppInit_func AppInit_func = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAppInit_func(fn func(appstate *unsafe.Pointer, argc int32, argv **byte) AppResult) AppInit_func {
-	return AppInit_func(purego.NewCallback(fn))
+	return AppInit_func(purego.NewCallback(func(appstate *unsafe.Pointer, argc int32, argv **byte) uintptr {
+		return uintptr(fn(appstate, argc, argv))
+	}))
 }
 
 // Function pointer typedef for `SDL_AppIterate`.
@@ -91,7 +95,9 @@ const NoAppIterate_func AppIterate_func = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAppIterate_func(fn func(appstate unsafe.Pointer) AppResult) AppIterate_func {
-	return AppIterate_func(purego.NewCallback(fn))
+	return AppIterate_func(purego.NewCallback(func(appstate unsafe.Pointer) uintptr {
+		return uintptr(fn(appstate))
+	}))
 }
 
 // Function pointer typedef for `SDL_AppQuit`.
@@ -118,7 +124,10 @@ const NoAppQuit_func AppQuit_func = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAppQuit_func(fn func(appstate unsafe.Pointer, result AppResult)) AppQuit_func {
-	return AppQuit_func(purego.NewCallback(fn))
+	return AppQuit_func(purego.NewCallback(func(appstate unsafe.Pointer, result AppResult) uintptr {
+		fn(appstate, result)
+		return 0
+	}))
 }
 
 // Initialization flags for Init and/or InitSubSystem
@@ -152,7 +161,10 @@ const NoMainThreadCallback MainThreadCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewMainThreadCallback(fn func(userdata unsafe.Pointer)) MainThreadCallback {
-	return MainThreadCallback(purego.NewCallback(fn))
+	return MainThreadCallback(purego.NewCallback(func(userdata unsafe.Pointer) uintptr {
+		fn(userdata)
+		return 0
+	}))
 }
 
 // Return values for optional main callbacks.

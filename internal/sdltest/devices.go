@@ -40,13 +40,16 @@ var (
 // device through an sdl userdata handle.
 func rumbleCallback() uintptr {
 	rumbleOnce.Do(func() {
-		rumbleCB = purego.NewCallback(func(userdata unsafe.Pointer, low, high uint16) bool {
+		// The C result is bool; it is returned as a uintptr because
+		// syscall.NewCallback, which purego uses on Windows, accepts only
+		// a uintptr-sized result.
+		rumbleCB = purego.NewCallback(func(userdata unsafe.Pointer, low, high uint16) uintptr {
 			if d, ok := sdl.UserdataHandleValue(userdata).(*VirtualJoystick); ok {
 				d.mu.Lock()
 				d.rumble = append(d.rumble, RumbleCall{low, high})
 				d.mu.Unlock()
 			}
-			return true
+			return 1
 		})
 	})
 	return rumbleCB

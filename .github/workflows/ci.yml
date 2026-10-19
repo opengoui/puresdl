@@ -62,15 +62,18 @@ jobs:
         id: sdl-cache
         with:
           path: ~/sdl3-install
-          key: sdl3-${{ matrix.os }}-${{ env.SDL_RUNTIME_TAG }}
+          key: sdl3-console-${{ matrix.os }}-${{ env.SDL_RUNTIME_TAG }}
       - name: Build SDL3 (Linux)
         if: runner.os == 'Linux' && steps.sdl-cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends cmake ninja-build build-essential
           git clone --depth 1 --branch "$SDL_RUNTIME_TAG" https://github.com/libsdl-org/SDL.git /tmp/sdl
+          # The tests use only the dummy drivers, so build without X11 and
+          # Wayland, whose development packages the runner images lack.
           cmake -S /tmp/sdl -B /tmp/sdl/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-            -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="$HOME/sdl3-install"
+            -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_UNIX_CONSOLE_BUILD=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME/sdl3-install"
           cmake --build /tmp/sdl/build
           cmake --install /tmp/sdl/build
       - name: Point the loader at SDL3 (Linux)

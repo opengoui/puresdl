@@ -100,7 +100,10 @@ const NoAudioPostmixCallback AudioPostmixCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAudioPostmixCallback(fn func(userdata unsafe.Pointer, spec *AudioSpec, buffer *float32, buflen int32)) AudioPostmixCallback {
-	return AudioPostmixCallback(purego.NewCallback(fn))
+	return AudioPostmixCallback(purego.NewCallback(func(userdata unsafe.Pointer, spec *AudioSpec, buffer *float32, buflen int32) uintptr {
+		fn(userdata, spec, buffer, buflen)
+		return 0
+	}))
 }
 
 // A callback that fires when data passes through an AudioStream.
@@ -149,7 +152,10 @@ const NoAudioStreamCallback AudioStreamCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAudioStreamCallback(fn func(userdata unsafe.Pointer, stream *AudioStream, additional_amount int32, total_amount int32)) AudioStreamCallback {
-	return AudioStreamCallback(purego.NewCallback(fn))
+	return AudioStreamCallback(purego.NewCallback(func(userdata unsafe.Pointer, stream *AudioStream, additional_amount int32, total_amount int32) uintptr {
+		fn(userdata, stream, additional_amount, total_amount)
+		return 0
+	}))
 }
 
 // A callback that fires for completed PutAudioStreamDataNoCopy() data.
@@ -185,7 +191,10 @@ const NoAudioStreamDataCompleteCallback AudioStreamDataCompleteCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewAudioStreamDataCompleteCallback(fn func(userdata unsafe.Pointer, buf unsafe.Pointer, buflen int32)) AudioStreamDataCompleteCallback {
-	return AudioStreamDataCompleteCallback(purego.NewCallback(fn))
+	return AudioStreamDataCompleteCallback(purego.NewCallback(func(userdata unsafe.Pointer, buf unsafe.Pointer, buflen int32) uintptr {
+		fn(userdata, buf, buflen)
+		return 0
+	}))
 }
 
 // Audio format.

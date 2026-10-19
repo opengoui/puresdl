@@ -37,7 +37,10 @@ const NoHintCallback HintCallback = 0
 // The callback is allocated once and never freed, and purego supports at most
 // about 2000 callbacks per process: create each callback once and reuse it.
 func NewHintCallback(fn func(userdata unsafe.Pointer, name *byte, oldValue *byte, newValue *byte)) HintCallback {
-	return HintCallback(purego.NewCallback(fn))
+	return HintCallback(purego.NewCallback(func(userdata unsafe.Pointer, name *byte, oldValue *byte, newValue *byte) uintptr {
+		fn(userdata, name, oldValue, newValue)
+		return 0
+	}))
 }
 
 // An enumeration of hint priorities.
