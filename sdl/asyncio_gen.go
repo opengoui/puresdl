@@ -140,7 +140,9 @@ func fnAsyncIOFromFile(file *byte, mode *byte) *AsyncIO {
 //
 // See also: CloseAsyncIO, ReadAsyncIO, WriteAsyncIO
 func AsyncIOFromFile(file string, mode string) *AsyncIO {
-	return fnAsyncIOFromFile(cstr(file), cstr(mode))
+	var sc cstrScratch
+	defer sc.release()
+	return fnAsyncIOFromFile(sc.cstr(file), sc.cstr(mode))
 }
 
 var addrGetAsyncIOSize uintptr
@@ -551,5 +553,7 @@ func fnLoadFileAsync(file *byte, queue *AsyncIOQueue, userdata unsafe.Pointer) b
 //
 // Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it. To pass a Go value, wrap it with NewUserdataHandle and read it back from the outcome with UserdataHandleValue.
 func LoadFileAsync(file string, queue *AsyncIOQueue, userdata unsafe.Pointer) bool {
-	return fnLoadFileAsync(cstr(file), queue, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadFileAsync(sc.cstr(file), queue, userdata)
 }

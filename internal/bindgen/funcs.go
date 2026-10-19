@@ -113,6 +113,9 @@ type argPlan struct {
 	pub    *jen.Statement
 	raw    *jen.Statement
 	expr   jen.Code
+	// cstr names the conversion ("cstr" or "cstrNull") of a string
+	// parameter that the main wrapper can make through a cstrScratch.
+	cstr string
 }
 
 // emitFuncs generates a wrapper for every function and records the reason for
@@ -185,7 +188,7 @@ func (g *gen) bindFunc(f *ir.Function) string {
 				notes = append(notes, "An empty "+name+" is passed as NULL.")
 			}
 			plans = append(plans, argPlan{name: name, pub: jen.String(), raw: jen.Op("*").Id("byte"),
-				expr: jen.Id(fn).Call(jen.Id(name))})
+				expr: jen.Id(fn).Call(jen.Id(name)), cstr: fn})
 			continue
 		}
 		if isWcharString(p.Type) {
@@ -328,6 +331,21 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		doc = append(doc, "")
 		doc = append(doc, notes...)
 	}
+	// String parameters go through a cstrScratch released when the wrapper
+	// returns, after any result string has been copied.
+	scName := freshName("sc", plans)
+	var scDecl []jen.Code
+	for i, p := range plans {
+		if p.cstr != "" {
+			if scDecl == nil {
+				scDecl = []jen.Code{
+					jen.Var().Id(scName).Id("cstrScratch"),
+					jen.Defer().Id(scName).Dot("release").Call(),
+				}
+			}
+			args[i] = jen.Id(scName).Dot(p.cstr).Call(jen.Id(p.name))
+		}
+	}
 	call := jen.Id(fnVar).Call(args...)
 	var body []jen.Code
 	switch {
@@ -354,6 +372,7 @@ func (g *gen) bindFunc(f *ir.Function) string {
 	default:
 		body = []jen.Code{jen.Return(call)}
 	}
+	body = append(scDecl, body...)
 	w := start(doc).Func().Id(n).Params(pubParams...)
 	if pubRet != nil {
 		w = w.Add(pubRet)
@@ -364,11 +383,11 @@ func (g *gen) bindFunc(f *ir.Function) string {
 		if len(f.Targets) < 3 {
 			okDoc = append(okDoc, "Only declared by the SDL headers for "+strings.Join(f.Targets, ", ")+".")
 		}
-		okBody := []jen.Code{
+		okBody := append(scDecl,
 			jen.Id("p").Op(":=").Add(jen.Id(fnVar).Call(args...)),
 			jen.If(jen.Id("p").Op("==").Nil()).Block(jen.Return(jen.Lit(""), jen.False())),
 			jen.Return(jen.Id("GoString").Call(jen.Id("p")), jen.True()),
-		}
+		)
 		fb.funcs = append(fb.funcs, start(okDoc).Func().Id(okName).Params(pubParams...).Params(jen.String(), jen.Bool()).Block(okBody...))
 	}
 	if vf != nil {

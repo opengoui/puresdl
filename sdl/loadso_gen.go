@@ -35,7 +35,9 @@ func fnLoadObject(sofile *byte) *SharedObject {
 //
 // See also: LoadFunction, UnloadObject
 func LoadObject(sofile string) *SharedObject {
-	return fnLoadObject(cstr(sofile))
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadObject(sc.cstr(sofile))
 }
 
 var addrLoadFunction uintptr
@@ -73,7 +75,9 @@ func fnLoadFunction(handle *SharedObject, name *byte) FunctionPointer {
 //
 // See also: LoadObject
 func LoadFunction(handle *SharedObject, name string) FunctionPointer {
-	return fnLoadFunction(handle, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadFunction(handle, sc.cstr(name))
 }
 
 var addrUnloadObject uintptr

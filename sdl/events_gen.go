@@ -1684,7 +1684,11 @@ func fnPollEvent(event *Event) bool {
 	if addrPollEvent == 0 {
 		missingSymbol("SDL_PollEvent")
 	}
-	return uint8(call1(addrPollEvent, uintptr(unsafe.Pointer(event)))) != 0
+	frame := getFrame()
+	ret := uint8(callS1(frame, addrPollEvent, scratchIn(frame, 0, event))) != 0
+	scratchOut(frame, 0, event)
+	putFrame(frame)
+	return ret
 }
 
 // Poll for currently pending events.
@@ -1741,7 +1745,11 @@ func fnWaitEvent(event *Event) bool {
 	if addrWaitEvent == 0 {
 		missingSymbol("SDL_WaitEvent")
 	}
-	return uint8(call1(addrWaitEvent, uintptr(unsafe.Pointer(event)))) != 0
+	frame := getFrame()
+	ret := uint8(callS1(frame, addrWaitEvent, scratchIn(frame, 0, event))) != 0
+	scratchOut(frame, 0, event)
+	putFrame(frame)
+	return ret
 }
 
 // Wait indefinitely for the next available event.
@@ -1772,7 +1780,11 @@ func fnWaitEventTimeout(event *Event, timeoutMS int32) bool {
 	if addrWaitEventTimeout == 0 {
 		missingSymbol("SDL_WaitEventTimeout")
 	}
-	return uint8(call2(addrWaitEventTimeout, uintptr(unsafe.Pointer(event)), uintptr(timeoutMS))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrWaitEventTimeout, scratchIn(frame, 0, event), uintptr(timeoutMS))) != 0
+	scratchOut(frame, 0, event)
+	putFrame(frame)
+	return ret
 }
 
 // Wait until the specified timeout (in milliseconds) for the next available
@@ -1808,7 +1820,11 @@ func fnPushEvent(event *Event) bool {
 	if addrPushEvent == 0 {
 		missingSymbol("SDL_PushEvent")
 	}
-	return uint8(call1(addrPushEvent, uintptr(unsafe.Pointer(event)))) != 0
+	frame := getFrame()
+	ret := uint8(callS1(frame, addrPushEvent, scratchIn(frame, 0, event))) != 0
+	scratchOut(frame, 0, event)
+	putFrame(frame)
+	return ret
 }
 
 // Add an event to the event queue.
@@ -2106,7 +2122,10 @@ func fnGetWindowFromEvent(event *Event) *Window {
 	if addrGetWindowFromEvent == 0 {
 		missingSymbol("SDL_GetWindowFromEvent")
 	}
-	return (*Window)(cptr(call1(addrGetWindowFromEvent, uintptr(unsafe.Pointer(event)))))
+	frame := getFrame()
+	ret := (*Window)(cptr(callS1(frame, addrGetWindowFromEvent, scratchIn(frame, 0, event))))
+	putFrame(frame)
+	return ret
 }
 
 // Get window associated with an event.
@@ -2131,7 +2150,10 @@ func fnGetEventDescription(event *Event, buf *byte, buflen int32) int32 {
 	if addrGetEventDescription == 0 {
 		missingSymbol("SDL_GetEventDescription")
 	}
-	return int32(call3(addrGetEventDescription, uintptr(unsafe.Pointer(event)), uintptr(unsafe.Pointer(buf)), uintptr(buflen)))
+	frame := getFrame()
+	ret := int32(callS3(frame, addrGetEventDescription, scratchIn(frame, 0, event), uintptr(unsafe.Pointer(buf)), uintptr(buflen)))
+	putFrame(frame)
+	return ret
 }
 
 // Generate an English description of an event.

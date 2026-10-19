@@ -58,7 +58,10 @@ func fnHasRectIntersection(A *Rect, B *Rect) bool {
 	if addrHasRectIntersection == 0 {
 		missingSymbol("SDL_HasRectIntersection")
 	}
-	return uint8(call2(addrHasRectIntersection, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrHasRectIntersection, scratchIn(frame, 0, A), scratchIn(frame, 16, B))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Determine whether two rectangles intersect.
@@ -86,7 +89,11 @@ func fnGetRectIntersection(A *Rect, B *Rect, result *Rect) bool {
 	if addrGetRectIntersection == 0 {
 		missingSymbol("SDL_GetRectIntersection")
 	}
-	return uint8(call3(addrGetRectIntersection, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetRectIntersection, scratchIn(frame, 0, A), scratchIn(frame, 16, B), scratchIn(frame, 32, result))) != 0
+	scratchOut(frame, 32, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the intersection of two rectangles.
@@ -115,7 +122,11 @@ func fnGetRectUnion(A *Rect, B *Rect, result *Rect) bool {
 	if addrGetRectUnion == 0 {
 		missingSymbol("SDL_GetRectUnion")
 	}
-	return uint8(call3(addrGetRectUnion, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetRectUnion, scratchIn(frame, 0, A), scratchIn(frame, 16, B), scratchIn(frame, 32, result))) != 0
+	scratchOut(frame, 32, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the union of two rectangles.
@@ -140,7 +151,11 @@ func fnGetRectEnclosingPoints(points *Point, count int32, clip *Rect, result *Re
 	if addrGetRectEnclosingPoints == 0 {
 		missingSymbol("SDL_GetRectEnclosingPoints")
 	}
-	return uint8(call4(addrGetRectEnclosingPoints, uintptr(unsafe.Pointer(points)), uintptr(count), uintptr(unsafe.Pointer(clip)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrGetRectEnclosingPoints, uintptr(unsafe.Pointer(points)), uintptr(count), scratchIn(frame, 0, clip), scratchIn(frame, 16, result))) != 0
+	scratchOut(frame, 16, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate a minimal rectangle enclosing a set of points.
@@ -169,7 +184,10 @@ func fnGetRectAndLineIntersection(rect *Rect, X1 *int32, Y1 *int32, X2 *int32, Y
 	if addrGetRectAndLineIntersection == 0 {
 		missingSymbol("SDL_GetRectAndLineIntersection")
 	}
-	return uint8(call5(addrGetRectAndLineIntersection, uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(X1)), uintptr(unsafe.Pointer(Y1)), uintptr(unsafe.Pointer(X2)), uintptr(unsafe.Pointer(Y2)))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrGetRectAndLineIntersection, scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(X1)), uintptr(unsafe.Pointer(Y1)), uintptr(unsafe.Pointer(X2)), uintptr(unsafe.Pointer(Y2)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the intersection of a rectangle and line segment.
@@ -202,7 +220,10 @@ func fnHasRectIntersectionFloat(A *FRect, B *FRect) bool {
 	if addrHasRectIntersectionFloat == 0 {
 		missingSymbol("SDL_HasRectIntersectionFloat")
 	}
-	return uint8(call2(addrHasRectIntersectionFloat, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrHasRectIntersectionFloat, scratchIn(frame, 0, A), scratchIn(frame, 16, B))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Determine whether two rectangles intersect with float precision.
@@ -230,7 +251,11 @@ func fnGetRectIntersectionFloat(A *FRect, B *FRect, result *FRect) bool {
 	if addrGetRectIntersectionFloat == 0 {
 		missingSymbol("SDL_GetRectIntersectionFloat")
 	}
-	return uint8(call3(addrGetRectIntersectionFloat, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetRectIntersectionFloat, scratchIn(frame, 0, A), scratchIn(frame, 16, B), scratchIn(frame, 32, result))) != 0
+	scratchOut(frame, 32, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the intersection of two rectangles with float precision.
@@ -259,7 +284,11 @@ func fnGetRectUnionFloat(A *FRect, B *FRect, result *FRect) bool {
 	if addrGetRectUnionFloat == 0 {
 		missingSymbol("SDL_GetRectUnionFloat")
 	}
-	return uint8(call3(addrGetRectUnionFloat, uintptr(unsafe.Pointer(A)), uintptr(unsafe.Pointer(B)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetRectUnionFloat, scratchIn(frame, 0, A), scratchIn(frame, 16, B), scratchIn(frame, 32, result))) != 0
+	scratchOut(frame, 32, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the union of two rectangles with float precision.
@@ -284,7 +313,11 @@ func fnGetRectEnclosingPointsFloat(points *FPoint, count int32, clip *FRect, res
 	if addrGetRectEnclosingPointsFloat == 0 {
 		missingSymbol("SDL_GetRectEnclosingPointsFloat")
 	}
-	return uint8(call4(addrGetRectEnclosingPointsFloat, uintptr(unsafe.Pointer(points)), uintptr(count), uintptr(unsafe.Pointer(clip)), uintptr(unsafe.Pointer(result)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrGetRectEnclosingPointsFloat, uintptr(unsafe.Pointer(points)), uintptr(count), scratchIn(frame, 0, clip), scratchIn(frame, 16, result))) != 0
+	scratchOut(frame, 16, result)
+	putFrame(frame)
+	return ret
 }
 
 // Calculate a minimal rectangle enclosing a set of points with float
@@ -314,7 +347,10 @@ func fnGetRectAndLineIntersectionFloat(rect *FRect, X1 *float32, Y1 *float32, X2
 	if addrGetRectAndLineIntersectionFloat == 0 {
 		missingSymbol("SDL_GetRectAndLineIntersectionFloat")
 	}
-	return uint8(call5(addrGetRectAndLineIntersectionFloat, uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(X1)), uintptr(unsafe.Pointer(Y1)), uintptr(unsafe.Pointer(X2)), uintptr(unsafe.Pointer(Y2)))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrGetRectAndLineIntersectionFloat, scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(X1)), uintptr(unsafe.Pointer(Y1)), uintptr(unsafe.Pointer(X2)), uintptr(unsafe.Pointer(Y2)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Calculate the intersection of a rectangle and line segment with float

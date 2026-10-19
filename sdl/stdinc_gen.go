@@ -693,7 +693,9 @@ func fnGetEnvironmentVariable(env *Environment, name *byte) *byte {
 //
 // NULL is returned as an empty string; use GetEnvironmentVariableOK to tell it from an empty value.
 func GetEnvironmentVariable(env *Environment, name string) string {
-	return GoString(fnGetEnvironmentVariable(env, cstr(name)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetEnvironmentVariable(env, sc.cstr(name)))
 }
 
 // Get the value of a variable in the environment.
@@ -712,7 +714,9 @@ func GetEnvironmentVariable(env *Environment, name string) string {
 //
 // The boolean is false when SDL returned NULL, which is different from an empty value.
 func GetEnvironmentVariableOK(env *Environment, name string) (string, bool) {
-	p := fnGetEnvironmentVariable(env, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetEnvironmentVariable(env, sc.cstr(name))
 	if p == nil {
 		return "", false
 	}
@@ -771,7 +775,9 @@ func fnSetEnvironmentVariable(env *Environment, name *byte, value *byte, overwri
 //
 // See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariable, GetEnvironmentVariables, UnsetEnvironmentVariable
 func SetEnvironmentVariable(env *Environment, name string, value string, overwrite bool) bool {
-	return fnSetEnvironmentVariable(env, cstr(name), cstr(value), overwrite)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetEnvironmentVariable(env, sc.cstr(name), sc.cstr(value), overwrite)
 }
 
 var addrUnsetEnvironmentVariable uintptr
@@ -797,7 +803,9 @@ func fnUnsetEnvironmentVariable(env *Environment, name *byte) bool {
 //
 // See also: GetEnvironment, CreateEnvironment, GetEnvironmentVariable, GetEnvironmentVariables, SetEnvironmentVariable, UnsetEnvironmentVariable
 func UnsetEnvironmentVariable(env *Environment, name string) bool {
-	return fnUnsetEnvironmentVariable(env, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnUnsetEnvironmentVariable(env, sc.cstr(name))
 }
 
 var addrDestroyEnvironment uintptr
@@ -849,7 +857,9 @@ func fnGetenv(name *byte) *byte {
 //
 // NULL is returned as an empty string; use GetenvOK to tell it from an empty value.
 func Getenv(name string) string {
-	return GoString(fnGetenv(cstr(name)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetenv(sc.cstr(name)))
 }
 
 // Get the value of a variable in the environment.
@@ -869,7 +879,9 @@ func Getenv(name string) string {
 //
 // The boolean is false when SDL returned NULL, which is different from an empty value.
 func GetenvOK(name string) (string, bool) {
-	p := fnGetenv(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetenv(sc.cstr(name))
 	if p == nil {
 		return "", false
 	}
@@ -908,7 +920,9 @@ func fnGetenvUnsafe(name *byte) *byte {
 //
 // NULL is returned as an empty string; use GetenvUnsafeOK to tell it from an empty value.
 func GetenvUnsafe(name string) string {
-	return GoString(fnGetenvUnsafe(cstr(name)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetenvUnsafe(sc.cstr(name)))
 }
 
 // Get the value of a variable in the environment.
@@ -934,7 +948,9 @@ func GetenvUnsafe(name string) string {
 //
 // The boolean is false when SDL returned NULL, which is different from an empty value.
 func GetenvUnsafeOK(name string) (string, bool) {
-	p := fnGetenvUnsafe(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetenvUnsafe(sc.cstr(name))
 	if p == nil {
 		return "", false
 	}
@@ -965,7 +981,9 @@ func fnSetenvUnsafe(name *byte, value *byte, overwrite int32) int32 {
 //
 // See also: SetEnvironmentVariable
 func SetenvUnsafe(name string, value string, overwrite int32) int32 {
-	return fnSetenvUnsafe(cstr(name), cstr(value), overwrite)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetenvUnsafe(sc.cstr(name), sc.cstr(value), overwrite)
 }
 
 var addrUnsetenvUnsafe uintptr
@@ -990,7 +1008,9 @@ func fnUnsetenvUnsafe(name *byte) int32 {
 //
 // See also: UnsetEnvironmentVariable
 func UnsetenvUnsafe(name string) int32 {
-	return fnUnsetenvUnsafe(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnUnsetenvUnsafe(sc.cstr(name))
 }
 
 var addrCrc16 uintptr
@@ -1461,7 +1481,9 @@ func fnIconvOpen(tocode *byte, fromcode *byte) IconvT {
 //
 // See also: Iconv, IconvClose, IconvString
 func IconvOpen(tocode string, fromcode string) IconvT {
-	return fnIconvOpen(cstr(tocode), cstr(fromcode))
+	var sc cstrScratch
+	defer sc.release()
+	return fnIconvOpen(sc.cstr(tocode), sc.cstr(fromcode))
 }
 
 var addrIconvClose uintptr

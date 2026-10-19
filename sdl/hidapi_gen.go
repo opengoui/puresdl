@@ -269,7 +269,9 @@ func fnHIDOpenPath(path *byte) *HIDDevice {
 //
 // Since: SDL 3.2.0.
 func HIDOpenPath(path string) *HIDDevice {
-	return fnHIDOpenPath(cstr(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnHIDOpenPath(sc.cstr(path))
 }
 
 var addrHIDGetProperties uintptr

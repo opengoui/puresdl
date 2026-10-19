@@ -113,16 +113,30 @@ func floatSig(f *ir.Function) bool {
 // variable, which bindAll binds with purego.RegisterFunc on platforms where
 // floatCalls is false; fn<Name> calls it there. It returns that variable's
 // name, or "" when there is none.
+//
+// Parameters chosen by scratchParams are copied into the scratch area of a
+// frame from getFrame and passed by that address through callSN or callFSN;
+// in-out copies are copied back after the call, before putFrame.
 func (g *gen) emitDirect(fb *fileBuf, f *ir.Function, fnVar, addrVar string, plans []argPlan, rawParams []jen.Code, rawRet *jen.Statement) string {
 	float := floatSig(f)
+	scratch := scratchParams(f)
+	frameName := freshName("frame", plans)
 	args := []jen.Code{jen.Id(addrVar)}
-	var floats, names []jen.Code
+	var floats, names, outs []jen.Code
 	// fmask has bit i set when parameter i is floating-point; the Microsoft
 	// x64 ABI assigns registers by position and needs it.
 	fmask := 0
 	for i, p := range f.Sig.Params {
 		name := jen.Id(plans[i].name)
 		names = append(names, jen.Id(plans[i].name))
+		if scratch != nil && scratch[i].mode != scratchNone {
+			off := jen.Lit(int(scratch[i].off))
+			args = append(args, jen.Id("scratchIn").Call(jen.Id(frameName), off, name))
+			if scratch[i].mode == scratchInOut {
+				outs = append(outs, jen.Id("scratchOut").Call(jen.Id(frameName), off.Clone(), jen.Id(plans[i].name)))
+			}
+			continue
+		}
 		switch wordKindOf(p.Type) {
 		case wordBool:
 			args = append(args, jen.Id("cbool").Call(name))
@@ -138,13 +152,18 @@ func (g *gen) emitDirect(fb *fileBuf, f *ir.Function, fnVar, addrVar string, pla
 			args = append(args, jen.Uintptr().Call(name))
 		}
 	}
-	var call *jen.Statement
+	nInts := len(args) - 1
+	helper := "call"
 	if float {
+		helper = "callF"
 		args = append([]jen.Code{args[0], jen.Op(fmt.Sprintf("0b%b", fmask)), jen.Op("&").Id("floatArgs").Values(floats...)}, args[1:]...)
-		call = jen.Id(fmt.Sprintf("callF%d", len(args)-3)).Call(args...)
-	} else {
-		call = jen.Id(fmt.Sprintf("call%d", len(args)-1)).Call(args...)
 	}
+	if scratch != nil {
+		helper += "S"
+		args = append([]jen.Code{jen.Id(frameName)}, args...)
+	}
+	call := jen.Id(fmt.Sprintf("%s%d", helper, nInts)).Call(args...)
+
 	var body []jen.Code
 	regVar := ""
 	if float {
@@ -158,6 +177,14 @@ func (g *gen) emitDirect(fb *fileBuf, f *ir.Function, fnVar, addrVar string, pla
 		body = append(body, jen.If(jen.Op("!").Id("floatCalls")).Block(fallback))
 	}
 	body = append(body, jen.If(jen.Id(addrVar).Op("==").Lit(0)).Block(jen.Id("missingSymbol").Call(jen.Lit(f.Name))))
+	if scratch != nil {
+		body = append(body, jen.Id(frameName).Op(":=").Id("getFrame").Call())
+	}
+
+	// pre holds the statements that make the call; result is the value
+	// returned, or nil for a void function (call is then a statement).
+	var pre []jen.Code
+	var result jen.Code
 	// rName and frName hold the result registers of callFN; they must not
 	// shadow a parameter.
 	rName, frName := freshName("r", plans), freshName("fr", plans)
@@ -169,35 +196,50 @@ func (g *gen) emitDirect(fb *fileBuf, f *ir.Function, fnVar, addrVar string, pla
 	retKind := wordKindOf(f.Sig.Ret)
 	switch {
 	case rawRet == nil:
-		body = append(body, call)
+		pre = append(pre, call)
 	case retKind.isFloat():
 		conv := "retF32"
 		if retKind == wordFloat64 {
 			conv = "retF64"
 		}
-		body = append(body, jen.List(jen.Id("_"), jen.Id(frName)).Op(":=").Add(call))
+		pre = append(pre, jen.List(jen.Id("_"), jen.Id(frName)).Op(":=").Add(call))
 		res := jen.Id(conv).Call(jen.Id(frName))
 		if s := fmt.Sprintf("%#v", rawRet); s != "float32" && s != "float64" {
 			res = rawRet.Clone().Call(res)
 		}
-		body = append(body, jen.Return(res))
+		result = res
 	default:
 		if float {
-			body = append(body, jen.List(jen.Id(rName), jen.Id("_")).Op(":=").Add(call))
+			pre = append(pre, jen.List(jen.Id(rName), jen.Id("_")).Op(":=").Add(call))
 		}
 		switch retKind {
 		case wordBool:
 			// C defines only the low byte of a bool result.
-			body = append(body, jen.Return(jen.Uint8().Call(intResult).Op("!=").Lit(0)))
+			result = jen.Uint8().Call(intResult).Op("!=").Lit(0)
 		case wordPtr:
 			p := jen.Id("cptr").Call(intResult)
 			if fmt.Sprintf("%#v", rawRet) == "unsafe.Pointer" {
-				body = append(body, jen.Return(p))
+				result = p
 			} else {
-				body = append(body, jen.Return(jen.Parens(rawRet.Clone()).Call(p)))
+				result = jen.Parens(rawRet.Clone()).Call(p)
 			}
 		default:
-			body = append(body, jen.Return(rawRet.Clone().Call(intResult)))
+			result = rawRet.Clone().Call(intResult)
+		}
+	}
+	body = append(body, pre...)
+	switch {
+	case scratch == nil && result != nil:
+		body = append(body, jen.Return(result))
+	case scratch != nil:
+		retName := freshName("ret", plans)
+		if result != nil {
+			body = append(body, jen.Id(retName).Op(":=").Add(result))
+		}
+		body = append(body, outs...)
+		body = append(body, jen.Id("putFrame").Call(jen.Id(frameName)))
+		if result != nil {
+			body = append(body, jen.Return(jen.Id(retName)))
 		}
 	}
 	fb.funcs = append(fb.funcs, jen.Var().Id(addrVar).Uintptr())

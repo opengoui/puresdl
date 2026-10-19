@@ -145,7 +145,9 @@ func fnShowOpenFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, 
 // An empty default_location is passed as NULL.
 // Keep alive: SDL retains the filters pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func ShowOpenFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location string, allow_many bool) {
-	fnShowOpenFileDialog(callback, userdata, window, filters, nfilters, cstrNull(default_location), allow_many)
+	var sc cstrScratch
+	defer sc.release()
+	fnShowOpenFileDialog(callback, userdata, window, filters, nfilters, sc.cstrNull(default_location), allow_many)
 }
 
 var addrShowSaveFileDialog uintptr
@@ -193,7 +195,9 @@ func fnShowSaveFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, 
 // An empty default_location is passed as NULL.
 // Keep alive: SDL retains the filters pointer argument(s); keep that Go memory reachable (for example in a package-level variable) for as long as SDL may use it. SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func ShowSaveFileDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, filters *DialogFileFilter, nfilters int32, default_location string) {
-	fnShowSaveFileDialog(callback, userdata, window, filters, nfilters, cstrNull(default_location))
+	var sc cstrScratch
+	defer sc.release()
+	fnShowSaveFileDialog(callback, userdata, window, filters, nfilters, sc.cstrNull(default_location))
 }
 
 var addrShowOpenFolderDialog uintptr
@@ -240,7 +244,9 @@ func fnShowOpenFolderDialog(callback DialogFileCallback, userdata unsafe.Pointer
 // An empty default_location is passed as NULL.
 // Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func ShowOpenFolderDialog(callback DialogFileCallback, userdata unsafe.Pointer, window *Window, default_location string, allow_many bool) {
-	fnShowOpenFolderDialog(callback, userdata, window, cstrNull(default_location), allow_many)
+	var sc cstrScratch
+	defer sc.release()
+	fnShowOpenFolderDialog(callback, userdata, window, sc.cstrNull(default_location), allow_many)
 }
 
 var addrShowFileDialogWithProperties uintptr

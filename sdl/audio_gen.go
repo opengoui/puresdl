@@ -472,7 +472,11 @@ func fnGetAudioDeviceFormat(devid AudioDeviceID, spec *AudioSpec, sample_frames 
 	if addrGetAudioDeviceFormat == 0 {
 		missingSymbol("SDL_GetAudioDeviceFormat")
 	}
-	return uint8(call3(addrGetAudioDeviceFormat, uintptr(devid), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(sample_frames)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetAudioDeviceFormat, uintptr(devid), scratchIn(frame, 0, spec), uintptr(unsafe.Pointer(sample_frames)))) != 0
+	scratchOut(frame, 0, spec)
+	putFrame(frame)
+	return ret
 }
 
 // Get the current audio format of a specific audio device.
@@ -552,7 +556,10 @@ func fnOpenAudioDevice(devid AudioDeviceID, spec *AudioSpec) AudioDeviceID {
 	if addrOpenAudioDevice == 0 {
 		missingSymbol("SDL_OpenAudioDevice")
 	}
-	return AudioDeviceID(call2(addrOpenAudioDevice, uintptr(devid), uintptr(unsafe.Pointer(spec))))
+	frame := getFrame()
+	ret := AudioDeviceID(callS2(frame, addrOpenAudioDevice, uintptr(devid), scratchIn(frame, 0, spec)))
+	putFrame(frame)
+	return ret
 }
 
 // Open a specific audio device.
@@ -1084,7 +1091,10 @@ func fnCreateAudioStream(src_spec *AudioSpec, dst_spec *AudioSpec) *AudioStream 
 	if addrCreateAudioStream == 0 {
 		missingSymbol("SDL_CreateAudioStream")
 	}
-	return (*AudioStream)(cptr(call2(addrCreateAudioStream, uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))))
+	frame := getFrame()
+	ret := (*AudioStream)(cptr(callS2(frame, addrCreateAudioStream, scratchIn(frame, 0, src_spec), scratchIn(frame, 16, dst_spec))))
+	putFrame(frame)
+	return ret
 }
 
 // Create a new audio stream.
@@ -1151,7 +1161,12 @@ func fnGetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *
 	if addrGetAudioStreamFormat == 0 {
 		missingSymbol("SDL_GetAudioStreamFormat")
 	}
-	return uint8(call3(addrGetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), scratchIn(frame, 0, src_spec), scratchIn(frame, 16, dst_spec))) != 0
+	scratchOut(frame, 0, src_spec)
+	scratchOut(frame, 16, dst_spec)
+	putFrame(frame)
+	return ret
 }
 
 // Query the current format of an audio stream.
@@ -1178,7 +1193,10 @@ func fnSetAudioStreamFormat(stream *AudioStream, src_spec *AudioSpec, dst_spec *
 	if addrSetAudioStreamFormat == 0 {
 		missingSymbol("SDL_SetAudioStreamFormat")
 	}
-	return uint8(call3(addrSetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(dst_spec)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrSetAudioStreamFormat, uintptr(unsafe.Pointer(stream)), scratchIn(frame, 0, src_spec), scratchIn(frame, 16, dst_spec))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Change the input and output formats of an audio stream.
@@ -2313,7 +2331,10 @@ func fnOpenAudioDeviceStream(devid AudioDeviceID, spec *AudioSpec, callback Audi
 	if addrOpenAudioDeviceStream == 0 {
 		missingSymbol("SDL_OpenAudioDeviceStream")
 	}
-	return (*AudioStream)(cptr(call4(addrOpenAudioDeviceStream, uintptr(devid), uintptr(unsafe.Pointer(spec)), uintptr(callback), uintptr(unsafe.Pointer(userdata)))))
+	frame := getFrame()
+	ret := (*AudioStream)(cptr(callS4(frame, addrOpenAudioDeviceStream, uintptr(devid), scratchIn(frame, 0, spec), uintptr(callback), uintptr(unsafe.Pointer(userdata)))))
+	putFrame(frame)
+	return ret
 }
 
 // Convenience function for straightforward audio init for the common case.
@@ -2444,7 +2465,11 @@ func fnLoadWAV_IO(src *IOStream, closeio bool, spec *AudioSpec, audio_buf **uint
 	if addrLoadWAV_IO == 0 {
 		missingSymbol("SDL_LoadWAV_IO")
 	}
-	return uint8(call5(addrLoadWAV_IO, uintptr(unsafe.Pointer(src)), cbool(closeio), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrLoadWAV_IO, uintptr(unsafe.Pointer(src)), cbool(closeio), scratchIn(frame, 0, spec), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+	scratchOut(frame, 0, spec)
+	putFrame(frame)
+	return ret
 }
 
 // Load the audio data of a WAVE file into memory.
@@ -2555,7 +2580,11 @@ func fnLoadWAV(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32
 	if addrLoadWAV == 0 {
 		missingSymbol("SDL_LoadWAV")
 	}
-	return uint8(call4(addrLoadWAV, uintptr(unsafe.Pointer(path)), uintptr(unsafe.Pointer(spec)), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrLoadWAV, uintptr(unsafe.Pointer(path)), scratchIn(frame, 0, spec), uintptr(unsafe.Pointer(audio_buf)), uintptr(unsafe.Pointer(audio_len)))) != 0
+	scratchOut(frame, 0, spec)
+	putFrame(frame)
+	return ret
 }
 
 // Loads a WAV from a file path.
@@ -2587,7 +2616,9 @@ func fnLoadWAV(path *byte, spec *AudioSpec, audio_buf **uint8, audio_len *uint32
 //
 // The buffer returned through the pointer parameters is SDL-allocated and must be released with Free.
 func LoadWAV(path string, spec *AudioSpec, audio_buf **uint8, audio_len *uint32) bool {
-	return fnLoadWAV(cstr(path), spec, audio_buf, audio_len)
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadWAV(sc.cstr(path), spec, audio_buf, audio_len)
 }
 
 var addrMixAudio uintptr
@@ -2645,7 +2676,10 @@ func fnConvertAudioSamples(src_spec *AudioSpec, src_data *uint8, src_len int32, 
 	if addrConvertAudioSamples == 0 {
 		missingSymbol("SDL_ConvertAudioSamples")
 	}
-	return uint8(call6(addrConvertAudioSamples, uintptr(unsafe.Pointer(src_spec)), uintptr(unsafe.Pointer(src_data)), uintptr(src_len), uintptr(unsafe.Pointer(dst_spec)), uintptr(unsafe.Pointer(dst_data)), uintptr(unsafe.Pointer(dst_len)))) != 0
+	frame := getFrame()
+	ret := uint8(callS6(frame, addrConvertAudioSamples, scratchIn(frame, 0, src_spec), uintptr(unsafe.Pointer(src_data)), uintptr(src_len), scratchIn(frame, 16, dst_spec), uintptr(unsafe.Pointer(dst_data)), uintptr(unsafe.Pointer(dst_len)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Convert some audio data of one format to another format.

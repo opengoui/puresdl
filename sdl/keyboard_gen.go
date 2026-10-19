@@ -423,7 +423,9 @@ func fnGetScancodeFromName(name *byte) Scancode {
 //
 // See also: GetKeyFromName, GetScancodeFromKey, GetScancodeName
 func GetScancodeFromName(name string) Scancode {
-	return fnGetScancodeFromName(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetScancodeFromName(sc.cstr(name))
 }
 
 var addrGetKeyName uintptr
@@ -477,7 +479,9 @@ func fnGetKeyFromName(name *byte) Keycode {
 //
 // See also: GetKeyFromScancode, GetKeyName, GetScancodeFromName
 func GetKeyFromName(name string) Keycode {
-	return fnGetKeyFromName(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetKeyFromName(sc.cstr(name))
 }
 
 var addrStartTextInput uintptr
@@ -658,7 +662,10 @@ func fnSetTextInputArea(window *Window, rect *Rect, cursor int32) bool {
 	if addrSetTextInputArea == 0 {
 		missingSymbol("SDL_SetTextInputArea")
 	}
-	return uint8(call3(addrSetTextInputArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)), uintptr(cursor))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrSetTextInputArea, uintptr(unsafe.Pointer(window)), scratchIn(frame, 0, rect), uintptr(cursor))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Set the area used to type Unicode text input.
@@ -688,7 +695,11 @@ func fnGetTextInputArea(window *Window, rect *Rect, cursor *int32) bool {
 	if addrGetTextInputArea == 0 {
 		missingSymbol("SDL_GetTextInputArea")
 	}
-	return uint8(call3(addrGetTextInputArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(cursor)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrGetTextInputArea, uintptr(unsafe.Pointer(window)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(cursor)))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the area used to type Unicode text input.

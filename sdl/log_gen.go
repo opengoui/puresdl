@@ -210,7 +210,9 @@ func fnSetLogPriorityPrefix(priority LogPriority, prefix *byte) bool {
 //
 // An empty prefix is passed as NULL.
 func SetLogPriorityPrefix(priority LogPriority, prefix string) bool {
-	return fnSetLogPriorityPrefix(priority, cstrNull(prefix))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetLogPriorityPrefix(priority, sc.cstrNull(prefix))
 }
 
 var fnLog func(fmt_ *byte)

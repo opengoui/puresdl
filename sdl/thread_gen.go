@@ -158,7 +158,9 @@ func fnCreateThreadRuntime(fn ThreadFunction, name *byte, data unsafe.Pointer, p
 //
 // Since: SDL 3.2.0.
 func CreateThreadRuntime(fn ThreadFunction, name string, data unsafe.Pointer, pfnBeginThread FunctionPointer, pfnEndThread FunctionPointer) *Thread {
-	return fnCreateThreadRuntime(fn, cstr(name), data, pfnBeginThread, pfnEndThread)
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateThreadRuntime(fn, sc.cstr(name), data, pfnBeginThread, pfnEndThread)
 }
 
 var addrCreateThreadWithPropertiesRuntime uintptr

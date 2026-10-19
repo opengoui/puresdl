@@ -621,7 +621,9 @@ func fnLoadSurface(file *byte) *Surface {
 //
 // See also: DestroySurface, LoadSurface_IO
 func LoadSurface(file string) *Surface {
-	return fnLoadSurface(cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadSurface(sc.cstr(file))
 }
 
 var addrLoadBMP_IO uintptr
@@ -678,7 +680,9 @@ func fnLoadBMP(file *byte) *Surface {
 //
 // See also: DestroySurface, LoadBMP_IO, SaveBMP
 func LoadBMP(file string) *Surface {
-	return fnLoadBMP(cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadBMP(sc.cstr(file))
 }
 
 var addrSaveBMP_IO uintptr
@@ -743,7 +747,9 @@ func fnSaveBMP(surface *Surface, file *byte) bool {
 //
 // See also: LoadBMP, SaveBMP_IO
 func SaveBMP(surface *Surface, file string) bool {
-	return fnSaveBMP(surface, cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSaveBMP(surface, sc.cstr(file))
 }
 
 var addrLoadPNG_IO uintptr
@@ -808,7 +814,9 @@ func fnLoadPNG(file *byte) *Surface {
 //
 // See also: DestroySurface, LoadPNG_IO, SavePNG
 func LoadPNG(file string) *Surface {
-	return fnLoadPNG(cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnLoadPNG(sc.cstr(file))
 }
 
 var addrSavePNG_IO uintptr
@@ -861,7 +869,9 @@ func fnSavePNG(surface *Surface, file *byte) bool {
 //
 // See also: LoadPNG, SavePNG_IO
 func SavePNG(surface *Surface, file string) bool {
-	return fnSavePNG(surface, cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSavePNG(surface, sc.cstr(file))
 }
 
 var addrSetSurfaceRLE uintptr
@@ -1193,7 +1203,10 @@ func fnSetSurfaceClipRect(surface *Surface, rect *Rect) bool {
 	if addrSetSurfaceClipRect == 0 {
 		missingSymbol("SDL_SetSurfaceClipRect")
 	}
-	return uint8(call2(addrSetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrSetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Set the clipping rectangle for a surface.
@@ -1225,7 +1238,11 @@ func fnGetSurfaceClipRect(surface *Surface, rect *Rect) bool {
 	if addrGetSurfaceClipRect == 0 {
 		missingSymbol("SDL_GetSurfaceClipRect")
 	}
-	return uint8(call2(addrGetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetSurfaceClipRect, uintptr(unsafe.Pointer(surface)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the clipping rectangle for a surface.
@@ -1607,7 +1624,10 @@ func fnFillSurfaceRect(dst *Surface, rect *Rect, color uint32) bool {
 	if addrFillSurfaceRect == 0 {
 		missingSymbol("SDL_FillSurfaceRect")
 	}
-	return uint8(call3(addrFillSurfaceRect, uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(rect)), uintptr(color))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrFillSurfaceRect, uintptr(unsafe.Pointer(dst)), scratchIn(frame, 0, rect), uintptr(color))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a fast fill of a rectangle with a specific color.
@@ -1699,7 +1719,10 @@ func fnBlitSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect) boo
 	if addrBlitSurface == 0 {
 		missingSymbol("SDL_BlitSurface")
 	}
-	return uint8(call4(addrBlitSurface, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrBlitSurface, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Performs a fast blit from the source surface to the destination surface
@@ -1774,7 +1797,10 @@ func fnBlitSurfaceUnchecked(src *Surface, srcrect *Rect, dst *Surface, dstrect *
 	if addrBlitSurfaceUnchecked == 0 {
 		missingSymbol("SDL_BlitSurfaceUnchecked")
 	}
-	return uint8(call4(addrBlitSurfaceUnchecked, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrBlitSurfaceUnchecked, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform low-level surface blitting only.
@@ -1805,7 +1831,10 @@ func fnBlitSurfaceScaled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rec
 	if addrBlitSurfaceScaled == 0 {
 		missingSymbol("SDL_BlitSurfaceScaled")
 	}
-	return uint8(call5(addrBlitSurfaceScaled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrBlitSurfaceScaled, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect), uintptr(scaleMode))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a scaled blit to a destination surface, which may be of a different
@@ -1835,7 +1864,10 @@ func fnBlitSurfaceUncheckedScaled(src *Surface, srcrect *Rect, dst *Surface, dst
 	if addrBlitSurfaceUncheckedScaled == 0 {
 		missingSymbol("SDL_BlitSurfaceUncheckedScaled")
 	}
-	return uint8(call5(addrBlitSurfaceUncheckedScaled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrBlitSurfaceUncheckedScaled, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect), uintptr(scaleMode))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform low-level surface scaled blitting only.
@@ -1867,7 +1899,10 @@ func fnStretchSurface(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect, 
 	if addrStretchSurface == 0 {
 		missingSymbol("SDL_StretchSurface")
 	}
-	return uint8(call5(addrStretchSurface, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)), uintptr(scaleMode))) != 0
+	frame := getFrame()
+	ret := uint8(callS5(frame, addrStretchSurface, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect), uintptr(scaleMode))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a stretched pixel copy from one surface to another.
@@ -1896,7 +1931,10 @@ func fnBlitSurfaceTiled(src *Surface, srcrect *Rect, dst *Surface, dstrect *Rect
 	if addrBlitSurfaceTiled == 0 {
 		missingSymbol("SDL_BlitSurfaceTiled")
 	}
-	return uint8(call4(addrBlitSurfaceTiled, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrBlitSurfaceTiled, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a tiled blit to a destination surface, which may be of a different
@@ -1932,8 +1970,11 @@ func fnBlitSurfaceTiledWithScale(src *Surface, srcrect *Rect, scale float32, sca
 	if addrBlitSurfaceTiledWithScale == 0 {
 		missingSymbol("SDL_BlitSurfaceTiledWithScale")
 	}
-	r, _ := callF5(addrBlitSurfaceTiledWithScale, 0b100, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(src)), uintptr(unsafe.Pointer(srcrect)), uintptr(scaleMode), uintptr(unsafe.Pointer(dst)), uintptr(unsafe.Pointer(dstrect)))
-	return uint8(r) != 0
+	frame := getFrame()
+	r, _ := callFS5(frame, addrBlitSurfaceTiledWithScale, 0b100, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(src)), scratchIn(frame, 0, srcrect), uintptr(scaleMode), uintptr(unsafe.Pointer(dst)), scratchIn(frame, 16, dstrect))
+	ret := uint8(r) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a scaled and tiled blit to a destination surface, which may be of a

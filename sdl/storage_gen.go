@@ -104,7 +104,9 @@ func fnOpenUserStorage(org *byte, app *byte, props PropertiesID) *Storage {
 //
 // See also: CloseStorage, GetStorageFileSize, GetStorageSpaceRemaining, OpenTitleStorage, ReadStorageFile, StorageReady, WriteStorageFile
 func OpenUserStorage(org string, app string, props PropertiesID) *Storage {
-	return fnOpenUserStorage(cstr(org), cstr(app), props)
+	var sc cstrScratch
+	defer sc.release()
+	return fnOpenUserStorage(sc.cstr(org), sc.cstr(app), props)
 }
 
 var addrOpenFileStorage uintptr
@@ -133,7 +135,9 @@ func fnOpenFileStorage(path *byte) *Storage {
 //
 // An empty path is passed as NULL.
 func OpenFileStorage(path string) *Storage {
-	return fnOpenFileStorage(cstrNull(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnOpenFileStorage(sc.cstrNull(path))
 }
 
 var addrOpenStorage uintptr
@@ -241,7 +245,9 @@ func fnGetStorageFileSize(storage *Storage, path *byte, length *uint64) bool {
 //
 // See also: ReadStorageFile, StorageReady
 func GetStorageFileSize(storage *Storage, path string, length *uint64) bool {
-	return fnGetStorageFileSize(storage, cstr(path), length)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetStorageFileSize(storage, sc.cstr(path), length)
 }
 
 var addrReadStorageFile uintptr
@@ -274,7 +280,9 @@ func fnReadStorageFile(storage *Storage, path *byte, destination unsafe.Pointer,
 //
 // ReadStorageFileBytes takes a []byte instead of a pointer and length.
 func ReadStorageFile(storage *Storage, path string, destination unsafe.Pointer, length uint64) bool {
-	return fnReadStorageFile(storage, cstr(path), destination, length)
+	var sc cstrScratch
+	defer sc.release()
+	return fnReadStorageFile(storage, sc.cstr(path), destination, length)
 }
 
 // ReadStorageFileBytes is the []byte form of ReadStorageFile: it takes b instead of the destination pointer and derives the length argument from its length.
@@ -338,7 +346,9 @@ func fnWriteStorageFile(storage *Storage, path *byte, source unsafe.Pointer, len
 //
 // WriteStorageFileBytes takes a []byte instead of a pointer and length.
 func WriteStorageFile(storage *Storage, path string, source unsafe.Pointer, length uint64) bool {
-	return fnWriteStorageFile(storage, cstr(path), source, length)
+	var sc cstrScratch
+	defer sc.release()
+	return fnWriteStorageFile(storage, sc.cstr(path), source, length)
 }
 
 // WriteStorageFileBytes is the []byte form of WriteStorageFile: it takes b instead of the source pointer and derives the length argument from its length.
@@ -394,7 +404,9 @@ func fnCreateStorageDirectory(storage *Storage, path *byte) bool {
 //
 // See also: StorageReady
 func CreateStorageDirectory(storage *Storage, path string) bool {
-	return fnCreateStorageDirectory(storage, cstr(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateStorageDirectory(storage, sc.cstr(path))
 }
 
 var addrEnumerateStorageDirectory uintptr
@@ -435,7 +447,9 @@ func fnEnumerateStorageDirectory(storage *Storage, path *byte, callback Enumerat
 //
 // An empty path is passed as NULL.
 func EnumerateStorageDirectory(storage *Storage, path string, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool {
-	return fnEnumerateStorageDirectory(storage, cstrNull(path), callback, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	return fnEnumerateStorageDirectory(storage, sc.cstrNull(path), callback, userdata)
 }
 
 var addrRemoveStoragePath uintptr
@@ -459,7 +473,9 @@ func fnRemoveStoragePath(storage *Storage, path *byte) bool {
 //
 // See also: StorageReady
 func RemoveStoragePath(storage *Storage, path string) bool {
-	return fnRemoveStoragePath(storage, cstr(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnRemoveStoragePath(storage, sc.cstr(path))
 }
 
 var addrRenameStoragePath uintptr
@@ -484,7 +500,9 @@ func fnRenameStoragePath(storage *Storage, oldpath *byte, newpath *byte) bool {
 //
 // See also: StorageReady
 func RenameStoragePath(storage *Storage, oldpath string, newpath string) bool {
-	return fnRenameStoragePath(storage, cstr(oldpath), cstr(newpath))
+	var sc cstrScratch
+	defer sc.release()
+	return fnRenameStoragePath(storage, sc.cstr(oldpath), sc.cstr(newpath))
 }
 
 var addrCopyStorageFile uintptr
@@ -509,7 +527,9 @@ func fnCopyStorageFile(storage *Storage, oldpath *byte, newpath *byte) bool {
 //
 // See also: StorageReady
 func CopyStorageFile(storage *Storage, oldpath string, newpath string) bool {
-	return fnCopyStorageFile(storage, cstr(oldpath), cstr(newpath))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCopyStorageFile(storage, sc.cstr(oldpath), sc.cstr(newpath))
 }
 
 var addrGetStoragePathInfo uintptr
@@ -534,7 +554,9 @@ func fnGetStoragePathInfo(storage *Storage, path *byte, info *PathInfo) bool {
 //
 // See also: StorageReady
 func GetStoragePathInfo(storage *Storage, path string, info *PathInfo) bool {
-	return fnGetStoragePathInfo(storage, cstr(path), info)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetStoragePathInfo(storage, sc.cstr(path), info)
 }
 
 var addrGetStorageSpaceRemaining uintptr
@@ -606,7 +628,9 @@ func fnGlobStorageDirectory(storage *Storage, path *byte, pattern *byte, flags G
 //
 // The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GlobStorageDirectory(storage *Storage, path string, pattern string, flags GlobFlags) []string {
+	var sc cstrScratch
+	defer sc.release()
 	var n int32
-	p := fnGlobStorageDirectory(storage, cstrNull(path), cstrNull(pattern), flags, &n)
+	p := fnGlobStorageDirectory(storage, sc.cstrNull(path), sc.cstrNull(pattern), flags, &n)
 	return copyFreeStrings(p, int(n))
 }

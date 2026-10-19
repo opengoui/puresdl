@@ -284,7 +284,9 @@ func fnSetPointerPropertyWithCleanup(props PropertiesID, name *byte, value unsaf
 //
 // Keep alive: SDL stores the value argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetPointerPropertyWithCleanup(props PropertiesID, name string, value unsafe.Pointer, cleanup CleanupPropertyCallback, userdata unsafe.Pointer) bool {
-	return fnSetPointerPropertyWithCleanup(props, cstr(name), value, cleanup, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetPointerPropertyWithCleanup(props, sc.cstr(name), value, cleanup, userdata)
 }
 
 var addrSetPointerProperty uintptr
@@ -313,7 +315,9 @@ func fnSetPointerProperty(props PropertiesID, name *byte, value unsafe.Pointer) 
 //
 // Keep alive: SDL stores the value argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func SetPointerProperty(props PropertiesID, name string, value unsafe.Pointer) bool {
-	return fnSetPointerProperty(props, cstr(name), value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetPointerProperty(props, sc.cstr(name), value)
 }
 
 var addrSetStringProperty uintptr
@@ -345,7 +349,9 @@ func fnSetStringProperty(props PropertiesID, name *byte, value *byte) bool {
 //
 // A nil value is passed as NULL, which deletes the property; an empty string is passed as an empty C string.
 func SetStringProperty(props PropertiesID, name string, value *string) bool {
-	return fnSetStringProperty(props, cstr(name), cstrPtr(value))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetStringProperty(props, sc.cstr(name), cstrPtr(value))
 }
 
 var addrSetNumberProperty uintptr
@@ -372,7 +378,9 @@ func fnSetNumberProperty(props PropertiesID, name *byte, value int64) bool {
 //
 // See also: GetNumberProperty
 func SetNumberProperty(props PropertiesID, name string, value int64) bool {
-	return fnSetNumberProperty(props, cstr(name), value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetNumberProperty(props, sc.cstr(name), value)
 }
 
 var addrSetFloatProperty uintptr
@@ -404,7 +412,9 @@ func fnSetFloatProperty(props PropertiesID, name *byte, value float32) bool {
 //
 // See also: GetFloatProperty
 func SetFloatProperty(props PropertiesID, name string, value float32) bool {
-	return fnSetFloatProperty(props, cstr(name), value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetFloatProperty(props, sc.cstr(name), value)
 }
 
 var addrSetBooleanProperty uintptr
@@ -431,7 +441,9 @@ func fnSetBooleanProperty(props PropertiesID, name *byte, value bool) bool {
 //
 // See also: GetBooleanProperty
 func SetBooleanProperty(props PropertiesID, name string, value bool) bool {
-	return fnSetBooleanProperty(props, cstr(name), value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetBooleanProperty(props, sc.cstr(name), value)
 }
 
 var addrHasProperty uintptr
@@ -457,7 +469,9 @@ func fnHasProperty(props PropertiesID, name *byte) bool {
 //
 // See also: GetPropertyType
 func HasProperty(props PropertiesID, name string) bool {
-	return fnHasProperty(props, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnHasProperty(props, sc.cstr(name))
 }
 
 var addrGetPropertyType uintptr
@@ -483,7 +497,9 @@ func fnGetPropertyType(props PropertiesID, name *byte) PropertyType {
 //
 // See also: HasProperty
 func GetPropertyType(props PropertiesID, name string) PropertyType {
-	return fnGetPropertyType(props, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetPropertyType(props, sc.cstr(name))
 }
 
 var addrGetPointerProperty uintptr
@@ -515,7 +531,9 @@ func fnGetPointerProperty(props PropertiesID, name *byte, default_value unsafe.P
 //
 // See also: GetBooleanProperty, GetFloatProperty, GetNumberProperty, GetPropertyType, GetStringProperty, HasProperty, SetPointerProperty
 func GetPointerProperty(props PropertiesID, name string, default_value unsafe.Pointer) unsafe.Pointer {
-	return fnGetPointerProperty(props, cstr(name), default_value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetPointerProperty(props, sc.cstr(name), default_value)
 }
 
 var addrGetStringProperty uintptr
@@ -542,7 +560,9 @@ func fnGetStringProperty(props PropertiesID, name *byte, default_value *byte) *b
 //
 // See also: GetPropertyType, HasProperty, SetStringProperty
 func GetStringProperty(props PropertiesID, name string, default_value string) string {
-	return GoString(fnGetStringProperty(props, cstr(name), cstr(default_value)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetStringProperty(props, sc.cstr(name), sc.cstr(default_value)))
 }
 
 var addrGetNumberProperty uintptr
@@ -572,7 +592,9 @@ func fnGetNumberProperty(props PropertiesID, name *byte, default_value int64) in
 //
 // See also: GetPropertyType, HasProperty, SetNumberProperty
 func GetNumberProperty(props PropertiesID, name string, default_value int64) int64 {
-	return fnGetNumberProperty(props, cstr(name), default_value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetNumberProperty(props, sc.cstr(name), default_value)
 }
 
 var addrGetFloatProperty uintptr
@@ -607,7 +629,9 @@ func fnGetFloatProperty(props PropertiesID, name *byte, default_value float32) f
 //
 // See also: GetPropertyType, HasProperty, SetFloatProperty
 func GetFloatProperty(props PropertiesID, name string, default_value float32) float32 {
-	return fnGetFloatProperty(props, cstr(name), default_value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetFloatProperty(props, sc.cstr(name), default_value)
 }
 
 var addrGetBooleanProperty uintptr
@@ -637,7 +661,9 @@ func fnGetBooleanProperty(props PropertiesID, name *byte, default_value bool) bo
 //
 // See also: GetPropertyType, HasProperty, SetBooleanProperty
 func GetBooleanProperty(props PropertiesID, name string, default_value bool) bool {
-	return fnGetBooleanProperty(props, cstr(name), default_value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetBooleanProperty(props, sc.cstr(name), default_value)
 }
 
 var addrClearProperty uintptr
@@ -661,7 +687,9 @@ func fnClearProperty(props PropertiesID, name *byte) bool {
 //
 // Since: SDL 3.2.0.
 func ClearProperty(props PropertiesID, name string) bool {
-	return fnClearProperty(props, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnClearProperty(props, sc.cstr(name))
 }
 
 var addrEnumerateProperties uintptr

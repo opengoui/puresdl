@@ -108,7 +108,9 @@ func fnCreateTray(icon *Surface, tooltip *byte) *Tray {
 //
 // An empty tooltip is passed as NULL.
 func CreateTray(icon *Surface, tooltip string) *Tray {
-	return fnCreateTray(icon, cstrNull(tooltip))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateTray(icon, sc.cstrNull(tooltip))
 }
 
 var addrSetTrayIcon uintptr
@@ -158,7 +160,9 @@ func fnSetTrayTooltip(tray *Tray, tooltip *byte) {
 //
 // An empty tooltip is passed as NULL.
 func SetTrayTooltip(tray *Tray, tooltip string) {
-	fnSetTrayTooltip(tray, cstrNull(tooltip))
+	var sc cstrScratch
+	defer sc.release()
+	fnSetTrayTooltip(tray, sc.cstrNull(tooltip))
 }
 
 var addrCreateTrayMenu uintptr
@@ -401,7 +405,9 @@ func fnSetTrayEntryLabel(entry *TrayEntry, label *byte) {
 //
 // See also: GetTrayEntries, InsertTrayEntryAt, GetTrayEntryLabel
 func SetTrayEntryLabel(entry *TrayEntry, label string) {
-	fnSetTrayEntryLabel(entry, cstr(label))
+	var sc cstrScratch
+	defer sc.release()
+	fnSetTrayEntryLabel(entry, sc.cstr(label))
 }
 
 var addrGetTrayEntryLabel uintptr

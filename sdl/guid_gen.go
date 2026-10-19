@@ -58,5 +58,7 @@ var fnStringToGUID func(pchGUID *byte) guidABI
 //
 // See also: GUIDToString
 func StringToGUID(pchGUID string) GUID {
-	return fnStringToGUID(cstr(pchGUID)).guid()
+	var sc cstrScratch
+	defer sc.release()
+	return fnStringToGUID(sc.cstr(pchGUID)).guid()
 }

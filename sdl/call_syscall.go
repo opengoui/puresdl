@@ -129,3 +129,101 @@ func callF7(fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6 u
 func callF8(fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) (uintptr, uint64) {
 	return noFloatCalls()
 }
+
+// callFrame holds the scratch area of a call that copies parameters (see
+// scratchIn); purego.SyscallN needs nothing else.
+type callFrame struct {
+	scratch [scratchWords]uint64
+}
+
+var frames = sync.Pool{New: func() any { return new(callFrame) }}
+
+// getFrame returns a pooled call frame for a call that copies parameters
+// into its scratch area.
+func getFrame() *callFrame { return frames.Get().(*callFrame) }
+
+// putFrame returns a frame from getFrame to the pool.
+func putFrame(fr *callFrame) { frames.Put(fr) }
+
+// callS0 ... callS8 are call0 ... call8 for a call whose frame holds
+// parameter copies; the frame only has to outlive the call.
+
+func callS0(fr *callFrame, fn uintptr) uintptr { return call0(fn) }
+
+//go:uintptrescapes
+func callS1(fr *callFrame, fn, a0 uintptr) uintptr {
+	return call1(fn, a0)
+}
+
+//go:uintptrescapes
+func callS2(fr *callFrame, fn, a0, a1 uintptr) uintptr {
+	return call2(fn, a0, a1)
+}
+
+//go:uintptrescapes
+func callS3(fr *callFrame, fn, a0, a1, a2 uintptr) uintptr {
+	return call3(fn, a0, a1, a2)
+}
+
+//go:uintptrescapes
+func callS4(fr *callFrame, fn, a0, a1, a2, a3 uintptr) uintptr {
+	return call4(fn, a0, a1, a2, a3)
+}
+
+//go:uintptrescapes
+func callS5(fr *callFrame, fn, a0, a1, a2, a3, a4 uintptr) uintptr {
+	return call5(fn, a0, a1, a2, a3, a4)
+}
+
+//go:uintptrescapes
+func callS6(fr *callFrame, fn, a0, a1, a2, a3, a4, a5 uintptr) uintptr {
+	return call6(fn, a0, a1, a2, a3, a4, a5)
+}
+
+//go:uintptrescapes
+func callS7(fr *callFrame, fn, a0, a1, a2, a3, a4, a5, a6 uintptr) uintptr {
+	return call7(fn, a0, a1, a2, a3, a4, a5, a6)
+}
+
+//go:uintptrescapes
+func callS8(fr *callFrame, fn, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) uintptr {
+	return call8(fn, a0, a1, a2, a3, a4, a5, a6, a7)
+}
+
+// callFS0 ... callFS8 are unreachable, like callF0 ... callF8.
+
+func callFS0(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS1(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS2(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS3(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS4(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS5(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS6(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS7(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}
+
+func callFS8(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) (uintptr, uint64) {
+	return noFloatCalls()
+}

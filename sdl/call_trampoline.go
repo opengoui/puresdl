@@ -26,6 +26,9 @@ type callFrame struct {
 	a  [2 * maxDirectArgs]uintptr
 	r  uintptr
 	fr uint64
+	// scratch holds parameter copies (see scratchIn); the trampoline does
+	// not use it.
+	scratch [scratchWords]uint64
 }
 
 // Fail the build if callFrame drifts from the offsets in the assembly.
@@ -61,13 +64,26 @@ var noFloats floatArgs
 // set when parameter i is floating-point.
 func call(fn uintptr, a *[maxDirectArgs]uintptr, f *floatArgs, fmask uint16) (uintptr, uint64) {
 	fr := frames.Get().(*callFrame)
-	fr.fn = fn
-	fillFrame(fr, a, f, fmask)
-	cgocall(trampolineABI0, unsafe.Pointer(fr))
-	r, rf := fr.r, fr.fr
+	r, rf := callWith(fr, fn, a, f, fmask)
 	frames.Put(fr)
 	return r, rf
 }
+
+// callWith is call with a frame that the caller owns, whose scratch area
+// holds parameter copies.
+func callWith(fr *callFrame, fn uintptr, a *[maxDirectArgs]uintptr, f *floatArgs, fmask uint16) (uintptr, uint64) {
+	fr.fn = fn
+	fillFrame(fr, a, f, fmask)
+	cgocall(trampolineABI0, unsafe.Pointer(fr))
+	return fr.r, fr.fr
+}
+
+// getFrame returns a pooled call frame for a call that copies parameters
+// into its scratch area.
+func getFrame() *callFrame { return frames.Get().(*callFrame) }
+
+// putFrame returns a frame from getFrame to the pool.
+func putFrame(fr *callFrame) { frames.Put(fr) }
 
 func call0(fn uintptr) uintptr {
 	r, _ := call(fn, &[maxDirectArgs]uintptr{}, &noFloats, 0)
@@ -164,4 +180,105 @@ func callF7(fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6 u
 //go:uintptrescapes
 func callF8(fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) (uintptr, uint64) {
 	return call(fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5, a6, a7}, f, fmask)
+}
+
+// callS0 ... callS8 and callFS0 ... callFS8 are call0 ... call8 and
+// callF0 ... callF8 with a frame from getFrame, whose scratch area the
+// generated code has filled.
+
+func callS0(fr *callFrame, fn uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS1(fr *callFrame, fn, a0 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS2(fr *callFrame, fn, a0, a1 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS3(fr *callFrame, fn, a0, a1, a2 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS4(fr *callFrame, fn, a0, a1, a2, a3 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS5(fr *callFrame, fn, a0, a1, a2, a3, a4 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS6(fr *callFrame, fn, a0, a1, a2, a3, a4, a5 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS7(fr *callFrame, fn, a0, a1, a2, a3, a4, a5, a6 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5, a6}, &noFloats, 0)
+	return r
+}
+
+//go:uintptrescapes
+func callS8(fr *callFrame, fn, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) uintptr {
+	r, _ := callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5, a6, a7}, &noFloats, 0)
+	return r
+}
+
+func callFS0(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS1(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS2(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS3(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS4(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS5(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS6(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS7(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5, a6}, f, fmask)
+}
+
+//go:uintptrescapes
+func callFS8(fr *callFrame, fn uintptr, fmask uint16, f *floatArgs, a0, a1, a2, a3, a4, a5, a6, a7 uintptr) (uintptr, uint64) {
+	return callWith(fr, fn, &[maxDirectArgs]uintptr{a0, a1, a2, a3, a4, a5, a6, a7}, f, fmask)
 }

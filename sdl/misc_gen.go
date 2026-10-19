@@ -43,5 +43,7 @@ func fnOpenURL(url *byte) bool {
 //
 // Since: SDL 3.2.0.
 func OpenURL(url string) bool {
-	return fnOpenURL(cstr(url))
+	var sc cstrScratch
+	defer sc.release()
+	return fnOpenURL(sc.cstr(url))
 }

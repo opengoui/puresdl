@@ -239,7 +239,9 @@ func fnIOFromFile(file *byte, mode *byte) *IOStream {
 //
 // See also: CloseIO, FlushIO, ReadIO, SeekIO, TellIO, WriteIO
 func IOFromFile(file string, mode string) *IOStream {
-	return fnIOFromFile(cstr(file), cstr(mode))
+	var sc cstrScratch
+	defer sc.release()
+	return fnIOFromFile(sc.cstr(file), sc.cstr(mode))
 }
 
 var addrIOFromMem uintptr
@@ -873,8 +875,10 @@ func fnLoadFile(file *byte, datasize *uint) unsafe.Pointer {
 //
 // The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func LoadFile(file string) []byte {
+	var sc cstrScratch
+	defer sc.release()
 	var n uint
-	p := fnLoadFile(cstr(file), &n)
+	p := fnLoadFile(sc.cstr(file), &n)
 	return copyFreeBytes(p, int(n))
 }
 
@@ -930,7 +934,9 @@ func fnSaveFile(file *byte, data unsafe.Pointer, datasize uint) bool {
 //
 // See also: SaveFile_IO, LoadFile
 func SaveFile(file string, data unsafe.Pointer, datasize uint) bool {
-	return fnSaveFile(cstr(file), data, datasize)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSaveFile(sc.cstr(file), data, datasize)
 }
 
 var addrReadU8 uintptr

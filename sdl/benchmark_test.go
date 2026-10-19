@@ -126,3 +126,44 @@ func BenchmarkFloatCall(b *testing.B) {
 		}
 	})
 }
+
+// BenchmarkScratchParams measures calls whose single-value pointer
+// parameters are copied into the call frame instead of escaping to the heap.
+func BenchmarkScratchParams(b *testing.B) {
+	runtime.LockOSThread()
+	b.Cleanup(runtime.UnlockOSThread)
+	if !InitSubSystem(INIT_EVENTS) {
+		b.Fatal(GetError())
+	}
+	b.Cleanup(func() { QuitSubSystem(INIT_EVENTS) })
+	surface := CreateSurface(64, 64, PIXELFORMAT_RGBA32)
+	if surface == nil {
+		b.Fatal(GetError())
+	}
+	b.Cleanup(func() { DestroySurface(surface) })
+	renderer := CreateSoftwareRenderer(surface)
+	if renderer == nil {
+		b.Fatal(GetError())
+	}
+	b.Cleanup(func() { DestroyRenderer(renderer) })
+	b.Run("RenderFillRect_literal", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; b.Loop(); i++ {
+			_ = RenderFillRect(renderer, &FRect{X: float32(i & 7), Y: 1, W: 2, H: 2})
+		}
+	})
+	b.Run("GetRenderViewport_local", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			var r Rect
+			_ = GetRenderViewport(renderer, &r)
+		}
+	})
+	b.Run("PollEvent_local", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			var ev Event
+			_ = PollEvent(&ev)
+		}
+	})
+}

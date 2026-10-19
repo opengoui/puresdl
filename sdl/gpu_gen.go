@@ -1863,7 +1863,9 @@ func fnGPUSupportsShaderFormats(format_flags GPUShaderFormat, name *byte) bool {
 //
 // An empty name is passed as NULL.
 func GPUSupportsShaderFormats(format_flags GPUShaderFormat, name string) bool {
-	return fnGPUSupportsShaderFormats(format_flags, cstrNull(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGPUSupportsShaderFormats(format_flags, sc.cstrNull(name))
 }
 
 var addrGPUSupportsProperties uintptr
@@ -1920,7 +1922,9 @@ func fnCreateGPUDevice(format_flags GPUShaderFormat, debug_mode bool, name *byte
 //
 // An empty name is passed as NULL.
 func CreateGPUDevice(format_flags GPUShaderFormat, debug_mode bool, name string) *GPUDevice {
-	return fnCreateGPUDevice(format_flags, debug_mode, cstrNull(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateGPUDevice(format_flags, debug_mode, sc.cstrNull(name))
 }
 
 var addrCreateGPUDeviceWithProperties uintptr
@@ -2632,7 +2636,9 @@ func fnSetGPUBufferName(device *GPUDevice, buffer *GPUBuffer, text *byte) {
 //
 // See also: CreateGPUBuffer
 func SetGPUBufferName(device *GPUDevice, buffer *GPUBuffer, text string) {
-	fnSetGPUBufferName(device, buffer, cstr(text))
+	var sc cstrScratch
+	defer sc.release()
+	fnSetGPUBufferName(device, buffer, sc.cstr(text))
 }
 
 var addrSetGPUTextureName uintptr
@@ -2661,7 +2667,9 @@ func fnSetGPUTextureName(device *GPUDevice, texture *GPUTexture, text *byte) {
 //
 // See also: CreateGPUTexture
 func SetGPUTextureName(device *GPUDevice, texture *GPUTexture, text string) {
-	fnSetGPUTextureName(device, texture, cstr(text))
+	var sc cstrScratch
+	defer sc.release()
+	fnSetGPUTextureName(device, texture, sc.cstr(text))
 }
 
 var addrInsertGPUDebugLabel uintptr
@@ -2689,7 +2697,9 @@ func fnInsertGPUDebugLabel(command_buffer *GPUCommandBuffer, text *byte) {
 //
 // Since: SDL 3.2.0.
 func InsertGPUDebugLabel(command_buffer *GPUCommandBuffer, text string) {
-	fnInsertGPUDebugLabel(command_buffer, cstr(text))
+	var sc cstrScratch
+	defer sc.release()
+	fnInsertGPUDebugLabel(command_buffer, sc.cstr(text))
 }
 
 var addrPushGPUDebugGroup uintptr
@@ -2727,7 +2737,9 @@ func fnPushGPUDebugGroup(command_buffer *GPUCommandBuffer, name *byte) {
 //
 // See also: PopGPUDebugGroup
 func PushGPUDebugGroup(command_buffer *GPUCommandBuffer, name string) {
-	fnPushGPUDebugGroup(command_buffer, cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	fnPushGPUDebugGroup(command_buffer, sc.cstr(name))
 }
 
 var addrPopGPUDebugGroup uintptr
@@ -3102,7 +3114,9 @@ func fnSetGPUViewport(render_pass *GPURenderPass, viewport *GPUViewport) {
 	if addrSetGPUViewport == 0 {
 		missingSymbol("SDL_SetGPUViewport")
 	}
-	call2(addrSetGPUViewport, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(viewport)))
+	frame := getFrame()
+	callS2(frame, addrSetGPUViewport, uintptr(unsafe.Pointer(render_pass)), scratchIn(frame, 0, viewport))
+	putFrame(frame)
 }
 
 // Sets the current viewport state on a command buffer.
@@ -3122,7 +3136,9 @@ func fnSetGPUScissor(render_pass *GPURenderPass, scissor *Rect) {
 	if addrSetGPUScissor == 0 {
 		missingSymbol("SDL_SetGPUScissor")
 	}
-	call2(addrSetGPUScissor, uintptr(unsafe.Pointer(render_pass)), uintptr(unsafe.Pointer(scissor)))
+	frame := getFrame()
+	callS2(frame, addrSetGPUScissor, uintptr(unsafe.Pointer(render_pass)), scratchIn(frame, 0, scissor))
+	putFrame(frame)
 }
 
 // Sets the current scissor state on a command buffer.

@@ -327,7 +327,9 @@ func fnCreateWindowAndRenderer(title *byte, width int32, height int32, window_fl
 //
 // See also: CreateRenderer, CreateWindow
 func CreateWindowAndRenderer(title string, width int32, height int32, window_flags WindowFlags, window **Window, renderer **Renderer) bool {
-	return fnCreateWindowAndRenderer(cstr(title), width, height, window_flags, window, renderer)
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateWindowAndRenderer(sc.cstr(title), width, height, window_flags, window, renderer)
 }
 
 var addrCreateRenderer uintptr
@@ -368,7 +370,9 @@ func fnCreateRenderer(window *Window, name *byte) *Renderer {
 //
 // An empty name is passed as NULL.
 func CreateRenderer(window *Window, name string) *Renderer {
-	return fnCreateRenderer(window, cstrNull(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateRenderer(window, sc.cstrNull(name))
 }
 
 var addrCreateRendererWithProperties uintptr
@@ -1555,7 +1559,10 @@ func fnUpdateTexture(texture *Texture, rect *Rect, pixels unsafe.Pointer, pitch 
 	if addrUpdateTexture == 0 {
 		missingSymbol("SDL_UpdateTexture")
 	}
-	return uint8(call4(addrUpdateTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(pixels)), uintptr(pitch))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrUpdateTexture, uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(pixels)), uintptr(pitch))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Update the given texture rectangle with new pixel data.
@@ -1620,7 +1627,10 @@ func fnUpdateYUVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int3
 	if addrUpdateYUVTexture == 0 {
 		missingSymbol("SDL_UpdateYUVTexture")
 	}
-	return uint8(call8(addrUpdateYUVTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(Uplane)), uintptr(Upitch), uintptr(unsafe.Pointer(Vplane)), uintptr(Vpitch))) != 0
+	frame := getFrame()
+	ret := uint8(callS8(frame, addrUpdateYUVTexture, uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(Uplane)), uintptr(Upitch), uintptr(unsafe.Pointer(Vplane)), uintptr(Vpitch))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Update a rectangle within a planar YV12 or IYUV texture with new pixel
@@ -1693,7 +1703,10 @@ func fnUpdateNVTexture(texture *Texture, rect *Rect, Yplane *uint8, Ypitch int32
 	if addrUpdateNVTexture == 0 {
 		missingSymbol("SDL_UpdateNVTexture")
 	}
-	return uint8(call6(addrUpdateNVTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(UVplane)), uintptr(UVpitch))) != 0
+	frame := getFrame()
+	ret := uint8(callS6(frame, addrUpdateNVTexture, uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(Yplane)), uintptr(Ypitch), uintptr(unsafe.Pointer(UVplane)), uintptr(UVpitch))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Update a rectangle within a planar NV12 or NV21 texture with new pixels.
@@ -1759,7 +1772,10 @@ func fnLockTexture(texture *Texture, rect *Rect, pixels *unsafe.Pointer, pitch *
 	if addrLockTexture == 0 {
 		missingSymbol("SDL_LockTexture")
 	}
-	return uint8(call4(addrLockTexture, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(pixels)), uintptr(unsafe.Pointer(pitch)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrLockTexture, uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(pixels)), uintptr(unsafe.Pointer(pitch)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Lock a portion of the texture for write-only pixel access.
@@ -1795,7 +1811,10 @@ func fnLockTextureToSurface(texture *Texture, rect *Rect, surface **Surface) boo
 	if addrLockTextureToSurface == 0 {
 		missingSymbol("SDL_LockTextureToSurface")
 	}
-	return uint8(call3(addrLockTextureToSurface, uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(rect)), uintptr(unsafe.Pointer(surface)))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrLockTextureToSurface, uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, rect), uintptr(unsafe.Pointer(surface)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Lock a portion of the texture for write-only pixel access, and expose
@@ -2020,7 +2039,11 @@ func fnGetRenderLogicalPresentationRect(renderer *Renderer, rect *FRect) bool {
 	if addrGetRenderLogicalPresentationRect == 0 {
 		missingSymbol("SDL_GetRenderLogicalPresentationRect")
 	}
-	return uint8(call2(addrGetRenderLogicalPresentationRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetRenderLogicalPresentationRect, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the final presentation rectangle for rendering.
@@ -2136,7 +2159,11 @@ func fnConvertEventToRenderCoordinates(renderer *Renderer, event *Event) bool {
 	if addrConvertEventToRenderCoordinates == 0 {
 		missingSymbol("SDL_ConvertEventToRenderCoordinates")
 	}
-	return uint8(call2(addrConvertEventToRenderCoordinates, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(event)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrConvertEventToRenderCoordinates, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, event))) != 0
+	scratchOut(frame, 0, event)
+	putFrame(frame)
+	return ret
 }
 
 // Convert the coordinates in an event to render coordinates.
@@ -2182,7 +2209,10 @@ func fnSetRenderViewport(renderer *Renderer, rect *Rect) bool {
 	if addrSetRenderViewport == 0 {
 		missingSymbol("SDL_SetRenderViewport")
 	}
-	return uint8(call2(addrSetRenderViewport, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrSetRenderViewport, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Set the drawing area for rendering on the current target.
@@ -2217,7 +2247,11 @@ func fnGetRenderViewport(renderer *Renderer, rect *Rect) bool {
 	if addrGetRenderViewport == 0 {
 		missingSymbol("SDL_GetRenderViewport")
 	}
-	return uint8(call2(addrGetRenderViewport, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetRenderViewport, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the drawing area for the current target.
@@ -2277,7 +2311,11 @@ func fnGetRenderSafeArea(renderer *Renderer, rect *Rect) bool {
 	if addrGetRenderSafeArea == 0 {
 		missingSymbol("SDL_GetRenderSafeArea")
 	}
-	return uint8(call2(addrGetRenderSafeArea, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetRenderSafeArea, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the safe area for rendering within the current viewport.
@@ -2308,7 +2346,10 @@ func fnSetRenderClipRect(renderer *Renderer, rect *Rect) bool {
 	if addrSetRenderClipRect == 0 {
 		missingSymbol("SDL_SetRenderClipRect")
 	}
-	return uint8(call2(addrSetRenderClipRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrSetRenderClipRect, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Set the clip rectangle for rendering on the specified target.
@@ -2337,7 +2378,11 @@ func fnGetRenderClipRect(renderer *Renderer, rect *Rect) bool {
 	if addrGetRenderClipRect == 0 {
 		missingSymbol("SDL_GetRenderClipRect")
 	}
-	return uint8(call2(addrGetRenderClipRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetRenderClipRect, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the clip rectangle for the current target.
@@ -2904,7 +2949,10 @@ func fnRenderRect(renderer *Renderer, rect *FRect) bool {
 	if addrRenderRect == 0 {
 		missingSymbol("SDL_RenderRect")
 	}
-	return uint8(call2(addrRenderRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrRenderRect, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Draw a rectangle on the current rendering target at subpixel precision.
@@ -2977,7 +3025,10 @@ func fnRenderFillRect(renderer *Renderer, rect *FRect) bool {
 	if addrRenderFillRect == 0 {
 		missingSymbol("SDL_RenderFillRect")
 	}
-	return uint8(call2(addrRenderFillRect, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrRenderFillRect, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Fill a rectangle on the current rendering target with the drawing color at
@@ -3051,7 +3102,10 @@ func fnRenderTexture(renderer *Renderer, texture *Texture, srcrect *FRect, dstre
 	if addrRenderTexture == 0 {
 		missingSymbol("SDL_RenderTexture")
 	}
-	return uint8(call4(addrRenderTexture, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS4(frame, addrRenderTexture, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, dstrect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Copy a portion of the texture to the current rendering target at subpixel
@@ -3084,8 +3138,11 @@ func fnRenderTextureRotated(renderer *Renderer, texture *Texture, srcrect *FRect
 	if addrRenderTextureRotated == 0 {
 		missingSymbol("SDL_RenderTextureRotated")
 	}
-	r, _ := callF6(addrRenderTextureRotated, 0b10000, &floatArgs{f64(angle)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)), uintptr(unsafe.Pointer(center)), uintptr(flip))
-	return uint8(r) != 0
+	frame := getFrame()
+	r, _ := callFS6(frame, addrRenderTextureRotated, 0b10000, &floatArgs{f64(angle)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, dstrect), scratchIn(frame, 32, center), uintptr(flip))
+	ret := uint8(r) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Copy a portion of the source texture to the current rendering target, with
@@ -3117,7 +3174,10 @@ func fnRenderTextureAffine(renderer *Renderer, texture *Texture, srcrect *FRect,
 	if addrRenderTextureAffine == 0 {
 		missingSymbol("SDL_RenderTextureAffine")
 	}
-	return uint8(call6(addrRenderTextureAffine, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(origin)), uintptr(unsafe.Pointer(right)), uintptr(unsafe.Pointer(down)))) != 0
+	frame := getFrame()
+	ret := uint8(callS6(frame, addrRenderTextureAffine, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, origin), scratchIn(frame, 24, right), scratchIn(frame, 32, down))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Copy a portion of the source texture to the current rendering target, with
@@ -3152,8 +3212,11 @@ func fnRenderTextureTiled(renderer *Renderer, texture *Texture, srcrect *FRect, 
 	if addrRenderTextureTiled == 0 {
 		missingSymbol("SDL_RenderTextureTiled")
 	}
-	r, _ := callF4(addrRenderTextureTiled, 0b1000, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
-	return uint8(r) != 0
+	frame := getFrame()
+	r, _ := callFS4(frame, addrRenderTextureTiled, 0b1000, &floatArgs{f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, dstrect))
+	ret := uint8(r) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Tile a portion of the texture to the current rendering target at subpixel
@@ -3190,8 +3253,11 @@ func fnRenderTexture9Grid(renderer *Renderer, texture *Texture, srcrect *FRect, 
 	if addrRenderTexture9Grid == 0 {
 		missingSymbol("SDL_RenderTexture9Grid")
 	}
-	r, _ := callF4(addrRenderTexture9Grid, 0b11111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
-	return uint8(r) != 0
+	frame := getFrame()
+	r, _ := callFS4(frame, addrRenderTexture9Grid, 0b11111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, dstrect))
+	ret := uint8(r) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a scaled copy using the 9-grid algorithm to the current rendering
@@ -3235,8 +3301,11 @@ func fnRenderTexture9GridTiled(renderer *Renderer, texture *Texture, srcrect *FR
 	if addrRenderTexture9GridTiled == 0 {
 		missingSymbol("SDL_RenderTexture9GridTiled")
 	}
-	r, _ := callF4(addrRenderTexture9GridTiled, 0b1011111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale), f32(tileScale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), uintptr(unsafe.Pointer(srcrect)), uintptr(unsafe.Pointer(dstrect)))
-	return uint8(r) != 0
+	frame := getFrame()
+	r, _ := callFS4(frame, addrRenderTexture9GridTiled, 0b1011111000, &floatArgs{f32(left_width), f32(right_width), f32(top_height), f32(bottom_height), f32(scale), f32(tileScale)}, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(texture)), scratchIn(frame, 0, srcrect), scratchIn(frame, 16, dstrect))
+	ret := uint8(r) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Perform a scaled copy using the 9-grid algorithm to the current rendering
@@ -3423,7 +3492,10 @@ func fnRenderReadPixels(renderer *Renderer, rect *Rect) *Surface {
 	if addrRenderReadPixels == 0 {
 		missingSymbol("SDL_RenderReadPixels")
 	}
-	return (*Surface)(cptr(call2(addrRenderReadPixels, uintptr(unsafe.Pointer(renderer)), uintptr(unsafe.Pointer(rect)))))
+	frame := getFrame()
+	ret := (*Surface)(cptr(callS2(frame, addrRenderReadPixels, uintptr(unsafe.Pointer(renderer)), scratchIn(frame, 0, rect))))
+	putFrame(frame)
+	return ret
 }
 
 // Read pixels from the current rendering target.
@@ -3805,7 +3877,9 @@ func fnRenderDebugText(renderer *Renderer, x float32, y float32, str *byte) bool
 //
 // See also: RenderDebugTextFormat, DEBUG_TEXT_FONT_CHARACTER_SIZE
 func RenderDebugText(renderer *Renderer, x float32, y float32, str string) bool {
-	return fnRenderDebugText(renderer, x, y, cstr(str))
+	var sc cstrScratch
+	defer sc.release()
+	return fnRenderDebugText(renderer, x, y, sc.cstr(str))
 }
 
 var fnRenderDebugTextFormat func(renderer *Renderer, x float32, y float32, fmt_ *byte) bool

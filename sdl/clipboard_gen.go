@@ -87,7 +87,9 @@ func fnSetClipboardText(text *byte) bool {
 //
 // See also: GetClipboardText, HasClipboardText
 func SetClipboardText(text string) bool {
-	return fnSetClipboardText(cstr(text))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetClipboardText(sc.cstr(text))
 }
 
 var addrGetClipboardText uintptr
@@ -165,7 +167,9 @@ func fnSetPrimarySelectionText(text *byte) bool {
 //
 // See also: GetPrimarySelectionText, HasPrimarySelectionText
 func SetPrimarySelectionText(text string) bool {
-	return fnSetPrimarySelectionText(cstr(text))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetPrimarySelectionText(sc.cstr(text))
 }
 
 var addrGetPrimarySelectionText uintptr
@@ -312,8 +316,10 @@ func fnGetClipboardData(mime_type *byte, size *uint) unsafe.Pointer {
 //
 // The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GetClipboardData(mime_type string) []byte {
+	var sc cstrScratch
+	defer sc.release()
 	var n uint
-	p := fnGetClipboardData(cstr(mime_type), &n)
+	p := fnGetClipboardData(sc.cstr(mime_type), &n)
 	return copyFreeBytes(p, int(n))
 }
 
@@ -339,7 +345,9 @@ func fnHasClipboardData(mime_type *byte) bool {
 //
 // See also: SetClipboardData, GetClipboardData
 func HasClipboardData(mime_type string) bool {
-	return fnHasClipboardData(cstr(mime_type))
+	var sc cstrScratch
+	defer sc.release()
+	return fnHasClipboardData(sc.cstr(mime_type))
 }
 
 var addrGetClipboardMimeTypes uintptr

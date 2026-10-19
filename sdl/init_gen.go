@@ -485,7 +485,9 @@ func fnSetAppMetadata(appname *byte, appversion *byte, appidentifier *byte) bool
 //
 // See also: SetAppMetadataProperty
 func SetAppMetadata(appname string, appversion string, appidentifier string) bool {
-	return fnSetAppMetadata(cstr(appname), cstr(appversion), cstr(appidentifier))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetAppMetadata(sc.cstr(appname), sc.cstr(appversion), sc.cstr(appidentifier))
 }
 
 var addrSetAppMetadataProperty uintptr
@@ -560,7 +562,9 @@ func fnSetAppMetadataProperty(name *byte, value *byte) bool {
 //
 // A nil value is passed as NULL, which removes the property; an empty string is passed as an empty C string.
 func SetAppMetadataProperty(name string, value *string) bool {
-	return fnSetAppMetadataProperty(cstr(name), cstrPtr(value))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetAppMetadataProperty(sc.cstr(name), cstrPtr(value))
 }
 
 // SetAppMetadataPropertyValue is SetAppMetadataProperty with the value parameter as a plain string instead of a *string.
@@ -602,7 +606,9 @@ func fnGetAppMetadataProperty(name *byte) *byte {
 //
 // NULL is returned as an empty string; use GetAppMetadataPropertyOK to tell it from an empty value.
 func GetAppMetadataProperty(name string) string {
-	return GoString(fnGetAppMetadataProperty(cstr(name)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetAppMetadataProperty(sc.cstr(name)))
 }
 
 // Get metadata about your app.
@@ -624,7 +630,9 @@ func GetAppMetadataProperty(name string) string {
 //
 // The boolean is false when SDL returned NULL, which is different from an empty value.
 func GetAppMetadataPropertyOK(name string) (string, bool) {
-	p := fnGetAppMetadataProperty(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetAppMetadataProperty(sc.cstr(name))
 	if p == nil {
 		return "", false
 	}

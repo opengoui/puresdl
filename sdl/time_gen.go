@@ -117,7 +117,11 @@ func fnTimeToDateTime(ticks Time, dt *DateTime, localTime bool) bool {
 	if addrTimeToDateTime == 0 {
 		missingSymbol("SDL_TimeToDateTime")
 	}
-	return uint8(call3(addrTimeToDateTime, uintptr(ticks), uintptr(unsafe.Pointer(dt)), cbool(localTime))) != 0
+	frame := getFrame()
+	ret := uint8(callS3(frame, addrTimeToDateTime, uintptr(ticks), scratchIn(frame, 0, dt), cbool(localTime))) != 0
+	scratchOut(frame, 0, dt)
+	putFrame(frame)
+	return ret
 }
 
 // Converts an Time in nanoseconds since the epoch to a calendar time in
@@ -143,7 +147,10 @@ func fnDateTimeToTime(dt *DateTime, ticks *Time) bool {
 	if addrDateTimeToTime == 0 {
 		missingSymbol("SDL_DateTimeToTime")
 	}
-	return uint8(call2(addrDateTimeToTime, uintptr(unsafe.Pointer(dt)), uintptr(unsafe.Pointer(ticks)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrDateTimeToTime, scratchIn(frame, 0, dt), uintptr(unsafe.Pointer(ticks)))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Converts a calendar time to an Time in nanoseconds since the epoch.

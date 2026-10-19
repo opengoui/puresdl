@@ -286,7 +286,9 @@ func fnGetPrefPath(org *byte, app *byte) *byte {
 //
 // See also: GetBasePath
 func GetPrefPath(org string, app string) string {
-	p := fnGetPrefPath(cstr(org), cstr(app))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetPrefPath(sc.cstr(org), sc.cstr(app))
 	if p == nil {
 		return ""
 	}
@@ -357,7 +359,9 @@ func fnCreateDirectory(path *byte) bool {
 //
 // Since: SDL 3.2.0.
 func CreateDirectory(path string) bool {
-	return fnCreateDirectory(cstr(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateDirectory(sc.cstr(path))
 }
 
 var addrEnumerateDirectory uintptr
@@ -392,7 +396,9 @@ func fnEnumerateDirectory(path *byte, callback EnumerateDirectoryCallback, userd
 //
 // Since: SDL 3.2.0.
 func EnumerateDirectory(path string, callback EnumerateDirectoryCallback, userdata unsafe.Pointer) bool {
-	return fnEnumerateDirectory(cstr(path), callback, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	return fnEnumerateDirectory(sc.cstr(path), callback, userdata)
 }
 
 var addrRemovePath uintptr
@@ -418,7 +424,9 @@ func fnRemovePath(path *byte) bool {
 //
 // Since: SDL 3.2.0.
 func RemovePath(path string) bool {
-	return fnRemovePath(cstr(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnRemovePath(sc.cstr(path))
 }
 
 var addrRenamePath uintptr
@@ -453,7 +461,9 @@ func fnRenamePath(oldpath *byte, newpath *byte) bool {
 //
 // Since: SDL 3.2.0.
 func RenamePath(oldpath string, newpath string) bool {
-	return fnRenamePath(cstr(oldpath), cstr(newpath))
+	var sc cstrScratch
+	defer sc.release()
+	return fnRenamePath(sc.cstr(oldpath), sc.cstr(newpath))
 }
 
 var addrCopyFile uintptr
@@ -505,7 +515,9 @@ func fnCopyFile(oldpath *byte, newpath *byte) bool {
 //
 // Since: SDL 3.2.0.
 func CopyFile(oldpath string, newpath string) bool {
-	return fnCopyFile(cstr(oldpath), cstr(newpath))
+	var sc cstrScratch
+	defer sc.release()
+	return fnCopyFile(sc.cstr(oldpath), sc.cstr(newpath))
 }
 
 var addrGetPathInfo uintptr
@@ -533,7 +545,9 @@ func fnGetPathInfo(path *byte, info *PathInfo) bool {
 //
 // Since: SDL 3.2.0.
 func GetPathInfo(path string, info *PathInfo) bool {
-	return fnGetPathInfo(cstr(path), info)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetPathInfo(sc.cstr(path), info)
 }
 
 var addrGlobDirectory uintptr
@@ -577,8 +591,10 @@ func fnGlobDirectory(path *byte, pattern *byte, flags GlobFlags, count *int32) *
 //
 // The SDL allocation is copied into the returned slice and released. A nil result means SDL reported failure (see GetError); a non-nil empty slice means success with no items.
 func GlobDirectory(path string, pattern string, flags GlobFlags) []string {
+	var sc cstrScratch
+	defer sc.release()
 	var n int32
-	p := fnGlobDirectory(cstr(path), cstrNull(pattern), flags, &n)
+	p := fnGlobDirectory(sc.cstr(path), sc.cstrNull(pattern), flags, &n)
 	return copyFreeStrings(p, int(n))
 }
 

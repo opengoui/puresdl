@@ -299,7 +299,9 @@ func fnAddGamepadMapping(mapping *byte) int32 {
 //
 // See also: AddGamepadMappingsFromFile, AddGamepadMappingsFromIO, GetGamepadMapping, GetGamepadMappingForGUID, HINT_GAMECONTROLLERCONFIG, HINT_GAMECONTROLLERCONFIG_FILE, EVENT_GAMEPAD_ADDED
 func AddGamepadMapping(mapping string) int32 {
-	return fnAddGamepadMapping(cstr(mapping))
+	var sc cstrScratch
+	defer sc.release()
+	return fnAddGamepadMapping(sc.cstr(mapping))
 }
 
 var addrAddGamepadMappingsFromIO uintptr
@@ -380,7 +382,9 @@ func fnAddGamepadMappingsFromFile(file *byte) int32 {
 //
 // See also: AddGamepadMapping, AddGamepadMappingsFromIO, GetGamepadMapping, GetGamepadMappingForGUID, HINT_GAMECONTROLLERCONFIG, HINT_GAMECONTROLLERCONFIG_FILE, EVENT_GAMEPAD_ADDED
 func AddGamepadMappingsFromFile(file string) int32 {
-	return fnAddGamepadMappingsFromFile(cstr(file))
+	var sc cstrScratch
+	defer sc.release()
+	return fnAddGamepadMappingsFromFile(sc.cstr(file))
 }
 
 var addrReloadGamepadMappings uintptr
@@ -1548,7 +1552,9 @@ func fnGetGamepadTypeFromString(str *byte) GamepadType {
 //
 // See also: GetGamepadStringForType
 func GetGamepadTypeFromString(str string) GamepadType {
-	return fnGetGamepadTypeFromString(cstr(str))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetGamepadTypeFromString(sc.cstr(str))
 }
 
 var addrGetGamepadStringForType uintptr
@@ -1607,7 +1613,9 @@ func fnGetGamepadAxisFromString(str *byte) GamepadAxis {
 //
 // See also: GetGamepadStringForAxis
 func GetGamepadAxisFromString(str string) GamepadAxis {
-	return fnGetGamepadAxisFromString(cstr(str))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetGamepadAxisFromString(sc.cstr(str))
 }
 
 var addrGetGamepadStringForAxis uintptr
@@ -1729,7 +1737,9 @@ func fnGetGamepadButtonFromString(str *byte) GamepadButton {
 //
 // See also: GetGamepadStringForButton
 func GetGamepadButtonFromString(str string) GamepadButton {
-	return fnGetGamepadButtonFromString(cstr(str))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetGamepadButtonFromString(sc.cstr(str))
 }
 
 var addrGetGamepadStringForButton uintptr

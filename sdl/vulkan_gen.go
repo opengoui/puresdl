@@ -68,7 +68,9 @@ func fnVulkan_LoadLibrary(path *byte) bool {
 //
 // An empty path is passed as NULL.
 func Vulkan_LoadLibrary(path string) bool {
-	return fnVulkan_LoadLibrary(cstrNull(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnVulkan_LoadLibrary(sc.cstrNull(path))
 }
 
 var addrVulkan_GetVkGetInstanceProcAddr uintptr

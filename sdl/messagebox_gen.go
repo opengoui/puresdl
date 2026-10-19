@@ -187,5 +187,7 @@ func fnShowSimpleMessageBox(flags MessageBoxFlags, title *byte, message *byte, w
 //
 // See also: ShowMessageBox
 func ShowSimpleMessageBox(flags MessageBoxFlags, title string, message string, window *Window) bool {
-	return fnShowSimpleMessageBox(flags, cstr(title), cstr(message), window)
+	var sc cstrScratch
+	defer sc.release()
+	return fnShowSimpleMessageBox(flags, sc.cstr(title), sc.cstr(message), window)
 }

@@ -843,7 +843,11 @@ func fnGetDisplayBounds(displayID DisplayID, rect *Rect) bool {
 	if addrGetDisplayBounds == 0 {
 		missingSymbol("SDL_GetDisplayBounds")
 	}
-	return uint8(call2(addrGetDisplayBounds, uintptr(displayID), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetDisplayBounds, uintptr(displayID), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the desktop area represented by a display.
@@ -872,7 +876,11 @@ func fnGetDisplayUsableBounds(displayID DisplayID, rect *Rect) bool {
 	if addrGetDisplayUsableBounds == 0 {
 		missingSymbol("SDL_GetDisplayUsableBounds")
 	}
-	return uint8(call2(addrGetDisplayUsableBounds, uintptr(displayID), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetDisplayUsableBounds, uintptr(displayID), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the usable desktop area represented by a display, in screen
@@ -1139,7 +1147,10 @@ func fnGetDisplayForPoint(point *Point) DisplayID {
 	if addrGetDisplayForPoint == 0 {
 		missingSymbol("SDL_GetDisplayForPoint")
 	}
-	return DisplayID(call1(addrGetDisplayForPoint, uintptr(unsafe.Pointer(point))))
+	frame := getFrame()
+	ret := DisplayID(callS1(frame, addrGetDisplayForPoint, scratchIn(frame, 0, point)))
+	putFrame(frame)
+	return ret
 }
 
 // Get the display containing a point.
@@ -1164,7 +1175,10 @@ func fnGetDisplayForRect(rect *Rect) DisplayID {
 	if addrGetDisplayForRect == 0 {
 		missingSymbol("SDL_GetDisplayForRect")
 	}
-	return DisplayID(call1(addrGetDisplayForRect, uintptr(unsafe.Pointer(rect))))
+	frame := getFrame()
+	ret := DisplayID(callS1(frame, addrGetDisplayForRect, scratchIn(frame, 0, rect)))
+	putFrame(frame)
+	return ret
 }
 
 // Get the display primarily containing a rect.
@@ -1517,7 +1531,9 @@ func fnCreateWindow(title *byte, w int32, h int32, flags WindowFlags) *Window {
 //
 // See also: CreateWindowAndRenderer, CreatePopupWindow, CreateWindowWithProperties, DestroyWindow
 func CreateWindow(title string, w int32, h int32, flags WindowFlags) *Window {
-	return fnCreateWindow(cstr(title), w, h, flags)
+	var sc cstrScratch
+	defer sc.release()
+	return fnCreateWindow(sc.cstr(title), w, h, flags)
 }
 
 var addrCreatePopupWindow uintptr
@@ -2027,7 +2043,9 @@ func fnSetWindowTitle(window *Window, title *byte) bool {
 //
 // See also: GetWindowTitle
 func SetWindowTitle(window *Window, title string) bool {
-	return fnSetWindowTitle(window, cstr(title))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetWindowTitle(window, sc.cstr(title))
 }
 
 var addrGetWindowTitle uintptr
@@ -2255,7 +2273,11 @@ func fnGetWindowSafeArea(window *Window, rect *Rect) bool {
 	if addrGetWindowSafeArea == 0 {
 		missingSymbol("SDL_GetWindowSafeArea")
 	}
-	return uint8(call2(addrGetWindowSafeArea, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrGetWindowSafeArea, uintptr(unsafe.Pointer(window)), scratchIn(frame, 0, rect))) != 0
+	scratchOut(frame, 0, rect)
+	putFrame(frame)
+	return ret
 }
 
 // Get the safe area for this window.
@@ -3323,7 +3345,10 @@ func fnSetWindowMouseRect(window *Window, rect *Rect) bool {
 	if addrSetWindowMouseRect == 0 {
 		missingSymbol("SDL_SetWindowMouseRect")
 	}
-	return uint8(call2(addrSetWindowMouseRect, uintptr(unsafe.Pointer(window)), uintptr(unsafe.Pointer(rect)))) != 0
+	frame := getFrame()
+	ret := uint8(callS2(frame, addrSetWindowMouseRect, uintptr(unsafe.Pointer(window)), scratchIn(frame, 0, rect))) != 0
+	putFrame(frame)
+	return ret
 }
 
 // Confines the cursor to the specified area of a window.
@@ -3926,7 +3951,9 @@ func fnGL_LoadLibrary(path *byte) bool {
 //
 // An empty path is passed as NULL.
 func GL_LoadLibrary(path string) bool {
-	return fnGL_LoadLibrary(cstrNull(path))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGL_LoadLibrary(sc.cstrNull(path))
 }
 
 var addrGL_GetProcAddress uintptr
@@ -3989,7 +4016,9 @@ func fnGL_GetProcAddress(proc *byte) FunctionPointer {
 //
 // See also: GL_ExtensionSupported, GL_LoadLibrary, GL_UnloadLibrary
 func GL_GetProcAddress(proc string) FunctionPointer {
-	return fnGL_GetProcAddress(cstr(proc))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGL_GetProcAddress(sc.cstr(proc))
 }
 
 var addrEGL_GetProcAddress uintptr
@@ -4018,7 +4047,9 @@ func fnEGL_GetProcAddress(proc *byte) FunctionPointer {
 //
 // See also: EGL_GetCurrentDisplay
 func EGL_GetProcAddress(proc string) FunctionPointer {
-	return fnEGL_GetProcAddress(cstr(proc))
+	var sc cstrScratch
+	defer sc.release()
+	return fnEGL_GetProcAddress(sc.cstr(proc))
 }
 
 var addrGL_UnloadLibrary uintptr
@@ -4072,7 +4103,9 @@ func fnGL_ExtensionSupported(extension *byte) bool {
 //
 // Since: SDL 3.2.0.
 func GL_ExtensionSupported(extension string) bool {
-	return fnGL_ExtensionSupported(cstr(extension))
+	var sc cstrScratch
+	defer sc.release()
+	return fnGL_ExtensionSupported(sc.cstr(extension))
 }
 
 var addrGL_ResetAttributes uintptr

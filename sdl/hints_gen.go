@@ -4067,7 +4067,9 @@ func fnSetHintWithPriority(name *byte, value *byte, priority HintPriority) bool 
 //
 // See also: GetHint, ResetHint, SetHint
 func SetHintWithPriority(name string, value string, priority HintPriority) bool {
-	return fnSetHintWithPriority(cstr(name), cstr(value), priority)
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetHintWithPriority(sc.cstr(name), sc.cstr(value), priority)
 }
 
 var addrSetHint uintptr
@@ -4097,7 +4099,9 @@ func fnSetHint(name *byte, value *byte) bool {
 //
 // See also: GetHint, ResetHint, SetHintWithPriority
 func SetHint(name string, value string) bool {
-	return fnSetHint(cstr(name), cstr(value))
+	var sc cstrScratch
+	defer sc.release()
+	return fnSetHint(sc.cstr(name), sc.cstr(value))
 }
 
 var addrResetHint uintptr
@@ -4126,7 +4130,9 @@ func fnResetHint(name *byte) bool {
 //
 // See also: SetHint, ResetHints
 func ResetHint(name string) bool {
-	return fnResetHint(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	return fnResetHint(sc.cstr(name))
 }
 
 var addrResetHints uintptr
@@ -4177,7 +4183,9 @@ func fnGetHint(name *byte) *byte {
 //
 // NULL is returned as an empty string; use GetHintOK to tell it from an empty value.
 func GetHint(name string) string {
-	return GoString(fnGetHint(cstr(name)))
+	var sc cstrScratch
+	defer sc.release()
+	return GoString(fnGetHint(sc.cstr(name)))
 }
 
 // Get the value of a hint.
@@ -4195,7 +4203,9 @@ func GetHint(name string) string {
 //
 // The boolean is false when SDL returned NULL, which is different from an empty value.
 func GetHintOK(name string) (string, bool) {
-	p := fnGetHint(cstr(name))
+	var sc cstrScratch
+	defer sc.release()
+	p := fnGetHint(sc.cstr(name))
 	if p == nil {
 		return "", false
 	}
@@ -4225,7 +4235,9 @@ func fnGetHintBoolean(name *byte, default_value bool) bool {
 //
 // See also: GetHint, SetHint
 func GetHintBoolean(name string, default_value bool) bool {
-	return fnGetHintBoolean(cstr(name), default_value)
+	var sc cstrScratch
+	defer sc.release()
+	return fnGetHintBoolean(sc.cstr(name), default_value)
 }
 
 var addrAddHintCallback uintptr
@@ -4257,7 +4269,9 @@ func fnAddHintCallback(name *byte, callback HintCallback, userdata unsafe.Pointe
 //
 // Keep alive: SDL stores the userdata argument and may use it after this call returns; Go's garbage collector does not see that reference, so keep the Go memory it points to reachable (for example in a package-level variable) for as long as SDL may use it.
 func AddHintCallback(name string, callback HintCallback, userdata unsafe.Pointer) bool {
-	return fnAddHintCallback(cstr(name), callback, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	return fnAddHintCallback(sc.cstr(name), callback, userdata)
 }
 
 var addrRemoveHintCallback uintptr
@@ -4282,5 +4296,7 @@ func fnRemoveHintCallback(name *byte, callback HintCallback, userdata unsafe.Poi
 //
 // See also: AddHintCallback
 func RemoveHintCallback(name string, callback HintCallback, userdata unsafe.Pointer) {
-	fnRemoveHintCallback(cstr(name), callback, userdata)
+	var sc cstrScratch
+	defer sc.release()
+	fnRemoveHintCallback(sc.cstr(name), callback, userdata)
 }

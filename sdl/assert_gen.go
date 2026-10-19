@@ -113,7 +113,9 @@ func fnReportAssertion(data *AssertData, func_ *byte, file *byte, line int32) As
 //
 // Since: SDL 3.2.0.
 func ReportAssertion(data *AssertData, func_ string, file string, line int32) AssertState {
-	return fnReportAssertion(data, cstr(func_), cstr(file), line)
+	var sc cstrScratch
+	defer sc.release()
+	return fnReportAssertion(data, sc.cstr(func_), sc.cstr(file), line)
 }
 
 var addrSetAssertionHandler uintptr

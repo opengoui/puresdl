@@ -24,8 +24,9 @@
 // pointers; opaque handles are pointers to empty structs.
 //
 //   - const char * parameters are Go strings. A string with a trailing NUL is
-//     passed without a temporary copy; cache NUL-terminated names used in a
-//     hot loop to avoid an allocation on each call. Where the documentation says
+//     passed without a temporary copy; a short string without one (such as
+//     the PROP_* and HINT_* constants) is copied into a pooled buffer for the
+//     duration of the call, so neither allocates. Where the documentation says
 //     NULL is allowed and NULL only selects a default, the empty string is
 //     passed as NULL. Where NULL means something different from "" (deleting
 //     a property in [SetStringProperty], [SetAppMetadataProperty],
@@ -72,7 +73,12 @@
 // purego.RegisterFunc. The remaining functions (structs passed by value,
 // C variadic functions, more than eight integer parameters) use
 // purego.RegisterFunc everywhere. Go memory passed by pointer is moved to the
-// heap and kept alive for the duration of the call in every case.
+// heap and kept alive for the duration of the call in every case, except for
+// direct-call parameters that point to a single plain value (FRect, Rect,
+// FPoint, Color, Event, AudioSpec ...): those are copied into a pooled buffer
+// for the call and copied back when SDL may write them, so
+// RenderFillRect(r, &FRect{...}) or PollEvent with a local Event does not
+// allocate.
 //
 // # Generation
 //
